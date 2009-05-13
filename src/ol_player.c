@@ -14,6 +14,7 @@ ol_player_init ()
     ol_player_register_controller (ol_player_banshee_get_controller (), "Banshee");
     ol_player_register_controller (ol_player_exaile_get_controller (), "Exaile");
   }
+  
 }
 
 void

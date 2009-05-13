@@ -9,12 +9,16 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AC_CONFIG_FILES([
 	Makefile
-	src/Makefile])
+	src/Makefile
+	src/tests/Makefile])
 
 # Checks for libraries.
+PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])
+PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])

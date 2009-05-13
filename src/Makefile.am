@@ -1,4 +1,4 @@
-#bin_PROGRAMS = osd-lyrics
+bin_PROGRAMS = osd-lyrics
 
 lib_LIBRARIES = \
 	libol_osd_window.a \
@@ -6,12 +6,24 @@ lib_LIBRARIES = \
 	libol_utils.a \
 	libol_utils_dbus.a
 
-#check_PROGRAMS = ol_osd_window_test ol_player_test
+#ol_player_test
 #TEST = $(check_PROGRAMS)
 
-INCLUDES = `pkg-config --cflags gtk+-2.0 dbus-glib-1`
+INCLUDES = @GTK2_CFLAGS@ @DBUS_GLIB_CFLAGS@
+#AM_CFLAGS = `pkg-config --cflags gtk+-2.0 dbus-glib-1`
 
-#osd_lyrics_SOURCES = 
+osd_lyrics_SOURCES = ol_main.c
+osd_lyrics_DEPENDENCIES = \
+	libol_osd_window.a \
+	libol_utils.a \
+	libol_player.a \
+	libol_utils_dbus.a
+osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
+osd_lyrics_LDADD = libol_osd_window.a \
+	@GTK2_LIBS@
+osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
+
+# Librarys
 
 libol_osd_window_a_SOURCES = ol_osd_window.c ol_osd_window.h
 
@@ -30,3 +42,5 @@ libol_utils_a_SOURCES = \
 libol_utils_dbus_a_SOURCES = \
 	ol_utils_dbus.c \
 	ol_utils_dbus.h
+
+SUBDIRS = tests

@@ -341,9 +341,12 @@ ol_osd_window_map (GtkWidget *widget)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GTK_WIDGET_CLASS (parent_class)->map (widget);
   GTK_WIDGET_SET_FLAGS (widget, GTK_MAPPED);
-  gdk_window_show (widget->window);
-  gdk_window_show (osd->event_window);
-  gdk_window_raise (osd->event_window);
+  if (!priv->locked)
+  {
+    gdk_window_show (widget->window);
+    gdk_window_show (osd->event_window);
+    gdk_window_raise (osd->event_window);
+  }
 }
 
 static void
@@ -482,7 +485,7 @@ ol_osd_window_set_alignment (OlOsdWindow *osd, float xalign, float yalign)
           xalign,
           yalign
           );
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GtkWidget *widget = GTK_WIDGET (osd);
   priv->xalign = xalign;
@@ -498,7 +501,7 @@ ol_osd_window_set_alignment (OlOsdWindow *osd, float xalign, float yalign)
 void
 ol_osd_window_get_alignment (OlOsdWindow *osd, float *xalign, float *yalign)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   if (xalign == NULL && yalign == NULL)
     return;
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
@@ -510,7 +513,7 @@ ol_osd_window_get_alignment (OlOsdWindow *osd, float *xalign, float *yalign)
 
 void ol_osd_window_resize (OlOsdWindow *osd, gint width, gint height)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   if (width > 0)
     widget->allocation.width = width;
@@ -524,7 +527,7 @@ void ol_osd_window_resize (OlOsdWindow *osd, gint width, gint height)
 
 void ol_osd_window_get_size (OlOsdWindow *osd, gint *width, gint *height)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   if (width == NULL && width == NULL)
     return;
   gint w, h;
@@ -546,7 +549,7 @@ void ol_osd_window_get_size (OlOsdWindow *osd, gint *width, gint *height)
 void
 ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (priv->locked == locked)
     return;
@@ -595,7 +598,7 @@ ol_osd_window_compute_alignment (OlOsdWindow *osd,
                               gint x, gint y,
                               gdouble *xalign, gdouble *yalign)
 {
-  if (!osd || !IS_OL_OSD_WINDOW (osd))
+  if (!osd || !OL_IS_OSD_WINDOW (osd))
     return;
   GtkWidget *widget = GTK_WIDGET (osd);
   if (xalign)
@@ -628,7 +631,7 @@ static void
 ol_osd_window_paint_lyrics (OlOsdWindow *osd,
                          cairo_t *cr)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   g_return_if_fail (cr != NULL);
   gint w, h;
   int width, height;
@@ -694,7 +697,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
 void
 ol_osd_window_set_current_percentage (OlOsdWindow *osd, double percentage)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   osd->current_percentage = percentage;
 /*   ol_osd_window_update_pixmap (osd); */
   gtk_widget_queue_draw (GTK_WIDGET (osd));
@@ -703,27 +706,27 @@ ol_osd_window_set_current_percentage (OlOsdWindow *osd, double percentage)
 double
 ol_osd_window_get_current_percentage (OlOsdWindow *osd)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   return osd->current_percentage;
 }
 
 void
 ol_osd_window_set_current_line (OlOsdWindow *osd, gint line)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   osd->current_line = line;
 }
 
 gint ol_osd_window_get_current_line (OlOsdWindow *osd)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   return osd->current_line;
 }
 
 void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   g_return_if_fail (lyric != NULL);
   if (line < 0 || line >= OL_OSD_WINDOW_MAX_LINE_COUNT)
     return;
@@ -738,7 +741,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 void
 ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   if (line < 0 || line >= OL_OSD_WINDOW_MAX_LINE_COUNT)
     return;
   if (alignment < 0.0)
@@ -754,7 +757,7 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
 static void
 ol_osd_window_update_pixmap (OlOsdWindow *osd)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   g_return_if_fail (GTK_WIDGET_REALIZED (widget));
   gint w, h;
@@ -768,7 +771,7 @@ ol_osd_window_update_pixmap (OlOsdWindow *osd)
 static void
 ol_osd_window_update_shape (OlOsdWindow *osd)
 {
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   g_return_if_fail (GTK_WIDGET_REALIZED (widget));
   gint w, h;
@@ -796,7 +799,7 @@ ol_osd_paint (OlOsdWindow *osd, const char* odd_lyric, const char* even_lyric, d
   printf ("paint\n");
   if (osd == NULL)
     return;
-  g_return_if_fail (IS_OL_OSD_WINDOW (osd));
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   if (!GTK_WIDGET_REALIZED (widget))
     gtk_widget_realize (widget);
