@@ -4,7 +4,9 @@ lib_LIBRARIES = \
 	libol_osd_window.a \
 	libol_player.a \
 	libol_utils.a \
-	libol_utils_dbus.a
+	libol_utils_dbus.a \
+	libol_lrc_parser.a \
+	libol_lrc_utility.a
 
 #ol_player_test
 #TEST = $(check_PROGRAMS)
@@ -17,7 +19,9 @@ osd_lyrics_DEPENDENCIES = \
 	libol_osd_window.a \
 	libol_utils.a \
 	libol_player.a \
-	libol_utils_dbus.a
+	libol_utils_dbus.a \
+	libol_lrc_parser.a \
+	libol_lrc_utility.a
 osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = libol_osd_window.a \
 	@GTK2_LIBS@
@@ -42,5 +46,13 @@ libol_utils_a_SOURCES = \
 libol_utils_dbus_a_SOURCES = \
 	ol_utils_dbus.c \
 	ol_utils_dbus.h
+
+libol_lrc_parser_a_SOURCES = \
+	ol_lrc_parser.c \
+	ol_lrc_parser.h
+
+libol_lrc_utility_a_SOURCES = \
+	ol_lrc_utility.c \
+	ol_lrc_utility.h
 
 SUBDIRS = tests
