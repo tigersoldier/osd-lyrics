@@ -137,7 +137,6 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 static gboolean
 ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
-  printf ("expose\n");
   ol_osd_window_update_pixmap (OL_OSD_WINDOW (widget));
   return FALSE;
 }

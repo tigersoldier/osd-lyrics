@@ -14,7 +14,9 @@ lib_LIBRARIES = \
 INCLUDES = @GTK2_CFLAGS@ @DBUS_GLIB_CFLAGS@
 #AM_CFLAGS = `pkg-config --cflags gtk+-2.0 dbus-glib-1`
 
-osd_lyrics_SOURCES = ol_main.c
+osd_lyrics_SOURCES = \
+	ol_main.c
+
 osd_lyrics_DEPENDENCIES = \
 	libol_osd_window.a \
 	libol_utils.a \
@@ -22,9 +24,16 @@ osd_lyrics_DEPENDENCIES = \
 	libol_utils_dbus.a \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a
-osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
-osd_lyrics_LDADD = libol_osd_window.a \
-	@GTK2_LIBS@
+#osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
+osd_lyrics_LDADD = \
+	libol_osd_window.a \
+	libol_utils.a \
+	libol_player.a \
+	libol_utils_dbus.a \
+	libol_lrc_parser.a \
+	libol_lrc_utility.a \
+	@GTK2_LIBS@ \
+	@DBUS_GLIB_LIBS@
 osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
 
 # Librarys
@@ -33,11 +42,14 @@ libol_osd_window_a_SOURCES = ol_osd_window.c ol_osd_window.h
 
 libol_player_a_SOURCES = \
 	ol_player.c \
-	ol_player.h ol \
+	ol_player.h \
 	ol_player_banshee.c \
 	ol_player_banshee.h \
 	ol_player_exaile.c \
 	ol_player_exaile.h
+libol_player_a_LIBADD = \
+	libol_utils.a
+libol_player_a_DEPENDENCIES = libol_utils.a
 
 libol_utils_a_SOURCES = \
 	ol_utils.c \
@@ -54,5 +66,8 @@ libol_lrc_parser_a_SOURCES = \
 libol_lrc_utility_a_SOURCES = \
 	ol_lrc_utility.c \
 	ol_lrc_utility.h
+libol_lrc_utility_a_LIBADD = \
+	libol_lrc_parser.a
+libol_lrc_utility_a_DEPENDENCIES = libol_lrc_parser.a
 
 SUBDIRS = tests

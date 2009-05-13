@@ -37,8 +37,8 @@ static gboolean ol_player_banshee_get_activated ();
 static gboolean
 ol_player_banshee_get_music_info (OlMusicInfo *info)
 {
-  printf ("%s\n",
-          __FUNCTION__);
+/*   printf ("%s\n", */
+/*           __FUNCTION__); */
   if (info == NULL)
     return FALSE;
   GHashTable *data_list = NULL;
@@ -121,8 +121,8 @@ ol_player_banshee_get_played_time (int *played_time)
 static gboolean
 ol_player_banshee_get_activated ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+/*   printf ("%s\n", */
+/*           __FUNCTION__); */
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
