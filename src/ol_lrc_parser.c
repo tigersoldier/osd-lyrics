@@ -37,7 +37,7 @@ int ol_lrc_parser_get_lyric_id(LrcInfo *current_lyric)
 LrcInfo *ol_lrc_parser_get_lyric_by_id(LrcQueue *list,int lyric_id)
 {
   LrcInfo *temp = &list->list[list->first];
-  while(temp->next!=NULL)
+  while(temp!=NULL)
   {
     if(temp->lyric_id==lyric_id)
     {
