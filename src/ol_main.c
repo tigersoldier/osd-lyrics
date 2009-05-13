@@ -44,23 +44,26 @@ update_osd (int time, int duration)
     {
       printf ("lrc_id = %d, lrc_next_id = %d\n", lrc_id, lrc_next_id);
       printf ("current id = %d\n", id);
-      printf ("%0.2lf\n", percentage);
       if (id == -1)
         return;
-      if (current_lrc != NULL)
-        printf ("lyric: %s\n", current_lrc);
+      LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, id);
+/*       printf ("lyric: %s\n", ol_lrc_parser_get_lyric_text (info)); */
+      printf ("%0.2lf\n", percentage);
+      if (ol_lrc_parser_get_lyric_text (info))
+        printf ("asfd\n");
       if (id != lrc_next_id)
       {
         current_line = 0;
-        ol_osd_window_set_lyric (osd, 0, current_lrc);
+        if (ol_lrc_parser_get_lyric_text (info) != NULL)
+          ol_osd_window_set_lyric (osd, current_line, ol_lrc_parser_get_lyric_text (info));
       }
       else
       {
         current_line = 1 - current_line;
       }
       lrc_id = id;
-      LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, id);
       info = ol_lrc_parser_get_next_of_lyric (info);
+      printf ("get next\n");
       if (info != NULL)
       {
         lrc_next_id = ol_lrc_parser_get_lyric_id (info);

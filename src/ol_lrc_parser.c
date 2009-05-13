@@ -74,8 +74,8 @@ void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[]
     list->list[0].lyric_time = lyric_time;
     strcpy(list->list[0].lyric_text, lyric_text);
     list->list[0].lyric_id = lyric_id;
-    list->list[0].prev = (void*)0;
-    list->list[0].next = (void*)0;
+    list->list[0].prev = NULL;
+    list->list[0].next = NULL;
     list->first = 0;
     list->last = 0;
     list->length = 1;
@@ -92,7 +92,7 @@ void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[]
           list->last = list->length;
           lp->next = &list->list[list->length];
           list->list[list->length].prev = lp;
-          list->list[list->length].next = (void*)0;
+          list->list[list->length].next = NULL;
         }
         else
         {
@@ -190,11 +190,13 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
         }
         current_offset++;
         temp_offset = current_offset;
+        /* gets the position of the begin of the lyric*/
+        /* FIXME: consider that there is a [ in the lyric but not ] */
         while((lyric_file[temp_offset] == '[') && isnumeric(lyric_file[temp_offset + 1]))
         {
           while((lyric_file[temp_offset] != ']') && (temp_offset < file_size))
             temp_offset++;
-          temp_offset1++;
+          temp_offset++;
         }
         lyric_text = &lyric_file[temp_offset];
         while((lyric_file[temp_offset] != 0x0d) && (lyric_file[temp_offset] != 0x0a) && (temp_offset < file_size))
