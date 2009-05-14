@@ -643,7 +643,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
   cairo_restore (cr);
   double percentage = osd->current_percentage;
   PangoLayout *layout = pango_cairo_create_layout (cr);
-  PangoFontDescription *font_desc = pango_font_description_from_string ("Sans Bold 40");
+  PangoFontDescription *font_desc = pango_font_description_from_string ("AR PL UKai CN 30");
   pango_layout_set_width (layout, -1);
   pango_layout_set_font_description (layout, font_desc);
   int line;
@@ -660,7 +660,18 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
       cairo_set_source_rgb (cr, 0.6, 1.0, 1.0);
       //cairo_set_source(cr, pat0);
 
+     /*show the path*/
+      cairo_save (cr);
+      pango_cairo_layout_path(cr,layout);
+      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_set_line_width (cr, 1.56);
+      cairo_stroke (cr);
+      cairo_restore (cr);
+      cairo_new_path (cr);
+      
+      cairo_move_to (cr, xpos, ypos);
       pango_cairo_show_layout (cr, layout);
+ 
       if (osd->current_line == line)
       {
         cairo_save (cr);
@@ -675,6 +686,12 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
         cairo_set_source (cr, pat1);
         cairo_move_to (cr, xpos, ypos);
         pango_cairo_show_layout (cr, layout);
+        /*show the path
+        pango_cairo_layout_path(cr,layout);
+        cairo_set_source_rgb (cr, 0, 0, 0);
+        cairo_set_line_width (cr, 1.56);
+        cairo_stroke (cr);*/
+        
         cairo_restore (cr);
       }
       ypos += height;
