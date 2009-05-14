@@ -42,15 +42,9 @@ update_osd (int time, int duration)
     ol_lrc_utility_get_lyric_by_time (lrc_file, time, duration, current_lrc, &percentage, &id);
     if (lrc_id != id)
     {
-      printf ("lrc_id = %d, lrc_next_id = %d\n", lrc_id, lrc_next_id);
-      printf ("current id = %d\n", id);
       if (id == -1)
         return;
       LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, id);
-/*       printf ("lyric: %s\n", ol_lrc_parser_get_lyric_text (info)); */
-      printf ("%0.2lf\n", percentage);
-      if (ol_lrc_parser_get_lyric_text (info))
-        printf ("asfd\n");
       if (id != lrc_next_id)
       {
         current_line = 0;
@@ -63,24 +57,28 @@ update_osd (int time, int duration)
       }
       lrc_id = id;
       info = ol_lrc_parser_get_next_of_lyric (info);
-      printf ("get next\n");
       if (info != NULL)
       {
         lrc_next_id = ol_lrc_parser_get_lyric_id (info);
-        printf ("next id = %d\n", lrc_next_id);
-        printf ("next: %s\n", ol_lrc_parser_get_lyric_text (info));
         ol_osd_window_set_lyric (osd, 1 - current_line,
                                  ol_lrc_parser_get_lyric_text (info));
       }
       else
       {
-        lrc_next_id = 0;
+        lrc_next_id = -1;
+        ol_osd_window_set_lyric (osd, 1 - current_line,
+                                 "");
       }
       ol_osd_window_set_current_line (osd, current_line);
     }
     ol_osd_window_set_current_percentage (osd, percentage);
     if (!GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
       gtk_widget_show (GTK_WIDGET (osd));
+  }
+  else
+  {
+    if (osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
+      gtk_widget_hide (GTK_WIDGET (osd));
   }
 }
 
@@ -144,9 +142,7 @@ void
 ol_init_osd ()
 {
   osd = OL_OSD_WINDOW (ol_osd_window_new ());
-  ol_osd_window_resize (osd, 1024, 200);
-  ol_osd_window_set_lyric (osd, 0, "Hellow");
-  ol_osd_window_set_lyric (osd, 1, "World");
+  ol_osd_window_resize (osd, 1024, 160);
   ol_osd_window_set_alignment (osd, 0.5, 1);
   gtk_widget_show (GTK_WIDGET (osd));
 }
@@ -231,7 +227,7 @@ refresh_music_info (gpointer data)
 
   if (stop)
   {
-    if (osd && GTK_WIDGET_MAPPED (osd)) 
+    if (osd != NULL && GTK_WIDGET_MAPPED (osd)) 
       gtk_widget_hide (GTK_WIDGET (osd));
     return TRUE;
   }

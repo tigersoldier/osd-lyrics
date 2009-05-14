@@ -636,12 +636,12 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
   int width, height;
   gdk_drawable_get_size ( GTK_WIDGET (osd)->window, &w, &h);
   cairo_save (cr);
-  cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0);
+  cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0);
   cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE); // set drawing compositing operator
                                                  // SOURCE -> replace destination
-  double percentage = osd->current_percentage;
   cairo_paint(cr); // paint source
   cairo_restore (cr);
+  double percentage = osd->current_percentage;
   PangoLayout *layout = pango_cairo_create_layout (cr);
   PangoFontDescription *font_desc = pango_font_description_from_string ("Sans Bold 40");
   pango_layout_set_width (layout, -1);
@@ -731,10 +731,33 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
     return;
   if (osd->lyrics[line] != NULL)
     g_free (osd->lyrics[line]);
-  osd->lyrics[line] = g_strdup (lyric);
-  ol_osd_window_update_shape (osd);
-/*   ol_osd_window_update_pixmap (osd); */
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
+  if (lyric != NULL)
+    osd->lyrics[line] = g_strdup (lyric);
+  else
+    osd->lyrics[line] = NULL;
+  /* checks whether all lyrics is empty */
+  gboolean is_empty = TRUE;
+  int i;
+  for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
+  {
+    if (!ol_is_string_empty (osd->lyrics[line]))
+    {
+      is_empty = FALSE;
+      break;
+    }
+  }
+  if (!is_empty)
+  {
+    ol_osd_window_update_shape (osd);
+    /*   ol_osd_window_update_pixmap (osd); */
+    gtk_widget_queue_draw (GTK_WIDGET (osd));
+  }
+  else
+  {
+    /* if all lyrics is empty, we simply hide the window */
+    /* because there will be problems when the shape mask is empty */
+    gtk_widget_hide (GTK_WIDGET (osd));
+  }
 }
 
 void
@@ -749,7 +772,6 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
     alignment = 1.0;
   osd->line_alignment[line] = alignment;
   ol_osd_window_update_shape (osd);
-/*   ol_osd_window_update_pixmap (osd); */
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -786,8 +808,6 @@ ol_osd_window_update_shape (OlOsdWindow *osd)
   cairo_t *cr = gdk_cairo_create (shape_mask);
   ol_osd_window_paint_lyrics (osd, cr);
   cairo_destroy (cr); 
-/*   gdk_draw_rectangle (shape_mask, fg_gc, TRUE, 0, 0, w, h); */
-/*   gdk_draw_layout (shape_mask, fg_gc, 0, 0, layout); */
   gtk_widget_shape_combine_mask (widget, shape_mask, 0, 0);
   g_object_unref (shape_mask);
 }
