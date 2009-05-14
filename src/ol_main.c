@@ -29,6 +29,27 @@ void change_music ();
 gboolean is_file_exist (const char *filename);
 void get_user_home_directory (char *dir);
 void update_osd (int time, int duration);
+void update_next_lyric (LrcInfo *current_lrc);
+
+void
+update_next_lyric (LrcInfo *current_lrc)
+{
+  LrcInfo *info = ol_lrc_parser_get_next_of_lyric (current_lrc);
+  if (lrc_next_id == ol_lrc_parser_get_lyric_id (info))
+    return;
+  if (info != NULL)
+  {
+    lrc_next_id = ol_lrc_parser_get_lyric_id (info);
+    ol_osd_window_set_lyric (osd, 1 - current_line,
+                             ol_lrc_parser_get_lyric_text (info));
+  }
+  else
+  {
+    lrc_next_id = -1;
+    ol_osd_window_set_lyric (osd, 1 - current_line, "");
+  }
+  ol_osd_window_set_percentage (osd, 1 - current_line, 0.0);
+}
 
 void
 update_osd (int time, int duration)
@@ -40,37 +61,28 @@ update_osd (int time, int duration)
     double percentage;
     int id;
     ol_lrc_utility_get_lyric_by_time (lrc_file, time, duration, current_lrc, &percentage, &id);
+    LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, id);
     if (lrc_id != id)
     {
       if (id == -1)
         return;
-      LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, id);
       if (id != lrc_next_id)
       {
         current_line = 0;
         if (ol_lrc_parser_get_lyric_text (info) != NULL)
           ol_osd_window_set_lyric (osd, current_line, ol_lrc_parser_get_lyric_text (info));
+        update_next_lyric (info);
       }
       else
       {
+        ol_osd_window_set_percentage (osd, current_line, 1.0);
         current_line = 1 - current_line;
       }
       lrc_id = id;
-      info = ol_lrc_parser_get_next_of_lyric (info);
-      if (info != NULL)
-      {
-        lrc_next_id = ol_lrc_parser_get_lyric_id (info);
-        ol_osd_window_set_lyric (osd, 1 - current_line,
-                                 ol_lrc_parser_get_lyric_text (info));
-      }
-      else
-      {
-        lrc_next_id = -1;
-        ol_osd_window_set_lyric (osd, 1 - current_line,
-                                 "");
-      }
       ol_osd_window_set_current_line (osd, current_line);
     }
+    if (percentage > 0.5)
+      update_next_lyric (info);
     ol_osd_window_set_current_percentage (osd, percentage);
     if (!GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
       gtk_widget_show (GTK_WIDGET (osd));
@@ -136,6 +148,12 @@ change_music ()
     return;
   }
   lrc_file = ol_lrc_parser_get_lyric_info (file_name);
+  if (osd != NULL)
+  {
+    gtk_widget_hide (GTK_WIDGET (osd));
+    ol_osd_window_set_lyric (osd, 0, NULL);
+    ol_osd_window_set_lyric (osd, 1, NULL);
+  }
 }
 
 void
@@ -144,6 +162,8 @@ ol_init_osd ()
   osd = OL_OSD_WINDOW (ol_osd_window_new ());
   ol_osd_window_resize (osd, 1024, 160);
   ol_osd_window_set_alignment (osd, 0.5, 1);
+  ol_osd_window_set_line_alignment (osd, 0, 0.0);
+  ol_osd_window_set_line_alignment (osd, 1, 1.0);
   gtk_widget_show (GTK_WIDGET (osd));
 }
 

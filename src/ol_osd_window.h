@@ -29,7 +29,7 @@ struct _OlOsdWindow
   gchar *lyrics[OL_OSD_WINDOW_MAX_LINE_COUNT];
   double line_alignment[OL_OSD_WINDOW_MAX_LINE_COUNT];
   guint current_line;           /* which line is playing currently */
-  double current_percentage;
+  double percentage[OL_OSD_WINDOW_MAX_LINE_COUNT];
 };
 
 struct _OlOsdWindowClass
@@ -98,8 +98,14 @@ void ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked);
  */
 gboolean ol_osd_window_get_locked (OlOsdWindow *osd);
 
-/* void ol_osd_paint (OlOsdWindow *widget, const char* odd_lyric, const char* even_lyric, double percentage); */
-
+/** 
+ * @brief Sets the progress of the given lyric line
+ * The color of the left part of the given lyric line will be changed, which makes the lyric KaraOK-like.
+ * @param osd An OlOsdWindow
+ * @param line The line of lyric
+ * @param percentage The width percentage of the left part whose color is changed
+ */
+void ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage);
 /** 
  * @brief Sets the progress of the current lyric line
  * The color of the left part of the current lyric line will be changed, which makes the lyric KaraOK-like.
