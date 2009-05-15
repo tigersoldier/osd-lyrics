@@ -9,9 +9,9 @@
 
 struct lrc_tsu
 {
-	char title[TS_LEN_MAX];
-	char singer[TS_LEN_MAX];
-	char url[URL_LEN_MAX];
+  char title[TS_LEN_MAX];
+  char singer[TS_LEN_MAX];
+  char url[URL_LEN_MAX];
 };
 
 /** 
@@ -26,8 +26,8 @@ typedef struct lrc_tsu *(*Lrc_Search)(const OlMusicInfo *music_info, int *size);
 typedef int (*Lrc_Download)(struct lrc_tsu *tsu, const char *pathname);
 
 struct lrc_interface {
-	Lrc_Search ol_lrc_fetch_search;
-	Lrc_Download ol_lrc_fetch_download;
+  Lrc_Search ol_lrc_fetch_search;
+  Lrc_Download ol_lrc_fetch_download;
 };
 
 extern struct lrc_interface sogou;
