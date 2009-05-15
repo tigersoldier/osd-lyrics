@@ -1,6 +1,7 @@
 #ifndef _LRC_FETCH_H
 #define _LRC_FETCH_H
 #include "ol_utils_lrc_fetch.h"
+#include "ol_player.h"
 
 #define URL_LEN_MAX 255
 #define TS_LEN_MAX 100 /* max length for title and singer */
@@ -17,7 +18,7 @@ struct lrc_tsu
  * @brief fetch the candidate title-singer-url list;
  *        strongly depending on the web page structure.
  */
-typedef struct lrc_tsu *(*Lrc_Search)(const char *title, const char *singer, int *size);
+typedef struct lrc_tsu *(*Lrc_Search)(const OlMusicInfo *music_info, int *size);
 
 /** 
  * @brief download the lrc and store it in the file system
@@ -25,8 +26,8 @@ typedef struct lrc_tsu *(*Lrc_Search)(const char *title, const char *singer, int
 typedef int (*Lrc_Download)(struct lrc_tsu *tsu, const char *pathname);
 
 struct lrc_interface {
-	Lrc_Search lrc_search;
-	Lrc_Download lrc_download;
+	Lrc_Search ol_lrc_fetch_search;
+	Lrc_Download ol_lrc_fetch_download;
 };
 
 extern struct lrc_interface sogou;

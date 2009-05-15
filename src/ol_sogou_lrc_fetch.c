@@ -25,8 +25,9 @@ convert_to_gbk(const char *init, char *target, size_t t_size)
 	return 0;
 }
 
-struct lrc_tsu *
-sogou_lrc_search(const char *title, const char *singer, int *size)
+
+static struct lrc_tsu *
+ol_lrc_fetch_sogou_search(const char *title, const char *singer, int *size)
 {
 	static struct lrc_tsu result[TRY_MATCH_MAX];
 	char page_url[URL_LEN_MAX];
@@ -108,8 +109,14 @@ sogou_lrc_search(const char *title, const char *singer, int *size)
 	return result;
 }
 
+struct lrc_tsu *
+ol_lrc_fetch_sogou_search_wrapper(const OlMusicInfo *music_info, int *size)
+{
+	return (ol_lrc_fetch_sogou_search((char *)music_info->title, (char *)music_info->artist, size));
+}
+
 int 
-sogou_lrc_download(struct lrc_tsu *tsu, const char *pathname)
+ol_lrc_fetch_sogou_download(struct lrc_tsu *tsu, const char *pathname)
 {
 	char *lrc_conv, *pathbuf;
 	FILE *fp;
@@ -150,6 +157,6 @@ sogou_lrc_download(struct lrc_tsu *tsu, const char *pathname)
 }
 
 struct lrc_interface sogou = {
-	sogou_lrc_search,
-	sogou_lrc_download,
+	ol_lrc_fetch_sogou_search_wrapper,
+	ol_lrc_fetch_sogou_download,
 };
