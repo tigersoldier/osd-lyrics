@@ -11,7 +11,7 @@
 
 /* libiconv */
 /* http://www.gnu.org/software/libiconv */
-#include<iconv.h>  
+#include<iconv.h>
 
 /* libcurl */
 /* http://curl.haxx.se/libcurl/c */
@@ -20,11 +20,6 @@
 #include<curl/easy.h>
 
 #include<limits.h>
-
-/** 
- * @brief charset of the user's machine 
- */
-extern const char *charset; 
 
 /** 
  * @brief converts text from one encoding to another using libiconv

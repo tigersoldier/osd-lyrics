@@ -6,12 +6,16 @@ lib_LIBRARIES = \
 	libol_utils.a \
 	libol_utils_dbus.a \
 	libol_lrc_parser.a \
-	libol_lrc_utility.a
+	libol_lrc_utility.a \
+	libol_lrc_fetch.a
 
 #ol_player_test
 #TEST = $(check_PROGRAMS)
 
-INCLUDES = @GTK2_CFLAGS@ @DBUS_GLIB_CFLAGS@
+INCLUDES = \
+	@GTK2_CFLAGS@ \
+	@DBUS_GLIB_CFLAGS@ \
+	@CURL_CFLAGS@
 #AM_CFLAGS = `pkg-config --cflags gtk+-2.0 dbus-glib-1`
 
 osd_lyrics_SOURCES = \
@@ -23,7 +27,8 @@ osd_lyrics_DEPENDENCIES = \
 	libol_player.a \
 	libol_utils_dbus.a \
 	libol_lrc_parser.a \
-	libol_lrc_utility.a
+	libol_lrc_utility.a \
+	libol_lrc_fetch.a
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \
 	libol_osd_window.a \
@@ -32,8 +37,10 @@ osd_lyrics_LDADD = \
 	libol_utils_dbus.a \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a \
+	libol_lrc_fetch.a \
 	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@
+	@DBUS_GLIB_LIBS@ \
+	@CURL_LIBS@
 osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
 
 # Librarys
@@ -69,5 +76,9 @@ libol_lrc_utility_a_SOURCES = \
 libol_lrc_utility_a_LIBADD = \
 	libol_lrc_parser.a
 libol_lrc_utility_a_DEPENDENCIES = libol_lrc_parser.a
+
+libol_lrc_fetch_a_SOURCES = \
+	ol_lrc_fetch_sogou.c \
+	ol_lrc_fetch_utils.c
 
 SUBDIRS = tests

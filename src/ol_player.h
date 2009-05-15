@@ -2,14 +2,7 @@
 #define __OL_PLAYER_H__
 
 #include <glib.h>
-
-typedef struct
-{
-  gchar *title;
-  gchar *artist;
-  gchar *album;
-  gint track_number;
-} OlMusicInfo;
+#include "ol_music_info.h"
 
 typedef struct
 {

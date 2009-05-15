@@ -8,6 +8,7 @@
 #include "ol_lrc_utility.h"
 #include "ol_player.h"
 #include "ol_utils.h"
+#include "ol_lrc_fetch.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -29,8 +30,16 @@ gint refresh_music_info (gpointer data);
 void change_music ();
 gboolean is_file_exist (const char *filename);
 void get_user_home_directory (char *dir);
+/** 
+ * Gets a music's full path filename
+ * 
+ * @param music_info The info of the music
+ * @param pathname the returned full path filename
+ */
+void get_lyric_path_name (OlMusicInfo *music_info, char *pathname);
 void update_osd (int time, int duration);
 void update_next_lyric (LrcInfo *current_lrc);
+gboolean download_lyric (OlMusicInfo *music_info);
 
 /** 
  * @brief Gets the real lyric of the given lyric
@@ -42,6 +51,50 @@ void update_next_lyric (LrcInfo *current_lrc);
  * @return The real lyric of the lrc. returns NULL if not available
  */
 LrcInfo* get_real_lyric (LrcInfo *lrc);
+
+void
+get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
+{
+  if (pathname == NULL)
+    return;
+  char home_dir[MAX_PATH_LEN];
+  if (lrc_file != NULL)
+  {
+    free (lrc_file);
+    lrc_file = NULL;
+  }
+  if (previous_title == NULL)
+    return;
+  get_user_home_directory (home_dir);
+  if (previous_artist == NULL)
+  {
+    sprintf (pathname, "%s/%s/%s.lrc", home_dir, lrc_path, previous_title);
+  }
+  else
+  {
+    sprintf (pathname, "%s/%s/%s-%s.lrc", home_dir, lrc_path, previous_artist, previous_title);
+  }
+  printf ("lrc file name:%s\n", pathname);
+}
+
+gboolean download_lyric (OlMusicInfo *music_info)
+{
+  int lrc_count;
+  struct OlLrcCandidate *candidates = sogou.search (music_info, &lrc_count, "UTF-8");
+  printf ("downloading...\n");
+  if (lrc_count == 0)
+  {
+    printf ("download failed\n");
+    return FALSE;
+  }
+  else
+  {
+    char pathname[MAX_PATH_LEN];
+    get_lyric_path_name (music_info, pathname);
+    sogou.download (&candidates[0], pathname, "UTF-8");
+    printf ("download %s success\n", pathname);
+  }
+}
 
 LrcInfo*
 get_real_lyric (LrcInfo *lrc)
@@ -165,30 +218,14 @@ change_music ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  gchar *file_name = NULL;
   lrc_id = -1;
   lrc_next_id = -1;
   current_line = 0;
-  char home_dir[MAX_PATH_LEN];
-  if (lrc_file != NULL)
-  {
-    free (lrc_file);
-    lrc_file = NULL;
-  }
-  if (previous_title == NULL)
-    return;
-  get_user_home_directory (home_dir);
-  if (previous_artist == NULL)
-  {
-    file_name = g_strdup_printf ("%s/%s/%s.lrc", home_dir, lrc_path, previous_title);
-  }
-  else
-  {
-    file_name = g_strdup_printf ("%s/%s/%s-%s.lrc", home_dir, lrc_path, previous_artist, previous_title);
-  }
-  printf ("lrc file name:%s\n", file_name);
+  gchar file_name[MAX_PATH_LEN];
+  get_lyric_path_name (&music_info, file_name);
   if (!is_file_exist (file_name))
   {
+    if (!download_lyric (&music_info) || !is_file_exist (file_name))
     return;
   }
   lrc_file = ol_lrc_parser_get_lyric_info (file_name);

@@ -19,6 +19,7 @@ AC_CONFIG_FILES([
 # Checks for libraries.
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
+PKG_CHECK_MODULES([CURL], [libcurl])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
