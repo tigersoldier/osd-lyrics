@@ -7,6 +7,7 @@
 #include "ol_lrc_parser.h"
 #include "ol_lrc_utility.h"
 #include "ol_player.h"
+#include "ol_utils.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -31,22 +32,56 @@ void get_user_home_directory (char *dir);
 void update_osd (int time, int duration);
 void update_next_lyric (LrcInfo *current_lrc);
 
+/** 
+ * @brief Gets the real lyric of the given lyric
+ * A REAL lyric is the nearest lyric to the given lyric, whose text is not empty
+ * If the given lyric text is not empty, the given lyric is a real lyric
+ * If not real lyric available, returns NULL
+ * @param lrc An LrcInfo
+ * 
+ * @return The real lyric of the lrc. returns NULL if not available
+ */
+LrcInfo* get_real_lyric (LrcInfo *lrc);
+
+LrcInfo*
+get_real_lyric (LrcInfo *lrc)
+{
+  while (lrc != NULL)
+  {
+    if (!ol_is_string_empty (ol_lrc_parser_get_lyric_text (lrc)))
+      break;
+    lrc = ol_lrc_parser_get_next_of_lyric (lrc);
+  }
+  return lrc;
+}
+
 void
 update_next_lyric (LrcInfo *current_lrc)
 {
   LrcInfo *info = ol_lrc_parser_get_next_of_lyric (current_lrc);
-  if (lrc_next_id == ol_lrc_parser_get_lyric_id (info))
-    return;
-  if (info != NULL)
+  info = get_real_lyric (info);
+  if (info == NULL)
   {
-    lrc_next_id = ol_lrc_parser_get_lyric_id (info);
-    ol_osd_window_set_lyric (osd, 1 - current_line,
-                             ol_lrc_parser_get_lyric_text (info));
+    if (lrc_next_id == -1)
+    {
+      return;
+    }
+    else
+    {
+      lrc_next_id = -1;
+      ol_osd_window_set_lyric (osd, 1 - current_line, "");
+    }
   }
   else
   {
-    lrc_next_id = -1;
-    ol_osd_window_set_lyric (osd, 1 - current_line, "");
+    if (lrc_next_id == ol_lrc_parser_get_lyric_id (info))
+      return;
+    if (info != NULL)
+    {
+      lrc_next_id = ol_lrc_parser_get_lyric_id (info);
+      ol_osd_window_set_lyric (osd, 1 - current_line,
+                               ol_lrc_parser_get_lyric_text (info));
+    }
   }
   ol_osd_window_set_percentage (osd, 1 - current_line, 0.0);
 }
@@ -59,9 +94,14 @@ update_osd (int time, int duration)
   {
     char current_lrc[1024];
     double percentage;
-    int id;
-    ol_lrc_utility_get_lyric_by_time (lrc_file, time, duration, current_lrc, &percentage, &id);
-    LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, id);
+    int id, lyric_id;
+    ol_lrc_utility_get_lyric_by_time (lrc_file, time, duration, current_lrc, &percentage, &lyric_id);
+    LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, lyric_id);
+    info = get_real_lyric (info);
+    if (info == NULL)
+      id = -1;
+    else
+      id = ol_lrc_parser_get_lyric_id (info);
     if (lrc_id != id)
     {
       if (id == -1)
@@ -71,6 +111,8 @@ update_osd (int time, int duration)
         current_line = 0;
         if (ol_lrc_parser_get_lyric_text (info) != NULL)
           ol_osd_window_set_lyric (osd, current_line, ol_lrc_parser_get_lyric_text (info));
+        if (id != lyric_id)
+          ol_osd_window_set_current_percentage (osd, 0.0);
         update_next_lyric (info);
       }
       else
@@ -81,9 +123,10 @@ update_osd (int time, int duration)
       lrc_id = id;
       ol_osd_window_set_current_line (osd, current_line);
     }
-    if (percentage > 0.5)
+    if (id == lyric_id && percentage > 0.5)
       update_next_lyric (info);
-    ol_osd_window_set_current_percentage (osd, percentage);
+    if (id == lyric_id)
+      ol_osd_window_set_current_percentage (osd, percentage);
     if (!GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
       gtk_widget_show (GTK_WIDGET (osd));
   }
@@ -125,6 +168,7 @@ change_music ()
   gchar *file_name = NULL;
   lrc_id = -1;
   lrc_next_id = -1;
+  current_line = 0;
   char home_dir[MAX_PATH_LEN];
   if (lrc_file != NULL)
   {
