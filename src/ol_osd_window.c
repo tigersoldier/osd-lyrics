@@ -13,6 +13,17 @@ enum {
   PROP_LOCKED,
 };
 
+static const OlColor DEFAULT_BG_COLORS[OL_LINEAR_COLOR_COUNT]= {
+  {0.6, 1.0, 1.0},
+  {0.0, 0.0, 1.0},
+  {0.6, 1.0, 1.0},
+};
+static const OlColor DEFAULT_FG_COLORS[OL_LINEAR_COLOR_COUNT]= {
+  {0.4, 0.15, 0.0},
+  {1.0, 1.0, 0.0},
+  {1.0, 0.5, 0.0},
+};
+
 typedef struct __OlOsdWindowPrivate OlOsdWindowPrivate;
 struct __OlOsdWindowPrivate
 {
@@ -461,6 +472,7 @@ ol_osd_window_init (OlOsdWindow *self)
     self->line_alignment[i] = 0.5;
     self->percentage[i] = 0.0;
   }
+  self->render_context = ol_osd_render_context_new ();
 
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (self);
   priv->xalign = priv->yalign = 0.5;
@@ -644,10 +656,10 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
                                                  // SOURCE -> replace destination
   cairo_paint(cr); // paint source
 /*   cairo_restore (cr); */
-  PangoLayout *layout = pango_cairo_create_layout (cr);
-  PangoFontDescription *font_desc = pango_font_description_from_string ("AR PL UKai CN 30");
-  pango_layout_set_width (layout, -1);
-  pango_layout_set_font_description (layout, font_desc);
+/*   PangoLayout *layout = pango_cairo_create_layout (cr); */
+/*   PangoFontDescription *font_desc = pango_font_description_from_string ("AR PL UKai CN 30"); */
+/*   pango_layout_set_width (layout, -1); */
+/*   pango_layout_set_font_description (layout, font_desc); */
   int line;
   gdouble ypos = 0, xpos;
   for (line = 0; line < OL_OSD_WINDOW_MAX_LINE_COUNT; line++)
@@ -656,40 +668,46 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
     /* paint the first lyric */
     if (osd->lyrics[line] != NULL)
     {
-      pango_layout_set_text (layout, osd->lyrics[line], -1);
-      pango_layout_get_pixel_size (layout, &width, &height);
-      
+      ol_osd_render_get_pixel_size (osd->render_context,
+                                    osd->lyrics[line],
+                                    &width,
+                                    &height);
       xpos = (w - width) * osd->line_alignment[line];
-      cairo_pattern_t *pat0 = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height);
-      cairo_pattern_add_color_stop_rgb(pat0, 0,   0.6, 1,1);
-      cairo_pattern_add_color_stop_rgb(pat0, 0.5, 0,   0,1);
-      cairo_pattern_add_color_stop_rgb(pat0, 1,   0.6, 1,1);
-      cairo_set_source (cr, pat0);
-      cairo_move_to (cr, xpos, ypos);
-      //pango_cairo_show_layout (cr, layout);
-
-
-
-
-
-
+      int i;
+      for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+      {
+        ol_osd_render_set_linear_color (osd->render_context,
+                                        i,
+                                        DEFAULT_BG_COLORS[i]);
+      }
+      ol_osd_render_paint_text (osd->render_context,
+                                cr,
+                                osd->lyrics[line],
+                                xpos,
+                                ypos);
       
-      /*xpos = (w - width) * osd->line_alignment[line];
-      cairo_move_to (cr, xpos, ypos);
-      cairo_set_source_rgb (cr, 0.6, 1.0, 1.0);
-      //cairo_set_source(cr, pat0);
-
-      /*show the path*/
-      cairo_save (cr);
-      pango_cairo_layout_path(cr,layout);
-      cairo_set_source_rgb (cr, 0, 0, 0);
-      cairo_set_line_width (cr, 2.56);
-      cairo_stroke (cr);
-      cairo_restore (cr);
-      cairo_new_path (cr);
+/*       pango_layout_set_text (layout, osd->lyrics[line], -1); */
+/*       pango_layout_get_pixel_size (layout, &width, &height); */
       
-      cairo_move_to (cr, xpos, ypos);
-      pango_cairo_show_layout (cr, layout);
+/*       xpos = (w - width) * osd->line_alignment[line]; */
+/*       cairo_pattern_t *pat0 = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height); */
+/*       cairo_pattern_add_color_stop_rgb(pat0, 0,   0.6, 1,1); */
+/*       cairo_pattern_add_color_stop_rgb(pat0, 0.5, 0,   0,1); */
+/*       cairo_pattern_add_color_stop_rgb(pat0, 1,   0.6, 1,1); */
+/*       cairo_set_source (cr, pat0); */
+/*       cairo_move_to (cr, xpos, ypos); */
+
+/*       /\*show the path*\/ */
+/*       cairo_save (cr); */
+/*       pango_cairo_layout_path(cr,layout); */
+/*       cairo_set_source_rgb (cr, 0, 0, 0); */
+/*       cairo_set_line_width (cr, 2.56); */
+/*       cairo_stroke (cr); */
+/*       cairo_restore (cr); */
+/*       cairo_new_path (cr); */
+      
+/*       cairo_move_to (cr, xpos, ypos); */
+/*       pango_cairo_show_layout (cr, layout); */
  
       if (percentage > 0)
       {
@@ -698,21 +716,32 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
         cairo_rectangle (cr, xpos, ypos, (double)width * percentage, height);
         cairo_clip (cr);
 
-        cairo_move_to (cr, xpos, ypos);
-        /*show the path */
-        pango_cairo_layout_path(cr,layout);
-        cairo_set_source_rgb (cr, 0, 0, 0);
-        cairo_set_line_width (cr, 1.56);
-        cairo_stroke (cr);
-        cairo_new_path (cr);
+        for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+        {
+          ol_osd_render_set_linear_color (osd->render_context,
+                                          i,
+                                          DEFAULT_FG_COLORS[i]);
+        }
+        ol_osd_render_paint_text (osd->render_context,
+                                  cr,
+                                  osd->lyrics[line],
+                                  xpos,
+                                  ypos);
+/*         cairo_move_to (cr, xpos, ypos); */
+/*         /\*show the path *\/ */
+/*         pango_cairo_layout_path(cr,layout); */
+/*         cairo_set_source_rgb (cr, 0, 0, 0); */
+/*         cairo_set_line_width (cr, 1.56); */
+/*         cairo_stroke (cr); */
+/*         cairo_new_path (cr); */
 
-        cairo_pattern_t *pat1 = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height);
-        cairo_pattern_add_color_stop_rgb(pat1, 0, 0.4, 0.15, 0);
-        cairo_pattern_add_color_stop_rgb(pat1, 0.5, 1, 1,0);
-        cairo_pattern_add_color_stop_rgb(pat1, 1, 1, 0.5, 0);
-        cairo_set_source (cr, pat1);
-        cairo_move_to (cr, xpos, ypos);
-        pango_cairo_show_layout (cr, layout);
+/*         cairo_pattern_t *pat1 = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height); */
+/*         cairo_pattern_add_color_stop_rgb(pat1, 0, 0.4, 0.15, 0); */
+/*         cairo_pattern_add_color_stop_rgb(pat1, 0.5, 1, 1,0); */
+/*         cairo_pattern_add_color_stop_rgb(pat1, 1, 1, 0.5, 0); */
+/*         cairo_set_source (cr, pat1); */
+/*         cairo_move_to (cr, xpos, ypos); */
+/*         pango_cairo_show_layout (cr, layout); */
         
         cairo_restore (cr);
       }
@@ -728,8 +757,8 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
 /*     cairo_move_to (cr, w - width, height); */
 /*     pango_cairo_show_layout (cr, layout); */
 /*   } */
-  pango_font_description_free (font_desc);
-  g_object_unref (layout);
+/*   pango_font_description_free (font_desc); */
+/*   g_object_unref (layout); */
 }
 
 void

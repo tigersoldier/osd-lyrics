@@ -45,7 +45,10 @@ osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
 
 # Librarys
 
-libol_osd_window_a_SOURCES = ol_osd_window.c ol_osd_window.h
+libol_osd_window_a_SOURCES = \
+	ol_osd_window.c \
+	ol_osd_window.h \
+	ol_osd_render.c
 
 libol_player_a_SOURCES = \
 	ol_player.c \

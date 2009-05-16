@@ -11,6 +11,7 @@
 #define __OSD_WINDOW_H_
 
 #include <gtk/gtk.h>
+#include "ol_osd_render.h"
 
 #define OL_OSD_WINDOW(obj)                  GTK_CHECK_CAST (obj, ol_osd_window_get_type (), OlOsdWindow)
 #define OL_OSD_WINDOW_CLASS(klass)          GTK_CHECK_CLASS_CAST (klass, ol_osd_window_get_type (), OlOsdWindowClass)
@@ -30,6 +31,7 @@ struct _OlOsdWindow
   double line_alignment[OL_OSD_WINDOW_MAX_LINE_COUNT];
   guint current_line;           /* which line is playing currently */
   double percentage[OL_OSD_WINDOW_MAX_LINE_COUNT];
+  OlOsdRenderContext *render_context;
 };
 
 struct _OlOsdWindowClass
