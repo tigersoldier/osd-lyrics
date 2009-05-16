@@ -658,15 +658,31 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
     {
       pango_layout_set_text (layout, osd->lyrics[line], -1);
       pango_layout_get_pixel_size (layout, &width, &height);
+      
       xpos = (w - width) * osd->line_alignment[line];
+      cairo_pattern_t *pat0 = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height);
+      cairo_pattern_add_color_stop_rgb(pat0, 0,   0.6, 1,1);
+      cairo_pattern_add_color_stop_rgb(pat0, 0.5, 0,   0,1);
+      cairo_pattern_add_color_stop_rgb(pat0, 1,   0.6, 1,1);
+      cairo_set_source (cr, pat0);
+      cairo_move_to (cr, xpos, ypos);
+      //pango_cairo_show_layout (cr, layout);
+
+
+
+
+
+
+      
+      /*xpos = (w - width) * osd->line_alignment[line];
       cairo_move_to (cr, xpos, ypos);
       cairo_set_source_rgb (cr, 0.6, 1.0, 1.0);
       //cairo_set_source(cr, pat0);
 
-     /*show the path*/
+      /*show the path*/
       cairo_save (cr);
       pango_cairo_layout_path(cr,layout);
-      cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
+      cairo_set_source_rgb (cr, 0, 0, 0);
       cairo_set_line_width (cr, 2.56);
       cairo_stroke (cr);
       cairo_restore (cr);
@@ -690,10 +706,10 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd,
         cairo_stroke (cr);
         cairo_new_path (cr);
 
-        cairo_pattern_t *pat1 = cairo_pattern_create_linear (xpos, 0.0, xpos + (double)w * percentage, 0.0);
-        cairo_pattern_add_color_stop_rgb(pat1, 0, 0, 0, 0);
-        cairo_pattern_add_color_stop_rgb(pat1, 0.5, 1, 1, 0);
-        cairo_pattern_add_color_stop_rgb(pat1, 1, 0, 0, 0);
+        cairo_pattern_t *pat1 = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height);
+        cairo_pattern_add_color_stop_rgb(pat1, 0, 0.4, 0.15, 0);
+        cairo_pattern_add_color_stop_rgb(pat1, 0.5, 1, 1,0);
+        cairo_pattern_add_color_stop_rgb(pat1, 1, 1, 0.5, 0);
         cairo_set_source (cr, pat1);
         cairo_move_to (cr, xpos, ypos);
         pango_cairo_show_layout (cr, layout);
