@@ -179,7 +179,9 @@ update_osd (int time, int duration)
     if (id == lyric_id && percentage > 0.5)
       update_next_lyric (info);
     if (id == lyric_id)
+    {
       ol_osd_window_set_current_percentage (osd, percentage);
+    }
     if (!GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
       gtk_widget_show (GTK_WIDGET (osd));
   }
@@ -241,7 +243,7 @@ void
 ol_init_osd ()
 {
   osd = OL_OSD_WINDOW (ol_osd_window_new ());
-  ol_osd_window_resize (osd, 1024, 160);
+  ol_osd_window_resize (osd, 1024, 100);
   ol_osd_window_set_alignment (osd, 0.5, 1);
   ol_osd_window_set_line_alignment (osd, 0, 0.0);
   ol_osd_window_set_line_alignment (osd, 1, 1.0);

@@ -2,6 +2,7 @@
 #include "ol_player.h"
 #include "ol_player_banshee.h"
 #include "ol_player_exaile.h"
+#include "ol_player_amarok1.h"
 
 static GArray *controllers = NULL;
 
@@ -11,6 +12,7 @@ ol_player_init ()
   if (controllers == NULL)
   {
     controllers = g_array_new (FALSE, TRUE, sizeof (OlPlayerController*));
+    ol_player_register_controller (ol_player_amarok1_get_controller (), "AmarOK 1.4");
     ol_player_register_controller (ol_player_banshee_get_controller (), "Banshee");
     ol_player_register_controller (ol_player_exaile_get_controller (), "Exaile");
   }
@@ -41,7 +43,7 @@ ol_player_get_active_player ()
   for (i = 0; i < controllers->len; i++)
   {
     OlPlayerController *controller = g_array_index (controllers, OlPlayerController*, i);
-    printf ("asdf %d\n", i);
+    printf ("trying player %d\n", i);
     if (controller && controller->get_activated ())
     {
       return controller;

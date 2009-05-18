@@ -8,7 +8,8 @@ lib_LIBRARIES = \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a \
 	libol_lrc_fetch.a \
-	libol_osd_trayicon.a
+	libol_osd_trayicon.a \
+	libol_utils_dcop.a
 
 #ol_player_test
 #TEST = $(check_PROGRAMS)
@@ -30,7 +31,8 @@ osd_lyrics_DEPENDENCIES = \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a \
 	libol_lrc_fetch.a \
-	libol_osd_trayicon.a
+	libol_osd_trayicon.a \
+	libol_utils_dcop.a
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \
 	libol_osd_window.a \
@@ -41,6 +43,7 @@ osd_lyrics_LDADD = \
 	libol_lrc_utility.a \
 	libol_lrc_fetch.a \
 	libol_osd_trayicon.a \
+	libol_utils_dcop.a \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
 	@CURL_LIBS@
@@ -55,14 +58,15 @@ libol_osd_window_a_SOURCES = \
 
 libol_player_a_SOURCES = \
 	ol_player.c \
-	ol_player.h \
 	ol_player_banshee.c \
-	ol_player_banshee.h \
 	ol_player_exaile.c \
-	ol_player_exaile.h
+	ol_player_amarok1.c
 libol_player_a_LIBADD = \
-	libol_utils.a
-libol_player_a_DEPENDENCIES = libol_utils.a
+	libol_utils.a \
+	libol_utils_dcop.a
+libol_player_a_DEPENDENCIES = \
+	libol_utils.a \
+	libol_utils_dcop.a
 
 libol_utils_a_SOURCES = \
 	ol_utils.c \
@@ -71,6 +75,10 @@ libol_utils_a_SOURCES = \
 libol_utils_dbus_a_SOURCES = \
 	ol_utils_dbus.c \
 	ol_utils_dbus.h
+
+libol_utils_dcop_a_SOURCES = \
+	ol_utils_dcop.c \
+	ol_utils_dcop.h
 
 libol_lrc_parser_a_SOURCES = \
 	ol_lrc_parser.c \

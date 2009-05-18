@@ -22,6 +22,7 @@ ol_player_test_LDADD = \
 	$(top_srcdir)/src/libol_player.a \
 	$(top_srcdir)/src/libol_utils.a \
 	$(top_srcdir)/src/libol_utils_dbus.a \
+	$(top_srcdir)/src/libol_utils_dcop.a \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@
 ol_player_test_DEPENDENCIES = \
