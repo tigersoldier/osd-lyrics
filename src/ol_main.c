@@ -225,18 +225,18 @@ change_music ()
   current_line = 0;
   gchar file_name[MAX_PATH_LEN];
   get_lyric_path_name (&music_info, file_name);
+  if (osd != NULL)
+  {
+    /* gtk_widget_hide (GTK_WIDGET (osd)); */
+    ol_osd_window_set_lyric (osd, 0, NULL);
+    ol_osd_window_set_lyric (osd, 1, NULL);
+  }
   if (!is_file_exist (file_name))
   {
     if (!download_lyric (&music_info) || !is_file_exist (file_name))
     return;
   }
   lrc_file = ol_lrc_parser_get_lyric_info (file_name);
-  if (osd != NULL)
-  {
-    gtk_widget_hide (GTK_WIDGET (osd));
-    ol_osd_window_set_lyric (osd, 0, NULL);
-    ol_osd_window_set_lyric (osd, 1, NULL);
-  }
 }
 
 void
