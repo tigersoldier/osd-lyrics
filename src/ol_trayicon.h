@@ -1,5 +1,5 @@
-#ifndef __OL_OSD_TRAYICON_H__
-#define __OL_OSD_TRAYICON_H__
+#ifndef __OL_TRAYICON_H__
+#define __OL_TRAYICON_H__
 
 #include "ol_osd_window.h"
 /** 
@@ -7,5 +7,5 @@
  * 
  * @param osd  An OlOsdWindow
  */
-void ol_osd_trayicon_inital(OlOsdWindow *osd);
+void ol_trayicon_inital(OlOsdWindow *osd);
 #endif

@@ -158,7 +158,7 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
             offset_time *= 10;
             offset_time += lyric_file[current_offset++] - '0';
           }
-          offset_time = offset_time / 10 * flag;
+          offset_time = offset_time * flag;
         }
       if(isnumeric(lyric_file[current_offset]))
       {

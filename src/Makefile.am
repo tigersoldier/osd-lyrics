@@ -8,7 +8,7 @@ lib_LIBRARIES = \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a \
 	libol_lrc_fetch.a \
-	libol_osd_trayicon.a \
+	libol_trayicon.a \
 	libol_utils_dcop.a
 
 #ol_player_test
@@ -18,7 +18,9 @@ INCLUDES = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@CURL_CFLAGS@
-#AM_CFLAGS = `pkg-config --cflags gtk+-2.0 dbus-glib-1`
+AM_CPPFLAGS = \
+	-DDATADIR='"$(datadir)"' \
+	-DICONDIR='"$(OL_ICONDIR)"'
 
 osd_lyrics_SOURCES = \
 	ol_main.c
@@ -31,7 +33,7 @@ osd_lyrics_DEPENDENCIES = \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a \
 	libol_lrc_fetch.a \
-	libol_osd_trayicon.a \
+	libol_trayicon.a \
 	libol_utils_dcop.a
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \
@@ -42,7 +44,7 @@ osd_lyrics_LDADD = \
 	libol_lrc_parser.a \
 	libol_lrc_utility.a \
 	libol_lrc_fetch.a \
-	libol_osd_trayicon.a \
+	libol_trayicon.a \
 	libol_utils_dcop.a \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -91,12 +93,12 @@ libol_lrc_utility_a_LIBADD = \
 	libol_lrc_parser.a
 libol_lrc_utility_a_DEPENDENCIES = libol_lrc_parser.a
 
-libol_osd_trayicon_a_SOURCES = \
-	ol_osd_trayicon.c \
-	ol_osd_trayicon.h
-libol_osd_trayicon_a_LIBADD = \
-	libol_osd_trayicon.a
-libol_osd_trayicon_a_DEPENDENCIES = libol_osd_window.a
+libol_trayicon_a_SOURCES = \
+	ol_trayicon.c \
+	ol_trayicon.h
+libol_trayicon_a_LIBADD = \
+	libol_trayicon.a
+libol_trayicon_a_DEPENDENCIES = libol_osd_window.a
 
 libol_lrc_fetch_a_SOURCES = \
 	ol_lrc_fetch_sogou.c \

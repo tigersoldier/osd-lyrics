@@ -21,6 +21,7 @@ ol_osd_render_context_new ()
   context->linear_pos[2] = 1.0;
   context->pango_context = gdk_pango_context_get ();
   context->pango_layout = pango_layout_new (context->pango_context);
+  context->text = NULL;
   gchar *font_string = g_strdup_printf ("%s %0.0lf", context->font_family, context->font_size);
   PangoFontDescription *font_desc = pango_font_description_from_string (font_string);
   printf ("%s\n", font_string);
@@ -39,6 +40,8 @@ ol_osd_render_context_free (OlOsdRenderContext *context)
     g_object_unref (context->pango_layout);
   if (context->pango_context != NULL)
     g_object_unref (context->pango_context);
+  if (context->text != NULL)
+    g_free (context->text);
   g_free (context);
 }
 
@@ -52,7 +55,7 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   g_return_if_fail (context != NULL);
   g_return_if_fail (cr != NULL);
   g_return_if_fail (text != NULL);
-  pango_layout_set_text (context->pango_layout, text, -1);
+  ol_osd_render_set_text (context, text);
   int width, height;
   pango_layout_get_pixel_size (context->pango_layout, &width, &height);
   /* draws the outline of the text */
@@ -91,7 +94,7 @@ ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
   g_return_if_fail (context != NULL);
   g_return_if_fail (text != NULL);
   g_return_if_fail (width != NULL || height != NULL);
-  pango_layout_set_text (context->pango_layout, text, -1);
+  ol_osd_render_set_text (context, text);
   int w, h;
   pango_layout_get_pixel_size (context->pango_layout, &w, &h);
   if (width != NULL)
@@ -108,4 +111,20 @@ ol_osd_render_set_linear_color (OlOsdRenderContext *context,
   g_return_if_fail (context != NULL);
   g_return_if_fail (index >= 0 && index < OL_LINEAR_COLOR_COUNT);
   context->linear_colors[index] = color;
+}
+
+void
+ol_osd_render_set_text (OlOsdRenderContext* context,
+                        const char *text)
+{
+  if (text == NULL)
+    return;
+  if (context->text != NULL)
+  {
+    if (strcmp (context->text, text) == 0)
+      return;
+    g_free (context->text);
+  }
+  context->text = g_strdup (text);
+  pango_layout_set_text (context->pango_layout, text, -1);
 }

@@ -9,7 +9,7 @@
 #include "ol_player.h"
 #include "ol_utils.h"
 #include "ol_lrc_fetch.h"
-#include "ol_osd_trayicon.h"
+#include "ol_trayicon.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -348,7 +348,7 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
   ol_player_init ();
   ol_init_osd ();
-  ol_osd_trayicon_inital (osd);
+  ol_trayicon_inital (osd);
   ol_get_string_from_hash_table (NULL, NULL);
   g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
   gtk_main ();

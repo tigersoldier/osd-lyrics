@@ -23,6 +23,7 @@ typedef struct
   double outline_width;
   PangoContext *pango_context;
   PangoLayout *pango_layout;
+  char *text;
 } OlOsdRenderContext;
 
 /** 
@@ -92,5 +93,12 @@ void ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
                                    const char *text,
                                    int *width,
                                    int *height);
-
+/** 
+ * @brief Sets text to the context
+ * 
+ * @param context An OlOsdRenderContext
+ * @param text Text to be set
+ */
+void ol_osd_render_set_text (OlOsdRenderContext* context,
+                             const char *text);
 #endif /* __OL_OSD_RENDER_H__ */

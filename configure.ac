@@ -14,7 +14,42 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
-	src/tests/Makefile])
+	src/tests/Makefile
+	data/Makefile
+])
+
+#define paths
+OL_ICONDIR="$datadir/osd-lyrics/icons"
+AC_SUBST(OL_ICONDIR)
+
+# gprof support
+AC_ARG_WITH(gprof-support,
+[  --with-gprof-support=DIR   Include gmon.out file renaming support 
+  --without-gprof-support    Don't do gmon.out file renaming (default)],
+[ case "$withval" in
+  yes)
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([WITH_GPROF_SUPPORT], [], [Support gprof profiling])
+    CFLAGS="-pg $CFLAGS"
+    LDFLAGS="-pg $LDFLAGS"
+    AC_MSG_WARN(--with-gprof-support called without argument - using default)
+    gmondir="/tmp"
+    AC_SUBST(gmondir)
+    ;;
+  no)
+    AC_MSG_RESULT(no)
+    ;;
+  *)
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([WITH_GPROF_SUPPORT], [], [Support gprof profiling])
+    CFLAGS="-pg $CFLAGS"
+    LDFLAGS="-pg $LDFLAGS"
+    gmondir="$withval"
+    AC_SUBST(gmondir)
+    ;;
+  esac 
+],
+AC_MSG_RESULT(no))
 
 # Checks for libraries.
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])

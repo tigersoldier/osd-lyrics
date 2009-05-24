@@ -53,3 +53,6 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Support gprof profiling */
+#undef WITH_GPROF_SUPPORT
