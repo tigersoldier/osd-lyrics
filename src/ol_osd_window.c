@@ -49,13 +49,20 @@ struct OsdLrc
 GType ol_osd_window_get_type (void);
 static void ol_osd_window_init (OlOsdWindow *self);
 static void ol_osd_window_class_init (OlOsdWindowClass *klass);
+/** 
+ * @brief Destroys an OSD Window
+ * 
+ * @param widget The OSD Window to destroy
+ */
+static void ol_osd_window_destroy (GtkObject *object);
 static void ol_osd_window_set_property (GObject *object, guint prop_id,
                                      const GValue *value, GParamSpec *pspec);
 static void ol_osd_window_get_property (GObject *object, guint prop_id,
                                      GValue *value, GParamSpec *pspec);
 static void ol_osd_window_realize (GtkWidget *widget);
-static void ol_osd_window_map (GtkWidget *widget);
 static void ol_osd_window_unrealize (GtkWidget *widget);
+static void ol_osd_window_map (GtkWidget *widget);
+static void ol_osd_window_unmap (GtkWidget *widget);
 static void ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 static void ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static void ol_osd_window_show (GtkWidget *widget);
@@ -81,6 +88,7 @@ static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr, int line)
 static void ol_osd_window_update_pixmap (OlOsdWindow *osd);
 static void ol_osd_window_update_shape (OlOsdWindow *osd, int line);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
+static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 
 static GtkWidgetClass *parent_class = NULL;
 
@@ -291,12 +299,7 @@ ol_osd_window_realize (GtkWidget *widget)
   gdk_window_set_decorations (osd->event_window, 0);
 
   /* setup input shape mask for osd window */
-  gint screen_width, screen_height;
-  screen_width = gdk_screen_get_width (osd->screen);
-  screen_height = gdk_screen_get_height (osd->screen);
-  GdkPixmap *pixmap = gdk_pixmap_new (NULL, screen_width, screen_height, 1);
-  gtk_widget_input_shape_combine_mask (widget, pixmap, 0, 0);
-  g_object_unref (pixmap);
+  ol_osd_window_set_input_shape_mask (osd);
   /* init inactive lyric pixmap */
   if (osd->inactive_lyric_pixmap == NULL)
   {
@@ -398,137 +401,17 @@ ol_osd_window_map (GtkWidget *widget)
 }
 
 static void
-ol_osd_window_class_init (OlOsdWindowClass *klass)
+ol_osd_window_unmap (GtkWidget *widget)
 {
-  printf ("class init\n");
-  GObjectClass *gobject_class;
-  GtkObjectClass *object_class;
-  GtkWidgetClass *widget_class;
-
-  gobject_class = G_OBJECT_CLASS (klass);
-  object_class = (GtkObjectClass*)klass;
-  widget_class = (GtkWidgetClass*)klass;
-  parent_class = g_type_class_peek_parent (klass);
-
-  gobject_class->set_property = ol_osd_window_set_property;
-  
-  widget_class->realize = ol_osd_window_realize;
-  widget_class->unrealize = ol_osd_window_unrealize;
-  widget_class->size_allocate = ol_osd_window_size_allocate;
-  widget_class->size_request = ol_osd_window_size_request;
-  widget_class->map = ol_osd_window_map;
-  widget_class->show = ol_osd_window_show;
-  widget_class->expose_event = ol_osd_window_expose;
-  widget_class->button_press_event = ol_osd_window_button_press;
-  widget_class->button_release_event = ol_osd_window_button_release;
-  widget_class->motion_notify_event = ol_osd_window_motion_notify;
-  widget_class->enter_notify_event = ol_osd_window_enter_notify;
-  widget_class->leave_notify_event = ol_osd_window_leave_notify;
-  
-  /* set up properties */
-  g_object_class_install_property (gobject_class,
-                                   PROP_XALIGN,
-                                   g_param_spec_float ("xalign",
-                                                       ("Horizontal alignment for child"),
-                                                       ("Horizontal position of window in desktop. "
-                                                        "0.0 is left aligned, 1.0 is right aligned"),
-                                                       0.0,
-                                                       1.0,
-                                                       0.5,
-                                                       G_PARAM_READABLE | G_PARAM_WRITABLE));
-  g_object_class_install_property (gobject_class,
-                                   PROP_YALIGN,
-                                   g_param_spec_float ("yalign",
-                                                       ("Horizontal alignment for child"),
-                                                       ("Horizontal position of window in desktop. "
-                                                        "0.0 is left aligned, 1.0 is right aligned"),
-                                                       0.0,
-                                                       1.0,
-                                                       0.5,
-                                                       G_PARAM_READABLE | G_PARAM_WRITABLE));
-  g_object_class_install_property (gobject_class,
-                                   PROP_LOCKED,
-                                   g_param_spec_boolean ("locked",
-                                                         ("Whether the it is possible to move the OSD window"),
-                                                         ("If TRUE, there will be a window displayed under the"
-                                                          "OSD indicating that it can be moved, and so it is"),
-                                                         FALSE,
-                                                         G_PARAM_READABLE | G_PARAM_WRITABLE));
-  g_type_class_add_private (gobject_class, sizeof (OlOsdWindowPrivate));
-}
-
-static void
-ol_osd_window_set_property (GObject *object, guint prop_id,
-                         const GValue *value, GParamSpec *pspec)
-{
-  OlOsdWindow *osd = OL_OSD_WINDOW (object);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  switch (prop_id)
+  printf ("unmap\n");
+  OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  if (GTK_WIDGET_MAPPED (widget))
   {
-  case PROP_XALIGN:
-    ol_osd_window_set_alignment (osd, g_value_get_float (value), priv->yalign);
-    break;
-  case PROP_YALIGN:
-    ol_osd_window_set_alignment (osd, g_value_get_float (value), priv->xalign);
-    break;
+    gdk_window_hide (widget->window);
+    gdk_window_hide (osd->bg_window);
+    GTK_WIDGET_CLASS (parent_class)->unmap (widget);
   }
-}
-
-static void
-ol_osd_window_get_property (GObject *object, guint prop_id,
-                                     GValue *value, GParamSpec *pspec)
-{
-  OlOsdWindow *osd = OL_OSD_WINDOW (object);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (priv);
-  switch (prop_id)
-  {
-  case PROP_XALIGN:
-    g_value_set_float (value, priv->xalign);
-    break;
-  case PROP_YALIGN:
-    g_value_set_float (value, priv->yalign);
-    break;
-  case PROP_LOCKED:
-    g_value_set_boolean (value, priv->locked);
-  }
-}
-  
-static void
-ol_osd_window_init (OlOsdWindow *self)
-{
-  printf ("init\n");
-  GTK_WIDGET_SET_FLAGS (self, GTK_CAN_FOCUS | GTK_RECEIVES_DEFAULT);
-  GTK_WIDGET_SET_FLAGS (self, GTK_TOPLEVEL);
-  GTK_PRIVATE_SET_FLAG (self, GTK_ANCHORED);
-  self->screen = NULL;
-  self->event_window = NULL;
-  self->current_line = 0;
-  int i;
-  for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
-  {
-    self->lyrics[i] = NULL;
-    self->line_alignment[i] = 0.5;
-    self->percentage[i] = 0.0;
-    self->active_lyric_pixmap[i] = NULL;
-  }
-  self->render_context = ol_osd_render_context_new ();
-  self->inactive_lyric_pixmap = NULL;
-  self->shape_pixmap = NULL;
-  /* initilaize private data */
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (self);
-  priv->xalign = priv->yalign = 0.5;
-  priv->pressed = FALSE;
-  priv->locked = TRUE;
-  priv->composited = FALSE;
-}
-
-GtkWidget*
-ol_osd_window_new ()
-{
-  printf ("new\n");
-  OlOsdWindow *osd;
-  osd = g_object_new (ol_osd_window_get_type (), NULL);
-  return GTK_WIDGET (osd);
+  GTK_WIDGET_UNSET_FLAGS (widget, GTK_MAPPED);
 }
 
 void
@@ -953,10 +836,190 @@ ol_osd_window_update_shape (OlOsdWindow *osd, int line)
   GdkColor color;
   color.pixel = 0;
   gdk_gc_set_foreground (fg_gc, &color);
-  color.pixel = 0;
   gdk_gc_set_background (fg_gc, &color);
   cairo_t *cr = gdk_cairo_create (shape_mask);
   ol_osd_window_paint_lyrics (osd, cr, line);
   cairo_destroy (cr);
   gtk_widget_shape_combine_mask (widget, shape_mask, 0, 0);
+  g_object_unref (shape_mask);
+  g_object_unref (fg_gc);
+}
+
+static void
+ol_osd_window_set_input_shape_mask (OlOsdWindow *osd)
+{
+  gint w, h;
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  g_return_if_fail (GTK_WIDGET_REALIZED (widget));
+  gdk_drawable_get_size (widget->window, &w, &h);
+  GdkPixmap *input_mask = gdk_pixmap_new (NULL, w, h, 1);
+  GdkGC *gc = gdk_gc_new (input_mask);
+  GdkColor color;
+  color.pixel = 0;              /* black */
+  gdk_gc_set_foreground (gc, &color);
+  gdk_draw_rectangle (input_mask, gc, TRUE, 0, 0, w, h);
+  gtk_widget_input_shape_combine_mask (widget, input_mask, 0, 0);
+  g_object_unref (input_mask);
+  g_object_unref (gc);
+}
+
+static void
+ol_osd_window_class_init (OlOsdWindowClass *klass)
+{
+  printf ("class init\n");
+  GObjectClass *gobject_class;
+  GtkObjectClass *object_class;
+  GtkWidgetClass *widget_class;
+
+  gobject_class = G_OBJECT_CLASS (klass);
+  object_class = (GtkObjectClass*)klass;
+  widget_class = (GtkWidgetClass*)klass;
+  parent_class = g_type_class_peek_parent (klass);
+
+  gobject_class->set_property = ol_osd_window_set_property;
+  gobject_class->get_property = ol_osd_window_get_property;
+
+  object_class->destroy = ol_osd_window_destroy;
+  
+  widget_class->realize = ol_osd_window_realize;
+  widget_class->unrealize = ol_osd_window_unrealize;
+  widget_class->size_allocate = ol_osd_window_size_allocate;
+  widget_class->size_request = ol_osd_window_size_request;
+  widget_class->map = ol_osd_window_map;
+  widget_class->unmap = ol_osd_window_unmap;
+  widget_class->show = ol_osd_window_show;
+  widget_class->expose_event = ol_osd_window_expose;
+  widget_class->button_press_event = ol_osd_window_button_press;
+  widget_class->button_release_event = ol_osd_window_button_release;
+  widget_class->motion_notify_event = ol_osd_window_motion_notify;
+  widget_class->enter_notify_event = ol_osd_window_enter_notify;
+  widget_class->leave_notify_event = ol_osd_window_leave_notify;
+  
+  /* set up properties */
+  g_object_class_install_property (gobject_class,
+                                   PROP_XALIGN,
+                                   g_param_spec_float ("xalign",
+                                                       ("Horizontal alignment for child"),
+                                                       ("Horizontal position of window in desktop. "
+                                                        "0.0 is left aligned, 1.0 is right aligned"),
+                                                       0.0,
+                                                       1.0,
+                                                       0.5,
+                                                       G_PARAM_READABLE | G_PARAM_WRITABLE));
+  g_object_class_install_property (gobject_class,
+                                   PROP_YALIGN,
+                                   g_param_spec_float ("yalign",
+                                                       ("Horizontal alignment for child"),
+                                                       ("Horizontal position of window in desktop. "
+                                                        "0.0 is left aligned, 1.0 is right aligned"),
+                                                       0.0,
+                                                       1.0,
+                                                       0.5,
+                                                       G_PARAM_READABLE | G_PARAM_WRITABLE));
+  g_object_class_install_property (gobject_class,
+                                   PROP_LOCKED,
+                                   g_param_spec_boolean ("locked",
+                                                         ("Whether the it is possible to move the OSD window"),
+                                                         ("If TRUE, there will be a window displayed under the"
+                                                          "OSD indicating that it can be moved, and so it is"),
+                                                         FALSE,
+                                                         G_PARAM_READABLE | G_PARAM_WRITABLE));
+  g_type_class_add_private (gobject_class, sizeof (OlOsdWindowPrivate));
+}
+
+static void
+ol_osd_window_set_property (GObject *object, guint prop_id,
+                         const GValue *value, GParamSpec *pspec)
+{
+  OlOsdWindow *osd = OL_OSD_WINDOW (object);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  switch (prop_id)
+  {
+  case PROP_XALIGN:
+    ol_osd_window_set_alignment (osd, g_value_get_float (value), priv->yalign);
+    break;
+  case PROP_YALIGN:
+    ol_osd_window_set_alignment (osd, g_value_get_float (value), priv->xalign);
+    break;
+  }
+}
+
+static void
+ol_osd_window_get_property (GObject *object, guint prop_id,
+                                     GValue *value, GParamSpec *pspec)
+{
+  OlOsdWindow *osd = OL_OSD_WINDOW (object);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (priv);
+  switch (prop_id)
+  {
+  case PROP_XALIGN:
+    g_value_set_float (value, priv->xalign);
+    break;
+  case PROP_YALIGN:
+    g_value_set_float (value, priv->yalign);
+    break;
+  case PROP_LOCKED:
+    g_value_set_boolean (value, priv->locked);
+  }
+}
+  
+static void
+ol_osd_window_init (OlOsdWindow *self)
+{
+  printf ("init\n");
+  GTK_WIDGET_SET_FLAGS (self, GTK_CAN_FOCUS | GTK_RECEIVES_DEFAULT);
+  GTK_WIDGET_SET_FLAGS (self, GTK_TOPLEVEL);
+  GTK_PRIVATE_SET_FLAG (self, GTK_ANCHORED);
+  self->screen = NULL;
+  self->event_window = NULL;
+  self->current_line = 0;
+  int i;
+  for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
+  {
+    self->lyrics[i] = NULL;
+    self->line_alignment[i] = 0.5;
+    self->percentage[i] = 0.0;
+    self->active_lyric_pixmap[i] = NULL;
+  }
+  self->render_context = ol_osd_render_context_new ();
+  self->inactive_lyric_pixmap = NULL;
+  self->shape_pixmap = NULL;
+  /* initilaize private data */
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (self);
+  priv->xalign = priv->yalign = 0.5;
+  priv->pressed = FALSE;
+  priv->locked = TRUE;
+  priv->composited = FALSE;
+}
+
+GtkWidget*
+ol_osd_window_new ()
+{
+  printf ("new\n");
+  OlOsdWindow *osd;
+  osd = g_object_new (ol_osd_window_get_type (), NULL);
+  return GTK_WIDGET (osd);
+}
+
+static void
+ol_osd_window_destroy (GtkObject *object)
+{
+  GtkWidget *widget = GTK_WIDGET (object);
+  OlOsdWindow *osd = OL_OSD_WINDOW (object);
+  int i;
+  for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
+  {
+    if (osd->lyrics[i] != NULL)
+    {
+      g_free (osd->lyrics[i]);
+      osd->lyrics[i] = NULL;
+    }
+  }
+  if (osd->render_context != NULL)
+  {
+    ol_osd_render_context_destroy (osd->render_context);
+    osd->render_context = NULL;
+  }
+  GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }

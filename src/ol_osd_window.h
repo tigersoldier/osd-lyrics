@@ -46,6 +46,7 @@ GtkType ol_osd_window_get_type (void);
 
 /** 
  * @brief Creates a new OSD Window.
+ * To destroy the OSD Window, use g_object_unref
  */
 GtkWidget* ol_osd_window_new (void);
 

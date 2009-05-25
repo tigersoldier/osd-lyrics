@@ -28,7 +28,7 @@ typedef struct
 
 /** 
  * @brief Creates a new context
- * The new context should be destroyed by ol_osd_render_context_free
+ * The new context should be destroyed by ol_osd_render_context_destroy
  * 
  * @return The new context
  */
@@ -38,7 +38,7 @@ OlOsdRenderContext* ol_osd_render_context_new ();
  * 
  * @param context The context to be destroyed
  */
-void ol_osd_render_context_free (OlOsdRenderContext *context);
+void ol_osd_render_context_destroy (OlOsdRenderContext *context);
 /** 
  * @brief Sets the font family for a context
  * 

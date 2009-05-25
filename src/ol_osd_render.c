@@ -31,7 +31,7 @@ ol_osd_render_context_new ()
 }
 
 void
-ol_osd_render_context_free (OlOsdRenderContext *context)
+ol_osd_render_context_destroy (OlOsdRenderContext *context)
 {
   g_return_if_fail (context != NULL);
   if (context->font_family != NULL)

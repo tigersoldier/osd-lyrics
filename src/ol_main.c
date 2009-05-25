@@ -353,5 +353,7 @@ main (int argc, char **argv)
   g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
   gtk_main ();
   ol_player_free ();
+  g_object_unref (osd);
+  osd = NULL;
   return 0;
 }
