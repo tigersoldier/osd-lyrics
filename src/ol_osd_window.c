@@ -85,7 +85,7 @@ static void ol_osd_window_paint_active_lyrics (OlOsdWindow *osd, cairo_t *cr);
  * @param cr A cairo_t to be painted
  */
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr, int line);
-static void ol_osd_window_update_pixmap (OlOsdWindow *osd);
+static void ol_osd_window_paint (OlOsdWindow *osd);
 static void ol_osd_window_update_shape (OlOsdWindow *osd, int line);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
@@ -163,7 +163,7 @@ static gboolean
 ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
-  ol_osd_window_update_pixmap (OL_OSD_WINDOW (widget));
+  ol_osd_window_paint (OL_OSD_WINDOW (widget));
   return FALSE;
 }
 
@@ -690,7 +690,7 @@ ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage)
     return;
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   osd->percentage[line] = percentage;
-  ol_osd_window_update_pixmap (osd);
+  ol_osd_window_paint (osd);
   /* gtk_widget_queue_draw (GTK_WIDGET (osd));   */
 }
 
@@ -700,7 +700,7 @@ ol_osd_window_set_current_percentage (OlOsdWindow *osd, double percentage)
 /*   fprintf (stderr, "%s:%lf\n", __FUNCTION__, percentage); */
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   osd->percentage[osd->current_line] = percentage;
-  ol_osd_window_update_pixmap (osd);
+  ol_osd_window_paint (osd);
   /* gtk_widget_queue_draw (GTK_WIDGET (osd)); */
 }
 
@@ -796,7 +796,7 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
 }
 
 static void
-ol_osd_window_update_pixmap (OlOsdWindow *osd)
+ol_osd_window_paint (OlOsdWindow *osd)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);

@@ -3,7 +3,7 @@
 #include "ol_lrc_fetch_utils.h"
 #include "ol_music_info.h"
 
-#define OL_URL_LEN_MAX 255
+#define OL_URL_LEN_MAX 1024
 #define OL_TS_LEN_MAX 100 /* max length for title and singer */
 #define BUFSIZE 512 
 
