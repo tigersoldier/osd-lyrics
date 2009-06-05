@@ -111,7 +111,6 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
 struct OlLrcCandidate *
 ol_lrc_fetch_sogou_search_wrapper(const OlMusicInfo *music_info, int *size, const char *charset)
 {
-  printf ("%s - %s\n", music_info->title, music_info->artist);
   return (ol_lrc_fetch_sogou_search(music_info->title,
                                     music_info->artist,
                                     size,

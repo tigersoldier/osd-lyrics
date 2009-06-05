@@ -13,7 +13,7 @@
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
-static const gchar *lrc_path = ".lyrics";
+static const gchar *LRC_PATH = ".lyrics";
 
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
@@ -68,11 +68,11 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
   get_user_home_directory (home_dir);
   if (previous_artist == NULL)
   {
-    sprintf (pathname, "%s/%s/%s.lrc", home_dir, lrc_path, previous_title);
+    sprintf (pathname, "%s/%s/%s.lrc", home_dir, LRC_PATH, previous_title);
   }
   else
   {
-    sprintf (pathname, "%s/%s/%s-%s.lrc", home_dir, lrc_path, previous_artist, previous_title);
+    sprintf (pathname, "%s/%s/%s-%s.lrc", home_dir, LRC_PATH, previous_artist, previous_title);
   }
   printf ("lrc file name:%s\n", pathname);
 }
@@ -82,7 +82,7 @@ gboolean download_lyric (OlMusicInfo *music_info)
   int lrc_count;
   struct OlLrcCandidate *candidates = sogou.search (music_info, &lrc_count, "UTF-8");
   printf ("downloading...\n");
-  if (lrc_count == 0)
+  if (lrc_count == 0 || candidates == NULL)
   {
     printf ("download failed\n");
     return FALSE;
@@ -227,7 +227,7 @@ change_music ()
   get_lyric_path_name (&music_info, file_name);
   if (osd != NULL)
   {
-    /* gtk_widget_hide (GTK_WIDGET (osd)); */
+    gtk_widget_hide (GTK_WIDGET (osd));
     ol_osd_window_set_lyric (osd, 0, NULL);
     ol_osd_window_set_lyric (osd, 1, NULL);
   }
@@ -277,8 +277,6 @@ refresh_music_info (gpointer data)
   gboolean changed = FALSE;
   gboolean stop = FALSE;
   /* compares the previous title with current title */
-/*   if (previous_title) */
-/*     printf ("%s\n", previous_title); */
   if (music_info.title == NULL)
   {
     if (previous_title != NULL)
@@ -330,7 +328,7 @@ refresh_music_info (gpointer data)
 
   if (stop)
   {
-    if (osd != NULL && GTK_WIDGET_MAPPED (osd)) 
+    if (osd != NULL && GTK_WIDGET_MAPPED (osd))
       gtk_widget_hide (GTK_WIDGET (osd));
     return TRUE;
   }

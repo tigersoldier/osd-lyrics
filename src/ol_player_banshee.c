@@ -42,7 +42,6 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
   if (info == NULL)
     return FALSE;
   GHashTable *data_list = NULL;
-  gchar *str;
   gint int_val;
   gboolean ret = TRUE;
   if (proxy == NULL)
@@ -58,17 +57,21 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
     if (info->artist)
       g_free (info->artist);
     info->artist = g_strdup (ol_get_string_from_hash_table (data_list, "artist"));
+    
     if (info->album)
       g_free (info->album);
     info->album = g_strdup (ol_get_string_from_hash_table (data_list, "album"));
+    
     if (info->title)
       g_free (info->title);
-    info->title = ol_get_string_from_hash_table (data_list, "name");
+    info->title = g_strdup (ol_get_string_from_hash_table (data_list, "name"));
+    
     info->track_number = ol_get_int_from_hash_table (data_list, "track-number");
+    g_hash_table_destroy (data_list);
   }
   else
   {
-    printf ("%s fail\n", get_title);
+    fprintf (stderr, "%s fail\n", get_title);
     ret = FALSE;
   }
   return ret;
