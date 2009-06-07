@@ -32,13 +32,21 @@ static gboolean ol_player_banshee_get_played_time (int *played_time);
 static gboolean ol_player_banshee_get_music_length (int *len);
 static gboolean ol_player_banshee_init_dbus ();
 static gboolean ol_player_banshee_get_activated ();
+static gboolean ol_player_banshee_proxy_destroy_handler ();
 
+static gboolean
+ol_player_banshee_proxy_destroy_handler ()
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  g_object_unref (proxy);
+  proxy = NULL;
+  return FALSE;
+}
 
 static gboolean
 ol_player_banshee_get_music_info (OlMusicInfo *info)
 {
-/*   printf ("%s\n", */
-/*           __FUNCTION__); */
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   if (info == NULL)
     return FALSE;
   GHashTable *data_list = NULL;
@@ -72,6 +80,7 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
   else
   {
     fprintf (stderr, "%s fail\n", get_title);
+    proxy = NULL;
     ret = FALSE;
   }
   return ret;
@@ -80,6 +89,7 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_banshee_get_music_length (int *len)
 {
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   if (!len)
     return FALSE;
   if (proxy == NULL)
@@ -129,16 +139,6 @@ ol_player_banshee_get_activated ()
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
-  gint int_val;
-  if (ol_dbus_get_uint (proxy,
-                        current_position,
-                        &int_val))
-  {
-  }
-  else
-  {
-    return FALSE;
-  }
   return TRUE;
 }
 
@@ -175,6 +175,7 @@ ol_player_banshee_init_dbus ()
       error = NULL;
       return FALSE;
     }
+    g_signal_connect (proxy, "destroy", G_CALLBACK (ol_player_banshee_proxy_destroy_handler), NULL);
   }
   return TRUE;
 }

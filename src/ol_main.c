@@ -257,22 +257,22 @@ refresh_music_info (gpointer data)
   {
     controller = ol_player_get_active_player ();
   }
-  if (controller == NULL)
-    return;
-  if (!controller->get_music_info (&music_info))
+  if (controller && !controller->get_music_info (&music_info))
   {
     controller = NULL;
   }
   guint time = 0;
-  if (!controller->get_played_time (&time))
+  if (controller && !controller->get_played_time (&time))
   {
     controller = NULL;
   }
   guint duration = 0;
-  if (!controller->get_music_length (&duration))
+  if (controller && !controller->get_music_length (&duration))
   {
     controller = NULL;
   }
+  if (controller == NULL)
+    return TRUE;
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
   gboolean stop = FALSE;
