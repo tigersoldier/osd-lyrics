@@ -1,9 +1,9 @@
+#ifndef __OL_LRC_PARSER_H__
+#define __OL_LRC_PARSER_H__
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#ifndef __OL_LRC_PARSER_H__
-#define __OL_LRC_PARSER_H__
 
 #define MAX_LINE 128
 #define MAX_LINE_LEN 255
@@ -29,7 +29,7 @@ typedef struct {
  * @return The content of the file, must use free() to destroy it
  */
 
-LrcQueue* ol_lrc_get_lyric_info(char *lyric_source);
+LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source);
 /** 
  * Get the first LrcInfo from the current LrcQueue
  * 

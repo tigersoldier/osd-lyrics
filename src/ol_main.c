@@ -314,17 +314,20 @@ refresh_music_info (gpointer data)
   }
   else if (strcmp (previous_artist, music_info.artist) != 0)
   {
-    printf ("duration\n");
     changed = TRUE;
     g_free (previous_artist);
     previous_artist = g_strdup (music_info.artist);
   }
   /* compares the previous duration */
-  if (previous_duration != duration)
-  {
-    changed = TRUE;
-    previous_duration = duration;
-  }
+  /* FIXME: because the a of banshee, some lyrics may return different
+     duration for the same song when plays to different position, so the
+     comparison is commented out temporarily */
+  /* if (previous_duration != duration) */
+  /* { */
+  /*   printf ("change6:%d-%d\n", previous_duration, duration); */
+  /*   changed = TRUE; */
+  /*   previous_duration = duration; */
+  /* } */
 
   if (stop)
   {

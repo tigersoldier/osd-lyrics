@@ -60,7 +60,10 @@ char *ol_lrc_parser_load_lyric_source(char *lyric_source)
   char *lyric_file = malloc ((file_length + 1) * sizeof (char));
   fseek (fp, 0, SEEK_SET);
   memset(lyric_file,0,file_length+1);
-  fread(lyric_file,sizeof(char),file_length,fp);
+  if (fread(lyric_file,sizeof(char),file_length,fp) != file_length)
+  {
+    /* TODO: error occurs when reading file */
+  }
   return lyric_file;
 }
 
