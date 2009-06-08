@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/time.h>
 #include <dbus/dbus-glib.h>
 #include "ol_player_amarok2.h"
 #include "ol_utils.h"
@@ -15,6 +16,10 @@ static const char *GET_METADATA_METHOD = "GetMetadata";
 static const char *GET_STATUS_METHOD = "GetStatus";
 static const char *GET_POSITION_METHOD = "PositionGet";
 
+static int first_time = -1;
+static int prev_time = 0;
+struct timeval begin_time;
+
 static DBusGConnection *connection = NULL;
 static DBusGProxy *proxy = NULL;
 static GError *error = NULL;
@@ -26,6 +31,57 @@ static gboolean ol_player_amarok2_get_music_length (int *len);
 static gboolean ol_player_amarok2_get_activated ();
 static GHashTable* ol_player_amarok2_get_metadata ();
 static gboolean ol_player_amarok2_proxy_destroy_handler ();
+static int ol_player_amarok2_get_real_ms (int time);
+static int ol_player_amarok2_init_timer (int time);
+
+static int
+ol_player_amarok2_init_timer (int time)
+{
+  first_time = time;
+  prev_time = time;
+  gettimeofday (&begin_time, NULL);
+}
+
+/** 
+ * Return real position in milliseconds
+ * Because Amarok2 return position only in seconds, which means the position
+ * is rounded to 1000, so we need to simulate a timer to get proper time
+ * in milliseconds
+ * @param time 
+ * 
+ * @return 
+ */
+static int
+ol_player_amarok2_get_real_ms (int time)
+{
+  if (first_time < 0 || prev_time - time > 1000 || time - prev_time > 1000)
+  {
+    /* reinitialize timer */
+    puts ("init1");
+    printf ("prev:%d, time:%d\n", prev_time, time);
+    ol_player_amarok2_init_timer (time);
+  }
+  else
+  {
+    struct timeval current_time;
+    gettimeofday (&current_time, NULL);
+    int real_time = first_time +
+      (current_time.tv_sec - begin_time.tv_sec) * 1000 +
+      (current_time.tv_usec - begin_time.tv_usec) / 1000;
+    if (real_time - time > 1000 || time - real_time > 1000 )
+    {
+      puts ("init2");
+      printf ("real_time: %d, time: %d\n", real_time, time);
+      ol_player_amarok2_init_timer (time);
+    }
+    else
+    {
+      prev_time = time;
+      time = real_time;
+    }
+  }
+  return time;
+}
 
 static gboolean
 ol_player_amarok2_proxy_destroy_handler ()
@@ -35,7 +91,6 @@ ol_player_amarok2_proxy_destroy_handler ()
   proxy = NULL;
   return FALSE;
 }
-
 
 static GHashTable*
 ol_player_amarok2_get_metadata ()
@@ -108,6 +163,7 @@ ol_player_amarok2_get_played_time (int *played_time)
                         GET_POSITION_METHOD,
                         played_time))
   {
+    *played_time = ol_player_amarok2_get_real_ms (*played_time);
   }
   else
   {

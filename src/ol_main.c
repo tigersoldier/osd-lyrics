@@ -21,6 +21,7 @@ static OlOsdWindow *osd = NULL;
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
 static gint previous_duration = 0;
+static gint previous_position = -1;
 static gint lrc_id = -1;
 static gint lrc_next_id = -1;
 static gint current_line = 0;
@@ -28,6 +29,7 @@ static LrcQueue *lrc_file = NULL;
 
 void ol_init_osd ();
 gint refresh_music_info (gpointer data);
+void check_music_change (int time);
 void change_music ();
 gboolean is_file_exist (const char *filename);
 void get_user_home_directory (char *dir);
@@ -250,19 +252,19 @@ ol_init_osd ()
   gtk_widget_show (GTK_WIDGET (osd));
 }
 
-gint
-refresh_music_info (gpointer data)
+void
+check_music_change (int time)
 {
-  if (controller == NULL)
-  {
-    controller = ol_player_get_active_player ();
-  }
+  /* checks whether the music has been changed */
+  gboolean changed = FALSE;
+  gboolean stop = FALSE;
+  /* fprintf (stderr, "%d-%d\n", previous_position, time); */
+  if (previous_position >=0 && time >= previous_position &&
+      previous_title != NULL)
+    return;
+  /* compares the previous title with current title */
+  fprintf (stderr, "%s\n", __FUNCTION__);
   if (controller && !controller->get_music_info (&music_info))
-  {
-    controller = NULL;
-  }
-  guint time = 0;
-  if (controller && !controller->get_played_time (&time))
   {
     controller = NULL;
   }
@@ -271,12 +273,6 @@ refresh_music_info (gpointer data)
   {
     controller = NULL;
   }
-  if (controller == NULL)
-    return TRUE;
-  /* checks whether the music has been changed */
-  gboolean changed = FALSE;
-  gboolean stop = FALSE;
-  /* compares the previous title with current title */
   if (music_info.title == NULL)
   {
     if (previous_title != NULL)
@@ -326,20 +322,40 @@ refresh_music_info (gpointer data)
   /* { */
   /*   printf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
-  /*   previous_duration = duration; */
+    previous_duration = duration;
   /* } */
-
   if (stop)
   {
     if (osd != NULL && GTK_WIDGET_MAPPED (osd))
       gtk_widget_hide (GTK_WIDGET (osd));
-    return TRUE;
+    return;
   }
   if (changed)
   {
     change_music ();
   }
-  update_osd (time, duration);
+}
+
+gint
+refresh_music_info (gpointer data)
+{
+  if (controller == NULL)
+  {
+    controller = ol_player_get_active_player ();
+  }
+  guint time = 0;
+  if (controller && !controller->get_played_time (&time))
+  {
+    controller = NULL;
+  }
+  check_music_change (time);
+  previous_position = time;
+  if (controller == NULL)
+  {
+    previous_position = -1;
+    return TRUE;
+  }
+  update_osd (time, previous_duration);
   return TRUE;
 }
 
