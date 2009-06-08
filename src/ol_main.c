@@ -286,6 +286,7 @@ check_music_change (int time)
   {
     changed = TRUE;
     previous_title = g_strdup (music_info.title);
+    puts ("a\n");
   }
   else if (strcmp (previous_title, music_info.title) != 0)
   {

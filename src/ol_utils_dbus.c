@@ -1,6 +1,26 @@
 #include <stdio.h>
 #include "ol_utils_dbus.h"
 
+static DBusGConnection *connection = NULL;
+static GError *error = NULL;
+
+DBusGConnection
+*ol_dbus_get_connection ()
+{
+  if (connection == NULL)
+  {
+    connection = dbus_g_bus_get (DBUS_BUS_SESSION,
+                                 &error);
+    if (connection == NULL)
+    {
+      printf ("get connection failed: %s\n", error->message);
+      g_error_free(error);
+      error = NULL;
+    }
+  }
+  return connection;
+}
+
 gboolean
 ol_dbus_get_string (DBusGProxy *proxy, const gchar *method, gchar **returnval)
 {

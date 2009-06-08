@@ -2,8 +2,8 @@
 #include <dbus/dbus-glib.h>
 #include "ol_player_mpris.h"
 #include "ol_utils.h"
+#include "ol_utils_dbus.h"
 
-static const char *SERVICE = "org.kde.amarok";
 static const char *PATH = "/Player";
 static const char *INTERFACE = "org.freedesktop.MediaPlayer";
 static const char *PLAY_METHOD = "Play";
@@ -15,30 +15,41 @@ static const char *GET_METADATA_METHOD = "GetMetadata";
 static const char *GET_STATUS_METHOD = "GetStatus";
 static const char *GET_POSITION_METHOD = "PositionGet";
 
-static DBusGConnection *connection = NULL;
-static DBusGProxy *proxy = NULL;
-static GError *error = NULL;
+static gboolean ol_player_mpris_init_dbus (OlPlayerMpris *mpris);
+static gboolean ol_player_mpris_proxy_free (OlPlayerMpris *mpris);
+static GHashTable* ol_player_mpris_get_metadata (OlPlayerMpris *mpris);
 
-static gboolean ol_player_mpris_init_dbus ();
-static gboolean ol_player_mpris_get_music_info (OlMusicInfo *info);
-static gboolean ol_player_mpris_get_played_time (int *played_time);
-static gboolean ol_player_mpris_get_music_length (int *len);
-static gboolean ol_player_mpris_get_activated ();
-static GHashTable* ol_player_mpris_get_metadata ();
+OlPlayerMpris*
+ol_player_mpris_new (const char *service)
+{
+  OlPlayerMpris *mpris = g_new (OlPlayerMpris, 1);
+  mpris->name = g_strdup (service);
+  mpris->proxy = NULL;
+  return mpris;
+}
+
+static gboolean
+ol_player_mpris_proxy_free (OlPlayerMpris *mpris)
+{
+  fprintf (stderr, "%s:%s\n", __FUNCTION__, mpris->name);
+  g_object_unref (mpris->proxy);
+  mpris->proxy = NULL;
+  return FALSE;
+}
 
 static GHashTable*
-ol_player_mpris_get_metadata ()
+ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
 {
   GHashTable *data_list = NULL;
-  if (proxy == NULL)
-    if (!ol_player_mpris_init_dbus ())
+  if (mpris->proxy == NULL)
+    if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
-  if (dbus_g_proxy_call (proxy,
-                        GET_METADATA_METHOD,
-                        NULL,G_TYPE_INVALID,
-                        dbus_g_type_get_map("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
-                        &data_list,
-                        G_TYPE_INVALID))
+  if (dbus_g_proxy_call (mpris->proxy,
+                         GET_METADATA_METHOD,
+                         NULL,G_TYPE_INVALID,
+                         dbus_g_type_get_map("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
+                         &data_list,
+                         G_TYPE_INVALID))
   {
     return data_list;
   }
@@ -48,14 +59,14 @@ ol_player_mpris_get_metadata ()
   }
 }
 
-static gboolean
-ol_player_mpris_get_music_info (OlMusicInfo *info)
+gboolean
+ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
 {
   GHashTable *data_list = NULL;
   gboolean ret = TRUE;
   if (info == NULL)
     return FALSE;
-  if ((data_list = ol_player_mpris_get_metadata ()) != NULL)
+  if ((data_list = ol_player_mpris_get_metadata (mpris)) != NULL)
   {
     if (info->artist)
       g_free (info->artist);
@@ -85,17 +96,17 @@ ol_player_mpris_get_music_info (OlMusicInfo *info)
   return ret;
 }
 
-static gboolean
-ol_player_mpris_get_played_time (int *played_time)
+gboolean
+ol_player_mpris_get_played_time (OlPlayerMpris *mpris, int *played_time)
 {
   if (!played_time)
     return FALSE;
-  if (proxy == NULL)
-    if (!ol_player_mpris_init_dbus ())
+  if (mpris->proxy == NULL)
+    if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
-  if (ol_dbus_get_int (proxy,
-                        GET_POSITION_METHOD,
-                        played_time))
+  if (ol_dbus_get_int (mpris->proxy,
+                       GET_POSITION_METHOD,
+                       played_time))
   {
   }
   else
@@ -105,16 +116,16 @@ ol_player_mpris_get_played_time (int *played_time)
   return TRUE;
 }
 
-static gboolean
-ol_player_mpris_get_music_length (int *len)
+gboolean
+ol_player_mpris_get_music_length (OlPlayerMpris *mpris, int *len)
 {
   if (!len)
     return FALSE;
-  if (proxy == NULL)
-    if (!ol_player_mpris_init_dbus ())
+  if (mpris->proxy == NULL)
+    if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
   GHashTable *metadata = NULL;
-  if ((metadata = ol_player_mpris_get_metadata ()) != NULL)
+  if ((metadata = ol_player_mpris_get_metadata (mpris)) != NULL)
   {
     *len = ol_get_int_from_hash_table (metadata, "mtime");
     g_hash_table_destroy (metadata);
@@ -126,46 +137,38 @@ ol_player_mpris_get_music_length (int *len)
   return TRUE;
 }
 
-static gboolean
-ol_player_mpris_get_activated ()
+gboolean
+ol_player_mpris_get_activated (OlPlayerMpris *mpris)
 {
-  int dummy;
   fprintf (stderr, "%s\n", __FUNCTION__);
-  return ol_player_mpris_get_music_length (&dummy);
+  if (mpris->proxy == NULL)
+    if (!ol_player_mpris_init_dbus (mpris))
+      return FALSE;
+  return TRUE;
 }
 
 static gboolean
-ol_player_mpris_init_dbus ()
+ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  fprintf (stderr, "%s\n",
+           __FUNCTION__);
+  DBusGConnection *connection = ol_dbus_get_connection ();
+  GError *error = NULL;
   if (connection == NULL)
   {
-    connection = dbus_g_bus_get (DBUS_BUS_SESSION,
-                                 &error);
-    if (connection == NULL)
-    {
-      printf ("get connection failed: %s\n", error->message);
-      g_error_free(error);
-      error = NULL;
-      return FALSE;
-    }
-    if (proxy != NULL)
-    {
-      g_object_unref (proxy);
-      proxy = NULL;
-    }
+    return FALSE;
   }
-  if (proxy == NULL)
+  if (mpris->proxy == NULL)
   {
-    proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH, INTERFACE, &error);
-    if (proxy == NULL)
+    mpris->proxy = dbus_g_proxy_new_for_name_owner (connection, mpris->name, PATH, INTERFACE, &error);
+    if (mpris->proxy == NULL)
     {
-      printf ("get proxy failed: %s\n", error->message);
+      fprintf (stderr, "get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;
     }
+    g_signal_connect (mpris->proxy, "destroy", G_CALLBACK (ol_player_mpris_proxy_free), mpris);
   }
   return TRUE;
 }

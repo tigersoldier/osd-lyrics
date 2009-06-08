@@ -4,6 +4,14 @@
 #include <dbus/dbus-glib.h>
 
 /** 
+ * @brief Gets the connection of dbus
+ * 
+ * 
+ * @return A singleton connection, shouldn't be freed
+ */
+DBusGConnection *ol_dbus_get_connection ();
+
+/** 
  * @brief Invokes a dbus method without parameter and returns a string
  * 
  * @param proxy A DBusGProxy

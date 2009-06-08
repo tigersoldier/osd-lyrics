@@ -9,14 +9,25 @@
 #ifndef _OL_PLAYER_MPRIS_H_
 #define _OL_PLAYER_MPRIS_H_
 
+#include "ol_music_info.h"
+
 typedef struct
 {
-} OlPlayerMprisContext;
+  DBusGProxy *proxy;
+  gchar *name;
+} OlPlayerMpris;
 
-static DBusGProxy* ol_player_mpris_get_proxy (const char *service);
-static gboolean ol_player_mpris_get_music_info (DBusGProxy *proxy, OlMusicInfo *info);
-static gboolean ol_player_mpris_get_played_time (DBusGProxy *proxy, int *played_time);
-static gboolean ol_player_mpris_get_music_length (DBusGProxy *proxy, int *len);
-static gboolean ol_player_mpris_get_activated ();
+/** 
+ * @brief Creates a new MPRIS Player context
+ * 
+ * @param service The service name of the player on dbus
+ * 
+ * @return The created MPRIS Player context, should be destroyed by g_free
+ */
+OlPlayerMpris* ol_player_mpris_new (const char *service);
+gboolean ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info);
+gboolean ol_player_mpris_get_played_time (OlPlayerMpris *mpris, int *played_time);
+gboolean ol_player_mpris_get_music_length (OlPlayerMpris *mpris, int *len);
+gboolean ol_player_mpris_get_activated (OlPlayerMpris *mpris);
 
 #endif /* _OL_PLAYER_MPRIS_H_ */

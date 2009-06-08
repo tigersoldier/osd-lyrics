@@ -4,6 +4,7 @@
 
 #include "ol_player_banshee.h"
 #include "ol_utils.h"
+#include "ol_utils_dbus.h"
 
 static const char *service = "org.bansheeproject.Banshee";
 static const char *path = "/org/bansheeproject/Banshee/PlaybackController";
@@ -23,7 +24,6 @@ static const char *get_status = "GetCurrentState";
 static const char *duration = "GetLength";
 static const char *current_position = "GetPosition";
 
-static DBusGConnection *connection = NULL;
 static DBusGProxy *proxy = NULL;
 static GError *error = NULL;
 
@@ -148,22 +148,15 @@ ol_player_banshee_init_dbus ()
 {
   printf ("%s\n",
           __FUNCTION__);
+  DBusGConnection *connection = ol_dbus_get_connection ();
   if (connection == NULL)
   {
-    connection = dbus_g_bus_get (DBUS_BUS_SESSION,
-                                 &error);
-    if (connection == NULL)
-    {
-      printf ("get connection failed: %s\n", error->message);
-      g_error_free(error);
-      error = NULL;
-      return FALSE;
-    }
-    if (proxy != NULL)
-    {
-      g_object_unref (proxy);
-      proxy = NULL;
-    }
+    return FALSE;
+  }
+  if (proxy != NULL)
+  {
+    g_object_unref (proxy);
+    proxy = NULL;
   }
   if (proxy == NULL)
   {
