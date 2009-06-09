@@ -64,7 +64,9 @@ libol_player_a_SOURCES = \
 	ol_player_exaile.c \
 	ol_player_amarok1.c \
 	ol_player_amarok2.c \
-	ol_player_mpris.c
+	ol_player_mpris.c \
+	ol_player_audacious.c \
+	ol_player_xmms2.c
 
 libol_player_a_LIBADD = \
 	libol_utils.a \
