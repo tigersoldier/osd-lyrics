@@ -164,4 +164,38 @@ void ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric);
  */
 void ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment);
 
+/** 
+ * @brief Sets the font family for an OSD Window
+ * 
+ * @param osd An OlOsdWindow;
+ * @param font_family Font family, must not be NULL
+ */
+void ol_osd_window_set_font_family (OlOsdWindow *osd,
+                                    const char *font_family);
+/** 
+ * @brief Gets the font family for an OSD Window
+ * 
+ * @param osd An OlOsdWindow
+ * @return The font family of the context, must be freed by g_free
+ */
+char* ol_osd_window_get_font_family (OlOsdWindow *osd);
+
+/** 
+ * @brief Sets the font size for an OSD Window
+ * 
+ * @param osd An OlOsdWindow;
+ * @param font_size Font size, must be positive
+ */
+void ol_osd_window_set_font_size (OlOsdWindow *osd,
+                                  const double font_size);
+
+/** 
+ * @brief Gets the font size for an OSD Window
+ * 
+ * @param osd An OlOsdWindow;
+ * 
+ * @return The font size for the context
+ */
+double ol_osd_window_get_font_size (OlOsdWindow *osd);
+
 #endif // __OSD_WINDOW_H__

@@ -54,6 +54,9 @@ AC_MSG_RESULT(no))
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
+# i18n support from GNU gettext.
+AM_GNU_GETTEXT_VERSION([0.16])
+AM_GNU_GETTEXT([external])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])

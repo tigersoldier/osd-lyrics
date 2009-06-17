@@ -100,7 +100,8 @@ libol_lrc_utility_a_DEPENDENCIES = libol_lrc_parser.a
 
 libol_trayicon_a_SOURCES = \
 	ol_trayicon.c \
-	ol_trayicon.h
+	ol_menu.c
+
 libol_trayicon_a_LIBADD = \
 	libol_trayicon.a
 libol_trayicon_a_DEPENDENCIES = libol_osd_window.a

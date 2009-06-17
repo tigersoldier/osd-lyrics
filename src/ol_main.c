@@ -10,6 +10,7 @@
 #include "ol_utils.h"
 #include "ol_lrc_fetch.h"
 #include "ol_trayicon.h"
+#include "ol_intl.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -362,6 +363,13 @@ refresh_music_info (gpointer data)
 int
 main (int argc, char **argv)
 {
+
+#if ENABLE_NLS
+  /* Set the text message domain.  */
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  textdomain (PACKAGE);
+#endif
+  
   gtk_init (&argc, &argv);
   ol_player_init ();
   ol_init_osd ();

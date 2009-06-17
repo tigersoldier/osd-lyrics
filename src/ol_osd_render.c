@@ -2,8 +2,10 @@
 
 static const OlColor OL_BLACK = {0.0, 0.0, 0.0};
 static const double OUTLINE_WIDTH = 3.0;
-static const char *DEFAULT_FONT_FAMILY = "AR PL UKai CN";
+static const char *DEFAULT_FONT_FAMILY = "serif";
 static const double DEFAULT_FONT_SIZE = 30.0;
+
+void ol_osd_render_update_font (OlOsdRenderContext *context);
 
 OlOsdRenderContext *
 ol_osd_render_context_new ()
@@ -22,11 +24,7 @@ ol_osd_render_context_new ()
   context->pango_context = gdk_pango_context_get ();
   context->pango_layout = pango_layout_new (context->pango_context);
   context->text = NULL;
-  gchar *font_string = g_strdup_printf ("%s %0.0lf", context->font_family, context->font_size);
-  PangoFontDescription *font_desc = pango_font_description_from_string (font_string);
-  printf ("%s\n", font_string);
-  g_free (font_string);
-  pango_layout_set_font_description (context->pango_layout, font_desc);
+  ol_osd_render_update_font (context);
   return context;
 }
 
@@ -127,4 +125,59 @@ ol_osd_render_set_text (OlOsdRenderContext* context,
   }
   context->text = g_strdup (text);
   pango_layout_set_text (context->pango_layout, text, -1);
+}
+
+void
+ol_osd_render_set_font_family (OlOsdRenderContext *context,
+                               const char *font_family)
+{
+  if (context == NULL)
+    return;
+  if (font_family == NULL)
+    return;
+  char *new_family = g_strdup (font_family);
+  if (context->font_family != NULL)
+  {
+    g_free (context->font_family);
+  }
+  context->font_family = new_family;
+  ol_osd_render_update_font (context);
+}
+
+char *
+ol_osd_render_get_font_family (OlOsdRenderContext *context)
+{
+  if (context == NULL)
+    return NULL;
+  return g_strdup (context->font_family);
+}
+
+void
+ol_osd_render_set_font_size (OlOsdRenderContext *context,
+                             double font_size)
+{
+  if (context == NULL)
+    return;
+  context->font_size = font_size;
+  ol_osd_render_update_font (context);
+}
+
+double
+ol_osd_render_get_font_size (OlOsdRenderContext *context)
+{
+  if (context == NULL)
+    return 0.0;
+  return context->font_size;
+}
+
+void
+ol_osd_render_update_font (OlOsdRenderContext *context)
+{
+  if (context == NULL)
+    return;
+  gchar *font_string = g_strdup_printf ("%s %0.0lf", context->font_family, context->font_size);
+  PangoFontDescription *font_desc = pango_font_description_from_string (font_string);
+  printf ("%s\n", font_string);
+  g_free (font_string);
+  pango_layout_set_font_description (context->pango_layout, font_desc);
 }

@@ -39,6 +39,7 @@ OlOsdRenderContext* ol_osd_render_context_new ();
  * @param context The context to be destroyed
  */
 void ol_osd_render_context_destroy (OlOsdRenderContext *context);
+
 /** 
  * @brief Sets the font family for a context
  * 
@@ -48,13 +49,31 @@ void ol_osd_render_context_destroy (OlOsdRenderContext *context);
 void ol_osd_render_set_font_family (OlOsdRenderContext *context,
                                     const char *font_family);
 /** 
- * @brief Sets the font family for a context
+ * @brief Gets the font family for a context
+ * 
+ * @param context An OlOsdRenderContext
+ * @return The font family of the context, must be freed by g_free
+ */
+char* ol_osd_render_get_font_family (OlOsdRenderContext *context);
+
+/** 
+ * @brief Sets the font size for a contexnt
  * 
  * @param context An OlOsdRenderContext;
  * @param font_size Font size, must be positive
  */
 void ol_osd_render_set_font_size (OlOsdRenderContext *context,
                                   const double font_size);
+
+/** 
+ * @brief Gets the font size for a context
+ * 
+ * @param context An OlOsdRenderContext;
+ * 
+ * @return The font size for the context
+ */
+double ol_osd_render_get_font_size (OlOsdRenderContext *context);
+
 /** 
  * @brief Sets linear color
  * 
@@ -62,6 +81,7 @@ void ol_osd_render_set_font_size (OlOsdRenderContext *context,
  * @param index The index of the color
  * @param color The color to be set
  */
+
 void ol_osd_render_set_linear_color (OlOsdRenderContext *context,
                                      int index,
                                      OlColor color);
