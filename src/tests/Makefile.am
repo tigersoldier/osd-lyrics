@@ -3,7 +3,8 @@ check_PROGRAMS = \
 	ol_player_test\
 	ol_lrc_parser_test\
 	ol_lrc_utility_test \
-	ol_lrc_fetch_test
+	ol_lrc_fetch_test \
+	ol_config_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -44,3 +45,9 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c
 ol_lrc_fetch_test_LDADD = \
 	$(top_srcdir)/src/libol_lrc_fetch.a \
 	@CURL_LIBS@
+
+ol_config_test_SOURCES = \
+	ol_config_test.c \
+	../ol_config.c
+ol_config_test_LDADD = \
+	@GTK2_LIBS@

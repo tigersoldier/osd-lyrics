@@ -23,7 +23,8 @@ AM_CPPFLAGS = \
 	-DICONDIR='"$(OL_ICONDIR)"'
 
 osd_lyrics_SOURCES = \
-	ol_main.c
+	ol_main.c \
+	ol_config.c
 
 osd_lyrics_DEPENDENCIES = \
 	libol_osd_window.a \

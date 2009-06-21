@@ -2,6 +2,8 @@
 #define __OL_UTILS_H__
 #include <glib.h>
 
+#define ol_get_array_len(arr) (sizeof (arr) / sizeof (arr[0]))
+
 gchar* ol_get_string_from_hash_table (GHashTable *hash_table, gchar *name);
 gint ol_get_int_from_hash_table (GHashTable *hash_table, gchar *name);
 
