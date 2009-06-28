@@ -2,7 +2,7 @@
 
 static const OlColor OL_BLACK = {0.0, 0.0, 0.0};
 static const double OUTLINE_WIDTH = 3.0;
-static const char *DEFAULT_FONT_FAMILY = "文泉驿微米黑";
+static const char *DEFAULT_FONT_FAMILY = "serif";
 static const double DEFAULT_FONT_SIZE = 30.0;
 
 void ol_osd_render_update_font (OlOsdRenderContext *context);
