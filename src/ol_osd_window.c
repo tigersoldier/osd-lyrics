@@ -833,7 +833,6 @@ ol_osd_window_update_shape (OlOsdWindow *osd, int line)
   gdk_drawable_get_size (widget->window, &w, &h);
   GdkPixmap *shape_mask = osd->shape_pixmap;
   GdkGC *fg_gc = gdk_gc_new (shape_mask);
-  /*   gdk_gc_set_colormap (fg_gc, gtk_widget_get_colormap (widget)); */
   GdkColor color;
   color.pixel = 0;
   gdk_gc_set_foreground (fg_gc, &color);
@@ -842,7 +841,6 @@ ol_osd_window_update_shape (OlOsdWindow *osd, int line)
   ol_osd_window_paint_lyrics (osd, cr, line);
   cairo_destroy (cr);
   gtk_widget_shape_combine_mask (widget, shape_mask, 0, 0);
-  g_object_unref (shape_mask);
   g_object_unref (fg_gc);
 }
 
