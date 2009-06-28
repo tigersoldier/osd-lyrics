@@ -12,6 +12,12 @@
 #include "ol_config.h"
 
 void
+changed_handler (OlConfig *config, char *key, gpointer data)
+{
+  printf ("%s has been changed\n", key);
+}
+
+void
 test_singleton ()
 {
   printf ("%s\n", __FUNCTION__);
@@ -44,6 +50,7 @@ test_set_value ()
   printf ("%s\n", __FUNCTION__);
   OlConfig *config = ol_config_get_instance ();
   assert (config != NULL);
+  g_signal_connect (config, "changed", G_CALLBACK (changed_handler), NULL);
   ol_config_set_int (config, "width", INT_VAL);
   assert (ol_config_get_int (config, "width") == INT_VAL);
   ol_config_set_double (config, "xalign", DOUBLE_VAL);

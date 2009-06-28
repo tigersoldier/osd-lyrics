@@ -140,6 +140,22 @@ ol_config_class_init (OlConfigClass *klass)
                                      config_str[i].key,
                                      ol_param_spec);
   }
+  /* initialize singals */
+  GType signal_type[1];
+  /* signal_type[0] = OL_TYPE_CONFIG; */
+  signal_type[0] = G_TYPE_STRING;
+  klass->signals[CHANGED] =
+    g_signal_newv ("changed",
+                   G_TYPE_FROM_CLASS (gobject_class),
+                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                   NULL /* closure */,
+                   NULL /* accumulator */,
+                   NULL /* accumulator data */,
+                   g_cclosure_marshal_VOID__STRING,
+                   G_TYPE_NONE /* return_type */,
+                   1     /* n_params */,
+                   signal_type  /* param_types */);
+  printf ("id of changed signal is: %d\n", klass->signals[CHANGED]);
 }
 
 static void
@@ -174,6 +190,15 @@ ol_config_set_property (GObject      *object,
   if (g_hash_table_lookup_extended (priv->config, pspec->name, NULL, (gpointer)&config_val))
   {
     g_value_copy (value, config_val);
+    /* emit changed signal */
+    GValue params[2] = {0};
+    g_value_init (&params[0], G_OBJECT_TYPE (object));
+    g_value_set_object (&params[0], G_OBJECT (object));
+    g_value_init (&params[1], G_TYPE_STRING);
+    g_value_set_string (&params[1], g_strdup (pspec->name));
+    /* printf ("%s\n", pspec->name); */
+    g_signal_emitv (params, OL_CONFIG_GET_CLASS (object)->signals[CHANGED],
+                    0, NULL);
   }
   else
   {

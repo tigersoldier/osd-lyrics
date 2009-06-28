@@ -22,6 +22,12 @@
 typedef struct _OlConfig OlConfig;
 typedef struct _OlConfigClass OlConfigClass;
 
+enum OlConfigSingals {
+  INVALID_SIGNAL = 0,
+  CHANGED,
+  CONFIG_SINGAL_COUNT,
+};
+
 struct _OlConfig
 {
   GObject parent;
@@ -30,6 +36,7 @@ struct _OlConfig
 struct _OlConfigClass
 {
   GObjectClass parent;
+  guint signals[CONFIG_SINGAL_COUNT];
 };
 
 GType ol_config_get_type (void);
