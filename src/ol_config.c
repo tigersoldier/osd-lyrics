@@ -243,15 +243,16 @@ ol_config_set_property (GObject      *object,
   /* if (g_hash_table_lookup_extended (priv->config, pspec->name, NULL, (gpointer)&config_val)) */
   /* { */
   /*   g_value_copy (value, config_val); */
-  /*   /\* emit changed signal *\/ */
-  /*   GValue params[2] = {0}; */
-  /*   g_value_init (&params[0], G_OBJECT_TYPE (object)); */
-  /*   g_value_set_object (&params[0], G_OBJECT (object)); */
-  /*   g_value_init (&params[1], G_TYPE_STRING); */
-  /*   g_value_set_string (&params[1], g_strdup (pspec->name)); */
-  /*   /\* printf ("%s\n", pspec->name); *\/ */
-  /*   g_signal_emitv (params, OL_CONFIG_GET_CLASS (object)->signals[CHANGED], */
-  /*                   0, NULL); */
+    /* emit changed signal */
+  GValue params[2] = {0};
+  g_value_init (&params[0], G_OBJECT_TYPE (object));
+  g_value_set_object (&params[0], G_OBJECT (object));
+  g_value_init (&params[1], G_TYPE_STRING);
+  g_value_set_string (&params[1], g_strdup (pspec->name));
+  /* printf ("%s\n", pspec->name); */
+  g_signal_emitv (params, OL_CONFIG_GET_CLASS (object)->signals[CHANGED],
+                  0, NULL);
+  ol_config_save (OL_CONFIG (object));
   /* } */
   /* else */
   /* { */
@@ -299,9 +300,7 @@ ol_config_get_property (GObject    *object,
   else
   {
     fprintf (stderr, "%s invalid value type\n", __FUNCTION__);
-    return;
   }
-  ol_config_save (OL_CONFIG (object));
   /* GValue *config_val; */
   /* if (g_hash_table_lookup_extended (priv->config, pspec->name, NULL, (gpointer)&config_val)) */
   /* { */
@@ -448,7 +447,4 @@ void ol_config_save (OlConfig *config)
   gsize len;
   char *file_content = g_key_file_to_data (priv->config, &len, NULL);
   g_file_set_contents (ol_config_get_path (), file_content, len, NULL);
-  /* GKeyfile *keyfile = g_key_file_new (); */
-  /* g_key_file_set_string (keyfile, NULL, "font-family", ol_config_get_string (config, "font-family")); */
-  /* g_key_file_ */
 }
