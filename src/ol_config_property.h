@@ -82,7 +82,7 @@ static const OlConfigDoubleValue config_double[] = {
   {PROP_YALIGN, "yalign", "Vertical position",
    "Vertical position of window in desktop. "
    "0.0 is left top, 1.0 is bottom aligned",
-   0.0, 1.0, 0.5},
+   0.0, 1.0, 1.0},
   {PROP_FONT_SIZE, "font-size", "OSD Font Size",
    "The font size of OSD lyrics",
    0.0, 10000.0, 30.0},

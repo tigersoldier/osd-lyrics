@@ -137,4 +137,7 @@ double ol_config_get_double (OlConfig *config, const char *name);
  */
 char* ol_config_get_string (OlConfig *config, const char *name);
 
+void ol_config_save (OlConfig *config);
+void ol_config_load (OlConfig *config);
+
 #endif /* _OL_CONFIG_H_ */

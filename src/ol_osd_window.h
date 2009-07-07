@@ -77,6 +77,13 @@ void ol_osd_window_get_alignment (OlOsdWindow *osd, float *xalign, float *yalign
  */
 void ol_osd_window_resize (OlOsdWindow *osd, gint width, gint height);
 /** 
+ * @brief Sets witdh of an OSD window
+ * 
+ * @param osd An OlOsdWindow
+ * @param width The width of the window
+ */
+void ol_osd_window_set_width (OlOsdWindow *osd, gint width);
+/** 
  * @brief Gets the size of an OSD window
  * 
  * @param osd An OlOsdWindow

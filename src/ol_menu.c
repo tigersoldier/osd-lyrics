@@ -1,6 +1,6 @@
 #include "ol_menu.h"
 #include "ol_intl.h"
-#include "ol_osd_window.h"
+#include "ol_config.h"
 
 static GtkWidget *popup_menu = NULL;
 static gboolean locked = 1;
@@ -12,12 +12,15 @@ static gboolean locked = 1;
 /*   gtk_main_quit (); */
 /* } */
 
-/* static void */
-/* osd_window_lock_change (GtkStatusIcon *widget, gpointer data) */
-/* { */
-/*   locked = 1 - locked; */
-/*   ol_osd_window_set_locked ((OlOsdWindow *)data, locked); */
-/* } */
+static void
+osd_window_lock_change (GtkStatusIcon *widget, gpointer data)
+{
+  locked = 1 - locked;
+  /* ol_osd_window_set_locked ((OlOsdWindow *)data, locked); */
+  OlConfig *config = ol_config_get_instance ();
+  g_return_if_fail (config != NULL);
+  ol_config_set_bool (config, "locked", locked);
+}
 
 GtkWidget*
 ol_menu_get_popup ()
@@ -28,9 +31,9 @@ ol_menu_get_popup ()
     popup_menu = gtk_menu_new();
     item  =  gtk_check_menu_item_new_with_label (_("Locked"));
     gtk_menu_append (popup_menu, item);
-    /* g_signal_connect (G_OBJECT(item), "activate", */
-    /*                   G_CALLBACK(osd_window_lock_change), */
-    /*                   (OlOsdWindow *)data); */
+    g_signal_connect (G_OBJECT(item), "activate",
+                      G_CALLBACK(osd_window_lock_change),
+                      NULL);
 
     item = gtk_menu_item_new_with_label (_("Setting"));
     gtk_menu_append (popup_menu, item);

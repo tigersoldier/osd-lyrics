@@ -11,6 +11,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_trayicon.h"
 #include "ol_intl.h"
+#include "ol_config.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -44,6 +45,7 @@ void get_lyric_path_name (OlMusicInfo *music_info, char *pathname);
 void update_osd (int time, int duration);
 void update_next_lyric (LrcInfo *current_lrc);
 gboolean download_lyric (OlMusicInfo *music_info);
+static void config_change_handler (OlConfig *config, gchar *name, gpointer userdata);
 
 /** 
  * @brief Gets the real lyric of the given lyric
@@ -55,6 +57,44 @@ gboolean download_lyric (OlMusicInfo *music_info);
  * @return The real lyric of the lrc. returns NULL if not available
  */
 LrcInfo* get_real_lyric (LrcInfo *lrc);
+
+
+static void
+config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
+{
+  fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
+  OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
+  if (strcmp (name, "locked") == 0)
+  {
+    fprintf (stderr, "  locked: %d\n", ol_config_get_bool (config, "locked"));
+    ol_osd_window_set_locked (osd,
+                              ol_config_get_bool (config, "locked"));
+  }
+  else if (strcmp (name, "xalign") == 0 || strcmp (name, "yalign") == 0)
+  {
+    double xalign = ol_config_get_double (config, "xalign");
+    double yalign = ol_config_get_double (config, "yalign");
+    ol_osd_window_set_alignment (osd, xalign, yalign);
+  }
+  else if (strcmp (name, "font-family") == 0)
+  {
+    gchar *font = ol_config_get_string (config, "font-family");
+    g_return_if_fail (font != NULL);
+    ol_osd_window_set_font_family (osd, font);
+    g_free (font);
+  }
+  else if (strcmp (name, "font-size") == 0)
+  {
+    ol_osd_window_set_font_size (osd,
+                                 ol_config_get_double (config, "font-size"));
+  }
+  else if (strcmp (name, "width") == 0)
+  {
+    ol_osd_window_set_width (osd,
+                             ol_config_get_int (config, "width"));
+  }
+}
+
 void
 get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 {
@@ -246,11 +286,27 @@ void
 ol_init_osd ()
 {
   osd = OL_OSD_WINDOW (ol_osd_window_new ());
-  ol_osd_window_resize (osd, 1024, 100);
+  /* ol_osd_window_resize (osd, 1024, 100); */
   ol_osd_window_set_alignment (osd, 0.5, 1);
   ol_osd_window_set_line_alignment (osd, 0, 0.0);
   ol_osd_window_set_line_alignment (osd, 1, 1.0);
   gtk_widget_show (GTK_WIDGET (osd));
+  OlConfig *config = ol_config_get_instance ();
+  g_return_if_fail (config != NULL);
+  config_change_handler (config, "xalign", osd);
+  config_change_handler (config, "font-family", osd);
+  config_change_handler (config, "font-size", osd);
+  config_change_handler (config, "width", osd);
+  /* ol_osd_window_set_alignment (osd, */
+  /*                              ol_config_get_double (config, "xalign"), */
+  /*                              ol_config_get_double (config, "yalign")); */
+  /* gchar *font_family = ol_config_get_string (config, "font-family"); */
+  /* ol_osd_window_set_font_family (osd, font_family); */
+  /* g_free (font_family); */
+  /* ol_osd_window_set_font_size (osd, ol_config_get_double (config, "font-size")); */
+  g_signal_connect (config, "changed",
+                    G_CALLBACK (config_change_handler),
+                    osd);
 }
 
 void

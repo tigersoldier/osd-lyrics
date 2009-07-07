@@ -76,6 +76,7 @@ static void ol_osd_window_compute_position (OlOsdWindow *osd, GtkAllocation *all
 static void ol_osd_window_compute_alignment (OlOsdWindow *osd, gint x, gint y,
                                              gdouble *xalign, gdouble *yalign);
 static void ol_osd_window_paint_inactive_lyrics (OlOsdWindow *osd, int line);
+static void ol_osd_window_reset_inactive_pixmap (OlOsdWindow *osd);
 static void ol_osd_window_paint_active_lyrics (OlOsdWindow *osd, cairo_t *cr);
 /** 
  * @brief Paint the layout to be OSD style
@@ -232,7 +233,7 @@ ol_osd_window_realize (GtkWidget *widget)
   gtk_widget_set_colormap (widget, colormap);
   
   /* ensure the size allocation */
-  GtkAllocation allocation = {0, 0, 150, 150};
+  GtkAllocation allocation = {0, 0, 150, 100};
   if (widget->allocation.width <= 1 &&
       widget->allocation.height <= 1)
   {
@@ -298,19 +299,10 @@ ol_osd_window_realize (GtkWidget *widget)
   osd->event_window = gdk_window_new (parent_window, &attr, attr_mask);
   gdk_window_set_user_data (osd->event_window, osd);
   gdk_window_set_decorations (osd->event_window, 0);
-
+  ol_osd_window_reset_inactive_pixmap (osd);
   /* setup input shape mask for osd window */
   ol_osd_window_set_input_shape_mask (osd);
-  /* init inactive lyric pixmap */
-  if (osd->inactive_lyric_pixmap == NULL)
-  {
-    osd->inactive_lyric_pixmap = gdk_pixmap_new (widget->window, attr.width, attr.height, -1);
-    gdk_drawable_set_colormap (osd->inactive_lyric_pixmap,
-                               gdk_drawable_get_colormap (widget->window));
-    cairo_t *cr = gdk_cairo_create (osd->inactive_lyric_pixmap);
-    ol_osd_window_clear_cairo (cr);
-    cairo_destroy (cr);
-  }
+  ol_osd_window_reset_inactive_pixmap;
   /* init shape mask pixmap */
   if (osd->shape_pixmap == NULL)
   {
@@ -323,10 +315,33 @@ ol_osd_window_realize (GtkWidget *widget)
 }
 
 static void
+ol_osd_window_reset_inactive_pixmap (OlOsdWindow *osd)
+{
+  /* init inactive lyric pixmap */
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  gint width, height;
+  gdk_drawable_get_size (widget->window, &width, &height);
+  if (osd->inactive_lyric_pixmap != NULL)
+  {
+    gint w, h;
+    gdk_drawable_get_size (osd->inactive_lyric_pixmap, &w, &h);
+    if (w == width && h == height)
+      return;
+  }
+  osd->inactive_lyric_pixmap = gdk_pixmap_new (widget->window, width, height, -1);
+  gdk_drawable_set_colormap (osd->inactive_lyric_pixmap,
+                             gdk_drawable_get_colormap (widget->window));
+  cairo_t *cr = gdk_cairo_create (osd->inactive_lyric_pixmap);
+  ol_osd_window_clear_cairo (cr);
+  cairo_destroy (cr);
+}
+
+static void
 ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
-  requisition->width = 180;
-  requisition->height = 190;
+  requisition->width = 1024;
+  requisition->height = 100;
 }
 
 static void ol_osd_window_unrealize (GtkWidget *widget)
@@ -462,6 +477,18 @@ void ol_osd_window_resize (OlOsdWindow *osd, gint width, gint height)
   GtkAllocation allo;
   ol_osd_window_compute_position (osd, &allo);
   gtk_widget_size_allocate (widget, &allo);
+}
+
+void ol_osd_window_set_width (OlOsdWindow *osd, gint width)
+{
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  if (width > 0)
+    widget->allocation.width = width;
+  GtkAllocation allo;
+  ol_osd_window_compute_position (osd, &allo);
+  gtk_widget_size_allocate (widget, &allo);
+  ol_osd_window_reset_inactive_pixmap (osd);
 }
 
 void ol_osd_window_get_size (OlOsdWindow *osd, gint *width, gint *height)
