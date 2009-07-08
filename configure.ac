@@ -10,7 +10,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
-AC_CONFIG_FILES([
+AC_CONFIG_FILES([ po/Makefile.in
 	Makefile
 	src/Makefile
 	src/tests/Makefile
@@ -55,7 +55,7 @@ PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 # i18n support from GNU gettext.
-AM_GNU_GETTEXT_VERSION([0.16])
+AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])
 
 # Checks for header files.

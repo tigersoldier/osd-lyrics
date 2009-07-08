@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <glib-object.h>
+#include "config.h"
 #include "ol_config.h"
 #include "ol_config_property.h"
 #include "ol_utils.h"
@@ -9,7 +10,7 @@
                                       ((obj),                     \
                                        OL_TYPE_CONFIG,            \
                                        OlConfigPrivate))
-const char CONFIG_FILE_NAME[] = "osd-lyrics.conf";
+const char CONFIG_FILE_NAME[] = PACKAGE_NAME ".conf";
 G_DEFINE_TYPE (OlConfig, ol_config, G_TYPE_OBJECT);
 
 static void ol_config_despose (GObject *obj);
@@ -432,9 +433,9 @@ ol_config_get_path ()
   static char* path = NULL;
   if (path == NULL)
   {
-    path = g_strdup_printf ("%s/%s/%s", g_get_user_config_dir (), "osd-lyrics", CONFIG_FILE_NAME);
+    path = g_strdup_printf ("%s/%s/%s", g_get_user_config_dir (), PACKAGE_NAME, CONFIG_FILE_NAME);
     fprintf (stderr, "config path: %s\n", path);
-    char *dir = g_strdup_printf ("%s/%s/", g_get_user_config_dir (), "osd-lyrics");
+    char *dir = g_strdup_printf ("%s/%s/", g_get_user_config_dir (), PACKAGE_NAME);
     g_mkdir_with_parents (dir, 0755);
     g_free (dir);
   }

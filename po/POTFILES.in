@@ -1,0 +1,2 @@
+# List of source files which contain translatable strings.
+src/ol_menu.c

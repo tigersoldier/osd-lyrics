@@ -29,25 +29,25 @@ ol_menu_get_popup ()
   {
     GtkWidget *item;
     popup_menu = gtk_menu_new();
-    item  =  gtk_check_menu_item_new_with_label (_("Locked"));
+    item  =  gtk_check_menu_item_new_with_label (_("_Lock"));
     gtk_menu_append (popup_menu, item);
     g_signal_connect (G_OBJECT(item), "activate",
                       G_CALLBACK(osd_window_lock_change),
                       NULL);
 
-    item = gtk_menu_item_new_with_label (_("Setting"));
+    item = gtk_menu_item_new_with_label (_("_Setting"));
     gtk_menu_append (popup_menu, item);
     /* g_signal_connect (G_OBJECT(item), "activate", */
     /*                   G_CALLBACK(destroy),  */
     /*                   NULL); */
         
-    item = gtk_menu_item_new_with_label (_("About"));
+    item = gtk_menu_item_new_with_label (_("_About"));
     gtk_menu_append (popup_menu, item);
     /* g_signal_connect (G_OBJECT(item), "activate", */
     /*                   G_CALLBACK(destroy),  */
     /*                   NULL); */
         
-    item = gtk_menu_item_new_with_label (_("Quit"));
+    item = gtk_menu_item_new_with_label (_("_Quit"));
     gtk_menu_append (popup_menu, item);
     /* g_signal_connect (G_OBJECT(item), "activate", */
     /*                   G_CALLBACK(destroy),  */
