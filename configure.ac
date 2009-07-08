@@ -3,7 +3,7 @@
 
 AC_INIT([osd-lyrics], [0.1], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([src/ol_osd_window.c])
+AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
