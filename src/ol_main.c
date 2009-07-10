@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pwd.h>
+#include "config.h"
 #include "ol_osd_window.h"
 #include "ol_lrc_parser.h"
 #include "ol_lrc_utility.h"
@@ -422,8 +423,11 @@ main (int argc, char **argv)
 
 #if ENABLE_NLS
   /* Set the text message domain.  */
+  printf ("initializing gettext: " PACKAGE " at " LOCALEDIR "\n");
   bindtextdomain (PACKAGE, LOCALEDIR);
-  textdomain (PACKAGE);
+  bind_textdomain_codeset(PACKAGE, "UTF-8");
+  /* textdomain (PACKAGE); */
+  printf ("%s\n", _("_Lock"));
 #endif
   
   gtk_init (&argc, &argv);

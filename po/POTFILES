@@ -1,1 +1,2 @@
-     ../src/ol_menu.c
+     ../src/ol_menu.c \
+     ../src/ol_main.c

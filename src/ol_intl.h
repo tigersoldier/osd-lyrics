@@ -2,8 +2,9 @@
 #define _OL_INTL_H_
 
 /* Internationalization.  */
+#include "config.h"
 #include "gettext.h"
-#define _(str) gettext (str)
-#define N_(str) gettext_noop (str)
+#define _(String) dgettext(PACKAGE,String)
+#define N_(String) (String)
 
 #endif /* _OL_INTL_H_ */

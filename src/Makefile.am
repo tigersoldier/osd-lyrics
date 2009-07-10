@@ -112,3 +112,6 @@ libol_lrc_fetch_a_SOURCES = \
 	ol_lrc_fetch_utils.c
 
 SUBDIRS = tests
+
+localedir = $(datadir)/locale
+DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
