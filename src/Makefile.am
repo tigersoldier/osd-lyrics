@@ -17,14 +17,18 @@ lib_LIBRARIES = \
 INCLUDES = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
-	@CURL_CFLAGS@
+	@CURL_CFLAGS@ \
+	@GLADE_CFLAGS@
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
-	-DICONDIR='"$(OL_ICONDIR)"'
+	-DICONDIR='"$(OL_ICONDIR)"' \
+	-DGLADEDIR='"$(OL_GLADEDIR)"'
 
 osd_lyrics_SOURCES = \
 	ol_main.c \
-	ol_config.c
+	ol_config.c \
+	ol_glade.c \
+	ol_about.c
 
 osd_lyrics_DEPENDENCIES = \
 	libol_osd_window.a \
@@ -49,7 +53,8 @@ osd_lyrics_LDADD = \
 	libol_utils_dcop.a \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
-	@CURL_LIBS@
+	@CURL_LIBS@ \
+	@GLADE_LIBS@
 osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
 
 # Librarys

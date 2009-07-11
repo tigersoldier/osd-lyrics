@@ -1,6 +1,7 @@
 #include "ol_menu.h"
 #include "ol_intl.h"
 #include "ol_config.h"
+#include "ol_about.h"
 
 static GtkWidget *popup_menu = NULL;
 static gboolean locked = 1;
@@ -20,6 +21,12 @@ osd_window_lock_change (GtkStatusIcon *widget, gpointer data)
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
   ol_config_set_bool (config, "locked", locked);
+}
+
+static void
+ol_menu_about (GtkWidget *widget, gpointer data)
+{
+  ol_about_show ();
 }
 
 GtkWidget*
@@ -43,9 +50,9 @@ ol_menu_get_popup ()
         
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, NULL);
     gtk_menu_append (popup_menu, item);
-    /* g_signal_connect (G_OBJECT(item), "activate", */
-    /*                   G_CALLBACK(destroy),  */
-    /*                   NULL); */
+    g_signal_connect (G_OBJECT (item), "activate",
+                      G_CALLBACK (ol_menu_about),
+                      NULL);
         
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, NULL);
     gtk_menu_append (popup_menu, item);
