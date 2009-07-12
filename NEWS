@@ -1,0 +1,6 @@
+Version 0.1
+* OSD Lyrics released!
+* Features:
+  * Supports Amarok 1.4, Amarok 2.0, Banshee, Audacious
+  * Downloads lyrics from Sougo according the title and artist of the song
+  * OSD lyric display mode

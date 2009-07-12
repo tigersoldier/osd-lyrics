@@ -7,7 +7,8 @@
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
     <property name="copyright" translatable="yes">Copyright 2009 The OSD Lyrics project.</property>
-    <property name="comments" translatable="yes">An OSD lyrics show supports multiple players</property>
+    <property name="comments" translatable="yes">An OSD lyric show supporting multiple media players and downloading.
+</property>
     <property name="website">http://code.google.com/p/osd-lyrics/ </property>
     <property name="website_label" translatable="yes">http://code.google.com/p/osd-lyrics/</property>
     <property name="license" translatable="yes">GPL v3</property>
