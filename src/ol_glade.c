@@ -1,4 +1,5 @@
 #include "ol_glade.h"
+#include "config.h"
 
 static GladeXML* ol_glade_get_xml ();
 
@@ -8,7 +9,11 @@ ol_glade_get_xml ()
   static GladeXML* xml = NULL;
   if (xml == NULL)
   {
-    xml = glade_xml_new (GLADEDIR "/dialogs.glade", NULL, NULL);
+    xml = glade_xml_new (GLADEDIR "/dialogs.glade", NULL, PACKAGE);
+    if (xml != NULL)
+    {
+      glade_xml_signal_autoconnect (xml);
+    }
   }
   return xml;
 }

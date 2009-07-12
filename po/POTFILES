@@ -1,2 +1,3 @@
      ../src/ol_menu.c \
-     ../src/ol_main.c
+     ../src/ol_main.c \
+     ../data/dialogs.glade

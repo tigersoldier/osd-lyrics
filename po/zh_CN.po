@@ -7,26 +7,59 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-07-09 20:52+0800\n"
-"PO-Revision-Date: 2009-07-08 16:36+0800\n"
+"POT-Creation-Date: 2009-07-12 01:33+0800\n"
+"PO-Revision-Date: 2009-07-12 01:41+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: utf-8\n"
 
-#: src/ol_menu.c:32 src/ol_main.c:430
+#: src/ol_menu.c:46 src/ol_main.c:430
 msgid "_Lock"
 msgstr "锁定(_L)"
 
-#: src/ol_menu.c:38
-msgid "_Setting"
-msgstr "设置(_S)"
+#: data/dialogs.glade:9
+msgid "Copyright 2009 The OSD Lyrics project."
+msgstr ""
 
-#: src/ol_menu.c:44
-msgid "_About"
-msgstr "关于(_A)"
+#: data/dialogs.glade:10
+msgid "An OSD lyrics show supports multiple players"
+msgstr "支持多种播放器的桌面歌词秀"
 
-#: src/ol_menu.c:50
-msgid "_Quit"
-msgstr "退出(_Q)"
+#: data/dialogs.glade:12
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr ""
+
+#: data/dialogs.glade:13
+msgid "GPL v3"
+msgstr ""
+
+#: data/dialogs.glade:42
+msgid "Preferences"
+msgstr "首选项"
+
+#: data/dialogs.glade:64
+msgid "_Font:"
+msgstr "字体(_F):"
+
+#: data/dialogs.glade:88
+msgid "_Width:"
+msgstr "宽度(_W):"
+
+#: data/dialogs.glade:132
+msgid "gtk-cancel"
+msgstr ""
+
+#: data/dialogs.glade:146
+msgid "gtk-ok"
+msgstr ""
+
+#~ msgid "_Setting"
+#~ msgstr "设置(_S)"
+
+#~ msgid "_About"
+#~ msgstr "关于(_A)"
+
+#~ msgid "_Quit"
+#~ msgstr "退出(_Q)"

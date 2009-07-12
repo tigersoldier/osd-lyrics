@@ -2,6 +2,7 @@
 #include "ol_intl.h"
 #include "ol_config.h"
 #include "ol_about.h"
+#include "ol_option.h"
 
 static GtkWidget *popup_menu = NULL;
 static gboolean locked = 1;
@@ -29,6 +30,12 @@ ol_menu_about (GtkWidget *widget, gpointer data)
   ol_about_show ();
 }
 
+static void
+ol_menu_option (GtkWidget *widget, gpointer data)
+{
+  ol_option_show ();
+}
+
 GtkWidget*
 ol_menu_get_popup ()
 {
@@ -44,9 +51,9 @@ ol_menu_get_popup ()
 
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
     gtk_menu_append (popup_menu, item);
-    /* g_signal_connect (G_OBJECT(item), "activate", */
-    /*                   G_CALLBACK(destroy),  */
-    /*                   NULL); */
+    g_signal_connect (G_OBJECT (item), "activate",
+                      G_CALLBACK (ol_menu_option),
+                      NULL);
         
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, NULL);
     gtk_menu_append (popup_menu, item);

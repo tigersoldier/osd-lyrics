@@ -56,7 +56,7 @@ AC_MSG_RESULT(no))
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
-PKG_CHECK_MODULES([GLADE], [libglade-2.0])
+PKG_CHECK_MODULES([GLADE], [libglade-2.0, gmodule-export-2.0])
 # i18n support from GNU gettext.
 AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])

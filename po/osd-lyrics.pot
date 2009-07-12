@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-07-09 20:52+0800\n"
+"POT-Creation-Date: 2009-07-12 01:33+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,18 +16,42 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ol_menu.c:32 src/ol_main.c:430
+#: src/ol_menu.c:46 src/ol_main.c:430
 msgid "_Lock"
 msgstr ""
 
-#: src/ol_menu.c:38
-msgid "_Setting"
+#: data/dialogs.glade:9
+msgid "Copyright 2009 The OSD Lyrics project."
 msgstr ""
 
-#: src/ol_menu.c:44
-msgid "_About"
+#: data/dialogs.glade:10
+msgid "An OSD lyrics show supports multiple players"
 msgstr ""
 
-#: src/ol_menu.c:50
-msgid "_Quit"
+#: data/dialogs.glade:12
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr ""
+
+#: data/dialogs.glade:13
+msgid "GPL v3"
+msgstr ""
+
+#: data/dialogs.glade:42
+msgid "Preferences"
+msgstr ""
+
+#: data/dialogs.glade:64
+msgid "_Font:"
+msgstr ""
+
+#: data/dialogs.glade:88
+msgid "_Width:"
+msgstr ""
+
+#: data/dialogs.glade:132
+msgid "gtk-cancel"
+msgstr ""
+
+#: data/dialogs.glade:146
+msgid "gtk-ok"
 msgstr ""

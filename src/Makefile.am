@@ -28,7 +28,8 @@ osd_lyrics_SOURCES = \
 	ol_main.c \
 	ol_config.c \
 	ol_glade.c \
-	ol_about.c
+	ol_about.c \
+	ol_option.c
 
 osd_lyrics_DEPENDENCIES = \
 	libol_osd_window.a \
