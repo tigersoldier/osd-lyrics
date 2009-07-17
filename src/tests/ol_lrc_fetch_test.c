@@ -19,9 +19,37 @@ void test_long_url ()
   struct OlLrcCandidate *candidates = sogou.search (&music_info, &lrc_count, "UTF-8");
 }
 
+void test_search ()
+{
+  int lrc_count;
+  OlMusicInfo music_info;
+  music_info.title = "红豆";
+  music_info.artist = "王菲";
+  struct OlLrcCandidate *candidates = sogou.search (&music_info, &lrc_count, "UTF-8");
+  printf ("Count: %d\n", lrc_count);
+  int i;
+  for (i = 0; i < lrc_count; i++)
+  {
+    printf ("[%d] %s %s\n", i, candidates[i].title, candidates[i].artist);
+  }
+}
+
+void test_download ()
+{
+  int lrc_count;
+  OlMusicInfo music_info;
+  music_info.title = "红豆";
+  music_info.artist = "王菲";
+  struct OlLrcCandidate *candidates = sogou.search (&music_info, &lrc_count, "UTF-8");
+  if (lrc_count > 0)
+    sogou.download (&candidates[0], "/tmp/tmplrctest.lrc", "UTF-8");
+}
+
 int main(int argc, char *argv[])
 {
   test_long_url ();
+  test_search ();
+  test_download ();
   return 0;
 }
 

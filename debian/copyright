@@ -1,0 +1,22 @@
+This package was debianized by TigerSoldier <tigersoldi@gmail.com> on
+Mon, 13 Jul 2009 23:19:24 +0800.
+
+It was downloaded from <http://code.google.com/p/osd-lyrics/>
+
+Upstream Author(s):
+
+    Tiger Soldier <tigersoldi@gmail.com>
+
+Copyright:
+
+    <Copyright (C) 2009 OSD Lyrics project>
+
+License:
+
+    <Put the license of the package here indented by 4 spaces>
+
+The Debian packaging is copyright 2009, TigerSoldier <tigersoldi@gmail.com> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+
+# Please also look if there are files or directories which have a
+# different copyright/license attached and list them here.

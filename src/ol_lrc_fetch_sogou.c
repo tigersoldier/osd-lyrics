@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<errno.h>
 #include "ol_lrc_fetch.h"
+#include "ol_lrc_fetch_sogou.h"
 
 #define PREFIX_PAGE_SOGOU "http://mp3.sogou.com/gecisearch.so?query="
 #define PREFIX_LRC_SOGOU "http://mp3.sogou.com/"
@@ -26,10 +27,10 @@ convert_to_gbk(const char *init, char *target, size_t t_size, const char *localc
 }
 
 
-static struct OlLrcCandidate *
+static OlLrcCandidate *
 ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, const char* charset)
 {
-  static struct OlLrcCandidate result[TRY_MATCH_MAX];
+  static OlLrcCandidate result[TRY_MATCH_MAX];
   char page_url[OL_URL_LEN_MAX];
   char title_buf[BUFSIZE];
   char artist_buf[BUFSIZE];
@@ -108,7 +109,7 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
   return result;
 }
 
-struct OlLrcCandidate *
+OlLrcCandidate *
 ol_lrc_fetch_sogou_search_wrapper(const OlMusicInfo *music_info, int *size, const char *charset)
 {
   return (ol_lrc_fetch_sogou_search(music_info->title,
@@ -118,7 +119,7 @@ ol_lrc_fetch_sogou_search_wrapper(const OlMusicInfo *music_info, int *size, cons
 }
 
 int 
-ol_lrc_fetch_sogou_download(struct OlLrcCandidate *tsu, const char *pathname, const char *charset)
+ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const char *charset)
 {
   char *lrc_conv, *pathbuf;
   FILE *fp;
@@ -149,7 +150,7 @@ ol_lrc_fetch_sogou_download(struct OlLrcCandidate *tsu, const char *pathname, co
   return 0;
 }
 
-struct lrc_interface sogou = {
+OlLrcFetchEngine sogou = {
   ol_lrc_fetch_sogou_search_wrapper,
   ol_lrc_fetch_sogou_download,
 };

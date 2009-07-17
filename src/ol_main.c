@@ -124,7 +124,8 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 gboolean download_lyric (OlMusicInfo *music_info)
 {
   int lrc_count;
-  struct OlLrcCandidate *candidates = sogou.search (music_info, &lrc_count, "UTF-8");
+  OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine ("Sogou");
+  OlLrcCandidate *candidates = engine->search (music_info, &lrc_count, "UTF-8");
   printf ("downloading...\n");
   if (lrc_count == 0 || candidates == NULL)
   {
@@ -135,7 +136,7 @@ gboolean download_lyric (OlMusicInfo *music_info)
   {
     char pathname[MAX_PATH_LEN];
     get_lyric_path_name (music_info, pathname);
-    sogou.download (&candidates[0], pathname, "UTF-8");
+    engine->download (&candidates[0], pathname, "UTF-8");
     printf ("download %s success\n", pathname);
   }
 }

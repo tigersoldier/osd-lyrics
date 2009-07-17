@@ -7,7 +7,8 @@
 #define OL_TS_LEN_MAX 100 /* max length for title and singer */
 #define BUFSIZE 512 
 
-struct OlLrcCandidate
+typedef struct _OlLrcCandidate OlLrcCandidate;
+struct _OlLrcCandidate
 {
   char title[OL_TS_LEN_MAX];
   char artist[OL_TS_LEN_MAX];
@@ -18,21 +19,31 @@ struct OlLrcCandidate
  * @brief fetch the candidate title-singer-url list;
  *        strongly depending on the web page structure.
  */
-typedef struct OlLrcCandidate *(*Lrc_Search) (const OlMusicInfo *music_info,
+typedef OlLrcCandidate *(*Lrc_Search) (const OlMusicInfo *music_info,
                                               int *size,
                                               const char *local_charset);
 
 /** 
  * @brief download the lrc and store it in the file system
  */
-typedef int (*Lrc_Download) (struct OlLrcCandidate *candidates,
+typedef int (*Lrc_Download) (OlLrcCandidate *candidates,
                              const char *pathname,
                              const char *charset);
 
-struct lrc_interface {
+typedef struct _OlLrcFetchEngine OlLrcFetchEngine;
+struct _OlLrcFetchEngine
+{
   Lrc_Search search;
   Lrc_Download download;
 };
 
-extern struct lrc_interface sogou;
+/** 
+ * @brief Get LRC Fetch engine with given name.
+ * The engine should NOT be freed.
+ * @param name The name of the engine
+ * 
+ * @return The engine with the given name. If not exists, return default engine.
+ */
+OlLrcFetchEngine *ol_lrc_fetch_get_engine (const char *name);
+
 #endif /* _LRC_FETCH_H */ 
