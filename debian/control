@@ -1,13 +1,13 @@
 Source: osdlyrics
-Section: unknown
-Priority: extra
+Section: x11
+Priority: optional
 Maintainer: TigerSoldier <tigersoldi@gmail.com>
 Build-Depends: debhelper (>= 7), autotools-dev, libglade2-dev, libgtk2.0-dev, libdbus-glib-1-dev, libcurl3-dev | libcurl4-dev
 Standards-Version: 3.8.0
-Homepage: <insert the upstream URL, if relevant>
+Homepage: http://code.google.com/p/osd-lyrics/
 
 Package: osdlyrics
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: libgtk2.0-0, libcurl3 | libcurl4, libdbus-glib-1-2, libglade2-0, ${shlibs:Depends}
 Description: An OSD lyrics show supports multiple players.
  <insert long description, indented with spaces>

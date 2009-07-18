@@ -12,6 +12,7 @@ AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
 	Makefile
+	dailydeb.sh
 	src/Makefile
 	src/tests/Makefile
 	data/Makefile
@@ -69,3 +70,5 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 # Checks for library functions.
 
 AC_OUTPUT
+
+chmod +x dailydeb.sh
