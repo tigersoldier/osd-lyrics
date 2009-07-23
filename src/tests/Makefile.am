@@ -13,8 +13,8 @@ INCLUDES = @GTK2_CFLAGS@ \
 ol_osd_test_SOURCES = ol_osd_test.c
 ol_osd_test_CPPFLAGS = @GTK2_CFLAGS@
 ol_osd_test_LDADD = \
-	$(top_srcdir)/src/libol_osd_window.a \
-	$(top_srcdir)/src/libol_utils.a \
+	$(top_srcdir)/src/ol_osd_window.c \
+	$(top_srcdir)/src/ol_utils.c \
 	@GTK2_LIBS@
 ol_osd_test_DEPENDENCIES = $(top_srcdir)/src/libol_osd_window.a
 
@@ -43,7 +43,9 @@ ol_lrc_utility_test_LDADD = \
 
 ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c
 ol_lrc_fetch_test_LDADD = \
-	$(top_srcdir)/src/libol_lrc_fetch.a \
+	$(top_srcdir)/src/ol_lrc_fetch.c \
+	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
+	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
 	@CURL_LIBS@
 
 ol_config_test_SOURCES = \

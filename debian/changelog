@@ -1,5 +1,17 @@
-osdlyrics (0.1-1) unstable; urgency=low
+osdlyrics (0.1-0~ppa0) jaunty; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Uses real install-sh instead of symbol link
 
- -- TigerSoldier <tigersoldi@gmail.com>  Mon, 13 Jul 2009 23:19:24 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800
+
+osdlyrics (0.1-1ubuntu1) jaunty; urgency=low
+
+  * Uses real install-sh instead of symbol link
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800
+
+osdlyrics (0.1-0ubuntu1) jaunty; urgency=low
+
+  * Initial release
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800

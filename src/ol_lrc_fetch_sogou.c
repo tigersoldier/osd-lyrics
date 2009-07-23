@@ -150,7 +150,12 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
   return 0;
 }
 
-OlLrcFetchEngine sogou = {
+static OlLrcFetchEngine sogou = {
   ol_lrc_fetch_sogou_search_wrapper,
   ol_lrc_fetch_sogou_download,
 };
+
+OlLrcFetchEngine *ol_lrc_fetch_sogou_engine ()
+{
+  return &sogou;
+}
