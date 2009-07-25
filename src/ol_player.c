@@ -6,6 +6,7 @@
 #include "ol_player_amarok2.h"
 #include "ol_player_audacious.h"
 #include "ol_player_xmms2.h"
+#include "ol_player_rhythmbox.h"
 
 static GArray *controllers = NULL;
 
@@ -22,6 +23,7 @@ ol_player_init ()
   }
     ol_player_register_controller (ol_player_audacious_get_controller (), "Audacious");
     ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2");
+    ol_player_register_controller (ol_player_rhythmbox_get_controller (), "Rhythmbox");
   
 }
 

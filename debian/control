@@ -2,7 +2,7 @@ Source: osdlyrics
 Section: x11
 Priority: optional
 Maintainer: TigerSoldier <tigersoldi@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, libglade2-dev, libgtk2.0-dev, libdbus-glib-1-dev, libcurl3-dev | libcurl4-dev
+Build-Depends: debhelper, autotools-dev, libglade2-dev, libgtk2.0-dev, libdbus-glib-1-dev, libcurl3-dev | libcurl4-dev
 Standards-Version: 3.8.0
 Homepage: http://code.google.com/p/osd-lyrics/
 

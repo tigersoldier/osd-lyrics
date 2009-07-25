@@ -29,6 +29,7 @@ osd_lyrics_SOURCES = \
 	ol_player_mpris.c \
 	ol_player_audacious.c \
 	ol_player_xmms2.c \
+	ol_player_rhythmbox.c \
 	ol_utils.c \
 	ol_utils_dbus.c \
 	ol_utils_dcop.c \
@@ -38,7 +39,7 @@ osd_lyrics_SOURCES = \
 	ol_menu.c \
 	ol_lrc_fetch.c \
 	ol_lrc_fetch_sogou.c \
-	ol_lrc_fetch_utils.c
+	ol_lrc_fetch_utils.c 
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \

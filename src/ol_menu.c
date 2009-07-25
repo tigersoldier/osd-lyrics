@@ -6,12 +6,12 @@
 
 static GtkWidget *popup_menu = NULL;
 
-/* static void  */
-/* destroy (GtkWidget *widget, */
-/*          gpointer data) */
-/* { */
-/*   gtk_main_quit (); */
-/* } */
+static void
+ol_menu_quit (GtkWidget *widget,
+              gpointer data)
+{
+  gtk_main_quit ();
+}
 
 static void
 osd_window_lock_change (GtkStatusIcon *widget, gpointer data)
@@ -64,9 +64,9 @@ ol_menu_get_popup ()
         
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, NULL);
     gtk_menu_append (popup_menu, item);
-    /* g_signal_connect (G_OBJECT(item), "activate", */
-    /*                   G_CALLBACK(destroy),  */
-    /*                   NULL); */
+    g_signal_connect (G_OBJECT(item), "activate",
+                      G_CALLBACK(ol_menu_quit),
+                      NULL);
     gtk_widget_show_all (popup_menu);
   }
   return popup_menu;

@@ -1,6 +1,25 @@
+osdlyrics (0.1-0~ppa2~hardy1) hardy; urgency=low
+
+  * Uses lower debhelper version in build dependency so that hardy can compile it
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Thu, 23 Jul 2009 13:17:33 +0800
+
+osdlyrics (0.1-0~ppa1~intrepid1) intrepid; urgency=low
+
+  * Implement the lrc fetch interface so that it won't crash when downloading
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Thu, 23 Jul 2009 13:17:33 +0800
+
+osdlyrics (0.1-0~ppa1~hardy1) hardy; urgency=low
+
+  * Implement the lrc fetch interface so that it won't crash when downloading
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Thu, 23 Jul 2009 13:17:33 +0800
+
+
 osdlyrics (0.1-0~ppa0) jaunty; urgency=low
 
-  * Uses real install-sh instead of symbol link
+  * Uses real automake missing files instead of symbol link
 
  -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800
 

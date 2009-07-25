@@ -46,7 +46,7 @@ ol_player_amarok2_init_timer (int time)
  * Because Amarok2 return position only in seconds, which means the position
  * is rounded to 1000, so we need to simulate a timer to get proper time
  * in milliseconds
- * @param time 
+ * @param time rounded time in milliseconds
  * 
  * @return 
  */
