@@ -314,6 +314,7 @@ ol_init_osd ()
 void
 check_music_change (int time)
 {
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
   gboolean stop = FALSE;
@@ -322,7 +323,6 @@ check_music_change (int time)
       previous_title != NULL)
     return;
   /* compares the previous title with current title */
-  fprintf (stderr, "%s\n", __FUNCTION__);
   if (controller && !controller->get_music_info (&music_info))
   {
     controller = NULL;
@@ -398,6 +398,7 @@ check_music_change (int time)
 gint
 refresh_music_info (gpointer data)
 {
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   if (controller == NULL)
   {
     controller = ol_player_get_active_player ();

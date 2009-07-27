@@ -44,6 +44,7 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
+  fprintf (stderr, "%s\n", __FUNCTION__);
   if (dbus_g_proxy_call (mpris->proxy,
                          GET_METADATA_METHOD,
                          NULL,G_TYPE_INVALID,
@@ -57,11 +58,13 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
   {
     return NULL;
   }
+  fprintf (stderr, "%s\n", __FUNCTION__);
 }
 
 gboolean
 ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
 {
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   GHashTable *data_list = NULL;
   gboolean ret = TRUE;
   if (info == NULL)

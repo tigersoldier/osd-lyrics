@@ -32,7 +32,7 @@ struct _OlOsdWindow
   guint current_line;           /* which line is playing currently */
   double percentage[OL_OSD_WINDOW_MAX_LINE_COUNT];
   GdkPixmap *active_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
-  GdkPixmap *inactive_lyric_pixmap;
+  GdkPixmap *inactive_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
   GdkPixmap *shape_pixmap;
   OlOsdRenderContext *render_context;
 };

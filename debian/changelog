@@ -1,3 +1,15 @@
+osdlyrics (0.1-0~ppa2~jaunty1) jaunty; urgency=low
+
+  * Adds support for Rhythmbox
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Sun, 26 Jul 2009 11:25:44 +0800
+
+osdlyrics (0.1-0~ppa2~intrepid1) intrepid; urgency=low
+
+  * Adds support for Rhythmbox
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Sun, 26 Jul 2009 11:25:44 +0800
+
 osdlyrics (0.1-0~ppa2~hardy1) hardy; urgency=low
 
   * Uses lower debhelper version in build dependency so that hardy can compile it
