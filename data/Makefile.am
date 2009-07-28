@@ -4,3 +4,5 @@ icon_DATA = \
 gladedir = @OL_GLADEDIR@
 glade_DATA = \
 	dialogs.glade
+menudir = ${datadir}/applications
+menu_DATA = osd-lyrics.desktop

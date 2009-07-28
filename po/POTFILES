@@ -1,3 +1,4 @@
      ../src/ol_menu.c \
      ../src/ol_main.c \
+     ../src/ol_trayicon.c \
      ../data/dialogs.glade

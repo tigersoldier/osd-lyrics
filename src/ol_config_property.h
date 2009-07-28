@@ -20,6 +20,8 @@ enum {
   PROP_WIDTH,
   PROP_LOCKED,
   PROP_FONT_FAMILY,
+  PROP_LRC_ALIGN_0,
+  PROP_LRC_ALIGN_1,
 };
 
 typedef struct _OlConfigBoolValue OlConfigBoolValue;
@@ -86,6 +88,12 @@ static const OlConfigDoubleValue config_double[] = {
   {PROP_FONT_SIZE, "font-size", "OSD Font Size",
    "The font size of OSD lyrics",
    0.0, 10000.0, 30.0},
+  {PROP_LRC_ALIGN_0, "lrc-align-0", "Lyric alignment 0",
+   "Alignment of the first lyric line",
+   0.0, 1.0, 0.0},
+  {PROP_LRC_ALIGN_1, "lrc-align-1", "Lyric alignment 1",
+   "Alignment of the second lyric line",
+   0.0, 1.0, 1.0},
 };
 
 static const OlConfigStringValue config_str[] = {

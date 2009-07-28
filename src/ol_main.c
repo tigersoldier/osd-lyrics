@@ -94,6 +94,16 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
     ol_osd_window_set_width (osd,
                              ol_config_get_int (config, "width"));
   }
+  else if (strcmp (name, "lrc-align-0") == 0)
+  {
+    ol_osd_window_set_line_alignment (osd, 0,
+                                      ol_config_get_double (config, name));
+  }
+  else if (strcmp (name, "lrc-align-1") == 0)
+  {
+    ol_osd_window_set_line_alignment (osd, 1,
+                                      ol_config_get_double (config, name));
+  }
 }
 
 void
@@ -290,8 +300,6 @@ ol_init_osd ()
   osd = OL_OSD_WINDOW (ol_osd_window_new ());
   /* ol_osd_window_resize (osd, 1024, 100); */
   ol_osd_window_set_alignment (osd, 0.5, 1);
-  ol_osd_window_set_line_alignment (osd, 0, 0.0);
-  ol_osd_window_set_line_alignment (osd, 1, 1.0);
   gtk_widget_show (GTK_WIDGET (osd));
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
@@ -299,13 +307,8 @@ ol_init_osd ()
   config_change_handler (config, "font-family", osd);
   config_change_handler (config, "font-size", osd);
   config_change_handler (config, "width", osd);
-  /* ol_osd_window_set_alignment (osd, */
-  /*                              ol_config_get_double (config, "xalign"), */
-  /*                              ol_config_get_double (config, "yalign")); */
-  /* gchar *font_family = ol_config_get_string (config, "font-family"); */
-  /* ol_osd_window_set_font_family (osd, font_family); */
-  /* g_free (font_family); */
-  /* ol_osd_window_set_font_size (osd, ol_config_get_double (config, "font-size")); */
+  config_change_handler (config, "lrc-align-0", osd);
+  config_change_handler (config, "lrc-align-1", osd);
   g_signal_connect (config, "changed",
                     G_CALLBACK (config_change_handler),
                     osd);

@@ -1,3 +1,15 @@
+osdlyrics (0.1-0~ppa3~intrepid1) intrepid; urgency=low
+
+  * Fix the problem when display lyrics which is longer than width
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 27 Jul 2009 16:17:41 +0800
+
+osdlyrics (0.1-0~ppa3~jaunty1) jaunty; urgency=low
+
+  * Fix the problem when display lyrics which is longer than width
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 27 Jul 2009 16:17:41 +0800
+
 osdlyrics (0.1-0~ppa2~jaunty1) jaunty; urgency=low
 
   * Adds support for Rhythmbox

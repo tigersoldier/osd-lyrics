@@ -1,5 +1,6 @@
 # List of source files which contain translatable strings.
 src/ol_menu.c
 src/ol_main.c
+src/ol_trayicon.c
 # Glade files
 data/dialogs.glade

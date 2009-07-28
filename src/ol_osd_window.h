@@ -33,6 +33,8 @@ struct _OlOsdWindow
   double percentage[OL_OSD_WINDOW_MAX_LINE_COUNT];
   GdkPixmap *active_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
   GdkPixmap *inactive_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
+  OlColor active_colors[OL_LINEAR_COLOR_COUNT];
+  OlColor inactive_colors[OL_LINEAR_COLOR_COUNT];
   GdkPixmap *shape_pixmap;
   OlOsdRenderContext *render_context;
 };
@@ -204,5 +206,31 @@ void ol_osd_window_set_font_size (OlOsdWindow *osd,
  * @return The font size for the context
  */
 double ol_osd_window_get_font_size (OlOsdWindow *osd);
+
+/** 
+ * @brief Sets the color of active lyrics
+ * Active lyric is the played part of the lyric
+ * @param osd An OlOsdWindow
+ * @param top_color The color of the top part of the lyrics
+ * @param middle_color The color of the middle part of the lyrics
+ * @param bottom_color The color of the bottom part of the lyrics
+ */
+void ol_osd_set_active_colors (OlOsdWindow *osd,
+                               OlColor top_color,
+                               OlColor middle_color,
+                               OlColor bottom_color);
+
+/** 
+ * @brief Sets the color of inactive lyrics
+ * Inactive lyric is the lyric to be played
+ * @param osd An OlOsdWindow
+ * @param top_color The color of the top part of the lyrics
+ * @param middle_color The color of the middle part of the lyrics
+ * @param bottom_color The color of the bottom part of the lyrics
+ */
+void ol_osd_set_inactive_colors (OlOsdWindow *osd,
+                               OlColor top_color,
+                               OlColor middle_color,
+                               OlColor bottom_color);
 
 #endif // __OSD_WINDOW_H__

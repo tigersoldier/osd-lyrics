@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-07-12 01:33+0800\n"
+"POT-Creation-Date: 2009-07-29 01:44+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ol_menu.c:46 src/ol_main.c:430
+#: src/ol_menu.c:44 src/ol_main.c:435
 msgid "_Lock"
+msgstr ""
+
+#: src/ol_trayicon.c:36
+msgid "OSD Lyrics"
 msgstr ""
 
 #: data/dialogs.glade:9
@@ -25,33 +29,93 @@ msgid "Copyright 2009 The OSD Lyrics project."
 msgstr ""
 
 #: data/dialogs.glade:10
-msgid "An OSD lyrics show supports multiple players"
-msgstr ""
-
-#: data/dialogs.glade:12
-msgid "http://code.google.com/p/osd-lyrics/"
+msgid "An OSD lyric show supporting multiple media players and downloading.\n"
 msgstr ""
 
 #: data/dialogs.glade:13
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr ""
+
+#: data/dialogs.glade:14
 msgid "GPL v3"
 msgstr ""
 
-#: data/dialogs.glade:42
+#: data/dialogs.glade:43
 msgid "Preferences"
 msgstr ""
 
-#: data/dialogs.glade:64
+#: data/dialogs.glade:69
 msgid "_Font:"
 msgstr ""
 
-#: data/dialogs.glade:88
+#: data/dialogs.glade:95
 msgid "_Width:"
 msgstr ""
 
-#: data/dialogs.glade:132
+#: data/dialogs.glade:142
+msgid "F_irst line:"
+msgstr ""
+
+#: data/dialogs.glade:168
+msgid "_Second line:"
+msgstr ""
+
+#: data/dialogs.glade:200
+msgid "<b>Lyric _Alignment</b>"
+msgstr ""
+
+#: data/dialogs.glade:233
+msgid "Color _Theme:"
+msgstr ""
+
+#: data/dialogs.glade:251
+msgid "C_ustomize colors"
+msgstr ""
+
+#: data/dialogs.glade:276
+msgid "Acti_ve lyrics:"
+msgstr ""
+
+#: data/dialogs.glade:295 data/dialogs.glade:361
+msgid "top"
+msgstr ""
+
+#: data/dialogs.glade:305 data/dialogs.glade:387
+msgid "middle"
+msgstr ""
+
+#: data/dialogs.glade:328 data/dialogs.glade:413
+msgid "bottom"
+msgstr ""
+
+#: data/dialogs.glade:350
+msgid "Inactiv_e lyrics:"
+msgstr ""
+
+#: data/dialogs.glade:448
+msgid "<b>Lyric _Color</b>"
+msgstr ""
+
+#: data/dialogs.glade:466
+msgid "_OSD"
+msgstr ""
+
+#: data/dialogs.glade:477 data/dialogs.glade:498
+msgid "TODO: Add options here"
+msgstr ""
+
+#: data/dialogs.glade:486
+msgid "_General"
+msgstr ""
+
+#: data/dialogs.glade:507
+msgid "_Download"
+msgstr ""
+
+#: data/dialogs.glade:527
 msgid "gtk-cancel"
 msgstr ""
 
-#: data/dialogs.glade:146
+#: data/dialogs.glade:542
 msgid "gtk-ok"
 msgstr ""

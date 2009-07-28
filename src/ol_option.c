@@ -11,6 +11,7 @@ static struct _OptionWidgets
   GtkWidget *cancel;
   GtkWidget *font;
   GtkWidget *width;
+  GtkWidget *lrc_align[2];
 } options;
 
 void ol_option_ok_clicked (GtkWidget *widget);
@@ -38,6 +39,18 @@ ol_option_update_widget (OptionWidgets *widgets)
   {
     gtk_spin_button_set_value (width_widget,
                                ol_config_get_int (config, "width"));
+  }
+  int i;
+  for (i = 0; i < 2; i++)
+  {
+    GtkRange *lrc_align = GTK_RANGE (widgets->lrc_align[i]);
+    if (lrc_align != NULL)
+    {
+      char buffer[20];
+      sprintf (buffer, "lrc-align-%d", i);
+      gtk_range_set_value (lrc_align,
+                           ol_config_get_double (config, buffer));
+    }
   }
 }
 
@@ -72,6 +85,19 @@ ol_option_ok_clicked (GtkWidget *widget)
     ol_config_set_int (config, "width", gtk_spin_button_get_value (width_widget));
                                
   }
+  int i;
+  for (i = 0; i < 2; i++)
+  {
+    GtkRange *lrc_align = GTK_RANGE (options.lrc_align[i]);
+    if (lrc_align != NULL)
+    {
+      char buffer[20];
+      sprintf (buffer, "lrc-align-%d", i);
+      ol_config_set_double (config, buffer, 
+                            gtk_range_get_value (lrc_align));
+
+    }
+  }
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -105,6 +131,8 @@ ol_option_show ()
     options.cancel = ol_glade_get_widget ("optioncancel");
     options.font = ol_glade_get_widget ("osd-font");
     options.width = ol_glade_get_widget ("osd-width");
+    options.lrc_align[0] = ol_glade_get_widget ("lrc-align-0");
+    options.lrc_align[1] = ol_glade_get_widget ("lrc-align-1");
   }
   g_return_if_fail (window != NULL);
   ol_option_update_widget (&options);
