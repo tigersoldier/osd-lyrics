@@ -12,4 +12,18 @@ typedef struct
   int track_number;            /* The track number of the music */
 } OlMusicInfo;
 
+void ol_music_info_init (OlMusicInfo *music_info);
+void ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src);
+/** 
+ * @ Free members of music_info. music_info itself will no be freed.
+ * 
+ * @param music_info 
+ */
+void ol_music_info_finalize (OlMusicInfo *music_info);
+/** 
+ * @ Free music_info, including its members.
+ * 
+ * @param music_info 
+ */
+void ol_music_info_destroy (OlMusicInfo *music_info);
 #endif /* _OL_MUSIC_INFO_H_ */

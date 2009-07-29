@@ -21,6 +21,7 @@ osd_lyrics_SOURCES = \
 	ol_option.c \
 	ol_osd_window.c \
 	ol_osd_render.c \
+	ol_osd_module.c \
 	ol_player.c \
 	ol_player_banshee.c \
 	ol_player_exaile.c \
@@ -40,7 +41,8 @@ osd_lyrics_SOURCES = \
 	ol_menu.c \
 	ol_lrc_fetch.c \
 	ol_lrc_fetch_sogou.c \
-	ol_lrc_fetch_utils.c 
+	ol_lrc_fetch_utils.c \
+	ol_music_info.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \

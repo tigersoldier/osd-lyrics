@@ -29,7 +29,7 @@ popup (GtkStatusIcon *status_icon,
                   activate_time);
 }
 
-void ol_trayicon_inital (OlOsdWindow *osd)
+void ol_trayicon_inital ()
 {
   status_icon = gtk_status_icon_new_from_file (TRAYICON_FILE);
   gtk_status_icon_set_visible (status_icon, TRUE);
@@ -37,7 +37,7 @@ void ol_trayicon_inital (OlOsdWindow *osd)
 
   /* Connect signals */
   g_signal_connect (G_OBJECT (status_icon), "popup-menu",
-                    G_CALLBACK (popup), osd);
+                    G_CALLBACK (popup), NULL);
 
   g_signal_connect (G_OBJECT (status_icon), "activate",
                     G_CALLBACK (activate), NULL);

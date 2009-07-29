@@ -13,6 +13,7 @@
 #include "ol_trayicon.h"
 #include "ol_intl.h"
 #include "ol_config.h"
+#include "ol_osd_module.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -20,22 +21,17 @@ static const gchar *LRC_PATH = ".lyrics";
 
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
-static OlOsdWindow *osd = NULL;
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
 static gint previous_duration = 0;
 static gint previous_position = -1;
-static gint lrc_id = -1;
-static gint lrc_next_id = -1;
-static gint current_line = 0;
 static LrcQueue *lrc_file = NULL;
+static OlOsdModule *module = NULL;
 
-void ol_init_osd ();
-gint refresh_music_info (gpointer data);
-void check_music_change (int time);
-void change_music ();
-gboolean is_file_exist (const char *filename);
-void get_user_home_directory (char *dir);
+static gint refresh_music_info (gpointer data);
+static void check_music_change (int time);
+static void change_music ();
+static gboolean is_file_exist (const char *filename);
 /** 
  * Gets a music's full path filename
  * 
@@ -43,10 +39,7 @@ void get_user_home_directory (char *dir);
  * @param pathname the returned full path filename
  */
 void get_lyric_path_name (OlMusicInfo *music_info, char *pathname);
-void update_osd (int time, int duration);
-void update_next_lyric (LrcInfo *current_lrc);
 gboolean download_lyric (OlMusicInfo *music_info);
-static void config_change_handler (OlConfig *config, gchar *name, gpointer userdata);
 
 /** 
  * @brief Gets the real lyric of the given lyric
@@ -59,59 +52,12 @@ static void config_change_handler (OlConfig *config, gchar *name, gpointer userd
  */
 LrcInfo* get_real_lyric (LrcInfo *lrc);
 
-
-static void
-config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
-{
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
-  OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
-  if (strcmp (name, "locked") == 0)
-  {
-    fprintf (stderr, "  locked: %d\n", ol_config_get_bool (config, "locked"));
-    ol_osd_window_set_locked (osd,
-                              ol_config_get_bool (config, "locked"));
-  }
-  else if (strcmp (name, "xalign") == 0 || strcmp (name, "yalign") == 0)
-  {
-    double xalign = ol_config_get_double (config, "xalign");
-    double yalign = ol_config_get_double (config, "yalign");
-    ol_osd_window_set_alignment (osd, xalign, yalign);
-  }
-  else if (strcmp (name, "font-family") == 0)
-  {
-    gchar *font = ol_config_get_string (config, "font-family");
-    g_return_if_fail (font != NULL);
-    ol_osd_window_set_font_family (osd, font);
-    g_free (font);
-  }
-  else if (strcmp (name, "font-size") == 0)
-  {
-    ol_osd_window_set_font_size (osd,
-                                 ol_config_get_double (config, "font-size"));
-  }
-  else if (strcmp (name, "width") == 0)
-  {
-    ol_osd_window_set_width (osd,
-                             ol_config_get_int (config, "width"));
-  }
-  else if (strcmp (name, "lrc-align-0") == 0)
-  {
-    ol_osd_window_set_line_alignment (osd, 0,
-                                      ol_config_get_double (config, name));
-  }
-  else if (strcmp (name, "lrc-align-1") == 0)
-  {
-    ol_osd_window_set_line_alignment (osd, 1,
-                                      ol_config_get_double (config, name));
-  }
-}
-
 void
 get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 {
   if (pathname == NULL)
     return;
-  char home_dir[MAX_PATH_LEN];
+  const char *home_dir;
   if (lrc_file != NULL)
   {
     free (lrc_file);
@@ -119,7 +65,7 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
   }
   if (previous_title == NULL)
     return;
-  get_user_home_directory (home_dir);
+  home_dir = g_get_home_dir ();
   if (previous_artist == NULL)
   {
     sprintf (pathname, "%s/%s/%s.lrc", home_dir, LRC_PATH, previous_title);
@@ -151,115 +97,6 @@ gboolean download_lyric (OlMusicInfo *music_info)
   }
 }
 
-LrcInfo*
-get_real_lyric (LrcInfo *lrc)
-{
-  while (lrc != NULL)
-  {
-    if (!ol_is_string_empty (ol_lrc_parser_get_lyric_text (lrc)))
-      break;
-    lrc = ol_lrc_parser_get_next_of_lyric (lrc);
-  }
-  return lrc;
-}
-
-void
-update_next_lyric (LrcInfo *current_lrc)
-{
-  LrcInfo *info = ol_lrc_parser_get_next_of_lyric (current_lrc);
-  info = get_real_lyric (info);
-  if (info == NULL)
-  {
-    if (lrc_next_id == -1)
-    {
-      return;
-    }
-    else
-    {
-      lrc_next_id = -1;
-      ol_osd_window_set_lyric (osd, 1 - current_line, "");
-    }
-  }
-  else
-  {
-    if (lrc_next_id == ol_lrc_parser_get_lyric_id (info))
-      return;
-    if (info != NULL)
-    {
-      lrc_next_id = ol_lrc_parser_get_lyric_id (info);
-      ol_osd_window_set_lyric (osd, 1 - current_line,
-                               ol_lrc_parser_get_lyric_text (info));
-    }
-  }
-  ol_osd_window_set_percentage (osd, 1 - current_line, 0.0);
-}
-
-void
-update_osd (int time, int duration)
-{
-  /* updates the time and lyrics */
-  if (lrc_file != NULL && osd != NULL)
-  {
-    char current_lrc[1024];
-    double percentage;
-    int id, lyric_id;
-    ol_lrc_utility_get_lyric_by_time (lrc_file, time, duration, current_lrc, &percentage, &lyric_id);
-    LrcInfo *info = ol_lrc_parser_get_lyric_by_id (lrc_file, lyric_id);
-    info = get_real_lyric (info);
-    if (info == NULL)
-      id = -1;
-    else
-      id = ol_lrc_parser_get_lyric_id (info);
-    if (lrc_id != id)
-    {
-      if (id == -1)
-        return;
-      if (id != lrc_next_id)
-      {
-        current_line = 0;
-        if (ol_lrc_parser_get_lyric_text (info) != NULL)
-          ol_osd_window_set_lyric (osd, current_line, ol_lrc_parser_get_lyric_text (info));
-        if (id != lyric_id)
-          ol_osd_window_set_current_percentage (osd, 0.0);
-        update_next_lyric (info);
-      }
-      else
-      {
-        ol_osd_window_set_percentage (osd, current_line, 1.0);
-        current_line = 1 - current_line;
-      }
-      lrc_id = id;
-      ol_osd_window_set_current_line (osd, current_line);
-    }
-    if (id == lyric_id && percentage > 0.5)
-      update_next_lyric (info);
-    if (id == lyric_id)
-    {
-      ol_osd_window_set_current_percentage (osd, percentage);
-    }
-    if (!GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
-      gtk_widget_show (GTK_WIDGET (osd));
-  }
-  else
-  {
-    if (osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (osd)))
-      gtk_widget_hide (GTK_WIDGET (osd));
-  }
-}
-
-void
-get_user_home_directory (char *dir)
-{
-  if (dir == NULL)
-    return;
-  struct passwd *buf;
-  if (buf = getpwuid (getuid ()))
-  {
-    if (buf->pw_dir != NULL)
-      strcpy (dir, buf->pw_dir);
-  }
-}
-
 gboolean
 is_file_exist (const char *filename)
 {
@@ -275,43 +112,21 @@ change_music ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  lrc_id = -1;
-  lrc_next_id = -1;
-  current_line = 0;
   gchar file_name[MAX_PATH_LEN];
   get_lyric_path_name (&music_info, file_name);
-  if (osd != NULL)
+  if (module != NULL)
   {
-    gtk_widget_hide (GTK_WIDGET (osd));
-    ol_osd_window_set_lyric (osd, 0, NULL);
-    ol_osd_window_set_lyric (osd, 1, NULL);
+    ol_osd_module_set_music_info (module, &music_info);
+    ol_osd_module_set_duration (module, previous_duration);
   }
+  ol_osd_module_set_lrc (module, NULL);
   if (!is_file_exist (file_name))
   {
     if (!download_lyric (&music_info) || !is_file_exist (file_name))
     return;
   }
   lrc_file = ol_lrc_parser_get_lyric_info (file_name);
-}
-
-void
-ol_init_osd ()
-{
-  osd = OL_OSD_WINDOW (ol_osd_window_new ());
-  /* ol_osd_window_resize (osd, 1024, 100); */
-  ol_osd_window_set_alignment (osd, 0.5, 1);
-  gtk_widget_show (GTK_WIDGET (osd));
-  OlConfig *config = ol_config_get_instance ();
-  g_return_if_fail (config != NULL);
-  config_change_handler (config, "xalign", osd);
-  config_change_handler (config, "font-family", osd);
-  config_change_handler (config, "font-size", osd);
-  config_change_handler (config, "width", osd);
-  config_change_handler (config, "lrc-align-0", osd);
-  config_change_handler (config, "lrc-align-1", osd);
-  g_signal_connect (config, "changed",
-                    G_CALLBACK (config_change_handler),
-                    osd);
+  ol_osd_module_set_lrc (module, lrc_file);
 }
 
 void
@@ -388,9 +203,9 @@ check_music_change (int time)
   /* } */
   if (stop)
   {
-    if (osd != NULL && GTK_WIDGET_MAPPED (osd))
-      gtk_widget_hide (GTK_WIDGET (osd));
-    return;
+    /* if (osd != NULL && GTK_WIDGET_MAPPED (osd)) */
+    /*   gtk_widget_hide (GTK_WIDGET (osd)); */
+    /* return; */
   }
   if (changed)
   {
@@ -418,7 +233,7 @@ refresh_music_info (gpointer data)
     previous_position = -1;
     return TRUE;
   }
-  update_osd (time, previous_duration);
+  ol_osd_module_set_played_time (module, time);
   return TRUE;
 }
 
@@ -437,13 +252,13 @@ main (int argc, char **argv)
   
   gtk_init (&argc, &argv);
   ol_player_init ();
-  ol_init_osd ();
-  ol_trayicon_inital (osd);
+  module = ol_osd_module_new ();
+  ol_trayicon_inital ();
   ol_get_string_from_hash_table (NULL, NULL);
   g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
   gtk_main ();
   ol_player_free ();
-  g_object_unref (osd);
-  osd = NULL;
+  ol_osd_module_destroy (module);
+  module = NULL;
   return 0;
 }

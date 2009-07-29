@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-07-29 01:44+0800\n"
+"POT-Creation-Date: 2009-07-29 02:22+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,70 +52,70 @@ msgstr ""
 msgid "_Width:"
 msgstr ""
 
-#: data/dialogs.glade:142
+#: data/dialogs.glade:143
 msgid "F_irst line:"
 msgstr ""
 
-#: data/dialogs.glade:168
+#: data/dialogs.glade:169
 msgid "_Second line:"
 msgstr ""
 
-#: data/dialogs.glade:200
+#: data/dialogs.glade:201
 msgid "<b>Lyric _Alignment</b>"
 msgstr ""
 
-#: data/dialogs.glade:233
+#: data/dialogs.glade:235
 msgid "Color _Theme:"
 msgstr ""
 
-#: data/dialogs.glade:251
+#: data/dialogs.glade:254
 msgid "C_ustomize colors"
 msgstr ""
 
-#: data/dialogs.glade:276
+#: data/dialogs.glade:281
 msgid "Acti_ve lyrics:"
 msgstr ""
 
-#: data/dialogs.glade:295 data/dialogs.glade:361
+#: data/dialogs.glade:300 data/dialogs.glade:368
 msgid "top"
 msgstr ""
 
-#: data/dialogs.glade:305 data/dialogs.glade:387
+#: data/dialogs.glade:310 data/dialogs.glade:394
 msgid "middle"
 msgstr ""
 
-#: data/dialogs.glade:328 data/dialogs.glade:413
+#: data/dialogs.glade:333 data/dialogs.glade:420
 msgid "bottom"
 msgstr ""
 
-#: data/dialogs.glade:350
+#: data/dialogs.glade:357
 msgid "Inactiv_e lyrics:"
 msgstr ""
 
-#: data/dialogs.glade:448
+#: data/dialogs.glade:455
 msgid "<b>Lyric _Color</b>"
 msgstr ""
 
-#: data/dialogs.glade:466
+#: data/dialogs.glade:474
 msgid "_OSD"
 msgstr ""
 
-#: data/dialogs.glade:477 data/dialogs.glade:498
+#: data/dialogs.glade:485 data/dialogs.glade:506
 msgid "TODO: Add options here"
 msgstr ""
 
-#: data/dialogs.glade:486
+#: data/dialogs.glade:494
 msgid "_General"
 msgstr ""
 
-#: data/dialogs.glade:507
+#: data/dialogs.glade:515
 msgid "_Download"
 msgstr ""
 
-#: data/dialogs.glade:527
+#: data/dialogs.glade:535
 msgid "gtk-cancel"
 msgstr ""
 
-#: data/dialogs.glade:542
+#: data/dialogs.glade:550
 msgid "gtk-ok"
 msgstr ""
