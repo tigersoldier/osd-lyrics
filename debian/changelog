@@ -1,60 +1,72 @@
+osdlyrics (0.1-0~20090730~jaunty1) jaunty; urgency=low
+
+  * Source refactory, nothing changed
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 30 Jul 2009 11:44:46 +0800
+
+osdlyrics (0.1-0~20090730~intrepid1) intrepid; urgency=low
+
+  * Source refactory, nothing changed
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 30 Jul 2009 11:44:46 +0800
+
 osdlyrics (0.1-0~ppa3~intrepid1) intrepid; urgency=low
 
   * Fix the problem when display lyrics which is longer than width
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 27 Jul 2009 16:17:41 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 27 Jul 2009 16:17:41 +0800
 
 osdlyrics (0.1-0~ppa3~jaunty1) jaunty; urgency=low
 
   * Fix the problem when display lyrics which is longer than width
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 27 Jul 2009 16:17:41 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 27 Jul 2009 16:17:41 +0800
 
 osdlyrics (0.1-0~ppa2~jaunty1) jaunty; urgency=low
 
   * Adds support for Rhythmbox
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Sun, 26 Jul 2009 11:25:44 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 26 Jul 2009 11:25:44 +0800
 
 osdlyrics (0.1-0~ppa2~intrepid1) intrepid; urgency=low
 
   * Adds support for Rhythmbox
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Sun, 26 Jul 2009 11:25:44 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 26 Jul 2009 11:25:44 +0800
 
 osdlyrics (0.1-0~ppa2~hardy1) hardy; urgency=low
 
   * Uses lower debhelper version in build dependency so that hardy can compile it
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Thu, 23 Jul 2009 13:17:33 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 23 Jul 2009 13:17:33 +0800
 
 osdlyrics (0.1-0~ppa1~intrepid1) intrepid; urgency=low
 
   * Implement the lrc fetch interface so that it won't crash when downloading
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Thu, 23 Jul 2009 13:17:33 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 23 Jul 2009 13:17:33 +0800
 
 osdlyrics (0.1-0~ppa1~hardy1) hardy; urgency=low
 
   * Implement the lrc fetch interface so that it won't crash when downloading
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Thu, 23 Jul 2009 13:17:33 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 23 Jul 2009 13:17:33 +0800
 
 
 osdlyrics (0.1-0~ppa0) jaunty; urgency=low
 
   * Uses real automake missing files instead of symbol link
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 13 Jul 2009 23:19:24 +0800
 
 osdlyrics (0.1-1ubuntu1) jaunty; urgency=low
 
   * Uses real install-sh instead of symbol link
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 13 Jul 2009 23:19:24 +0800
 
 osdlyrics (0.1-0ubuntu1) jaunty; urgency=low
 
   * Initial release
 
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com> Mon, 13 Jul 2009 23:19:24 +0800
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 13 Jul 2009 23:19:24 +0800

@@ -1,7 +1,10 @@
 An OSD lyric show supporting multiple media players and downloading.
 
 OSD Lyrics supports the following media players:
-* Amarok 1.4 (High CPU usage)
-* Amarok 2.0
-* Audacious
-* Banshee
+ * Amarok 1.4 (High CPU usage)
+ * Amarok 2.0
+ * Audacious
+ * Banshee
+ * Rhythmbox
+
+Homepage: http://code.google.com/p/osd-lyrics/

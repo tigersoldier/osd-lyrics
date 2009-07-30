@@ -75,6 +75,7 @@ static gboolean ol_osd_window_button_release (GtkWidget *widget, GdkEventButton 
 static void ol_osd_window_compute_position (OlOsdWindow *osd, GtkAllocation *allocation);
 static void ol_osd_window_compute_alignment (OlOsdWindow *osd, gint x, gint y,
                                              gdouble *xalign, gdouble *yalign);
+static double ol_osd_window_calc_lyric_xpos (OlOsdWindow *osd, int line);
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
 /** 
  * @brief Paint the layout to be OSD style
@@ -89,7 +90,28 @@ static void ol_osd_window_update_shape (OlOsdWindow *osd, int line);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric);
+static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata);
 static GtkWidgetClass *parent_class = NULL;
+
+static void
+ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  g_return_if_fail (OL_IS_OSD_WINDOW (userdata));
+  GtkWidget *widget = GTK_WIDGET (userdata);
+  OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
+  gboolean mapped = GTK_WIDGET_MAPPED (widget);
+  if (mapped)
+    gtk_widget_unmap (widget);
+  if (GTK_WIDGET_REALIZED (widget))
+  {
+    gtk_widget_unrealize (widget);
+    gtk_widget_realize (widget);
+  }
+  if (mapped)
+    gtk_widget_map (widget);
+}
+
 
 GType
 ol_osd_window_get_type (void)
@@ -246,7 +268,12 @@ ol_osd_window_realize (GtkWidget *widget)
 
   osd->screen = gtk_widget_get_screen (widget);
   if (osd->screen == NULL)
+  {
     osd->screen = gdk_screen_get_default ();
+  }
+  g_signal_connect (osd->screen, "composited-changed",
+                    G_CALLBACK (ol_osd_window_screen_composited_changed),
+                    osd);
   /* sets rgba colormap */
   GdkColormap* colormap = gdk_screen_get_rgba_colormap (osd->screen);
   if (colormap == NULL)
@@ -584,6 +611,50 @@ ol_osd_window_compute_alignment (OlOsdWindow *osd,
           *yalign);
 }
 
+static double
+ol_osd_window_calc_lyric_xpos (OlOsdWindow *osd, int line)
+{
+  GtkWidget *widget = GTK_WIDGET (osd);
+  gint w, h;
+  int width, height;
+  gdk_drawable_get_size (widget->window, &w, &h);
+  gdk_drawable_get_size (osd->active_lyric_pixmap[line], &width, &height);
+  double percentage = osd->percentage[line];
+  double xpos;
+  if (w >= width)
+  {
+    xpos = (w - width) * osd->line_alignment[line];
+  }
+  else
+  {
+    OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+    if (priv->composited)
+    {
+      if (percentage * width < w / 2.0)
+        xpos = 0;
+      else if ((1.0 - percentage) * width < w / 2.0)
+        xpos = w - width;
+      else
+        xpos = w / 2.0 - width * percentage;
+    }
+    else
+    {
+      if (percentage * width < w)
+      {
+        xpos = 0;
+      }
+      else
+      {
+        int half_count = (percentage * width - w) / w + 1;
+        xpos = -half_count * w;
+        if (xpos < w - width)
+          xpos = w - width;
+      }
+    }
+  }
+  return xpos;
+}
+
 static void
 ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
 {
@@ -604,19 +675,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
     if (osd->active_lyric_pixmap[line] != NULL && osd->inactive_lyric_pixmap[line])
     {
       gdk_drawable_get_size (osd->active_lyric_pixmap[line], &width, &height);
-      if (w >= width)
-      {
-        xpos = (w - width) * osd->line_alignment[line];
-      }
-      else
-      {
-        if (percentage * width < w / 2.0)
-          xpos = 0;
-        else if ((1.0 - percentage) * width < w / 2.0)
-          xpos = w - width;
-        else
-          xpos = w / 2.0 - width * percentage;
-      }
+      xpos = ol_osd_window_calc_lyric_xpos (osd, line);
       /* paint the lyric */
       cairo_save (cr);
       cairo_rectangle (cr, xpos, ypos, (double)width * percentage, height);

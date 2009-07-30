@@ -1,3 +1,8 @@
+2009-07-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c : Add handler when composited is changed
+	Display the lyrics without composited window manager in a proper way
+
 2009-07-29  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_music_info.h: Add utility functions for OlMusicInfo
