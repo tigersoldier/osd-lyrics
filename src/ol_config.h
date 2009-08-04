@@ -94,6 +94,21 @@ gboolean ol_config_set_double (OlConfig *config, const char *name, double value)
 gboolean ol_config_set_string (OlConfig *config, const char *name, const char* value);
 
 /** 
+ * @brief Sets a string list property of the config
+ * 
+ * @param config An OlConfig
+ * @param name The name of the property
+ * @param value The value of the property
+ * @param len The length of the string property
+ * 
+ * @return If succeed, returns TRUE
+ */
+gboolean ol_config_set_str_list (OlConfig *config,
+                                 const char *name,
+                                 const char **value,
+                                 int len);
+
+/** 
  * @brief Gets a boolean property of the config
  * 
  * @param config An OlConfig
@@ -136,6 +151,20 @@ double ol_config_get_double (OlConfig *config, const char *name);
  *         must be freed by g_free. If fail, returns NULL.
  */
 char* ol_config_get_string (OlConfig *config, const char *name);
+
+/** 
+ * @brief Gets a string property of the config
+ * 
+ * @param config An OlConfig
+ * @param name The name of the property
+ * @param len return location of length of string list, or NULL
+ * 
+ * @return a NULL-terminated string array or NULL if the specified key cannot be found.
+ * The array should be freed with g_strfreev().
+ */
+char** ol_config_get_str_list (OlConfig *config,
+                               const char *name,
+                               int *len);
 
 void ol_config_save (OlConfig *config);
 void ol_config_load (OlConfig *config);

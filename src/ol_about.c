@@ -6,6 +6,19 @@
 #include "ol_glade.h"
 
 void ol_about_close_clicked (GtkWidget *widget);
+void ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data);
+
+void
+ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data)
+{
+  fprintf (stderr, "%s:%d\n", __FUNCTION__, response_id);
+  switch (response_id)
+  {
+  case GTK_RESPONSE_CANCEL:     /* Close button in about dialog */
+    gtk_widget_hide (GTK_WIDGET (dialog));
+    break;
+  }
+}
 
 void
 ol_about_close_clicked (GtkWidget *widget)

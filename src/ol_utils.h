@@ -16,4 +16,10 @@ gint ol_get_int_from_hash_table (GHashTable *hash_table, gchar *name);
  */
 gboolean ol_is_string_empty (const char *str);
 
+/** 
+ * @brief allocate memory for pathname, from APUE
+ * 
+ * @return pointer to this memory if success, or NULL
+ */
+char* ol_path_alloc(void);
 #endif // __OL_UTILS_H__

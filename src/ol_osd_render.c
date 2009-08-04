@@ -1,6 +1,5 @@
 #include "ol_osd_render.h"
 
-static const OlColor OL_BLACK = {0.0, 0.0, 0.0};
 static const double OUTLINE_WIDTH = 3.0;
 static const char *DEFAULT_FONT_FAMILY = "serif";
 static const double DEFAULT_FONT_SIZE = 30.0;
@@ -16,7 +15,7 @@ ol_osd_render_context_new ()
   int i;
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
-    context->linear_colors[i] = OL_BLACK;
+    context->linear_colors[i] = ol_color_black;
   }
   context->linear_pos[0] = 0.0;
   context->linear_pos[1] = 0.5;
@@ -60,7 +59,7 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   cairo_move_to (cr, xpos, ypos);
   cairo_save (cr);
   pango_cairo_layout_path(cr, context->pango_layout);
-  cairo_set_source_rgb (cr, OL_BLACK.r, OL_BLACK.g, OL_BLACK.b);
+  cairo_set_source_rgb (cr, ol_color_black.r, ol_color_black.g, ol_color_black.b);
   cairo_set_line_width (cr, OUTLINE_WIDTH);
   cairo_stroke (cr);
   cairo_restore (cr);

@@ -1,3 +1,18 @@
+2009-08-04  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* po/LINGUAS: Add translation for French, Russian, and Spanish
+
+	* src/ol_main.c: Ensure lyric directory when launched
+	
+	* src/ol_lrc_fetch_sogou.c: save temp files to /tmp
+	Close and remove temp files when fetch failed
+
+	* src/ol_option.c: Preview apprearence of lyrics
+
+2009-08-02  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_about.c (ol_about_response): Handles the close button of about dialog
+
 2009-07-30  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c : Add handler when composited is changed

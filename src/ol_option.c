@@ -2,6 +2,7 @@
 #include "ol_option.h"
 #include "ol_glade.h"
 #include "ol_config.h"
+#include "ol_osd_render.h"
 
 typedef struct _OptionWidgets OptionWidgets;
 
@@ -12,11 +13,117 @@ static struct _OptionWidgets
   GtkWidget *font;
   GtkWidget *width;
   GtkWidget *lrc_align[2];
+  GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
+  GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
+  GtkWidget *osd_preview;
 } options;
 
 void ol_option_ok_clicked (GtkWidget *widget);
 void ol_option_cancel_clicked (GtkWidget *widget);
+void ol_option_update_preview (GtkWidget *widget);
+void ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data);
 static void ol_option_update_widget (OptionWidgets *widgets);
+/** 
+ * @brief Get font family and font size from a GtkFontButton
+ * 
+ * @param font A GtkFontButton
+ * @param font_family Ppointer to a string, should point to NULL and
+ *                    freed by g_free
+ * @param font_size Size of the font
+ */
+static void ol_option_get_font_info (GtkFontButton *font,
+                                     gchar **font_family,
+                                     double *font_size);
+
+static void
+ol_option_get_font_info (GtkFontButton *font,
+                         gchar **font_family,
+                         double *font_size)
+{
+  const gchar *font_name = gtk_font_button_get_font_name (font);
+  PangoFontDescription *font_desc = pango_font_description_from_string (font_name);
+  fprintf (stderr, "font: %s-%s %d\n", font_name, pango_font_description_get_family (font_desc), pango_font_description_get_size (font_desc));
+  if (font_size != NULL)
+  {
+    *font_size = pango_font_description_get_size (font_desc);
+    if (!pango_font_description_get_size_is_absolute (font_desc))
+    {
+      *font_size /= PANGO_SCALE;
+      fprintf (stderr, "font-size: %lf\n", *font_size);
+    }
+  }
+  if (font_family)
+    *font_family = g_strdup (pango_font_description_get_family (font_desc));
+  pango_font_description_free (font_desc);
+}
+
+void
+ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+  g_return_if_fail (options.font != NULL);
+  static const char *preview_text = "OSD Lyrics";
+  cairo_t *cr = gdk_cairo_create (widget->window);
+  gchar *font_family = NULL;
+  double font_size;
+  ol_option_get_font_info (GTK_FONT_BUTTON (options.font), &font_family, &font_size);
+  static OlOsdRenderContext *render = NULL;
+  render = ol_osd_render_context_new ();
+  ol_osd_render_set_font_family (render, font_family);
+  ol_osd_render_set_font_size (render, font_size);
+  int tw, th, w, h;
+  gdk_drawable_get_size (widget->window, &w, &h);
+  ol_osd_render_get_pixel_size (render, preview_text, &tw, &th);
+  double x = (w - tw) / 2.0;
+  double y = (h - th) / 2.0;
+  int i;
+  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+  {
+    if (options.active_lrc_color[i] != NULL)
+    {
+      OlColor color;
+      GdkColor c;
+      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.active_lrc_color[i]),
+                                  &c);
+      color.r = c.red / 65535.0;
+      color.g = c.green / 65535.0;
+      color.b = c.blue / 65535.0;
+      ol_osd_render_set_linear_color (render, i, color);
+    }
+  }
+  cairo_save (cr);
+  cairo_rectangle (cr, 0, 0, w / 2, h);
+  cairo_clip (cr);
+  ol_osd_render_paint_text (render, cr, preview_text, x, y);
+  cairo_restore (cr);
+  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+  {
+    if (options.inactive_lrc_color[i] != NULL)
+    {
+      OlColor color;
+      GdkColor c;
+      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.inactive_lrc_color[i]),
+                                  &c);
+      color.r = c.red / 65535.0;
+      color.g = c.green / 65535.0;
+      color.b = c.blue / 65535.0;
+      ol_osd_render_set_linear_color (render, i, color);
+    }
+  }
+  cairo_save (cr);
+  cairo_rectangle (cr, w / 2, 0, w / 2, h);
+  cairo_clip (cr);
+  ol_osd_render_paint_text (render, cr, preview_text, x, y);
+  cairo_restore (cr);
+  ol_osd_render_context_destroy (render);
+  cairo_destroy (cr);
+  g_free (font_family);
+}
+
+void
+ol_option_update_preview (GtkWidget *widget)
+{
+  gtk_widget_queue_draw (options.osd_preview);
+}
 
 static void
 ol_option_update_widget (OptionWidgets *widgets)
@@ -63,20 +170,14 @@ ol_option_ok_clicked (GtkWidget *widget)
   GtkFontButton *font = GTK_FONT_BUTTON (options.font);
   if (font != NULL)
   {
-    const gchar *font_name = gtk_font_button_get_font_name (font);
-    PangoFontDescription *font_desc = pango_font_description_from_string (font_name);
-    fprintf (stderr, "font: %s-%s %d\n", font_name, pango_font_description_get_family (font_desc), pango_font_description_get_size (font_desc));
-    double font_size = pango_font_description_get_size (font_desc);
-    if (!pango_font_description_get_size_is_absolute (font_desc))
-    {
-      font_size /= PANGO_SCALE;
-      fprintf (stderr, "font-size: %lf\n", font_size);
-    }
+    gchar *font_family = NULL;
+    double font_size;
+    ol_option_get_font_info (font, &font_family, &font_size);
     ol_config_set_string (config, "font-family",
-                         pango_font_description_get_family (font_desc));
+                          font_family);
     ol_config_set_double (config, "font-size",
                           font_size);
-    pango_font_description_free (font_desc);
+    g_free (font_family);
   }
   /* Updates Width */
   GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
@@ -133,6 +234,13 @@ ol_option_show ()
     options.width = ol_glade_get_widget ("osd-width");
     options.lrc_align[0] = ol_glade_get_widget ("lrc-align-0");
     options.lrc_align[1] = ol_glade_get_widget ("lrc-align-1");
+    options.active_lrc_color[0] = ol_glade_get_widget ("active-lrc-color-0");
+    options.active_lrc_color[1] = ol_glade_get_widget ("active-lrc-color-1");
+    options.active_lrc_color[2] = ol_glade_get_widget ("active-lrc-color-2");
+    options.inactive_lrc_color[0] = ol_glade_get_widget ("inactive-lrc-color-0");
+    options.inactive_lrc_color[1] = ol_glade_get_widget ("inactive-lrc-color-1");
+    options.inactive_lrc_color[2] = ol_glade_get_widget ("inactive-lrc-color-2");
+    options.osd_preview = ol_glade_get_widget ("osd-preview");
   }
   g_return_if_fail (window != NULL);
   ol_option_update_widget (&options);

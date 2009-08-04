@@ -2,17 +2,11 @@
 #define __OL_OSD_RENDER_H__
 
 #include <gtk/gtk.h>
+#include "ol_color.h"
 
 enum {
   OL_LINEAR_COLOR_COUNT = 3,
 };
-
-typedef struct __OlColor
-{
-  double r;
-  double g;
-  double b;
-} OlColor;
 
 typedef struct
 {

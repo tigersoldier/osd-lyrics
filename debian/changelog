@@ -1,3 +1,21 @@
+osdlyrics (0.1-0~20090804~intrepid1) intrepid; urgency=low
+
+  - Close button is now available
+  * Preview in preference
+  * Translations for French, Spanish, and Russia
+  - Some bug fix
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Tue, 04 Aug 2009 14:18:37 +0800
+
+osdlyrics (0.1-0~20090804~jaunty1) jaunty; urgency=low
+
+  - Close button is now available
+  * Preview in preference
+  * Translations for French, Spanish, and Russia
+  - Some bug fix
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Tue, 04 Aug 2009 14:18:37 +0800
+
 osdlyrics (0.1-0~20090730~jaunty1) jaunty; urgency=low
 
   * Source refactory, nothing changed

@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-07-29 02:22+0800\n"
-"PO-Revision-Date: 2009-07-29 02:19+0800\n"
+"POT-Creation-Date: 2009-08-04 15:53+0800\n"
+"PO-Revision-Date: 2009-08-04 08:50+0000\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-28 17:36+0000\n"
+"X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:44 src/ol_main.c:435
+#: src/ol_menu.c:44 src/ol_main.c:264
 msgid "_Lock"
 msgstr "锁定(_L)"
 
@@ -41,82 +41,92 @@ msgstr "http://code.google.com/p/osd-lyrics/"
 msgid "GPL v3"
 msgstr "GPL v3"
 
-#: data/dialogs.glade:43
+#: data/dialogs.glade:18
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Tiger Soldier https://launchpad.net/~tigersoldi"
+
+#: data/dialogs.glade:45
 msgid "Preferences"
 msgstr "首选项"
 
-#: data/dialogs.glade:69
+#: data/dialogs.glade:71
 msgid "_Font:"
 msgstr "字体(_F):"
 
-#: data/dialogs.glade:95
+#: data/dialogs.glade:98
 msgid "_Width:"
 msgstr "宽度(_W):"
 
-#: data/dialogs.glade:143
+#: data/dialogs.glade:146
 msgid "F_irst line:"
 msgstr "首行(_I):"
 
-#: data/dialogs.glade:169
+#: data/dialogs.glade:172
 msgid "_Second line:"
 msgstr "次行(_S)"
 
-#: data/dialogs.glade:201
+#: data/dialogs.glade:204
 msgid "<b>Lyric _Alignment</b>"
 msgstr "<b>歌词对齐(_A)</b>"
 
-#: data/dialogs.glade:235
+#: data/dialogs.glade:239
 msgid "Color _Theme:"
-msgstr "色彩主题(_T):"
+msgstr "配色方案(_T):"
 
-#: data/dialogs.glade:254
+#: data/dialogs.glade:259
 msgid "C_ustomize colors"
-msgstr "自配颜色(_U)"
+msgstr "自行配色(_U)"
 
-#: data/dialogs.glade:281
+#: data/dialogs.glade:288
 msgid "Acti_ve lyrics:"
 msgstr "已唱歌词(_V):"
 
-#: data/dialogs.glade:300 data/dialogs.glade:368
+#: data/dialogs.glade:308 data/dialogs.glade:378
 msgid "top"
 msgstr "上"
 
-#: data/dialogs.glade:310 data/dialogs.glade:394
+#: data/dialogs.glade:318 data/dialogs.glade:405
 msgid "middle"
 msgstr "中"
 
-#: data/dialogs.glade:333 data/dialogs.glade:420
+#: data/dialogs.glade:342 data/dialogs.glade:432
 msgid "bottom"
 msgstr "下"
 
-#: data/dialogs.glade:357
+#: data/dialogs.glade:367
 msgid "Inactiv_e lyrics:"
 msgstr "未唱歌词(_E):"
 
-#: data/dialogs.glade:455
+#: data/dialogs.glade:468
 msgid "<b>Lyric _Color</b>"
-msgstr "<b>歌词颜色(_C)</b>"
+msgstr "<b>歌词配色(_C)</b>"
 
-#: data/dialogs.glade:474
+#: data/dialogs.glade:504
+msgid "<b>Preview</b>"
+msgstr "<b>预览</b>"
+
+#: data/dialogs.glade:521
 msgid "_OSD"
-msgstr ""
+msgstr "桌面歌词(_O)"
 
-#: data/dialogs.glade:485 data/dialogs.glade:506
+#: data/dialogs.glade:532 data/dialogs.glade:553
 msgid "TODO: Add options here"
 msgstr ""
 
-#: data/dialogs.glade:494
+#: data/dialogs.glade:541
 msgid "_General"
-msgstr ""
+msgstr "常规(_G)"
 
-#: data/dialogs.glade:515
+#: data/dialogs.glade:562
 msgid "_Download"
-msgstr ""
+msgstr "下载(_D)"
 
-#: data/dialogs.glade:535
+#: data/dialogs.glade:582
 msgid "gtk-cancel"
 msgstr "gtk-cancel"
 
-#: data/dialogs.glade:550
+#: data/dialogs.glade:597
 msgid "gtk-ok"
 msgstr "gtk-ok"

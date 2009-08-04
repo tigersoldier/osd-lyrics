@@ -22,6 +22,26 @@ enum {
   PROP_FONT_FAMILY,
   PROP_LRC_ALIGN_0,
   PROP_LRC_ALIGN_1,
+  PROP_ACTIVE_LRC_COLOR,
+  PROP_INACTIVE_LRC_COLOR,
+};
+
+static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
+  "#662600", "#FFFF00", "#FF8000", NULL,
+};
+static const char *OL_CONFIG_INACTIVE_LRC_COLOR[] = {
+  "#99FFFF", "#0000FF", "#99FFFF", NULL,
+};
+
+typedef struct _OlConfigStrListValue OlConfigStrListValue;
+struct _OlConfigStrListValue
+{
+  int key;
+  char *name;
+  char *nick;
+  char *description;
+  int len;
+  const char **default_value;
 };
 
 typedef struct _OlConfigBoolValue OlConfigBoolValue;
@@ -68,6 +88,12 @@ struct _OlConfigDoubleValue
   double default_value;
 };
 
+static const OlConfigStrListValue config_str_list[] = {
+  {PROP_ACTIVE_LRC_COLOR, "active-lrc-color", "Active lyric color",
+   "Colors of active lyrics", 3, OL_CONFIG_ACTIVE_LRC_COLOR},
+  {PROP_INACTIVE_LRC_COLOR, "inactive-lrc-color", "Inactive lyric color",
+   "Colors of inactive lyrics", 3, OL_CONFIG_INACTIVE_LRC_COLOR},
+};
 static const OlConfigBoolValue config_bool[] = {
   {PROP_LOCKED, "locked", "Lock", "Whether the OSD is locked", TRUE},
 };

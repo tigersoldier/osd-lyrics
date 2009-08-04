@@ -406,36 +406,3 @@ ignore_case_strcmp(const char *str1, const char *str2, const size_t count)
 	return 0;
 }
 
-#ifdef PATH_MAX
-static int pathmax = PATH_MAX;
-#else
-static int pathmax = 0;
-#endif
-#define PATH_MAX_GUESS 1024
-
-char *
-path_alloc(void)
-{
-	char *ptr;
-	int size;
-
-	if(pathmax == 0) {
-		errno = 0;
-		if((pathmax = pathconf("/", _PC_PATH_MAX)) < 0) {
-			if(errno == 0)
-				pathmax = PATH_MAX_GUESS;
-			else {
-				fprintf(stderr, "pathconf error for _PC_PATH_MAX\n");
-				return NULL;
-			}
-		} else 
-			pathmax++;
-	}
-
-	if((ptr = calloc(pathmax, sizeof(char))) == NULL) {
-		fprintf(stderr, "malloc error for pathname\n");
-		return NULL;
-	}
-
-	return ptr;
-}

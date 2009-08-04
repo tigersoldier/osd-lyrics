@@ -1,6 +1,9 @@
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
 #include <glib.h>
 #include <glib-object.h>
-#include <string.h>
 
 #include "ol_utils.h"
 
@@ -43,4 +46,46 @@ ol_is_string_empty (const char *str)
       return FALSE;
   }
   return TRUE;
+}
+
+#ifdef PATH_MAX
+static int pathmax = PATH_MAX;
+#else
+static int pathmax = 0;
+#endif
+#define PATH_MAX_GUESS 1024
+
+char *
+ol_path_alloc(void)
+{
+  char *ptr;
+  int size;
+
+  if(pathmax == 0)
+  {
+    errno = 0;
+    if((pathmax = pathconf("/", _PC_PATH_MAX)) < 0)
+    {
+      if(errno == 0)
+      {
+        pathmax = PATH_MAX_GUESS;
+      }
+      else
+      {
+        fprintf(stderr, "pathconf error for _PC_PATH_MAX\n");
+        return NULL;
+      }
+    }
+    else
+    {
+      pathmax++;
+    }
+  }
+
+  if((ptr = calloc(pathmax, sizeof(char))) == NULL) {
+    fprintf(stderr, "malloc error for pathname\n");
+    return NULL;
+  }
+
+  return ptr;
 }

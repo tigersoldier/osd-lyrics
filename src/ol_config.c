@@ -40,7 +40,6 @@ static void
 ol_config_init (OlConfig *self)
 {
   OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (self);
-  /* priv->config = g_hash_table_new (g_str_hash, g_str_equal); */
   priv->config = g_key_file_new ();
   if (!g_key_file_load_from_file (priv->config, ol_config_get_path (),
                                   G_KEY_FILE_KEEP_COMMENTS, NULL))
@@ -54,12 +53,6 @@ ol_config_init (OlConfig *self)
       g_key_file_set_boolean (priv->config, "OSD", config_bool[i].name,
                               config_bool[i].default_value);
     }
-    /* GValue *value = g_new0 (GValue, 1); */
-    /* g_value_init (value, G_TYPE_BOOLEAN); */
-    /* g_value_set_boolean (value, config_bool[i].default_value); */
-    /* g_hash_table_insert (priv->config, */
-    /*                      g_strdup (config_bool[i].name), */
-    /*                      value); */
   }
   for (i = 0; i < ol_get_array_len (config_int); i++)
   {
@@ -68,12 +61,6 @@ ol_config_init (OlConfig *self)
       g_key_file_set_integer (priv->config, "OSD", config_int[i].name,
                               config_int[i].default_value);
     }
-    /* GValue *value = g_new0 (GValue, 1); */
-    /* g_value_init (value, G_TYPE_INT); */
-    /* g_value_set_int (value, config_int[i].default_value); */
-    /* g_hash_table_insert (priv->config, */
-    /*                      g_strdup (config_int[i].name), */
-    /*                      value); */
   }
   for (i = 0; i < ol_get_array_len (config_double); i++)
   {
@@ -82,12 +69,6 @@ ol_config_init (OlConfig *self)
       g_key_file_set_double (priv->config, "OSD", config_double[i].name,
                               config_double[i].default_value);
     }
-    /* GValue *value = g_new0 (GValue, 1); */
-    /* g_value_init (value, G_TYPE_DOUBLE); */
-    /* g_value_set_double (value, config_double[i].default_value); */
-    /* g_hash_table_insert (priv->config, */
-    /*                      g_strdup (config_double[i].name), */
-    /*                      value); */
   }
   for (i = 0; i < ol_get_array_len (config_str); i++)
   {
@@ -96,12 +77,24 @@ ol_config_init (OlConfig *self)
       g_key_file_set_string (priv->config, "OSD", config_str[i].name,
                               config_str[i].default_value);
     }
-    /* GValue *value = g_new0 (GValue, 1); */
-    /* g_value_init (value, G_TYPE_STRING); */
-    /* g_value_set_static_string (value, config_str[i].default_value); */
-    /* g_hash_table_insert (priv->config, */
-    /*                      g_strdup (config_str[i].name), */
-    /*                      value); */
+  }
+  for (i = 0; i < ol_get_array_len (config_str_list); i++)
+  {
+    if (!g_key_file_has_key (priv->config, "OSD", config_str_list[i].name, NULL))
+    {
+      int len = 0;
+      if (config_str_list[i].len > 0)
+      {
+        len = config_str_list[i].len;
+      }
+      else
+      {
+        while (config_str_list[i].default_value[len] != NULL)
+          len++;
+      }
+      g_key_file_set_string_list (priv->config, "OSD", config_str_list[i].name,
+                                  config_str_list[i].default_value, len);
+    }
   }
 }
 

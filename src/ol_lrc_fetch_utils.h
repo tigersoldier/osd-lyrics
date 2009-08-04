@@ -105,10 +105,4 @@ int curl_url_decoding(CURL *curl, char *input, char *output, size_t size);
  */
 int ignore_case_strcmp(const char *str1, const char *str2, const size_t count);
 
-/** 
- * @brief allocate memory for pathname, from APUE
- * 
- * @return pointer to this memory if success, or NULL
- */
-char *path_alloc(void);
 #endif /* _UTIL_LRC_FETCH */ 

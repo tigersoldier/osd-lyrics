@@ -1,104 +1,109 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Russian translation for osd-lyrics
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the osd-lyrics package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: osd-lyrics 0.1\n"
+"Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
 "POT-Creation-Date: 2009-08-04 15:53+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2009-08-01 12:41+0000\n"
+"Last-Translator: Nkolay Parukhin <parukhin@gmail.com>\n"
+"Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: src/ol_menu.c:44 src/ol_main.c:264
 msgid "_Lock"
-msgstr ""
+msgstr "_Заблокировать"
 
 #: src/ol_trayicon.c:36
 msgid "OSD Lyrics"
-msgstr ""
+msgstr "OSD Lyrics"
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
-msgstr ""
+msgstr "Copyright 2009 Проект OSD Lyrics."
 
 #: data/dialogs.glade:10
 msgid "An OSD lyric show supporting multiple media players and downloading.\n"
 msgstr ""
+"OSD lyric поддерживает различные мультимедиа проигрыватели и скачивание "
+"лирики.\n"
 
 #: data/dialogs.glade:13
 msgid "http://code.google.com/p/osd-lyrics/"
-msgstr ""
+msgstr "http://code.google.com/p/osd-lyrics/"
 
 #: data/dialogs.glade:14
 msgid "GPL v3"
-msgstr ""
+msgstr "GPL v3"
 
 #: data/dialogs.glade:18
 msgid "translator-credits"
 msgstr ""
+"Launchpad Contributions:\n"
+"  Nkolay Parukhin https://launchpad.net/~parukhin"
 
 #: data/dialogs.glade:45
 msgid "Preferences"
-msgstr ""
+msgstr "Настройки"
 
 #: data/dialogs.glade:71
 msgid "_Font:"
-msgstr ""
+msgstr "_Шрифт:"
 
 #: data/dialogs.glade:98
 msgid "_Width:"
-msgstr ""
+msgstr "Ширина:"
 
 #: data/dialogs.glade:146
 msgid "F_irst line:"
-msgstr ""
+msgstr "_Первая строка:"
 
 #: data/dialogs.glade:172
 msgid "_Second line:"
-msgstr ""
+msgstr "_Вторая строка:"
 
 #: data/dialogs.glade:204
 msgid "<b>Lyric _Alignment</b>"
-msgstr ""
+msgstr "<b>_Выравнивание лирики</b>"
 
 #: data/dialogs.glade:239
 msgid "Color _Theme:"
-msgstr ""
+msgstr "Цветовая _тема:"
 
 #: data/dialogs.glade:259
 msgid "C_ustomize colors"
-msgstr ""
+msgstr "_Настроить цвета"
 
 #: data/dialogs.glade:288
 msgid "Acti_ve lyrics:"
-msgstr ""
+msgstr "_Активная лирика:"
 
 #: data/dialogs.glade:308 data/dialogs.glade:378
 msgid "top"
-msgstr ""
+msgstr "сверху"
 
 #: data/dialogs.glade:318 data/dialogs.glade:405
 msgid "middle"
-msgstr ""
+msgstr "по середине"
 
 #: data/dialogs.glade:342 data/dialogs.glade:432
 msgid "bottom"
-msgstr ""
+msgstr "снизу"
 
 #: data/dialogs.glade:367
 msgid "Inactiv_e lyrics:"
-msgstr ""
+msgstr "_Неактивная лирика:"
 
 #: data/dialogs.glade:468
 msgid "<b>Lyric _Color</b>"
-msgstr ""
+msgstr "<b>_Цвет лирики</b>"
 
 #: data/dialogs.glade:504
 msgid "<b>Preview</b>"
@@ -106,24 +111,24 @@ msgstr ""
 
 #: data/dialogs.glade:521
 msgid "_OSD"
-msgstr ""
+msgstr "_OSD"
 
 #: data/dialogs.glade:532 data/dialogs.glade:553
 msgid "TODO: Add options here"
-msgstr ""
+msgstr "TODO: Добавить сюда параметры"
 
 #: data/dialogs.glade:541
 msgid "_General"
-msgstr ""
+msgstr "_Общие"
 
 #: data/dialogs.glade:562
 msgid "_Download"
-msgstr ""
+msgstr "_Скачать"
 
 #: data/dialogs.glade:582
 msgid "gtk-cancel"
-msgstr ""
+msgstr "Отмена"
 
 #: data/dialogs.glade:597
 msgid "gtk-ok"
-msgstr ""
+msgstr "ОК"

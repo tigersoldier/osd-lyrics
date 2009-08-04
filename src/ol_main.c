@@ -28,6 +28,7 @@ static gint previous_position = -1;
 static LrcQueue *lrc_file = NULL;
 static OlOsdModule *module = NULL;
 
+static void ensure_lyric_dir ();
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
 static void change_music ();
@@ -51,6 +52,19 @@ gboolean download_lyric (OlMusicInfo *music_info);
  * @return The real lyric of the lrc. returns NULL if not available
  */
 LrcInfo* get_real_lyric (LrcInfo *lrc);
+
+static void
+ensure_lyric_dir ()
+{
+  char *pathname = ol_path_alloc ();
+  const char *home_dir = g_get_home_dir ();
+  if (previous_artist == NULL)
+  {
+    sprintf (pathname, "%s/%s/", home_dir, LRC_PATH);
+  }
+  g_mkdir_with_parents (pathname, 0755);
+  free (pathname);
+}
 
 void
 get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
@@ -251,6 +265,7 @@ main (int argc, char **argv)
 #endif
   
   gtk_init (&argc, &argv);
+  ensure_lyric_dir ();
   ol_player_init ();
   module = ol_osd_module_new ();
   ol_trayicon_inital ();

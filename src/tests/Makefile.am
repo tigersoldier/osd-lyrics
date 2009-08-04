@@ -4,10 +4,11 @@ check_PROGRAMS = \
 	ol_lrc_parser_test\
 	ol_lrc_utility_test \
 	ol_lrc_fetch_test \
-	ol_config_test
+	ol_config_test \
+	ol_color_test
 
 INCLUDES = @GTK2_CFLAGS@ \
-	@DBUS_GLIB_LIBS@ \
+	@DBUS_GLIB_CFLAGS@ \
 	-I$(top_srcdir)/src
 # Tests
 ol_osd_test_SOURCES = ol_osd_test.c
@@ -53,3 +54,7 @@ ol_config_test_SOURCES = \
 	../ol_config.c
 ol_config_test_LDADD = \
 	@GTK2_LIBS@
+
+ol_color_test_SOURCES = \
+	ol_color_test.c \
+	../ol_color.c

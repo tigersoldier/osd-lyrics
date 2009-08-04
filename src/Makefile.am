@@ -42,7 +42,8 @@ osd_lyrics_SOURCES = \
 	ol_lrc_fetch.c \
 	ol_lrc_fetch_sogou.c \
 	ol_lrc_fetch_utils.c \
-	ol_music_info.c
+	ol_music_info.c \
+	ol_color.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \

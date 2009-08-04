@@ -4,6 +4,7 @@
 #include<errno.h>
 #include "ol_lrc_fetch.h"
 #include "ol_lrc_fetch_sogou.h"
+#include "ol_utils.h"
 
 #define PREFIX_PAGE_SOGOU "http://mp3.sogou.com/gecisearch.so?query="
 #define PREFIX_LRC_SOGOU "http://mp3.sogou.com/"
@@ -35,7 +36,7 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
   char title_buf[BUFSIZE];
   char artist_buf[BUFSIZE];
   char buf[BUFSIZE], buf2[BUFSIZE];
-  char tmpfilenam[] = "tmplrc-XXXXXX";
+  char tmpfilenam[] = "/tmp/tmplrc-XXXXXX";
   char *ptitle, *partist;
   char *ptr, *tp, *p;
   FILE *fp;
@@ -63,13 +64,18 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
     }
   } else 
     strcat(page_url, artist_buf);
-
+  puts (tmpfilenam);
   if((fd = mkstemp(tmpfilenam)) < 0)
     return NULL;
+  puts (tmpfilenam);
   if((fp = fdopen(fd, "w+")) == NULL)
     return NULL;
   if((ret = fetch_into_file(page_url, fp)) < 0)
+  {
+    fclose (fp);
+    remove (tmpfilenam);
     return NULL;
+  }
   rewind(fp);
   while(fgets(buf, BUFSIZE, fp) != NULL && count<TRY_MATCH_MAX) {
     if((ptr = strstr(buf, LRC_CLUE_SOGOU)) != NULL) {
@@ -134,7 +140,7 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
   convert("GBK", charset==NULL ? "UTF-8" : charset, lrc.mem_base, lrc.mem_len, lrc_conv, lrc.mem_len*2);
   free(lrc.mem_base);
 	
-  pathbuf = path_alloc();
+  pathbuf = ol_path_alloc();
   if(pathname == NULL)
     strcpy(pathbuf, "./");
   else
