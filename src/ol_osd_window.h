@@ -215,10 +215,10 @@ double ol_osd_window_get_font_size (OlOsdWindow *osd);
  * @param middle_color The color of the middle part of the lyrics
  * @param bottom_color The color of the bottom part of the lyrics
  */
-void ol_osd_set_active_colors (OlOsdWindow *osd,
-                               OlColor top_color,
-                               OlColor middle_color,
-                               OlColor bottom_color);
+void ol_osd_window_set_active_colors (OlOsdWindow *osd,
+                                      OlColor top_color,
+                                      OlColor middle_color,
+                                      OlColor bottom_color);
 
 /** 
  * @brief Sets the color of inactive lyrics
@@ -228,9 +228,9 @@ void ol_osd_set_active_colors (OlOsdWindow *osd,
  * @param middle_color The color of the middle part of the lyrics
  * @param bottom_color The color of the bottom part of the lyrics
  */
-void ol_osd_set_inactive_colors (OlOsdWindow *osd,
-                               OlColor top_color,
-                               OlColor middle_color,
-                               OlColor bottom_color);
+void ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
+                                        OlColor top_color,
+                                        OlColor middle_color,
+                                        OlColor bottom_color);
 
 #endif // __OSD_WINDOW_H__

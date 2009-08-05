@@ -39,6 +39,7 @@ test_default_value ()
   ol_config_get_double (config, "font-size");
   ol_config_get_bool (config, "locked");
   g_free (ol_config_get_string (config, "font-family"));
+  g_strfreev (ol_config_get_str_list (config, "active-lrc-color", NULL));
 }
 
 void
@@ -47,7 +48,8 @@ test_set_value ()
   const int INT_VAL = 10;
   const double DOUBLE_VAL = 0.75;
   const char* STR_VAL = "string test";
-  printf ("%s\n", __FUNCTION__);
+  char *colors[] = {"#123456", "#7890ab", "#cdef01", NULL};
+  /* printf ("%s\n", __FUNCTION__); */
   OlConfig *config = ol_config_get_instance ();
   assert (config != NULL);
   g_signal_connect (config, "changed", G_CALLBACK (changed_handler), NULL);
@@ -62,6 +64,9 @@ test_set_value ()
   assert (ol_config_get_bool (config, "locked") == FALSE);
   ol_config_set_bool (config, "locked", TRUE);
   assert (ol_config_get_bool (config, "locked") == TRUE);
+  ol_config_set_str_list (config, "active-lrc-color", (const char **)colors, 3);
+  g_strfreev (ol_config_get_str_list (config, "active-lrc-color", NULL));
+  g_strfreev (ol_config_get_str_list (config, "active-lrc-color", NULL));
 }
 
 int

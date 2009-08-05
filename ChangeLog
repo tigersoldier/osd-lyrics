@@ -1,3 +1,13 @@
+2009-08-05  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_config.c: Implements config of string list
+
+	* src/ol_osd_module.c: Handles config of active/inactive colors
+
+	* src/ol_main.c: Replace `/' of artits and title of lrc file name to `_' to avoid download faild
+
+	* src/ol_option.c: Active/inactive lrc color setting is available now
+
 2009-08-04  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* po/LINGUAS: Add translation for French, Russian, and Spanish

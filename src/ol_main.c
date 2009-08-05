@@ -32,6 +32,14 @@ static void ensure_lyric_dir ();
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
 static void change_music ();
+/** 
+ * @brief duplicates the string and replace all invalid characters to `_' 
+ * 
+ * @param str string needs to be replaced
+ * 
+ * @return replaced string, should be free with g_free
+ */
+static char* replace_invalid_str (const char *str);
 static gboolean is_file_exist (const char *filename);
 /** 
  * Gets a music's full path filename
@@ -52,6 +60,20 @@ gboolean download_lyric (OlMusicInfo *music_info);
  * @return The real lyric of the lrc. returns NULL if not available
  */
 LrcInfo* get_real_lyric (LrcInfo *lrc);
+
+static char*
+replace_invalid_str (const char *str)
+{
+  if (str == NULL)
+    return NULL;
+  char *ret = g_strdup (str);
+  char *rep = ret;
+  while ((rep = strchr (rep, '/')) != NULL)
+  {
+    *rep = '_';
+  }
+  return ret;
+}
 
 static void
 ensure_lyric_dir ()
@@ -80,14 +102,18 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
   if (previous_title == NULL)
     return;
   home_dir = g_get_home_dir ();
+  char *title = replace_invalid_str (previous_title);
   if (previous_artist == NULL)
   {
-    sprintf (pathname, "%s/%s/%s.lrc", home_dir, LRC_PATH, previous_title);
+    sprintf (pathname, "%s/%s/%s.lrc", home_dir, LRC_PATH, title);
   }
   else
   {
-    sprintf (pathname, "%s/%s/%s-%s.lrc", home_dir, LRC_PATH, previous_artist, previous_title);
+    char *artist = replace_invalid_str (previous_artist);
+    sprintf (pathname, "%s/%s/%s-%s.lrc", home_dir, LRC_PATH, artist, title);
+    g_free (artist);
   }
+  g_free(title);
   printf ("lrc file name:%s\n", pathname);
 }
 

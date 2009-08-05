@@ -22,6 +22,8 @@ void ol_option_ok_clicked (GtkWidget *widget);
 void ol_option_cancel_clicked (GtkWidget *widget);
 void ol_option_update_preview (GtkWidget *widget);
 void ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data);
+static OlColor ol_color_from_gdk_color (const GdkColor color);
+static GdkColor ol_color_to_gdk_color (const OlColor color);
 static void ol_option_update_widget (OptionWidgets *widgets);
 /** 
  * @brief Get font family and font size from a GtkFontButton
@@ -57,6 +59,26 @@ ol_option_get_font_info (GtkFontButton *font,
   pango_font_description_free (font_desc);
 }
 
+static OlColor
+ol_color_from_gdk_color (const GdkColor c)
+{
+  OlColor color;
+  color.r = c.red / 65535.0;
+  color.g = c.green / 65535.0;
+  color.b = c.blue / 65535.0;
+  return color;
+}
+
+static GdkColor
+ol_color_to_gdk_color (const OlColor color)
+{
+  GdkColor ret;
+  ret.red = color.r * 65535;
+  ret.green = color.g * 65535;
+  ret.blue = color.b * 65535;
+  return ret;
+}
+
 void
 ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -84,9 +106,7 @@ ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
       GdkColor c;
       gtk_color_button_get_color (GTK_COLOR_BUTTON (options.active_lrc_color[i]),
                                   &c);
-      color.r = c.red / 65535.0;
-      color.g = c.green / 65535.0;
-      color.b = c.blue / 65535.0;
+      color = ol_color_from_gdk_color (c);
       ol_osd_render_set_linear_color (render, i, color);
     }
   }
@@ -128,6 +148,7 @@ ol_option_update_preview (GtkWidget *widget)
 static void
 ol_option_update_widget (OptionWidgets *widgets)
 {
+  int i;
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
   /* Updates font */
@@ -147,7 +168,7 @@ ol_option_update_widget (OptionWidgets *widgets)
     gtk_spin_button_set_value (width_widget,
                                ol_config_get_int (config, "width"));
   }
-  int i;
+  /* Lrc align */
   for (i = 0; i < 2; i++)
   {
     GtkRange *lrc_align = GTK_RANGE (widgets->lrc_align[i]);
@@ -158,6 +179,28 @@ ol_option_update_widget (OptionWidgets *widgets)
       gtk_range_set_value (lrc_align,
                            ol_config_get_double (config, buffer));
     }
+  }
+  /* [In]Active lrc color */
+  GtkWidget **color_widgets[] =
+    {options.active_lrc_color, options.inactive_lrc_color};
+  char *color_props[] =
+    {"active-lrc-color", "inactive-lrc-color"};
+  int k;
+  for (k = 0; k < 2; k++)
+  {
+    char ** lrc_color_str = ol_config_get_str_list (config,
+                                                           color_props[k],
+                                                           NULL);
+    for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+    {
+      if (color_widgets[k][i] != NULL)
+      {
+        GtkColorButton *color_button = GTK_COLOR_BUTTON (color_widgets[k][i]);
+        GdkColor color = ol_color_to_gdk_color (ol_color_from_string (lrc_color_str[i]));
+        gtk_color_button_set_color (color_button, &color);
+      }
+    }
+    g_strfreev (lrc_color_str);
   }
 }
 
@@ -198,6 +241,32 @@ ol_option_ok_clicked (GtkWidget *widget)
                             gtk_range_get_value (lrc_align));
 
     }
+  }
+  /* [In]Active lrc color */
+  GtkWidget **color_widgets[] =
+    {options.active_lrc_color, options.inactive_lrc_color};
+  char *color_props[] =
+    {"active-lrc-color", "inactive-lrc-color"};
+  int k;
+  OlColor colors[OL_LINEAR_COLOR_COUNT];
+  for (k = 0; k < 2; k++)
+  {
+    for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+    {
+      if (color_widgets[k][i] != NULL)
+      {
+        GtkColorButton *color_button = GTK_COLOR_BUTTON (color_widgets[k][i]);
+        GdkColor color;
+        gtk_color_button_get_color (color_button, &color);
+        colors[i] = ol_color_from_gdk_color (color);
+      }
+    }
+    char **lrc_color_str = ol_color_to_str_list (colors, OL_LINEAR_COLOR_COUNT);
+    ol_config_set_str_list (config,
+                            color_props[k],
+                            (const char**)lrc_color_str,
+                            OL_LINEAR_COLOR_COUNT);
+    g_strfreev (lrc_color_str);
   }
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);

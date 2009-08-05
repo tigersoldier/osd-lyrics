@@ -89,6 +89,34 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
     ol_osd_window_set_line_alignment (osd, 1,
                                       ol_config_get_double (config, name));
   }
+  else if (strcmp (name, "active-lrc-color") == 0)
+  {
+    int len;
+    char **color_str = ol_config_get_str_list (config, name, &len);
+    printf ("len = %d\n", len);
+    if (len != OL_LINEAR_COLOR_COUNT) return;
+    if (color_str != NULL)
+    {
+      OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
+      ol_osd_window_set_active_colors (osd, colors[0], colors[1], colors[2]);
+      g_free (colors);
+      g_strfreev (color_str);
+    }
+  }
+  else if (strcmp (name, "inactive-lrc-color") == 0)
+  {
+    int len;
+    char **color_str = ol_config_get_str_list (config, name, &len);
+    printf ("len = %d\n", len);
+    if (len != OL_LINEAR_COLOR_COUNT) return;
+    if (color_str != NULL)
+    {
+      OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
+      ol_osd_window_set_inactive_colors (osd, colors[0], colors[1], colors[2]);
+      g_free (colors);
+      g_strfreev (color_str);
+    }
+  }
 }
 
 static void
@@ -108,6 +136,8 @@ ol_osd_module_init_osd (OlOsdModule *module)
   config_change_handler (config, "width", module->osd);
   config_change_handler (config, "lrc-align-0", module->osd);
   config_change_handler (config, "lrc-align-1", module->osd);
+  config_change_handler (config, "active-lrc-color", module->osd);
+  config_change_handler (config, "inactive-lrc-color", module->osd);
   g_signal_connect (config, "changed",
                     G_CALLBACK (config_change_handler),
                     module->osd);

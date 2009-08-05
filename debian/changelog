@@ -1,4 +1,4 @@
-osdlyrics (0.1-0~20090804~intrepid1) intrepid; urgency=low
+osdlyrics (0.1-0~20090804-1~jaunty1) jaunty; urgency=low
 
   - Close button is now available
   * Preview in preference
@@ -7,7 +7,7 @@ osdlyrics (0.1-0~20090804~intrepid1) intrepid; urgency=low
 
  -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Tue, 04 Aug 2009 14:18:37 +0800
 
-osdlyrics (0.1-0~20090804~jaunty1) jaunty; urgency=low
+osdlyrics (0.1-0~20090804-1~intrepid1) intrepid; urgency=low
 
   - Close button is now available
   * Preview in preference

@@ -1,6 +1,7 @@
 #include "ol_color.h"
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
 
 OlColor
 ol_color_from_string (const char *color_str)
@@ -52,3 +53,33 @@ ol_color_to_string (OlColor color)
 }
 
 const OlColor ol_color_black = {0.0, 0.0, 0.0};
+
+OlColor*
+ol_color_from_str_list (const char **str_list, int *len)
+{
+  g_return_val_if_fail (str_list != NULL, NULL);
+  int l = g_strv_length (str_list);
+  OlColor *ret = g_new (OlColor, l);
+  int i;
+  for (i = 0; i < l; i++)
+  {
+    ret[i] = ol_color_from_string (str_list[i]);
+  }
+  if (len != NULL)
+    *len = l;
+  return ret;
+}
+
+char**
+ol_color_to_str_list (const OlColor *colors, int len)
+{
+  g_return_val_if_fail (colors != NULL && len > 0, NULL);
+  char **ret = g_new (char*, len + 1);
+  ret[len] = NULL;
+  int i;
+  for (i = 0; i < len; i++)
+  {
+    ret[i] = g_strdup (ol_color_to_string (colors[i]));
+  }
+  return ret;
+}

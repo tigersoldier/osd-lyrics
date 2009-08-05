@@ -64,10 +64,8 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
     }
   } else 
     strcat(page_url, artist_buf);
-  puts (tmpfilenam);
   if((fd = mkstemp(tmpfilenam)) < 0)
     return NULL;
-  puts (tmpfilenam);
   if((fp = fdopen(fd, "w+")) == NULL)
     return NULL;
   if((ret = fetch_into_file(page_url, fp)) < 0)

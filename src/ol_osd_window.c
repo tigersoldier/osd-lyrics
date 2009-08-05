@@ -1125,10 +1125,10 @@ ol_osd_window_get_font_size (OlOsdWindow *osd)
 }
 
 void
-ol_osd_set_active_colors (OlOsdWindow *osd,
-                          OlColor top_color,
-                          OlColor middle_color,
-                          OlColor bottom_color)
+ol_osd_window_set_active_colors (OlOsdWindow *osd,
+                                 OlColor top_color,
+                                 OlColor middle_color,
+                                 OlColor bottom_color)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   osd->active_colors[0] = top_color;
@@ -1137,10 +1137,10 @@ ol_osd_set_active_colors (OlOsdWindow *osd,
 }
 
 void
-ol_osd_set_inactive_colors (OlOsdWindow *osd,
-                          OlColor top_color,
-                          OlColor middle_color,
-                          OlColor bottom_color)
+ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
+                                   OlColor top_color,
+                                   OlColor middle_color,
+                                   OlColor bottom_color)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   osd->inactive_colors[0] = top_color;

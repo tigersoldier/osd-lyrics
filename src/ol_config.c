@@ -162,6 +162,17 @@ ol_config_class_init (OlConfigClass *klass)
                                      config_str[i].key,
                                      ol_param_spec);
   }
+  for (i = 0; i < ol_get_array_len (config_str_list); i++)
+  {
+    ol_param_spec = g_param_spec_boxed (config_str_list[i].name,
+                                        config_str_list[i].nick,
+                                        config_str_list[i].description,
+                                        G_TYPE_STRV,
+                                        G_PARAM_READWRITE);
+    g_object_class_install_property (gobject_class,
+                                     config_str_list[i].key,
+                                     ol_param_spec);
+  }
   /* initialize singals */
   GType signal_type[1];
   /* signal_type[0] = OL_TYPE_CONFIG; */
@@ -230,6 +241,13 @@ ol_config_set_property (GObject      *object,
     g_key_file_set_boolean (priv->config, "OSD", pspec->name,
                             g_value_get_boolean (value));
   }
+  else if (G_VALUE_HOLDS (value, G_TYPE_STRV))
+  {
+    gchar** val = (gchar**) (g_value_get_boxed (value));
+    gint len = g_strv_length (val);
+    g_key_file_set_string_list (priv->config, "OSD", pspec->name,
+                                val, len);
+  }
   else
   {
     fprintf (stderr, "%s invalid value type\n", __FUNCTION__);
@@ -290,6 +308,12 @@ ol_config_get_property (GObject    *object,
     g_value_set_boolean (value,
                          g_key_file_get_boolean (priv->config, "OSD", pspec->name,
                                                  NULL));
+  }
+  else if (G_VALUE_HOLDS (value, G_TYPE_STRV))
+  {
+    g_value_set_boxed (value,
+                       g_key_file_get_string_list (priv->config, "OSD", pspec->name,
+                                                   NULL, NULL));
   }
   else
   {
@@ -367,6 +391,20 @@ ol_config_set_string (OlConfig *config, const char *name, const char* value)
 }
 
 gboolean
+ol_config_set_str_list (OlConfig *config,
+                                 const char *name,
+                                 const char **value,
+                                 int len)
+{
+  g_return_val_if_fail (config != NULL, FALSE);
+  g_return_val_if_fail (name != NULL, FALSE);
+  GValue gvalue = {0};
+  g_value_init (&gvalue, G_TYPE_STRV);
+  g_value_set_boxed (&gvalue, value);
+  g_object_set_property (G_OBJECT (config), name, &gvalue);
+}
+
+gboolean
 ol_config_get_bool (OlConfig *config, const char *name)
 {
   g_return_val_if_fail (config != NULL, 0);
@@ -420,6 +458,27 @@ ol_config_get_string (OlConfig* config, const gchar *name)
   return ret;
 }
 
+char**
+ol_config_get_str_list (OlConfig *config,
+                        const char *name,
+                        int *len)
+{
+  g_return_val_if_fail (config != NULL, NULL);
+  g_return_val_if_fail (name != NULL, NULL);
+  GValue value = {0};
+  g_value_init (&value, G_TYPE_STRV);
+  g_object_get_property (G_OBJECT (config), name, &value);
+  char **ret = (char**)g_value_dup_boxed (&value);
+  if (len != NULL)
+    *len = g_strv_length (ret);
+  int i = 0;
+  while (ret[i] != NULL)
+    printf ("%s,", ret[i++]);
+  printf ("\n");
+  g_value_unset (&value);
+  return ret;
+}
+
 const char*
 ol_config_get_path ()
 {
@@ -442,3 +501,4 @@ void ol_config_save (OlConfig *config)
   char *file_content = g_key_file_to_data (priv->config, &len, NULL);
   g_file_set_contents (ol_config_get_path (), file_content, len, NULL);
 }
+
