@@ -1,3 +1,17 @@
+osdlyrics (0.1-0~20090805-1~intrepid1) intrepid; urgency=low
+
+  * Implements [in]active lyric color settings
+  - Fix the bug that download fail when artist or title contains charater `/'
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Wed, 05 Aug 2009 15:16:23 +0800
+
+osdlyrics (0.1-0~20090805-1~jaunty1) jaunty; urgency=low
+
+  * Implements [in]active lyric color settings
+  - Fix the bug that download fail when artist or title contains charater `/'
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Wed, 05 Aug 2009 15:16:23 +0800
+
 osdlyrics (0.1-0~20090804-1~jaunty1) jaunty; urgency=low
 
   - Close button is now available

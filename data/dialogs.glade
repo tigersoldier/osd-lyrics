@@ -250,7 +250,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
                                     <property name="active">0</property>
-                                    <property name="items" translatable="yes">Customize</property>
+                                    <property name="items" translatable="yes" context="yes" comments="Color themes for OSD Lyric">Customize</property>
                                   </widget>
                                   <packing>
                                     <property name="position">1</property>
@@ -581,7 +581,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
             <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="optioncancel">
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -596,7 +596,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
             </child>
             <child>
               <widget class="GtkButton" id="optionok">
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -616,6 +616,49 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
             <property name="position">0</property>
           </packing>
         </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkMenu" id="osd-menu">
+    <property name="visible">True</property>
+    <child>
+      <widget class="GtkCheckMenuItem" id="osd-lock">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">If locked, you can't move OSD window by mouse</property>
+        <property name="label" translatable="yes">_Lock</property>
+        <property name="use_underline">True</property>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkCheckMenuItem" id="osd-hide">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">Hide the OSD Window</property>
+        <property name="label" translatable="yes">_Hide</property>
+        <property name="use_underline">True</property>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="osd-preference">
+        <property name="label">gtk-preferences</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="osd-about">
+        <property name="label">gtk-about</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="osd-quit">
+        <property name="label">gtk-quit</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
       </widget>
     </child>
   </widget>

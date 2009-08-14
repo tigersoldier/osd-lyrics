@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-08-04 15:53+0800\n"
+"POT-Creation-Date: 2009-08-14 16:37+0800\n"
 "PO-Revision-Date: 2009-08-01 12:41+0000\n"
 "Last-Translator: Nkolay Parukhin <parukhin@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -17,9 +17,13 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:44 src/ol_main.c:264
+#: src/ol_menu.c:72 src/ol_main.c:290 data/dialogs.glade:628
 msgid "_Lock"
 msgstr "_Заблокировать"
+
+#: src/ol_menu.c:81 data/dialogs.glade:636
+msgid "_Hide"
+msgstr ""
 
 #: src/ol_trayicon.c:36
 msgid "OSD Lyrics"
@@ -77,58 +81,69 @@ msgstr "<b>_Выравнивание лирики</b>"
 msgid "Color _Theme:"
 msgstr "Цветовая _тема:"
 
-#: data/dialogs.glade:259
+#: data/dialogs.glade:253
+#, fuzzy
+msgid "Customize"
+msgstr "_Настроить цвета"
+
+#: data/dialogs.glade:261
 msgid "C_ustomize colors"
 msgstr "_Настроить цвета"
 
-#: data/dialogs.glade:288
+#: data/dialogs.glade:290
 msgid "Acti_ve lyrics:"
 msgstr "_Активная лирика:"
 
-#: data/dialogs.glade:308 data/dialogs.glade:378
+#: data/dialogs.glade:310 data/dialogs.glade:380
 msgid "top"
 msgstr "сверху"
 
-#: data/dialogs.glade:318 data/dialogs.glade:405
+#: data/dialogs.glade:320 data/dialogs.glade:407
 msgid "middle"
 msgstr "по середине"
 
-#: data/dialogs.glade:342 data/dialogs.glade:432
+#: data/dialogs.glade:344 data/dialogs.glade:434
 msgid "bottom"
 msgstr "снизу"
 
-#: data/dialogs.glade:367
+#: data/dialogs.glade:369
 msgid "Inactiv_e lyrics:"
 msgstr "_Неактивная лирика:"
 
-#: data/dialogs.glade:468
+#: data/dialogs.glade:470
 msgid "<b>Lyric _Color</b>"
 msgstr "<b>_Цвет лирики</b>"
 
-#: data/dialogs.glade:504
+#: data/dialogs.glade:506
 msgid "<b>Preview</b>"
 msgstr ""
 
-#: data/dialogs.glade:521
+#: data/dialogs.glade:523
 msgid "_OSD"
 msgstr "_OSD"
 
-#: data/dialogs.glade:532 data/dialogs.glade:553
+#: data/dialogs.glade:534 data/dialogs.glade:555
 msgid "TODO: Add options here"
 msgstr "TODO: Добавить сюда параметры"
 
-#: data/dialogs.glade:541
+#: data/dialogs.glade:543
 msgid "_General"
 msgstr "_Общие"
 
-#: data/dialogs.glade:562
+#: data/dialogs.glade:564
 msgid "_Download"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:582
-msgid "gtk-cancel"
-msgstr "Отмена"
+#: data/dialogs.glade:627
+msgid "If locked, you can't move OSD window by mouse"
+msgstr ""
 
-#: data/dialogs.glade:597
-msgid "gtk-ok"
-msgstr "ОК"
+#: data/dialogs.glade:635
+msgid "Hide the OSD Window"
+msgstr ""
+
+#~ msgid "gtk-cancel"
+#~ msgstr "Отмена"
+
+#~ msgid "gtk-ok"
+#~ msgstr "ОК"

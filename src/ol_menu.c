@@ -6,6 +6,15 @@
 
 static GtkWidget *popup_menu = NULL;
 
+static gboolean ol_menu_hide_accel (gpointer userdata);
+
+static gboolean
+ol_menu_hide_accel (gpointer userdata)
+{
+  printf ("hide");
+  return FALSE;
+}
+  
 static void
 ol_menu_quit (GtkWidget *widget,
               gpointer data)
@@ -34,14 +43,33 @@ ol_menu_option (GtkWidget *widget, gpointer data)
   ol_option_show ();
 }
 
+
 GtkWidget*
 ol_menu_get_popup ()
 {
   if (popup_menu == NULL)
   {
+    /* create accelerator group */
+    static GtkAccelGroup *accel = NULL;
+    GClosure *hide_closure = g_cclosure_new (ol_menu_hide_accel,
+                                             NULL,
+                                             NULL);
+    accel = gtk_accel_group_new ();
+    gtk_accel_map_add_entry ("<OSD Lyrics>/Hide",
+                             gdk_keyval_from_name ("h"),
+                             GDK_CONTROL_MASK | GDK_MOD1_MASK);
+    gtk_accel_group_connect_by_path (accel,
+                                     "<OSD Lyrics>/Hide",
+                                     hide_closure);
+    /* gtk_accel_group_connect (accel, gdk_keyval_from_name ("h"), */
+    /*                          GDK_CONTROL_MASK | GDK_MOD1_MASK, */
+    /*                          GTK_ACCEL_VISIBLE, */
+    /*                          hide_closure); */
+    
     GtkWidget *item;
     popup_menu = gtk_menu_new();
-    item  =  gtk_check_menu_item_new_with_mnemonic (_("_Lock"));
+    gtk_menu_set_accel_group (GTK_MENU (popup_menu), accel);
+    item = gtk_check_menu_item_new_with_mnemonic (_("_Lock"));
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item),
                                     ol_config_get_bool (ol_config_get_instance (),
                                                         "locked"));
@@ -49,6 +77,14 @@ ol_menu_get_popup ()
     g_signal_connect (G_OBJECT(item), "activate",
                       G_CALLBACK(osd_window_lock_change),
                       NULL);
+
+    item = gtk_check_menu_item_new_with_mnemonic (_("_Hide"));
+    gtk_menu_append (popup_menu, item);
+    gtk_menu_item_set_accel_path (GTK_MENU_ITEM (item),
+                                  "<OSD Lyrics>/Hide");
+    gtk_accel_groups_activate (G_OBJECT (popup_menu),
+                               gdk_keyval_from_name ("h"),
+                               GDK_CONTROL_MASK | GDK_MOD1_MASK);
 
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
     gtk_menu_append (popup_menu, item);

@@ -23,6 +23,7 @@ static const OlColor DEFAULT_ACTIVE_COLORS[OL_LINEAR_COLOR_COUNT]= {
   {1.0, 1.0, 0.0},
   {1.0, 0.5, 0.0},
 };
+static const int MOUSE_TIMER_INTERVAL = 100;
 
 static const int DEFAULT_LINE_HEIGHT = 45;
 
@@ -38,6 +39,9 @@ struct __OlOsdWindowPrivate
   gint mouse_y;
   gint old_x;
   gint old_y;
+  gboolean visible;
+  guint mouse_timer_id;
+  gboolean mouse_over;
 };
 
 struct OsdLrc
@@ -91,6 +95,8 @@ static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric);
 static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata);
+static gboolean ol_osd_window_mouse_timer (gpointer data);
+
 static GtkWidgetClass *parent_class = NULL;
 
 static void
@@ -417,6 +423,34 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   }
 }
 
+static gboolean
+ol_osd_window_mouse_timer (gpointer data)
+{
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
+  g_return_val_if_fail (data != NULL, FALSE);
+  g_return_val_if_fail (OL_IS_OSD_WINDOW (data), FALSE);
+  OlOsdWindow *osd = OL_OSD_WINDOW (data);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  if (GTK_WIDGET_REALIZED (osd))
+  {
+    gint rel_x, rel_y;
+    gint w, h;
+    gboolean mouse_over = FALSE;
+    gtk_widget_get_pointer (GTK_WIDGET (osd), &rel_x, &rel_y);
+    gdk_drawable_get_size (GTK_WIDGET (osd)->window, &w, &h);
+    if (rel_x < w && rel_y < h && rel_x >=0 && rel_y >= 0)
+    {
+      mouse_over = TRUE;
+    }
+    if (priv->mouse_over != mouse_over)
+    {
+      priv->mouse_over = mouse_over;
+      gtk_widget_queue_draw (GTK_WIDGET (osd));
+    }
+  }
+  return TRUE;
+}
+
 static void
 ol_osd_window_map (GtkWidget *widget)
 {
@@ -425,11 +459,18 @@ ol_osd_window_map (GtkWidget *widget)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GTK_WIDGET_CLASS (parent_class)->map (widget);
   GTK_WIDGET_SET_FLAGS (widget, GTK_MAPPED);
+  priv->visible = TRUE;
   if (!priv->locked)
   {
     gdk_window_show (widget->window);
     gdk_window_show (osd->event_window);
     gdk_window_raise (osd->event_window);
+  }
+  if (priv->mouse_timer_id == 0)
+  {
+    priv->mouse_timer_id = g_timeout_add (MOUSE_TIMER_INTERVAL,
+                                          (GSourceFunc) ol_osd_window_mouse_timer,
+                                          widget);
   }
 }
 
@@ -438,11 +479,18 @@ ol_osd_window_unmap (GtkWidget *widget)
 {
   printf ("unmap\n");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (GTK_WIDGET_MAPPED (widget))
   {
     gdk_window_hide (widget->window);
     gdk_window_hide (osd->bg_window);
     GTK_WIDGET_CLASS (parent_class)->unmap (widget);
+  }
+  priv->visible = FALSE;
+  if (priv->mouse_timer_id != 0)
+  {
+    g_source_remove (priv->mouse_timer_id);
+    priv->mouse_timer_id = 0;
   }
   GTK_WIDGET_UNSET_FLAGS (widget, GTK_MAPPED);
 }
@@ -661,6 +709,11 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   g_return_if_fail (osd != NULL);
   GtkWidget *widget = GTK_WIDGET (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  double alpha = 1.0;
+  if (priv->composited && priv->mouse_over)
+  {
+    alpha = 0.3;
+  }
   if (!GTK_WIDGET_REALIZED (widget))
     gtk_widget_realize (widget);
   gint w, h;
@@ -681,13 +734,13 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
       cairo_rectangle (cr, xpos, ypos, (double)width * percentage, height);
       cairo_clip (cr);
       gdk_cairo_set_source_pixmap (cr, osd->active_lyric_pixmap[line], xpos, ypos);
-      cairo_paint (cr);
+      cairo_paint_with_alpha (cr, alpha);
       cairo_restore (cr);
       cairo_save (cr);
       cairo_rectangle (cr, xpos + width * percentage, ypos, (double)width * (1.0 - percentage), height);
       cairo_clip (cr);
       gdk_cairo_set_source_pixmap (cr, osd->inactive_lyric_pixmap[line], xpos, ypos);
-      cairo_paint (cr);
+      cairo_paint_with_alpha (cr, alpha);
       cairo_restore (cr);
     }
     ypos += DEFAULT_LINE_HEIGHT;
@@ -1056,6 +1109,9 @@ ol_osd_window_init (OlOsdWindow *self)
   priv->pressed = FALSE;
   priv->locked = TRUE;
   priv->composited = FALSE;
+  priv->visible = FALSE;
+  priv->mouse_timer_id = 0;
+  priv->mouse_over = FALSE;
 }
 
 GtkWidget*
