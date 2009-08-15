@@ -1,4 +1,18 @@
+2009-08-15  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_config_property.h: Add `line-count' property to support single line mode
+
+	* src/ol_osd_module.c: Support single line mode
+
+	* src/ol_osd_render.c: Add function to return font height
+
+	* src/ol_osd_window.c: Set height according to the font and line count
+
 2009-08-14  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_module.c: Save OSD window position when moved
+
+	* src/ol_osd_window.c: Add `moved' signal
 
 	* src/ol_menu.c: Add Hide menu item and its hotkey
 

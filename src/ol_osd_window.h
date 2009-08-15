@@ -16,10 +16,17 @@
 #define OL_OSD_WINDOW(obj)                  GTK_CHECK_CAST (obj, ol_osd_window_get_type (), OlOsdWindow)
 #define OL_OSD_WINDOW_CLASS(klass)          GTK_CHECK_CLASS_CAST (klass, ol_osd_window_get_type (), OlOsdWindowClass)
 #define OL_IS_OSD_WINDOW(obj)               GTK_CHECK_TYPE (obj, ol_osd_window_get_type ())
+#define OL_OSD_WINDOW_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), ol_osd_window_get_type (), OlOsdWindowClass))
 #define OL_OSD_WINDOW_MAX_LINE_COUNT        2
 
 typedef struct _OlOsdWindow                 OlOsdWindow;
 typedef struct _OlOsdWindowClass            OlOsdWindowClass;
+
+enum OlOsdWindowSingals {
+  OSD_INVALID_SIGNAL = 0,
+  OSD_MOVED,
+  OSD_SINGAL_COUNT,
+};
 
 struct _OlOsdWindow
 {
@@ -37,11 +44,13 @@ struct _OlOsdWindow
   OlColor inactive_colors[OL_LINEAR_COLOR_COUNT];
   GdkPixmap *shape_pixmap;
   OlOsdRenderContext *render_context;
+  guint line_count;
 };
 
 struct _OlOsdWindowClass
 {
   GtkWidgetClass parent_class;
+  guint signals[OSD_SINGAL_COUNT];
 };
 
 GtkType ol_osd_window_get_type (void);
@@ -59,7 +68,16 @@ GtkWidget* ol_osd_window_new (void);
  * @param xalign the horizontal position of the OSD Window. 0.0 is left aligned, 1.0 is right aligned.
  * @param yalign the vertical position of the OSD Window. 0.0 is top aligned, 1.0 is bottom aligned.
  */
-void ol_osd_window_set_alignment (OlOsdWindow *osd, float xalign, float yalign);
+void ol_osd_window_set_alignment (OlOsdWindow *osd, double xalign, double yalign);
+
+/** 
+ * @brief Gets the alignment of the OSD Window, respect to the screen
+ * 
+ * @param osd an OlOsdWindow
+ * @param xalign return location of the horizontal position of the OSD Window, or NULL
+ * @param yalign return location of the vertical position of the OSD Window, or NULL
+ */
+void ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign);
 
 /** 
  * @brief Gets the alignment of the OSD Window, respect to the screen
@@ -68,7 +86,7 @@ void ol_osd_window_set_alignment (OlOsdWindow *osd, float xalign, float yalign);
  * @param xalign the horizontal position of the OSD Window. 0.0 is left aligned, 1.0 is right aligned.
  * @param yalign the vertical position of the OSD Window. 0.0 is top aligned, 1.0 is bottom aligned.
  */
-void ol_osd_window_get_alignment (OlOsdWindow *osd, float *xalign, float *yalign);
+void ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign);
 
 /** 
  * @brief Resizes an OSD window
@@ -233,4 +251,19 @@ void ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
                                         OlColor middle_color,
                                         OlColor bottom_color);
 
+/** 
+ * @brief Sets the number of lyric lines to be displayed
+ * 
+ * @param osd An OlOsdWindow
+ * @param line_count number of lines, in the range of [1,2]
+ */
+void ol_osd_window_set_line_count (OlOsdWindow *osd,
+                                   guint line_count);
+/** 
+ * @brief Sets the number of lyric lines to be displayed
+ * 
+ * @param osd An OlOsdWindow
+ * @return number of lines, in the range of [1,2]
+ */
+guint ol_osd_window_get_line_count (OlOsdWindow *osd);
 #endif // __OSD_WINDOW_H__

@@ -16,6 +16,7 @@ static struct _OptionWidgets
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *osd_preview;
+  GtkWidget *line_count[2];
 } options;
 
 void ol_option_ok_clicked (GtkWidget *widget);
@@ -202,6 +203,16 @@ ol_option_update_widget (OptionWidgets *widgets)
     }
     g_strfreev (lrc_color_str);
   }
+  /* OSD Line count */
+  int line_count = ol_config_get_int (config, "line-count");
+  if (line_count < 1) line_count = 1;
+  if (line_count > 2) line_count = 2;
+  line_count--;
+  if (options.line_count[line_count] != NULL && GTK_IS_TOGGLE_BUTTON (options.line_count[line_count]))
+  {
+    GtkToggleButton *line_count_widget = GTK_TOGGLE_BUTTON (options.line_count[line_count]);
+    gtk_toggle_button_set_active (line_count_widget, TRUE);
+  }
 }
 
 void
@@ -268,6 +279,17 @@ ol_option_ok_clicked (GtkWidget *widget)
                             OL_LINEAR_COLOR_COUNT);
     g_strfreev (lrc_color_str);
   }
+  /* OSD line count */
+  for (i = 0; i < 2; i++)
+  {
+    if (options.line_count[i] != NULL && GTK_IS_TOGGLE_BUTTON (options.line_count[i]))
+    {
+      if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.line_count[i])))
+      {
+        ol_config_set_int (config, "line-count", i + 1);
+      }
+    }
+  }
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -310,6 +332,8 @@ ol_option_show ()
     options.inactive_lrc_color[1] = ol_glade_get_widget ("inactive-lrc-color-1");
     options.inactive_lrc_color[2] = ol_glade_get_widget ("inactive-lrc-color-2");
     options.osd_preview = ol_glade_get_widget ("osd-preview");
+    options.line_count[0] = ol_glade_get_widget ("line-count-1");
+    options.line_count[1] = ol_glade_get_widget ("line-count-2");
   }
   g_return_if_fail (window != NULL);
   ol_option_update_widget (&options);

@@ -69,6 +69,15 @@ void ol_osd_render_set_font_size (OlOsdRenderContext *context,
 double ol_osd_render_get_font_size (OlOsdRenderContext *context);
 
 /** 
+ * @brief Gets the height of the font of a context
+ *
+ * @param context An OlOsdRenderContext
+ * 
+ * @return The height of the font
+ */
+int ol_osd_render_get_font_height (OlOsdRenderContext *context);
+
+/** 
  * @brief Sets linear color
  * 
  * @param context An OlOsdRenderContext

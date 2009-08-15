@@ -24,6 +24,7 @@ enum {
   PROP_LRC_ALIGN_1,
   PROP_ACTIVE_LRC_COLOR,
   PROP_INACTIVE_LRC_COLOR,
+  PROP_LINE_COUNT,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -100,6 +101,7 @@ static const OlConfigBoolValue config_bool[] = {
 
 static const OlConfigIntValue config_int[] = {
   {PROP_WIDTH, "width", "OSD Width", "The width of the OSD", 1, 10000, 1024},
+  {PROP_LINE_COUNT, "line-count", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
 };
 
 static const OlConfigDoubleValue config_double[] = {

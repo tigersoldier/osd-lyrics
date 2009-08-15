@@ -1,3 +1,29 @@
+osdlyrics (0.1-0~20090815~intrepid1) intrepid; urgency=low
+
+  * FIX: Save OSD window position when moved
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sat, 15 Aug 2009 00:14:42 +0800
+
+osdlyrics (0.1-0~20090815~jaunty1) jaunty; urgency=low
+
+  * FIX: Save OSD window position when moved
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sat, 15 Aug 2009 00:14:42 +0800
+
+osdlyrics (0.1-0~20090814~jaunty1) jaunty; urgency=low
+
+  * Make lyrics semi-transparent when mouse is over
+  - Add Hide menu item and its hotkey
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Fri, 14 Aug 2009 16:53:35 +0800
+
+osdlyrics (0.1-0~20090814~intrepid1) intrepid; urgency=low
+
+  * Make lyrics semi-transparent when mouse is over
+  - Add Hide menu item and its hotkey
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Fri, 14 Aug 2009 16:53:35 +0800
+
 osdlyrics (0.1-0~20090805-1~intrepid1) intrepid; urgency=low
 
   * Implements [in]active lyric color settings

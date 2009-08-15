@@ -16,6 +16,7 @@ struct _OlOsdModule
   gint lrc_next_id;
   gint current_line;
   gint duration;
+  gint line_count;
   LrcQueue *lrc_file;
   OlOsdWindow *osd;
 };

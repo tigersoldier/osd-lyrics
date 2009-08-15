@@ -26,6 +26,8 @@ static const OlColor DEFAULT_ACTIVE_COLORS[OL_LINEAR_COLOR_COUNT]= {
 static const int MOUSE_TIMER_INTERVAL = 100;
 
 static const int DEFAULT_LINE_HEIGHT = 45;
+static const int DEFAULT_HEIGHT = 100;
+static const double LINE_PADDING = 0.1;
 
 typedef struct __OlOsdWindowPrivate OlOsdWindowPrivate;
 struct __OlOsdWindowPrivate
@@ -79,6 +81,7 @@ static gboolean ol_osd_window_button_release (GtkWidget *widget, GdkEventButton 
 static void ol_osd_window_compute_position (OlOsdWindow *osd, GtkAllocation *allocation);
 static void ol_osd_window_compute_alignment (OlOsdWindow *osd, gint x, gint y,
                                              gdouble *xalign, gdouble *yalign);
+static int ol_osd_window_compute_height (OlOsdWindow *osd);
 static double ol_osd_window_calc_lyric_xpos (OlOsdWindow *osd, int line);
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
 /** 
@@ -96,6 +99,7 @@ static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric);
 static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata);
 static gboolean ol_osd_window_mouse_timer (gpointer data);
+static void ol_osd_window_update_height (OlOsdWindow *osd);
 
 static GtkWidgetClass *parent_class = NULL;
 
@@ -166,6 +170,14 @@ ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
   printf ("release\n");
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   priv->pressed = FALSE;
+  /* emit `moved' signal */
+  GValue params[1] = {0};
+  g_value_init (&params[0], G_OBJECT_TYPE (widget));
+  g_value_set_object (&params[0], G_OBJECT (widget));
+  g_signal_emitv (params,
+                  OL_OSD_WINDOW_GET_CLASS (widget)->signals[OSD_MOVED],
+                  0,
+                  NULL);
   return FALSE;
 }
 
@@ -364,7 +376,7 @@ static void
 ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
   requisition->width = 1024;
-  requisition->height = 100;
+  requisition->height = ol_osd_window_compute_height (OL_OSD_WINDOW (widget));
 }
 
 static void ol_osd_window_unrealize (GtkWidget *widget)
@@ -496,7 +508,7 @@ ol_osd_window_unmap (GtkWidget *widget)
 }
 
 void
-ol_osd_window_set_alignment (OlOsdWindow *osd, float xalign, float yalign)
+ol_osd_window_set_alignment (OlOsdWindow *osd, double xalign, double yalign)
 {
   printf ("%s\n"
           "  xalign %f\n"
@@ -519,7 +531,7 @@ ol_osd_window_set_alignment (OlOsdWindow *osd, float xalign, float yalign)
 }
 
 void
-ol_osd_window_get_alignment (OlOsdWindow *osd, float *xalign, float *yalign)
+ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   if (xalign == NULL && yalign == NULL)
@@ -625,6 +637,29 @@ ol_osd_window_compute_position (OlOsdWindow *osd, GtkAllocation *alloc)
   }
 }
 
+static int
+ol_osd_window_compute_height (OlOsdWindow *osd)
+{
+  g_return_val_if_fail (OL_IS_OSD_WINDOW (osd) && osd->render_context != NULL,
+                        DEFAULT_HEIGHT);
+  int font_height = ol_osd_render_get_font_height (osd->render_context);
+  int height = font_height * (osd->line_count + (osd->line_count - 1) * LINE_PADDING);
+  return height;
+}
+
+static void
+ol_osd_window_update_height (OlOsdWindow *osd)
+{
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  int height = ol_osd_window_compute_height (osd);
+  if (height > 0)
+    widget->allocation.height = height;
+  GtkAllocation allo;
+  ol_osd_window_compute_position (osd, &allo);
+  gtk_widget_size_allocate (widget, &allo);
+}
+
 static void
 ol_osd_window_compute_alignment (OlOsdWindow *osd,
                                  gint x, gint y,
@@ -710,6 +745,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   GtkWidget *widget = GTK_WIDGET (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   double alpha = 1.0;
+  int font_height = ol_osd_render_get_font_height (osd->render_context);
   if (priv->composited && priv->mouse_over)
   {
     alpha = 0.3;
@@ -721,7 +757,18 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   gdk_drawable_get_size (widget->window, &w, &h);
   int line;
   gdouble ypos = 0, xpos;
-  for (line = 0; line < OL_OSD_WINDOW_MAX_LINE_COUNT; line++)
+  int start, end;
+  if (osd->line_count == 1)
+  {
+    start = osd->current_line;
+    end = start + 1;
+  }
+  else
+  {
+    start = 0;
+    end = OL_OSD_WINDOW_MAX_LINE_COUNT;
+  }
+  for (line = start; line < end; line++)
   {
     double percentage = osd->percentage[line];
     /* printf ("paint %d:%lf\n", line, percentage); */
@@ -743,7 +790,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
       cairo_paint_with_alpha (cr, alpha);
       cairo_restore (cr);
     }
-    ypos += DEFAULT_LINE_HEIGHT;
+    ypos += font_height * (1 + LINE_PADDING);
   }
 }
 
@@ -1038,6 +1085,18 @@ ol_osd_window_class_init (OlOsdWindowClass *klass)
                                                           "OSD indicating that it can be moved, and so it is"),
                                                          FALSE,
                                                          G_PARAM_READABLE | G_PARAM_WRITABLE));
+  /* install signals */
+  klass->signals[OSD_MOVED] =
+    g_signal_newv ("moved",
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                  NULL,         /* closure */
+                  NULL,         /* accumulator */
+                  NULL,         /* accumulator data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0,
+                  NULL);
   g_type_class_add_private (gobject_class, sizeof (OlOsdWindowPrivate));
 }
 
@@ -1153,6 +1212,7 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
     return;
   ol_osd_render_set_font_family (osd->render_context,
                                  font_family);
+  ol_osd_window_update_height (osd);
 }
 
 char*
@@ -1170,6 +1230,7 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
   if (osd == NULL || osd->render_context == NULL)
     return;
   ol_osd_render_set_font_size (osd->render_context, font_size);
+  ol_osd_window_update_height (osd);
 }
 
 double
@@ -1202,4 +1263,22 @@ ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
   osd->inactive_colors[0] = top_color;
   osd->inactive_colors[1] = middle_color;
   osd->inactive_colors[2] = bottom_color;
+}
+
+void
+ol_osd_window_set_line_count (OlOsdWindow *osd,
+                              guint line_count)
+{
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd)); 
+  g_return_if_fail (line_count >= 1 && line_count <= 2);
+  osd->line_count = line_count;
+  ol_osd_window_update_height (osd);
+  gtk_widget_queue_draw (GTK_WIDGET (osd));
+}
+
+guint
+ol_osd_window_get_line_count (OlOsdWindow *osd)
+{
+  g_return_val_if_fail (OL_IS_OSD_WINDOW (osd), 1);
+  return osd->line_count;
 }

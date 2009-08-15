@@ -54,6 +54,8 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   g_return_if_fail (text != NULL);
   ol_osd_render_set_text (context, text);
   int width, height;
+  xpos += OUTLINE_WIDTH / 2.0;
+  ypos += OUTLINE_WIDTH / 2.0;
   pango_layout_get_pixel_size (context->pango_layout, &width, &height);
   /* draws the outline of the text */
   cairo_move_to (cr, xpos, ypos);
@@ -95,9 +97,9 @@ ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
   int w, h;
   pango_layout_get_pixel_size (context->pango_layout, &w, &h);
   if (width != NULL)
-    *width = w;
+    *width = w + OUTLINE_WIDTH;
   if (height != NULL)
-    *height = h;
+    *height = h + OUTLINE_WIDTH;
 }
 
 void
@@ -159,6 +161,29 @@ ol_osd_render_set_font_size (OlOsdRenderContext *context,
     return;
   context->font_size = font_size;
   ol_osd_render_update_font (context);
+}
+
+int
+ol_osd_render_get_font_height (OlOsdRenderContext *context)
+{
+  /* fprintf (stderr, "%s\n", __FUNCTION__); */
+  if (context == NULL)
+    return 0;
+  PangoFontMetrics *metrics = pango_context_get_metrics (context->pango_context,
+                                                         pango_layout_get_font_description (context->pango_layout), /* font desc */
+                                                         NULL); /* languague */
+  if (metrics == NULL)
+  {
+    return ol_osd_render_get_font_size (context);
+  }
+  int height = 0;
+  int ascent, descent;
+  ascent = pango_font_metrics_get_ascent (metrics);
+  descent = pango_font_metrics_get_descent (metrics);
+  pango_font_metrics_unref (metrics);
+    
+  height += PANGO_PIXELS (ascent + descent) + OUTLINE_WIDTH;
+  return height;
 }
 
 double
