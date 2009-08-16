@@ -1,3 +1,7 @@
+2009-08-16  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_keybindings.c: Basic keybinding support
+
 2009-08-15  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_parser.c: Fix the offset property of LRC parser.

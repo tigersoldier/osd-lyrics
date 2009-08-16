@@ -28,16 +28,16 @@
 
 G_BEGIN_DECLS
 
-typedef void (* GnomeDoBindkeyHandler) (char *keystring, gpointer user_data);
+typedef void (* OlBindkeyHandler) (char *keystring, gpointer user_data);
 
 void ol_keybinder_init   (void);
 
 void ol_keybinder_bind   (const char           *keystring,
-                          GnomeDoBindkeyHandler  handler,
+                          OlBindkeyHandler  handler,
                           gpointer              user_data);
 
 void ol_keybinder_unbind (const char           *keystring,
-                          GnomeDoBindkeyHandler  handler);
+                          OlBindkeyHandler  handler);
 
 gboolean ol_keybinder_is_modifier (guint keycode);
 

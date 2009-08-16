@@ -32,6 +32,7 @@
 #include "ol_intl.h"
 #include "ol_config.h"
 #include "ol_osd_module.h"
+#include "ol_keybindings.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -313,6 +314,7 @@ main (int argc, char **argv)
   ol_player_init ();
   module = ol_osd_module_new ();
   ol_trayicon_inital ();
+  ol_keybinding_init();
   ol_get_string_from_hash_table (NULL, NULL);
   g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
   gtk_main ();
