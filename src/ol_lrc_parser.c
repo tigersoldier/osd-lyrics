@@ -205,7 +205,7 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
         while((lyric_file[temp_offset] != 0x0d) && (lyric_file[temp_offset] != 0x0a) && (temp_offset < file_size))
           temp_offset++;
         lyric_file[temp_offset] = '\0';
-        ol_lrc_parser_insert_list(list, current_time + offset_time, lyric_text,sign++);
+        ol_lrc_parser_insert_list(list, current_time - offset_time, lyric_text,sign++);
       }
     }
   } while(current_offset < file_size);

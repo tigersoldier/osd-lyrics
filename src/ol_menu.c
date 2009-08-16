@@ -11,7 +11,7 @@ static gboolean ol_menu_hide_accel (gpointer userdata);
 static gboolean
 ol_menu_hide_accel (gpointer userdata)
 {
-  printf ("hide");
+  fprintf (stderr, "%s\n", __FUNCTION__);
   return FALSE;
 }
   
@@ -85,7 +85,6 @@ ol_menu_get_popup ()
     gtk_accel_groups_activate (G_OBJECT (popup_menu),
                                gdk_keyval_from_name ("h"),
                                GDK_CONTROL_MASK | GDK_MOD1_MASK);
-
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
     gtk_menu_append (popup_menu, item);
     g_signal_connect (G_OBJECT (item), "activate",
