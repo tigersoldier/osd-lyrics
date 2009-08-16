@@ -32,12 +32,20 @@ static GtkMenuItem *items[OL_MENU_COUNT] = {0};
 static void
 ol_config_changed (OlConfig *config, gchar *name, gpointer data)
 {
+  fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
   if (strcmp (name, "locked") == 0)
   {
     gboolean locked = ol_config_get_bool (config, "locked");
-    if (locked == gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_LOCK])))
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_LOCK]),
-                                        locked);
+    if (locked != gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_LOCK])))
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_LOCK]),
+                                      locked);
+  }
+  else if (strcmp (name, "visible") == 0)
+  {
+    gboolean visible = ol_config_get_bool (config, name);
+    if (visible == gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_HIDE])))
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_HIDE]),
+                                      !visible);
   }
 }
 
@@ -46,7 +54,17 @@ ol_menu_lock (GtkWidget *widget, gpointer data)
 {
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
-  ol_config_set_bool (config, "locked", !ol_config_get_bool (config, "locked"));
+  gboolean locked = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
+  ol_config_set_bool (config, "locked", locked);
+}
+
+static void
+ol_menu_hide (GtkWidget *widget, gpointer data)
+{
+  OlConfig *config = ol_config_get_instance ();
+  g_return_if_fail (config != NULL);
+  gboolean hide = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
+  ol_config_set_bool (config, "visible", !hide);
 }
 
 static void
@@ -95,7 +113,7 @@ ol_menu_get_popup ()
     gtk_menu_item_set_accel_path (GTK_MENU_ITEM (item),
                                   "<OSD Lyrics>/Hide");
     g_signal_connect (G_OBJECT(item), "activate",
-                      G_CALLBACK(ol_osd_lock_unlock),
+                      G_CALLBACK(ol_menu_hide),
                       NULL);
     items[OL_MENU_HIDE] = GTK_MENU_ITEM (item);
 

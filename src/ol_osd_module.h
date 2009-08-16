@@ -18,6 +18,7 @@ struct _OlOsdModule
   gint duration;
   gint line_count;
   LrcQueue *lrc_file;
+  gboolean display;
   OlOsdWindow *osd;
 };
 

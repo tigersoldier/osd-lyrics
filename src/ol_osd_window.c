@@ -484,7 +484,9 @@ ol_osd_window_mouse_timer (gpointer data)
 static void
 ol_osd_window_map (GtkWidget *widget)
 {
-  printf ("map\n");
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  if (GTK_WIDGET_MAPPED (widget))
+    return;
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GTK_WIDGET_CLASS (parent_class)->map (widget);
@@ -578,6 +580,8 @@ void ol_osd_window_set_width (OlOsdWindow *osd, gint width)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
+  if (!GTK_WIDGET_REALIZED (widget))
+    gtk_widget_realize (widget);
   if (width > 0)
     widget->allocation.width = width;
   GtkAllocation allo;
@@ -670,6 +674,8 @@ ol_osd_window_update_height (OlOsdWindow *osd)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
+  if (!GTK_WIDGET_REALIZED (widget))
+    gtk_widget_realize (widget);
   int height = ol_osd_window_compute_height (osd);
   if (height > 0)
     widget->allocation.height = height;
@@ -983,6 +989,8 @@ ol_osd_window_paint (OlOsdWindow *osd)
   GtkWidget *widget = GTK_WIDGET (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   g_return_if_fail (GTK_WIDGET_REALIZED (widget));
+  if (!GTK_WIDGET_VISIBLE (widget))
+    return;
   gint w, h;
   gdk_drawable_get_size (widget->window, &w, &h);
   cairo_t *cr;
@@ -999,14 +1007,15 @@ static void
 ol_osd_window_update_shape (OlOsdWindow *osd, int line)
 {
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GtkWidget *widget = GTK_WIDGET (osd);
+  if (!GTK_WIDGET_REALIZED (widget))
+    return;
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (priv->composited)
   {
     gtk_widget_shape_combine_mask (widget, NULL, 0, 0);
     return;
   }
-  g_return_if_fail (GTK_WIDGET_REALIZED (widget));
   gint w, h;
   gdk_drawable_get_size (widget->window, &w, &h);
   GdkPixmap *shape_mask = osd->shape_pixmap;

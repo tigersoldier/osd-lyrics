@@ -12,4 +12,7 @@ ol_osd_lock_unlock ()
 void
 ol_show_hide ()
 {
+  OlConfig *config = ol_config_get_instance ();
+  g_return_if_fail (config != NULL);
+  ol_config_set_bool (config, "visible", !ol_config_get_bool (config, "visible"));
 }

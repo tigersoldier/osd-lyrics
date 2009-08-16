@@ -146,6 +146,18 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
     module->line_count = ol_config_get_int (config, name);
     ol_osd_window_set_line_count (osd, module->line_count);
   }
+  else if (strcmp (name, "visible") == 0)
+  {
+    gboolean visible = ol_config_get_bool (config, name);
+    if (visible && module->display)
+    {
+      gtk_widget_show (GTK_WIDGET (module->osd));
+    }
+    else
+    {
+      gtk_widget_hide (GTK_WIDGET (module->osd));
+    }
+  }
 }
 
 static void
@@ -155,9 +167,11 @@ ol_osd_module_init_osd (OlOsdModule *module)
   if (module->osd == NULL)
     return;
   /* ol_osd_window_resize (osd, 1024, 100); */
-  gtk_widget_show (GTK_WIDGET (module->osd));
+  /* gtk_widget_show (GTK_WIDGET (module->osd)); */
+  module->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
+  config_change_handler (config, "visible", module);
   config_change_handler (config, "locked", module);
   config_change_handler (config, "line-count", module);
   config_change_handler (config, "xalign", module);
@@ -206,6 +220,7 @@ ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info)
   ol_music_info_copy (&module->music_info, music_info);
   if (module->osd != NULL)
   {
+    module->display = FALSE;
     gtk_widget_hide (GTK_WIDGET (module->osd));
     ol_osd_window_set_lyric (module->osd, 0, NULL);
     ol_osd_window_set_lyric (module->osd, 1, NULL);
@@ -264,13 +279,20 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
     {
       ol_osd_window_set_current_percentage (module->osd, percentage);
     }
-    if (!GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd)))
-      gtk_widget_show (GTK_WIDGET (module->osd));
+    if (!module->display)
+    {
+      module->display = TRUE;
+      if (ol_config_get_bool (ol_config_get_instance (), "visible"))
+        gtk_widget_show (GTK_WIDGET (module->osd));
+    }
   }
   else
   {
     if (module->osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd)))
+    {
+      module->display = FALSE;
       gtk_widget_hide (GTK_WIDGET (module->osd));
+    }
   }
 }
 
@@ -290,6 +312,8 @@ void
 ol_osd_module_set_lrc (OlOsdModule *module, LrcQueue *lrc_file)
 {
   module->lrc_file = lrc_file;
+  /* if (lrc_file != NULL) */
+  /*   module->display = TRUE; */
 }
 
 void

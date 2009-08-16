@@ -19,6 +19,7 @@ enum {
   PROP_FONT_SIZE,
   PROP_WIDTH,
   PROP_LOCKED,
+  PROP_VISIBLE,
   PROP_FONT_FAMILY,
   PROP_LRC_ALIGN_0,
   PROP_LRC_ALIGN_1,
@@ -97,6 +98,7 @@ static const OlConfigStrListValue config_str_list[] = {
 };
 static const OlConfigBoolValue config_bool[] = {
   {PROP_LOCKED, "locked", "Lock", "Whether the OSD is locked", TRUE},
+  {PROP_VISIBLE, "visible", "Visible", "Show/hide", TRUE},
 };
 
 static const OlConfigIntValue config_int[] = {
