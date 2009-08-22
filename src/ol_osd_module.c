@@ -12,7 +12,7 @@ static LrcInfo* ol_osd_module_get_real_lyric (LrcInfo *lrc);
 static void ol_osd_module_update_next_lyric (OlOsdModule *module,
                                              LrcInfo *current_lrc);
 static void ol_osd_module_init_osd (OlOsdModule *module);
-static void config_change_handler (OlConfig *config, gchar *name, gpointer userdata);
+static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
 
 static void
@@ -23,8 +23,8 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
   double xalign, yalign;
   ol_osd_window_get_alignment (osd, &xalign, &yalign);
   printf ("%s(%lf, %lf)\n", __FUNCTION__, xalign, yalign);
-  ol_config_set_double (config, "xalign", xalign);
-  ol_config_set_double (config, "yalign", yalign);
+  ol_config_set_double (config, "OSD", "xalign", xalign);
+  ol_config_set_double (config, "OSD", "yalign", yalign);
 }
 
 static void
@@ -64,9 +64,9 @@ ol_osd_module_update_next_lyric (OlOsdModule *module, LrcInfo *current_lrc)
 }
 
 static void
-config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
+config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata)
 {
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
+  fprintf (stderr, "%s:[%s]%s\n", __FUNCTION__, group, name);
   OlOsdModule *module = (OlOsdModule*) userdata;
   if (module == NULL)
     return;
@@ -76,19 +76,19 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
     return;
   if (strcmp (name, "locked") == 0)
   {
-    fprintf (stderr, "  locked: %d\n", ol_config_get_bool (config, "locked"));
+    fprintf (stderr, "  locked: %d\n", ol_config_get_bool (config, "OSD", "locked"));
     ol_osd_window_set_locked (osd,
-                              ol_config_get_bool (config, "locked"));
+                              ol_config_get_bool (config, "OSD", "locked"));
   }
   else if (strcmp (name, "xalign") == 0 || strcmp (name, "yalign") == 0)
   {
-    double xalign = ol_config_get_double (config, "xalign");
-    double yalign = ol_config_get_double (config, "yalign");
+    double xalign = ol_config_get_double (config, "OSD", "xalign");
+    double yalign = ol_config_get_double (config, "OSD", "yalign");
     ol_osd_window_set_alignment (osd, xalign, yalign);
   }
   else if (strcmp (name, "font-family") == 0)
   {
-    gchar *font = ol_config_get_string (config, "font-family");
+    gchar *font = ol_config_get_string (config, "OSD", "font-family");
     g_return_if_fail (font != NULL);
     ol_osd_window_set_font_family (osd, font);
     g_free (font);
@@ -96,27 +96,27 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
   else if (strcmp (name, "font-size") == 0)
   {
     ol_osd_window_set_font_size (osd,
-                                 ol_config_get_double (config, "font-size"));
+                                 ol_config_get_double (config, "OSD", "font-size"));
   }
   else if (strcmp (name, "width") == 0)
   {
     ol_osd_window_set_width (osd,
-                             ol_config_get_int (config, "width"));
+                             ol_config_get_int (config, "OSD", "width"));
   }
   else if (strcmp (name, "lrc-align-0") == 0)
   {
     ol_osd_window_set_line_alignment (osd, 0,
-                                      ol_config_get_double (config, name));
+                                      ol_config_get_double (config, "OSD", name));
   }
   else if (strcmp (name, "lrc-align-1") == 0)
   {
     ol_osd_window_set_line_alignment (osd, 1,
-                                      ol_config_get_double (config, name));
+                                      ol_config_get_double (config, "OSD", name));
   }
   else if (strcmp (name, "active-lrc-color") == 0)
   {
     int len;
-    char **color_str = ol_config_get_str_list (config, name, &len);
+    char **color_str = ol_config_get_str_list (config, "OSD", name, &len);
     printf ("len = %d\n", len);
     if (len != OL_LINEAR_COLOR_COUNT) return;
     if (color_str != NULL)
@@ -130,7 +130,7 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
   else if (strcmp (name, "inactive-lrc-color") == 0)
   {
     int len;
-    char **color_str = ol_config_get_str_list (config, name, &len);
+    char **color_str = ol_config_get_str_list (config, "OSD", name, &len);
     printf ("len = %d\n", len);
     if (len != OL_LINEAR_COLOR_COUNT) return;
     if (color_str != NULL)
@@ -143,12 +143,12 @@ config_change_handler (OlConfig *config, gchar *name, gpointer userdata)
   }
   else if (strcmp (name, "line-count") == 0)
   {
-    module->line_count = ol_config_get_int (config, name);
+    module->line_count = ol_config_get_int (config, "OSD", name);
     ol_osd_window_set_line_count (osd, module->line_count);
   }
   else if (strcmp (name, "visible") == 0)
   {
-    gboolean visible = ol_config_get_bool (config, name);
+    gboolean visible = ol_config_get_bool (config, "General", name);
     if (visible && module->display)
     {
       gtk_widget_show (GTK_WIDGET (module->osd));
@@ -171,17 +171,17 @@ ol_osd_module_init_osd (OlOsdModule *module)
   module->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
-  config_change_handler (config, "visible", module);
-  config_change_handler (config, "locked", module);
-  config_change_handler (config, "line-count", module);
-  config_change_handler (config, "xalign", module);
-  config_change_handler (config, "font-family", module);
-  config_change_handler (config, "font-size", module);
-  config_change_handler (config, "width", module);
-  config_change_handler (config, "lrc-align-0", module);
-  config_change_handler (config, "lrc-align-1", module);
-  config_change_handler (config, "active-lrc-color", module);
-  config_change_handler (config, "inactive-lrc-color", module);
+  config_change_handler (config, "OSD", "visible", module);
+  config_change_handler (config, "OSD", "locked", module);
+  config_change_handler (config, "OSD", "line-count", module);
+  config_change_handler (config, "OSD", "xalign", module);
+  config_change_handler (config, "OSD", "font-family", module);
+  config_change_handler (config, "OSD", "font-size", module);
+  config_change_handler (config, "OSD", "width", module);
+  config_change_handler (config, "OSD", "lrc-align-0", module);
+  config_change_handler (config, "OSD", "lrc-align-1", module);
+  config_change_handler (config, "OSD", "active-lrc-color", module);
+  config_change_handler (config, "OSD", "inactive-lrc-color", module);
   g_signal_connect (module->osd, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);
@@ -282,7 +282,7 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
     if (!module->display)
     {
       module->display = TRUE;
-      if (ol_config_get_bool (ol_config_get_instance (), "visible"))
+      if (ol_config_get_bool (ol_config_get_instance (), "General", "visible"))
         gtk_widget_show (GTK_WIDGET (module->osd));
     }
   }

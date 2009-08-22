@@ -115,6 +115,7 @@ static void ol_osd_window_update_shape (OlOsdWindow *osd, int line);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric);
+static void ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line);
 static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata);
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_height (OlOsdWindow *osd);
@@ -467,10 +468,17 @@ ol_osd_window_mouse_timer (gpointer data)
     gint w, h;
     gboolean mouse_over = FALSE;
     gtk_widget_get_pointer (GTK_WIDGET (osd), &rel_x, &rel_y);
-    gdk_drawable_get_size (GTK_WIDGET (osd)->window, &w, &h);
-    if (rel_x < w && rel_y < h && rel_x >=0 && rel_y >= 0)
+    int i;
+    for (i = 0; i < osd->line_count; i++)
     {
-      mouse_over = TRUE;
+      if (rel_x < osd->lyric_rects[i].x + osd->lyric_rects[i].width &&
+          rel_y < osd->lyric_rects[i].y + osd->lyric_rects[i].height &&
+          rel_x >= osd->lyric_rects[i].x &&
+          rel_y >= osd->lyric_rects[i].y)
+      {
+        mouse_over = TRUE;
+        break;
+      }
     }
     if (priv->mouse_over != mouse_over)
     {
@@ -928,7 +936,37 @@ ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyri
     cairo_destroy (cr);
   }
 }
+
+static void
+ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
+{
+  int i;
   
+  /* draws the inactive pixmaps */
+  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+  {
+    ol_osd_render_set_linear_color (osd->render_context,
+                                    i,
+                                    osd->inactive_colors[i]);
+  }
+  ol_osd_draw_lyric_pixmap (osd, &osd->inactive_lyric_pixmap[line], osd->lyrics[line]);
+  /* draws the active pixmaps */
+  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+  {
+    ol_osd_render_set_linear_color (osd->render_context,
+                                    i,
+                                    osd->active_colors[i]);
+  }
+  ol_osd_draw_lyric_pixmap (osd, &osd->active_lyric_pixmap[line], osd->lyrics[line]);
+  int w, h;
+  gdk_drawable_get_size (osd->active_lyric_pixmap[line], &w, &h);
+  int font_height = ol_osd_render_get_font_height (osd->render_context);
+  osd->lyric_rects[line].x = ol_osd_window_calc_lyric_xpos (osd, line);
+  osd->lyric_rects[line].y = font_height * line * (1 + LINE_PADDING);
+  osd->lyric_rects[line].width = w;
+  osd->lyric_rects[line].height = h;
+}
+
 void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
@@ -943,25 +981,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
     osd->lyrics[line] = g_strdup (lyric);
   else
     osd->lyrics[line] = g_strdup ("");
-  /* checks whether all lyrics is empty */
-  int i;
-  
-  /* draws the inactive pixmaps */
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    ol_osd_render_set_linear_color (osd->render_context,
-                                    i,
-                                    osd->inactive_colors[i]);
-  }
-  ol_osd_draw_lyric_pixmap (osd, &osd->inactive_lyric_pixmap[line], lyric);
-  /* draws the active pixmaps */
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    ol_osd_render_set_linear_color (osd->render_context,
-                                    i,
-                                    osd->active_colors[i]);
-  }
-  ol_osd_draw_lyric_pixmap (osd, &osd->active_lyric_pixmap[line], lyric);
+  ol_osd_window_update_lyric_pixmap (osd, line);
   ol_osd_window_update_shape (osd, line);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -1181,6 +1201,10 @@ ol_osd_window_init (OlOsdWindow *self)
     self->percentage[i] = 0.0;
     self->active_lyric_pixmap[i] = NULL;
     self->inactive_lyric_pixmap[i] = NULL;
+    self->lyric_rects[i].x = 0;
+    self->lyric_rects[i].y = 0;
+    self->lyric_rects[i].width = 0;
+    self->lyric_rects[i].height = 0;
   }
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
@@ -1239,7 +1263,12 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
     return;
   ol_osd_render_set_font_family (osd->render_context,
                                  font_family);
+  int i;
+  for (i = 0; i < osd->line_count; i++)
+    ol_osd_window_update_lyric_pixmap (osd, i);
   ol_osd_window_update_height (osd);
+  ol_osd_window_update_shape (osd, 0);
+  gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
 char*
@@ -1257,7 +1286,12 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
   if (osd == NULL || osd->render_context == NULL)
     return;
   ol_osd_render_set_font_size (osd->render_context, font_size);
+  int i;
+  for (i = 0; i < osd->line_count; i++)
+    ol_osd_window_update_lyric_pixmap (osd, i);
   ol_osd_window_update_height (osd);
+  ol_osd_window_update_shape (osd, 0);
+  gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
 double

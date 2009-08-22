@@ -16,7 +16,7 @@
 #include "ol_keybindings.h"
 #include "ol_commands.h"
 
-static void ol_config_changed (OlConfig *config, gchar *name, gpointer data);
+static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
 static GtkWidget *popup_menu = NULL;
 enum {
   OL_MENU_LOCK,
@@ -30,19 +30,19 @@ enum {
 static GtkMenuItem *items[OL_MENU_COUNT] = {0};
 
 static void
-ol_config_changed (OlConfig *config, gchar *name, gpointer data)
+ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)
 {
   fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
   if (strcmp (name, "locked") == 0)
   {
-    gboolean locked = ol_config_get_bool (config, "locked");
+    gboolean locked = ol_config_get_bool (config, "OSD", "locked");
     if (locked != gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_LOCK])))
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_LOCK]),
                                       locked);
   }
   else if (strcmp (name, "visible") == 0)
   {
-    gboolean visible = ol_config_get_bool (config, name);
+    gboolean visible = ol_config_get_bool (config, "General", name);
     if (visible == gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_HIDE])))
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (items[OL_MENU_HIDE]),
                                       !visible);
@@ -55,7 +55,7 @@ ol_menu_lock (GtkWidget *widget, gpointer data)
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
   gboolean locked = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
-  ol_config_set_bool (config, "locked", locked);
+  ol_config_set_bool (config, "OSD",  "locked", locked);
 }
 
 static void
@@ -64,7 +64,7 @@ ol_menu_hide (GtkWidget *widget, gpointer data)
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
   gboolean hide = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
-  ol_config_set_bool (config, "visible", !hide);
+  ol_config_set_bool (config, "General", "visible", !hide);
 }
 
 static void
@@ -106,7 +106,7 @@ ol_menu_get_popup ()
                       G_CALLBACK(ol_menu_lock),
                       NULL);
     items[OL_MENU_LOCK] = GTK_MENU_ITEM (item);
-    ol_config_changed (config, "locked", NULL);
+    ol_config_changed (config, "OSD", "locked", NULL);
 
     item = gtk_check_menu_item_new_with_mnemonic (_("_Hide"));
     gtk_menu_append (popup_menu, item);
@@ -116,6 +116,7 @@ ol_menu_get_popup ()
                       G_CALLBACK(ol_menu_hide),
                       NULL);
     items[OL_MENU_HIDE] = GTK_MENU_ITEM (item);
+    ol_config_changed (config, "General", "visible", NULL);
 
     item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
     gtk_menu_append (popup_menu, item);

@@ -1,3 +1,11 @@
+2009-08-22  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_config.c: signature of `changed' signal of ol_config is changed
+	Use real group name of each config item instead of ``OSD''
+
+	* src/ol_osd_window.c: Update lyrics once font family or size is set
+	Make lyrics transparent when the mouse pointer is actually over lyrics instead of over osd window
+
 2009-08-16  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_module.c: Add visible support

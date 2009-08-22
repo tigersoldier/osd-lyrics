@@ -156,8 +156,8 @@ ol_option_update_widget (OptionWidgets *widgets)
   GtkFontButton *font = GTK_FONT_BUTTON (widgets->font);
   if (font != NULL)
   {
-    gchar *font_family = ol_config_get_string (config, "font-family");
-    gchar *font_name = g_strdup_printf ("%s %0.0lf", font_family, ol_config_get_double (config, "font-size"));
+    gchar *font_family = ol_config_get_string (config,"OSD", "font-family");
+    gchar *font_name = g_strdup_printf ("%s %0.0lf", font_family, ol_config_get_double (config, "OSD", "font-size"));
     gtk_font_button_set_font_name (font, font_name);
     g_free (font_name);
     g_free (font_family);
@@ -167,7 +167,7 @@ ol_option_update_widget (OptionWidgets *widgets)
   if (width_widget != NULL)
   {
     gtk_spin_button_set_value (width_widget,
-                               ol_config_get_int (config, "width"));
+                               ol_config_get_int (config, "OSD", "width"));
   }
   /* Lrc align */
   for (i = 0; i < 2; i++)
@@ -178,7 +178,7 @@ ol_option_update_widget (OptionWidgets *widgets)
       char buffer[20];
       sprintf (buffer, "lrc-align-%d", i);
       gtk_range_set_value (lrc_align,
-                           ol_config_get_double (config, buffer));
+                           ol_config_get_double (config, "OSD", buffer));
     }
   }
   /* [In]Active lrc color */
@@ -190,8 +190,9 @@ ol_option_update_widget (OptionWidgets *widgets)
   for (k = 0; k < 2; k++)
   {
     char ** lrc_color_str = ol_config_get_str_list (config,
-                                                           color_props[k],
-                                                           NULL);
+                                                    "OSD",
+                                                    color_props[k],
+                                                    NULL);
     for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
     {
       if (color_widgets[k][i] != NULL)
@@ -204,7 +205,7 @@ ol_option_update_widget (OptionWidgets *widgets)
     g_strfreev (lrc_color_str);
   }
   /* OSD Line count */
-  int line_count = ol_config_get_int (config, "line-count");
+  int line_count = ol_config_get_int (config, "OSD", "line-count");
   if (line_count < 1) line_count = 1;
   if (line_count > 2) line_count = 2;
   line_count--;
@@ -227,9 +228,13 @@ ol_option_ok_clicked (GtkWidget *widget)
     gchar *font_family = NULL;
     double font_size;
     ol_option_get_font_info (font, &font_family, &font_size);
-    ol_config_set_string (config, "font-family",
+    ol_config_set_string (config,
+                          "OSD",
+                          "font-family",
                           font_family);
-    ol_config_set_double (config, "font-size",
+    ol_config_set_double (config,
+                          "OSD",
+                          "font-size",
                           font_size);
     g_free (font_family);
   }
@@ -237,7 +242,9 @@ ol_option_ok_clicked (GtkWidget *widget)
   GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
   if (width_widget != NULL)
   {
-    ol_config_set_int (config, "width", gtk_spin_button_get_value (width_widget));
+    ol_config_set_int (config,
+                       "OSD",
+                       "width", gtk_spin_button_get_value (width_widget));
                                
   }
   int i;
@@ -248,7 +255,9 @@ ol_option_ok_clicked (GtkWidget *widget)
     {
       char buffer[20];
       sprintf (buffer, "lrc-align-%d", i);
-      ol_config_set_double (config, buffer, 
+      ol_config_set_double (config,
+                            "OSD",
+                            buffer, 
                             gtk_range_get_value (lrc_align));
 
     }
@@ -274,6 +283,7 @@ ol_option_ok_clicked (GtkWidget *widget)
     }
     char **lrc_color_str = ol_color_to_str_list (colors, OL_LINEAR_COLOR_COUNT);
     ol_config_set_str_list (config,
+                            "OSD",
                             color_props[k],
                             (const char**)lrc_color_str,
                             OL_LINEAR_COLOR_COUNT);
@@ -286,7 +296,9 @@ ol_option_ok_clicked (GtkWidget *widget)
     {
       if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.line_count[i])))
       {
-        ol_config_set_int (config, "line-count", i + 1);
+        ol_config_set_int (config,
+                           "OSD",
+                           "line-count", i + 1);
       }
     }
   }

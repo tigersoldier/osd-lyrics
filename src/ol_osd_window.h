@@ -58,6 +58,7 @@ struct _OlOsdWindow
   GdkPixmap *inactive_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
   OlColor active_colors[OL_LINEAR_COLOR_COUNT];
   OlColor inactive_colors[OL_LINEAR_COLOR_COUNT];
+  GdkRectangle lyric_rects[OL_OSD_WINDOW_MAX_LINE_COUNT];
   GdkPixmap *shape_pixmap;
   OlOsdRenderContext *render_context;
   guint line_count;

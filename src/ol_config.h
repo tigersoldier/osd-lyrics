@@ -53,12 +53,13 @@ OlConfig* ol_config_get_instance ();
  * @brief Sets an boolean property of the config
  * 
  * @param config An OlConfig
+ * @param group The name of group the property belongs to
  * @param name The name of the property
  * @param value The value of the property
  * 
  * @return If succeed, returns TRUE
  */
-gboolean ol_config_set_bool (OlConfig *config, const char *name, gboolean value);
+gboolean ol_config_set_bool (OlConfig *config, const char *group, const char *name, gboolean value);
 
 /** 
  * @brief Sets an int property of the config
@@ -69,7 +70,7 @@ gboolean ol_config_set_bool (OlConfig *config, const char *name, gboolean value)
  * 
  * @return If succeed, returns TRUE
  */
-gboolean ol_config_set_int (OlConfig *config, const char *name, int value);
+gboolean ol_config_set_int (OlConfig *config, const char *group, const char *name, int value);
 
 /** 
  * @brief Sets a double property of the config
@@ -80,7 +81,7 @@ gboolean ol_config_set_int (OlConfig *config, const char *name, int value);
  * 
  * @return If succeed, returns TRUE
  */
-gboolean ol_config_set_double (OlConfig *config, const char *name, double value);
+gboolean ol_config_set_double (OlConfig *config, const char *group, const char *name, double value);
 
 /** 
  * @brief Sets a string property of the config
@@ -91,7 +92,7 @@ gboolean ol_config_set_double (OlConfig *config, const char *name, double value)
  * 
  * @return If succeed, returns TRUE
  */
-gboolean ol_config_set_string (OlConfig *config, const char *name, const char* value);
+gboolean ol_config_set_string (OlConfig *config, const char *group, const char *name, const char* value);
 
 /** 
  * @brief Sets a string list property of the config
@@ -104,6 +105,7 @@ gboolean ol_config_set_string (OlConfig *config, const char *name, const char* v
  * @return If succeed, returns TRUE
  */
 gboolean ol_config_set_str_list (OlConfig *config,
+                                 const char *group,
                                  const char *name,
                                  const char **value,
                                  int len);
@@ -117,7 +119,7 @@ gboolean ol_config_set_str_list (OlConfig *config,
  * @return If succeed, returns int value of the content. \
  *         If fail, returns FALSE.
  */
-gboolean ol_config_get_bool (OlConfig *config, const char *name);
+gboolean ol_config_get_bool (OlConfig *config, const char *group, const char *name);
 
 /** 
  * @brief Gets a int property of the config
@@ -128,7 +130,7 @@ gboolean ol_config_get_bool (OlConfig *config, const char *name);
  * @return If succeed, returns int value of the content. \
  *         If fail, returns 0.
  */
-int ol_config_get_int (OlConfig *config, const char *name);
+int ol_config_get_int (OlConfig *config, const char *group, const char *name);
 
 /** 
  * @brief Gets a double property of the config
@@ -139,7 +141,7 @@ int ol_config_get_int (OlConfig *config, const char *name);
  * @return If succeed, returns double value of the content. \
  *         If fail, returns 0.0.
  */
-double ol_config_get_double (OlConfig *config, const char *name);
+double ol_config_get_double (OlConfig *config, const char *group, const char *name);
 
 /** 
  * @brief Gets a string property of the config
@@ -150,7 +152,7 @@ double ol_config_get_double (OlConfig *config, const char *name);
  * @return If succeed, returns duplicated string value of the content, \
  *         must be freed by g_free. If fail, returns NULL.
  */
-char* ol_config_get_string (OlConfig *config, const char *name);
+char* ol_config_get_string (OlConfig *config, const char *group, const char *name);
 
 /** 
  * @brief Gets a string property of the config
@@ -163,6 +165,7 @@ char* ol_config_get_string (OlConfig *config, const char *name);
  * The array should be freed with g_strfreev().
  */
 char** ol_config_get_str_list (OlConfig *config,
+                               const char *group,
                                const char *name,
                                int *len);
 

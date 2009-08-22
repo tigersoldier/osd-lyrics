@@ -1,3 +1,34 @@
+osdlyrics (0.1-0~20090822~intrepid1) intrepid; urgency=low
+
+  * FIX: Update lyrics once font family or size is set
+  - CHANGE: Make lyrics transparent when the mouse pointer is actually over lyrics instead of over osd window  * ADD: Basic keybinding support
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sat, 22 Aug 2009 11:18:24 +0800
+
+osdlyrics (0.1-0~20090816~hardy1) hardy; urgency=low
+
+  * ADD: Show/Hide OSD window with popup menu or global hotkey
+  * ADD: Basic keybinding support
+  * FIX: OSD window crash when setting width before realized
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 16 Aug 2009 23:15:44 +0800
+
+osdlyrics (0.1-0~20090816~intrepid1) intrepid; urgency=low
+
+  * ADD: Show/Hide OSD window with popup menu or global hotkey
+  * ADD: Basic keybinding support
+  * FIX: OSD window crash when setting width before realized
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 16 Aug 2009 23:15:44 +0800
+
+osdlyrics (0.1-0~20090816~jaunty1) jaunty; urgency=low
+
+  * ADD: Show/Hide OSD window with popup menu or global hotkey
+  * ADD: Basic keybinding support
+  * FIX: OSD window crash when setting width before realized
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 16 Aug 2009 23:15:44 +0800
+
 osdlyrics (0.1-0~20090815~intrepid1) intrepid; urgency=low
 
   * FIX: Save OSD window position when moved
