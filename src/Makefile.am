@@ -41,6 +41,7 @@ osd_lyrics_SOURCES = \
 	ol_menu.c \
 	ol_lrc_fetch.c \
 	ol_lrc_fetch_sogou.c \
+	ol_lrc_fetch_qianqian.c \
 	ol_lrc_fetch_utils.c \
 	ol_music_info.c \
 	ol_color.c \

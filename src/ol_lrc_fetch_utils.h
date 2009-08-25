@@ -53,7 +53,7 @@ struct memo {
  *
  * @return 0 if success, or negative number
  */
-int fetch_into_memory(char *url, struct memo *dest);
+int fetch_into_memory(const char *url, const char *refer, struct memo *dest);
 
 /** 
  * @brief fetch the content of url into file
@@ -63,7 +63,7 @@ int fetch_into_memory(char *url, struct memo *dest);
  * 
  * @return 0 if success, or negative number
  */
-int fetch_into_file(char *url, FILE *fp);
+int fetch_into_file(const char *url, const char *refer, FILE *fp);
 
 /** 
  * @brief URL encoding;
@@ -73,7 +73,7 @@ int fetch_into_file(char *url, FILE *fp);
  * 
  * @return 0 if success, or negative number
  */
-int url_encoding(const char *src, const int srclen, char *dest, int destlen); 
+int url_encoding(const char *src, const int srclen, char *dest, int destlen, int space_cat); 
 
 /** 
  * @brief URL decoding

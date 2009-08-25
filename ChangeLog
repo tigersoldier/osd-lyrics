@@ -1,3 +1,9 @@
+2009-08-26  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch.c: Add multiple download engines support
+
+	* src/ol_lrc_fetch_qianqian.c: Add Qianqian download engine
+
 2009-08-22  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_config.c: signature of `changed' signal of ol_config is changed

@@ -48,11 +48,11 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
 
   if(title != NULL) {
     convert_to_gbk(title, buf, BUFSIZE, charset);
-    url_encoding(buf, strlen(buf), title_buf, BUFSIZE);
+    url_encoding(buf, strlen(buf), title_buf, BUFSIZE, TRUE);
   }
   if(artist != NULL) {
     convert_to_gbk(artist, buf, BUFSIZE, charset);
-    url_encoding(buf, strlen(buf), artist_buf, BUFSIZE);
+    url_encoding(buf, strlen(buf), artist_buf, BUFSIZE, TRUE);
   }
 
   strcpy(page_url, PREFIX_PAGE_SOGOU);
@@ -68,7 +68,7 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
     return NULL;
   if((fp = fdopen(fd, "w+")) == NULL)
     return NULL;
-  if((ret = fetch_into_file(page_url, fp)) < 0)
+  if((ret = fetch_into_file(page_url, NULL, fp)) < 0)
   {
     fclose (fp);
     remove (tmpfilenam);
@@ -132,7 +132,7 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
   lrc.mem_base = NULL;
   lrc.mem_len = 0;
 
-  if((ret = fetch_into_memory(tsu->url, &lrc)) < 0)
+  if((ret = fetch_into_memory(tsu->url, NULL, &lrc)) < 0)
     return -1;
   lrc_conv = calloc(lrc.mem_len*2, sizeof(char));
   convert("GBK", charset==NULL ? "UTF-8" : charset, lrc.mem_base, lrc.mem_len, lrc_conv, lrc.mem_len*2);
@@ -155,6 +155,7 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
 }
 
 static OlLrcFetchEngine sogou = {
+  "Sogou",
   ol_lrc_fetch_sogou_search_wrapper,
   ol_lrc_fetch_sogou_download,
 };

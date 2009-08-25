@@ -27,6 +27,7 @@ enum {
   PROP_INACTIVE_LRC_COLOR,
   PROP_LINE_COUNT,
   PROP_TOTAL_COUNT,
+  PROP_OSD_TRANSPRENT_ON_MOUSE_OVER,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -129,6 +130,10 @@ static const OlConfigStrListValue config_str_list[] = {
 static const OlConfigBoolValue config_bool[] = {
   {PROP_LOCKED, "locked", "OSD", "Lock", "Whether the OSD is locked", TRUE},
   {PROP_VISIBLE, "visible", "General", "Visible", "Show/hide", TRUE},
+  {PROP_OSD_TRANSPRENT_ON_MOUSE_OVER, "transparent-on-mouse-over", "OSD",
+   "Transparent on mouse over",
+   "When the pointer is on the lyrics, make them transparent",
+   TRUE},
 };
 
 static const OlConfigIntValue config_int[] = {

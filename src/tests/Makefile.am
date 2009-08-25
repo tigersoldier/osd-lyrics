@@ -48,6 +48,7 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
+	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
 	$(top_srcdir)/src/ol_utils.c
 ol_lrc_fetch_test_LDADD = \
 	@CURL_LIBS@ \
@@ -55,7 +56,8 @@ ol_lrc_fetch_test_LDADD = \
 
 ol_config_test_SOURCES = \
 	ol_config_test.c \
-	$(top_srcdir)/src/ol_config.c
+	$(top_srcdir)/src/ol_config.c \
+	$(top_srcdir)/src/ol_marshal.c
 ol_config_test_LDADD = \
 	@GTK2_LIBS@
 

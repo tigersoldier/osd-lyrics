@@ -33,13 +33,13 @@ test_default_value ()
   printf ("%s\n", __FUNCTION__);
   OlConfig *config = ol_config_get_instance ();
   assert (config != NULL);
-  ol_config_get_int (config, "width");
-  ol_config_get_double (config, "xalign");
-  ol_config_get_double (config, "yalign");
-  ol_config_get_double (config, "font-size");
-  ol_config_get_bool (config, "locked");
-  g_free (ol_config_get_string (config, "font-family"));
-  g_strfreev (ol_config_get_str_list (config, "active-lrc-color", NULL));
+  ol_config_get_int (config, "OSD", "width");
+  ol_config_get_double (config, "OSD", "xalign");
+  ol_config_get_double (config, "OSD", "yalign");
+  ol_config_get_double (config, "OSD", "font-size");
+  ol_config_get_bool (config, "OSD", "locked");
+  g_free (ol_config_get_string (config, "OSD", "font-family"));
+  g_strfreev (ol_config_get_str_list (config, "OSD", "active-lrc-color", NULL));
 }
 
 void
@@ -53,20 +53,20 @@ test_set_value ()
   OlConfig *config = ol_config_get_instance ();
   assert (config != NULL);
   g_signal_connect (config, "changed", G_CALLBACK (changed_handler), NULL);
-  ol_config_set_int (config, "width", INT_VAL);
-  assert (ol_config_get_int (config, "width") == INT_VAL);
-  ol_config_set_double (config, "xalign", DOUBLE_VAL);
-  assert (ol_config_get_double (config, "xalign") == DOUBLE_VAL);
-  ol_config_set_string (config, "font-family", STR_VAL);
-  assert (strcmp (ol_config_get_string (config, "font-family"), STR_VAL) == 0);
-  assert (strcmp (ol_config_get_string (config, "font-family"), STR_VAL) == 0);
-  ol_config_set_bool (config, "locked", FALSE);
-  assert (ol_config_get_bool (config, "locked") == FALSE);
-  ol_config_set_bool (config, "locked", TRUE);
-  assert (ol_config_get_bool (config, "locked") == TRUE);
-  ol_config_set_str_list (config, "active-lrc-color", (const char **)colors, 3);
-  g_strfreev (ol_config_get_str_list (config, "active-lrc-color", NULL));
-  g_strfreev (ol_config_get_str_list (config, "active-lrc-color", NULL));
+  ol_config_set_int (config, "OSD", "width", INT_VAL);
+  assert (ol_config_get_int (config, "OSD", "width") == INT_VAL);
+  ol_config_set_double (config, "OSD", "xalign", DOUBLE_VAL);
+  assert (ol_config_get_double (config, "OSD", "xalign") == DOUBLE_VAL);
+  ol_config_set_string (config, "OSD", "font-family", STR_VAL);
+  assert (strcmp (ol_config_get_string (config, "OSD", "font-family"), STR_VAL) == 0);
+  assert (strcmp (ol_config_get_string (config, "OSD", "font-family"), STR_VAL) == 0);
+  ol_config_set_bool (config, "OSD", "locked", FALSE);
+  assert (ol_config_get_bool (config, "OSD", "locked") == FALSE);
+  ol_config_set_bool (config, "OSD", "locked", TRUE);
+  assert (ol_config_get_bool (config, "OSD", "locked") == TRUE);
+  ol_config_set_str_list (config, "OSD", "active-lrc-color", (const char **)colors, 3);
+  g_strfreev (ol_config_get_str_list (config, "OSD", "active-lrc-color", NULL));
+  g_strfreev (ol_config_get_str_list (config, "OSD", "active-lrc-color", NULL));
 }
 
 int

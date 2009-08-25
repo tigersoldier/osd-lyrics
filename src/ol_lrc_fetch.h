@@ -33,6 +33,7 @@ typedef int (*Lrc_Download) (OlLrcCandidate *candidates,
 typedef struct _OlLrcFetchEngine OlLrcFetchEngine;
 struct _OlLrcFetchEngine
 {
+  char *name;
   Lrc_Search search;
   Lrc_Download download;
 };
@@ -45,5 +46,11 @@ struct _OlLrcFetchEngine
  * @return The engine with the given name. If not exists, return default engine.
  */
 OlLrcFetchEngine *ol_lrc_fetch_get_engine (const char *name);
+
+/** 
+ * @brief Initialize LRC fetch module
+ * 
+ */
+void ol_lrc_fetch_init ();
 
 #endif /* _LRC_FETCH_H */ 

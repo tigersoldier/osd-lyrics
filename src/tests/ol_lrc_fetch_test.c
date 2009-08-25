@@ -8,6 +8,7 @@
 #define FALSE 0
 
 const char *charset = "UTF-8";
+const char *enginename = "qianqian";
 
 /* bug #1 */
 void test_long_url ()
@@ -17,7 +18,7 @@ void test_long_url ()
   OlMusicInfo music_info;
   music_info.title = "Little Lotte/The Mirror (Angel of Music)";
   music_info.artist = "泉こなた（平野綾），柊かがみ（加藤英美里），柊つかさ（福原香織），高良みゆき（遠藤綾）";
-  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine ("sogou")->search (&music_info, &lrc_count, "UTF-8");
+  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine (enginename)->search (&music_info, &lrc_count, "UTF-8");
 }
 
 void test_search ()
@@ -27,7 +28,7 @@ void test_search ()
   OlMusicInfo music_info;
   music_info.title = "红豆";
   music_info.artist = "王菲";
-  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine ("sogou")->search (&music_info, &lrc_count, "UTF-8");
+  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine (enginename)->search (&music_info, &lrc_count, "UTF-8");
   printf ("Count: %d\n", lrc_count);
   int i;
   for (i = 0; i < lrc_count; i++)
@@ -41,18 +42,20 @@ void test_download ()
   printf ("%s\n", __FUNCTION__);
   int lrc_count;
   OlMusicInfo music_info;
-  music_info.title = "红豆";
+  music_info.title = "虫儿飞";
+  /* music_info.title = "eyes on me"; */
   music_info.artist = "王菲";
-  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine ("sogou")->search (&music_info, &lrc_count, "UTF-8");
+  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine (enginename)->search (&music_info, &lrc_count, "UTF-8");
   if (lrc_count > 0)
-    ol_lrc_fetch_get_engine ("sogou")->download (&candidates[0], "/tmp/tmplrctest.lrc", "UTF-8");
+    ol_lrc_fetch_get_engine (enginename)->download (&candidates[0], "/tmp/tmplrctest.lrc", "UTF-8");
 }
 
 int main(int argc, char *argv[])
 {
-  test_long_url ();
+  ol_lrc_fetch_init ();
+  /* test_long_url (); */
   test_search ();
-  test_download ();
+  /* test_download (); */
   return 0;
 }
 

@@ -139,7 +139,7 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 gboolean download_lyric (OlMusicInfo *music_info)
 {
   int lrc_count;
-  OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine ("Sogou");
+  OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine ("Qianqian");
   OlLrcCandidate *candidates = engine->search (music_info, &lrc_count, "UTF-8");
   printf ("downloading...\n");
   if (lrc_count == 0 || candidates == NULL)
@@ -314,7 +314,8 @@ main (int argc, char **argv)
   ol_player_init ();
   module = ol_osd_module_new ();
   ol_trayicon_inital ();
-  ol_keybinding_init();
+  ol_keybinding_init ();
+  ol_lrc_fetch_init ();
   ol_get_string_from_hash_table (NULL, NULL);
   g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
   gtk_main ();
