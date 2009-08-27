@@ -1,10 +1,32 @@
-An OSD lyric show supporting multiple media players and downloading.
+OSD Lyrics is inspired by lrcdis. It is a third-party lyrics display program, and focus on OSD lyrics display.
 
-OSD Lyrics supports the following media players:
+=Media Player Support=
+
+OSD Lyrics communicates with music players through IPC. OSD Lyrics currently supports following media players:  
  * Amarok 1.4 (High CPU usage)
  * Amarok 2.0
  * Audacious
  * Banshee
  * Rhythmbox
 
-Homepage: http://code.google.com/p/osd-lyrics/
+=Download Lyrics=
+
+OSD Lyrics can download lyrics from following web sites:
+ * Sogou http://mp3.sogou.com/ 
+ * Qianqian http://www.qianqian.com/index.html 
+
+You can switch the download engine in preference dialog.
+
+=Get Involved=
+
+ * OSD lyrics doesn't have its own icon because of the authors are not good at it. If you would like to design an icon for OSD Lyrics, please send it to tigersoldi@gmail.com
+ * If you would like to translate OSD Lyrics to other languagues, please visit https://translations.launchpad.net/osd-lyrics
+ * If there is any feature request, suggestion, or bug, feel free to report them to  http://code.google.com/p/osd-lyrics/issues/list
+
+=Acknowledgement=
+
+Some open source projects help the authors to develop OSD Lyrics, as well as some people. The authors would like to thank you:
+ * Gnome OSD: OSD implementation
+ * lrcdis: The idea of third-party lyrics program, and the analysis of LRC download protocols
+ * Cairo-Dock: Its musicPlayer plugin helps the authors to implement most music player support
+ * TuaratriX (http://imtx.cn/) has help one of the author on the implementation of OSD

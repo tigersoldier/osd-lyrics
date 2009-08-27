@@ -1,3 +1,15 @@
+osdlyrics (0.2-0~20090827~jaunty1) jaunty; urgency=low
+
+  * ADD: Qianqian download engine support
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 27 Aug 2009 23:20:29 +0800
+
+osdlyrics (0.2-0~20090827~intrepid1) intrepid; urgency=low
+
+  * ADD: Qianqian download engine support
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 27 Aug 2009 23:20:29 +0800
+
 osdlyrics (0.1-0~20090822~intrepid1) intrepid; urgency=low
 
   * FIX: Update lyrics once font family or size is set

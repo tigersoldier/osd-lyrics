@@ -1,6 +1,18 @@
-Version 0.1
-* OSD Lyrics released!
-* Features:
+Version 0.2: 2009-08-27
+ * Supports downloading lyrics from www.qianqian.com
+ * Supports Rhythmbox
+ * Global hotkey bindings
+ * Some improvement on OSD mode:
+  * Support single line mode
+  * Scroll horizontally when lyrics are too long
+  - Make lyrics transparent when mouse is over
+  - Show/hide lyrics 
+  - Some bug fixes
+ - Fix bugs on the offset of LRC
+
+Version 0.1: 2009-07-12
+ * OSD Lyrics released!
+ * Features:
   * Supports Amarok 1.4, Amarok 2.0, Banshee, Audacious
   * Downloads lyrics from Sougo according the title and artist of the song
   * OSD lyric display mode
