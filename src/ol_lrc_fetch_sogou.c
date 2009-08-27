@@ -5,6 +5,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_lrc_fetch_sogou.h"
 #include "ol_utils.h"
+#include "ol_intl.h"
 
 #define PREFIX_PAGE_SOGOU "http://mp3.sogou.com/gecisearch.so?query="
 #define PREFIX_LRC_SOGOU "http://mp3.sogou.com/"
@@ -155,7 +156,7 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
 }
 
 static OlLrcFetchEngine sogou = {
-  "Sogou",
+  N_("Sogou"),
   ol_lrc_fetch_sogou_search_wrapper,
   ol_lrc_fetch_sogou_download,
 };

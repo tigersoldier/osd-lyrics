@@ -5,6 +5,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_lrc_fetch_qianqian.h"
 #include "ol_utils.h"
+#include "ol_intl.h"
 
 #define PREFIX_PAGE_QIANQIAN "http://www.qianqian.com/lrcresult.php?qfield=1&pageflag=1&qword=%s"
 #define PREFIX_FRAME_QIANQIAN "http://www.qianqian.com/lrcresult_frame.php?qword=%s&qfield=1"
@@ -319,7 +320,7 @@ ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const 
 }
 
 static OlLrcFetchEngine qianqian = {
-  "Qianqian",
+  N_("Qianqian"),
   ol_lrc_fetch_qianqian_search_wrapper,
   ol_lrc_fetch_qianqian_download,
 };

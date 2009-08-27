@@ -5,6 +5,7 @@
 #include "ol_config.h"
 #include "ol_osd_render.h"
 #include "ol_lrc_fetch.h"
+#include "ol_intl.h"
 
 static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
@@ -232,8 +233,8 @@ ol_option_update_widget (OptionWidgets *widgets)
                           0, &engine_name,
                           -1);
       if (ignore_case_strcmp (engine_name,
-                              download_engine,
-                              strlen (download_engine)) == 0)
+                              _(download_engine),
+                              strlen (engine_name)) == 0)
       {
         gtk_combo_box_set_active_iter (GTK_COMBO_BOX (options.download_engine),
                                        &iter);
@@ -336,11 +337,12 @@ ol_option_ok_clicked (GtkWidget *widget)
   /* Download Engine */
   if (options.download_engine != NULL)
   {
-    gchar *engine_name = gtk_combo_box_get_active_text (GTK_COMBO_BOX (options.download_engine));
-    if (engine_name != NULL)
+    int index = gtk_combo_box_get_active (GTK_COMBO_BOX (options.download_engine));
+    int count = 0;
+    const char **engine_list = ol_lrc_fetch_get_engine_list (&count);
+    if (engine_list != NULL && index < count)
     {
-      ol_config_set_string (config, "Download", "download-engine", engine_name);
-      g_free (engine_name);
+      ol_config_set_string (config, "Download", "download-engine", engine_list[index]);
     }
   }
   /* Close dialog */
@@ -397,7 +399,7 @@ ol_option_show ()
       {
         printf ("append: %s\n", download_engine[i]);
         gtk_combo_box_append_text (GTK_COMBO_BOX (options.download_engine),
-                                   download_engine[i]);
+                                   _(download_engine[i]));
       }
     }
   }
