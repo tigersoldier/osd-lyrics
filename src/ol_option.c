@@ -1,9 +1,12 @@
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_option.h"
 #include "ol_glade.h"
 #include "ol_config.h"
 #include "ol_osd_render.h"
+#include "ol_lrc_fetch.h"
 
+static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
 
 static struct _OptionWidgets
@@ -17,6 +20,7 @@ static struct _OptionWidgets
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *osd_preview;
   GtkWidget *line_count[2];
+  GtkWidget *download_engine;
 } options;
 
 void ol_option_ok_clicked (GtkWidget *widget);
@@ -214,6 +218,33 @@ ol_option_update_widget (OptionWidgets *widgets)
     GtkToggleButton *line_count_widget = GTK_TOGGLE_BUTTON (options.line_count[line_count]);
     gtk_toggle_button_set_active (line_count_widget, TRUE);
   }
+  /* Download engine */
+  if (options.download_engine != NULL)
+  {
+    char *download_engine = ol_config_get_string (config, "Download", "download-engine");
+    GtkTreeModel *tree = gtk_combo_box_get_model (GTK_COMBO_BOX (options.download_engine));
+    GtkTreeIter iter;
+    gboolean valid = gtk_tree_model_get_iter_first (tree, &iter);
+    while (valid)
+    {
+      char *engine_name;
+      gtk_tree_model_get (tree, &iter,
+                          0, &engine_name,
+                          -1);
+      if (ignore_case_strcmp (engine_name,
+                              download_engine,
+                              strlen (download_engine)) == 0)
+      {
+        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (options.download_engine),
+                                       &iter);
+        g_free (engine_name);
+        break;
+      }
+      g_free (engine_name);
+      valid = gtk_tree_model_iter_next (tree, &iter);
+    }
+    g_free (download_engine);
+  }
 }
 
 void
@@ -302,6 +333,16 @@ ol_option_ok_clicked (GtkWidget *widget)
       }
     }
   }
+  /* Download Engine */
+  if (options.download_engine != NULL)
+  {
+    gchar *engine_name = gtk_combo_box_get_active_text (GTK_COMBO_BOX (options.download_engine));
+    if (engine_name != NULL)
+    {
+      ol_config_set_string (config, "Download", "download-engine", engine_name);
+      g_free (engine_name);
+    }
+  }
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -328,6 +369,7 @@ ol_option_show ()
   if (window == NULL)
   {
     window = ol_glade_get_widget ("optiondialog");
+    g_return_if_fail (window != NULL);
     g_signal_connect (window, "delete-event",
                       G_CALLBACK (gtk_widget_hide_on_delete),
                       NULL);
@@ -346,8 +388,19 @@ ol_option_show ()
     options.osd_preview = ol_glade_get_widget ("osd-preview");
     options.line_count[0] = ol_glade_get_widget ("line-count-1");
     options.line_count[1] = ol_glade_get_widget ("line-count-2");
+    options.download_engine = ol_glade_get_widget ("download-engine");
+    if (options.download_engine != NULL)
+    {
+      int i, nengine;
+      char **download_engine = ol_lrc_fetch_get_engine_list (&nengine);
+      for (i = 0; i < nengine; i++)
+      {
+        printf ("append: %s\n", download_engine[i]);
+        gtk_combo_box_append_text (GTK_COMBO_BOX (options.download_engine),
+                                   download_engine[i]);
+      }
+    }
   }
-  g_return_if_fail (window != NULL);
   ol_option_update_widget (&options);
   gtk_dialog_run (GTK_DIALOG (window));
 }

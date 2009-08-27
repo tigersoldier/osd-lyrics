@@ -139,7 +139,13 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 gboolean download_lyric (OlMusicInfo *music_info)
 {
   int lrc_count;
-  OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine ("Qianqian");
+  OlConfig *config = ol_config_get_instance ();
+  char *name = ol_config_get_string (config, "Download", "download-engine");
+  fprintf (stderr, "Download engine: %s\n", name);
+  OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
+  if (engine == NULL)
+    return FALSE;
+  /* g_free (name); */
   OlLrcCandidate *candidates = engine->search (music_info, &lrc_count, "UTF-8");
   printf ("downloading...\n");
   if (lrc_count == 0 || candidates == NULL)

@@ -94,15 +94,5 @@ int curl_url_encoding(CURL *curl, char *input, char *output, size_t size);
  */
 int curl_url_decoding(CURL *curl, char *input, char *output, size_t size);
 
-/** 
- * @brief comparing str1 with str2 case insensitive
- * 
- * @param str1
- * @param str2
- * @param count
- * 
- * @return the same with the function: strcmp in <string.h>
- */
-int ignore_case_strcmp(const char *str1, const char *str2, const size_t count);
 
 #endif /* _UTIL_LRC_FETCH */ 

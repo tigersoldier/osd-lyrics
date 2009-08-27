@@ -28,6 +28,7 @@ enum {
   PROP_LINE_COUNT,
   PROP_TOTAL_COUNT,
   PROP_OSD_TRANSPRENT_ON_MOUSE_OVER,
+  PROP_DOWNLOAD_ENGINE,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -165,6 +166,9 @@ static const OlConfigStringValue config_str[] = {
   {PROP_FONT_FAMILY, "font-family", "OSD", "OSD Font family",
    "Font family of OSD lyrics",
    "serif"},
+  {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
+   "Download engine", "Select the source where LRC files are downloaded from",
+   "sogou"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */

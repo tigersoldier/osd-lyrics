@@ -53,4 +53,6 @@ OlLrcFetchEngine *ol_lrc_fetch_get_engine (const char *name);
  */
 void ol_lrc_fetch_init ();
 
+const char** ol_lrc_fetch_get_engine_list (int *count);
+
 #endif /* _LRC_FETCH_H */ 

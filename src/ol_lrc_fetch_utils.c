@@ -393,27 +393,4 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
   return 0;
 }
 
-int 
-ignore_case_strcmp(const char *str1, const char *str2, const size_t count)
-{
-  const char *ptr1 = str1;
-  const char *ptr2 = str2;
-  int len1 = strlen(str1);
-  int len2 = strlen(str2);
-  int min = len1 > len2 ? len2 : len1;
-  min = min > count ? count : min;
-
-  while((ptr1 < str1+min) && (ptr2 < str2+min)) {
-    if(isalpha(*ptr1) && isalpha(*ptr2)) {
-      if(tolower(*ptr1) != tolower(*ptr2))
-        return *ptr1 > *ptr2 ? 1 : -1;
-    } else {
-      if(*ptr1 != *ptr2)
-        return *ptr1 > *ptr2 ? 1 : -1;
-    }
-    ptr1++;
-    ptr2++;
-  }
-  return 0;
-}
 

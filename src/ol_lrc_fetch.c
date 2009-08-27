@@ -8,6 +8,7 @@
 static OlLrcFetchEngine *engines[OL_LRC_FETCH_ENGINE_MAX] = {0};
 static int engine_count = 0;
 static int ol_lrc_fetch_add_engine (OlLrcFetchEngine *engine);
+static char *engine_list[OL_LRC_FETCH_ENGINE_MAX];
 
 OlLrcFetchEngine *
 ol_lrc_fetch_get_engine (const char *name)
@@ -15,6 +16,8 @@ ol_lrc_fetch_get_engine (const char *name)
   fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
   if (engine_count == 0)
     return NULL;
+  if (name == NULL)
+    return engines[0];
   int i = 0;
   size_t len = strlen (name);
   for (i = 0; i < engine_count; i++)
@@ -45,6 +48,15 @@ ol_lrc_fetch_add_engine (OlLrcFetchEngine *engine)
     if (engines[i] == engine)
       return 0;
   }
+  engine_list[engine_count] = engine->name;
   engines[engine_count++] = engine;
   return engine_count;
+}
+
+const char**
+ol_lrc_fetch_get_engine_list (int *count)
+{
+  if (count != NULL)
+    *count = engine_count;
+  return engine_list;
 }

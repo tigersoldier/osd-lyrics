@@ -22,4 +22,15 @@ gboolean ol_is_string_empty (const char *str);
  * @return pointer to this memory if success, or NULL
  */
 char* ol_path_alloc(void);
+
+/** 
+ * @brief comparing str1 with str2 case insensitive
+ * 
+ * @param str1
+ * @param str2
+ * @param count
+ * 
+ * @return the same with the function: strcmp in <string.h>
+ */
+int ignore_case_strcmp(const char *str1, const char *str2, const size_t count);
 #endif // __OL_UTILS_H__

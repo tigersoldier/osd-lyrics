@@ -1,3 +1,7 @@
+2009-08-27  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_option.c: Add download engine support for perference
+
 2009-08-26  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch.c: Add multiple download engines support
