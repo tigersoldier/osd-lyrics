@@ -394,3 +394,11 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
 }
 
 
+int
+ol_lrc_fetch_add_candidate (struct _OlLrcCandidate *candidate_list,
+                            size_t count,
+                            size_t size,
+                            struct _OlLrcCandidate *new_candidate)
+{
+  
+}

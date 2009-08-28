@@ -64,7 +64,6 @@ ol_player_rhythmbox_get_real_ms (int time)
       (current_time.tv_usec - begin_time.tv_usec) / 1000;
     if (real_time - time > 1000 || time - real_time > 1000 )
     {
-      puts ("init2");
       printf ("real_time: %d, time: %d\n", real_time, time);
       ol_player_rhythmbox_init_timer (time);
     }
@@ -175,6 +174,7 @@ ol_player_rhythmbox_get_played_time (int *played_time)
 static gboolean
 ol_player_rhythmbox_get_music_length (int *len)
 {
+  fprintf (stderr, "%s\n", __FUNCTION__);
   g_return_val_if_fail (len != NULL, FALSE);
   GHashTable *data_list = ol_player_rhythmbox_get_song_properties ();
   if (data_list == NULL)

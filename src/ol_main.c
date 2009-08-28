@@ -159,6 +159,7 @@ gboolean download_lyric (OlMusicInfo *music_info)
     get_lyric_path_name (music_info, pathname);
     engine->download (&candidates[0], pathname, "UTF-8");
     printf ("download %s success\n", pathname);
+    return TRUE;
   }
 }
 

@@ -1,3 +1,7 @@
+2009-08-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: Fix the bug that the lyric is not set when downloading succeeds
+
 2009-08-27  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_option.c: Add download engine support for perference
