@@ -13,6 +13,7 @@ struct _OlLrcCandidate
   char title[OL_TS_LEN_MAX];
   char artist[OL_TS_LEN_MAX];
   char url[OL_URL_LEN_MAX];
+  int rank;
 };
 
 /** 

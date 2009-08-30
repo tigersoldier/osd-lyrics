@@ -33,4 +33,14 @@ char* ol_path_alloc(void);
  * @return the same with the function: strcmp in <string.h>
  */
 int ignore_case_strcmp(const char *str1, const char *str2, const size_t count);
+
+/** 
+ * @Calculates the largest common substring for two strings
+ * 
+ * @param str1 
+ * @param str2 
+ * 
+ * @return the length of the largest common substring
+ */
+size_t ol_lcs (const char *str1, const char *str2);
 #endif // __OL_UTILS_H__

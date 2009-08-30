@@ -4,13 +4,14 @@
 /**
  * defines a music's infomation structure
  */
-typedef struct
+typedef struct _OlMusicInfo OlMusicInfo;
+struct _OlMusicInfo
 {
   char *title;                 /* The title of the music */
   char *artist;                /* The artist of the music */
   char *album;                 /* The album name of the music */
   int track_number;            /* The track number of the music */
-} OlMusicInfo;
+};
 
 void ol_music_info_init (OlMusicInfo *music_info);
 void ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src);

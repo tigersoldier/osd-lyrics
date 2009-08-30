@@ -1,3 +1,15 @@
+osdlyrics (0.2-0~20090828~intrepid1) intrepid; urgency=low
+
+  * FIX: The lyric is not set when downloading succeeds
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Fri, 28 Aug 2009 21:35:16 +0800
+
+osdlyrics (0.2-0~20090828~jaunty1) jaunty; urgency=low
+
+  * FIX: The lyric is not set when downloading succeeds
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Fri, 28 Aug 2009 21:35:16 +0800
+
 osdlyrics (0.2-0~20090827~jaunty1) jaunty; urgency=low
 
   * ADD: Qianqian download engine support

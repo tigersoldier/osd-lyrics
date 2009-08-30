@@ -30,9 +30,10 @@ convert_to_gbk(const char *init, char *target, size_t t_size, const char *localc
 
 
 static OlLrcCandidate *
-ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, const char* charset)
+ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charset)
 {
   static OlLrcCandidate result[TRY_MATCH_MAX];
+  OlLrcCandidate candidate;
   char page_url[OL_URL_LEN_MAX];
   char title_buf[BUFSIZE];
   char artist_buf[BUFSIZE];
@@ -44,22 +45,22 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
   int fd, ret, bl1, bl2, count=0;
 
   memset(result, 0, sizeof(result));
-  if(title == NULL && artist == NULL)
+  if(info == NULL || info->title == NULL && info->artist == NULL)
     return NULL;
 
-  if(title != NULL) {
-    convert_to_gbk(title, buf, BUFSIZE, charset);
+  if(info->title != NULL) {
+    convert_to_gbk(info->title, buf, BUFSIZE, charset);
     url_encoding(buf, strlen(buf), title_buf, BUFSIZE, TRUE);
   }
-  if(artist != NULL) {
-    convert_to_gbk(artist, buf, BUFSIZE, charset);
+  if(info->artist != NULL) {
+    convert_to_gbk(info->artist, buf, BUFSIZE, charset);
     url_encoding(buf, strlen(buf), artist_buf, BUFSIZE, TRUE);
   }
 
   strcpy(page_url, PREFIX_PAGE_SOGOU);
-  if(title != NULL) {
+  if(info->title != NULL) {
     strcat(page_url, title_buf);
-    if(artist != NULL) {
+    if(info->artist != NULL) {
       strcat(page_url, "-");
       strcat(page_url, artist_buf);
     }
@@ -90,37 +91,25 @@ ol_lrc_fetch_sogou_search(const char *title, const char *artist, int *size, cons
       p = strchr(tp, '-'); 
       /* artist */
       ++p;
-      bl2 = artist==NULL? 1 : ignore_case_strcmp(artist_buf, p, strlen(artist_buf))==0;
+      /* bl2 = info->artist==NULL? 1 : ignore_case_strcmp(artist_buf, p, strlen(artist_buf))==0; */
       url_decoding(p, strlen(p), buf2, BUFSIZE);
-      convert("GBK", charset==NULL?"UTF-8":charset, buf2, strlen(buf2), result[count].artist, OL_TS_LEN_MAX);
+      convert("GBK", charset==NULL?"UTF-8":charset, buf2, strlen(buf2), candidate.artist, OL_TS_LEN_MAX);
       *(--p) = 0;
       /* title */
-      bl1 = title==NULL ? 1 : ignore_case_strcmp(title_buf, tp, strlen(title_buf))==0;
+      /* bl1 = info->title==NULL ? 1 : ignore_case_strcmp(title_buf, tp, strlen(title_buf))==0; */
       url_decoding(tp, strlen(tp), buf2, BUFSIZE);
-      convert("GBK", charset==NULL?"UTF-8":charset, buf2, strlen(buf2), result[count].title, OL_TS_LEN_MAX);
+      convert("GBK", charset==NULL?"UTF-8":charset, buf2, strlen(buf2), candidate.title, OL_TS_LEN_MAX);
       /* restore the url */
       *p = '-';
-
-      if(bl1 && bl2) {
-        strcpy(result[count].url, PREFIX_LRC_SOGOU);
-        strcat(result[count].url, ptr);
-        count++;
-      }
+      strcpy(candidate.url, PREFIX_LRC_SOGOU);
+      strcat(candidate.url, ptr);
+      count = ol_lrc_fetch_add_candidate (info, result, count, TRY_MATCH_MAX, &candidate);
     }
   }
   *size = count;
   fclose(fp);
   remove(tmpfilenam);
   return result;
-}
-
-OlLrcCandidate *
-ol_lrc_fetch_sogou_search_wrapper(const OlMusicInfo *music_info, int *size, const char *charset)
-{
-  return (ol_lrc_fetch_sogou_search(music_info->title,
-                                    music_info->artist,
-                                    size,
-                                    charset));
 }
 
 int 
@@ -157,7 +146,7 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
 
 static OlLrcFetchEngine sogou = {
   N_("Sogou"),
-  ol_lrc_fetch_sogou_search_wrapper,
+  ol_lrc_fetch_sogou_search,
   ol_lrc_fetch_sogou_download,
 };
 

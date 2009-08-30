@@ -5,6 +5,12 @@
 #include<errno.h>
 #include<unistd.h>
 #include "ol_lrc_fetch_utils.h"
+#include "ol_music_info.h"
+#include "ol_lrc_fetch.h"
+#include "ol_utils.h"
+
+const int RANK_SCALE = 100000;
+const double RANK_ACCEPT_FACTOR = 0.5;
 
 static long cntimeout = 6;
 static char errbuf[CURL_ERROR_SIZE];
@@ -393,12 +399,54 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
   return 0;
 }
 
+static int
+ol_lrc_fetch_calc_rank (const OlMusicInfo *info,
+                        OlLrcCandidate *candidate)
+{
+  if (info == NULL || candidate == NULL)
+    return -1;
+  double ret = 0.0;
+  if (info->title != NULL && candidate->title != NULL)
+  {
+    int lcs = ol_lcs (info->title, candidate->title);
+    ret += (double)(lcs * 2) / (strlen (info->title) + strlen (candidate->title));
+    ret = ret * ret * 0.7;
+  }
+  if (info->artist != NULL && candidate->artist != NULL)
+  {
+    int lcs = ol_lcs (info->artist, candidate->artist);
+    ret += (double)(lcs * 2) / (strlen (info->artist) + strlen (candidate->artist)) * 0.3;
+  }
+  return ret * RANK_SCALE;
+}
 
 int
-ol_lrc_fetch_add_candidate (struct _OlLrcCandidate *candidate_list,
+ol_lrc_fetch_add_candidate (const OlMusicInfo *info,
+                            OlLrcCandidate *candidate_list,
                             size_t count,
                             size_t size,
                             struct _OlLrcCandidate *new_candidate)
 {
-  
+  if (info == NULL || candidate_list == NULL || new_candidate == NULL ||
+      count < 0 || size <= 0)
+    return 0;
+  new_candidate->rank = ol_lrc_fetch_calc_rank (info, new_candidate);
+  if (new_candidate->rank < RANK_ACCEPT_FACTOR * RANK_SCALE)
+    return count;
+  int pos = count;
+  while (pos > 0 && new_candidate->rank > candidate_list[pos - 1].rank)
+  {
+    if (pos < size)
+    {
+      candidate_list[pos] = candidate_list[pos - 1];
+    }
+    pos--;
+  }
+  if (pos < size)
+  {
+    candidate_list[pos] = *new_candidate;
+  }
+  if (count < size)
+    count++;
+  return count;
 }

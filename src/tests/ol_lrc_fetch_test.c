@@ -33,7 +33,7 @@ void test_search ()
   int i;
   for (i = 0; i < lrc_count; i++)
   {
-    printf ("[%d] %s %s\n", i, candidates[i].title, candidates[i].artist);
+    printf ("[%d] %s %s %s\n", i, candidates[i].title, candidates[i].artist, candidates[i].url);
   }
 }
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   ol_lrc_fetch_init ();
   /* test_long_url (); */
   test_search ();
-  /* test_download (); */
+  test_download ();
   return 0;
 }
 

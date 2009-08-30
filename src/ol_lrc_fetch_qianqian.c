@@ -29,14 +29,12 @@ static char* get_url_field (char *buf, size_t buflen, const char *url, const cha
  * 
  * @return count of candidates after those from frame_url appended
  */
-static int ol_lrc_fetch_qianqian_get_candidates (const char *title,
-                                                 const char *artist,
+static int ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
                                                  const char *frame_url,
                                                  OlLrcCandidate *candidates,
                                                  int count,
                                                  int deep);
-static int ol_lrc_fetch_qianqian_get_frame (const char *title,
-                                            const char *artist,
+static int ol_lrc_fetch_qianqian_get_frame (const OlMusicInfo *info,
                                             OlLrcCandidate *candidates,
                                             int count,
                                             FILE *fp,
@@ -119,8 +117,7 @@ get_url_field (char *buf, size_t buflen, const char *url, const char *field)
 }
 
 static int
-ol_lrc_fetch_qianqian_get_frame (const char *title,
-                                 const char *artist,
+ol_lrc_fetch_qianqian_get_frame (const OlMusicInfo *info,
                                  OlLrcCandidate *candidates,
                                  int count,
                                  FILE *fp,
@@ -153,8 +150,7 @@ ol_lrc_fetch_qianqian_get_frame (const char *title,
           strncat (frame_url, "&page=", OL_URL_LEN_MAX - 1);
           strncat (frame_url, field_buf, OL_URL_LEN_MAX - 1);
         }
-        count = ol_lrc_fetch_qianqian_get_candidates (title,
-                                                      artist,
+        count = ol_lrc_fetch_qianqian_get_candidates (info,
                                                       frame_url,
                                                       candidates,
                                                       count,
@@ -167,14 +163,13 @@ ol_lrc_fetch_qianqian_get_frame (const char *title,
 
 
 static int
-ol_lrc_fetch_qianqian_get_candidates (const char *title,
-                                      const char *artist,
+ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
                                       const char *frame_url,
                                       OlLrcCandidate *candidates,
                                       int count,
                                       int deep)
 {
-  if (frame_url == NULL || candidates == NULL)
+  if (frame_url == NULL || candidates == NULL || info == NULL)
     return 0;
   /* fprintf (stderr, "%s:%s\n", __FUNCTION__, frame_url); */
   FILE *fp2 = NULL;
@@ -198,36 +193,43 @@ ol_lrc_fetch_qianqian_get_candidates (const char *title,
     return 0;
   }
   rewind (fp2);
-  while(fgets(buf, BUFSIZE, fp2) != NULL && count<TRY_MATCH_MAX)
+  while(fgets (buf, BUFSIZE, fp2) != NULL)
   {
     if (get_url_by_prefix (buf2, BUFSIZE - 1, buf, QIANQIAN_PREFIX_DOWN) != NULL)
     {
+      OlLrcCandidate candidate;
       get_url_field (buf, BUFSIZE, buf2, "title");
-      url_decoding (buf, strlen (buf), candidates[count].title, OL_TS_LEN_MAX);
+      url_decoding (buf, strlen (buf), candidate.title, OL_TS_LEN_MAX);
       /* fprintf (stderr, "title:%s\n", result[count].title); */
       get_url_field (buf, BUFSIZE, buf2, "artist");
-      url_decoding (buf, strlen (buf), candidates[count].artist, OL_TS_LEN_MAX);
+      url_decoding (buf, strlen (buf), candidate.artist, OL_TS_LEN_MAX);
       /* fprintf (stderr, "artist:%s\n", result[count].artist); */
-      snprintf (candidates[count].url, OL_TS_LEN_MAX, PREFIX_LRC_QIANQIAN, buf2);
-      fprintf (stderr, "found: \'%s\' \'%s\'\n", candidates[count].title, candidates[count].artist);
-      if ((title == NULL ||
-           ignore_case_strcmp(candidates[count].title, title, strlen(title))==0) &&
-          (artist == NULL ||
-           ignore_case_strcmp(candidates[count].artist, artist, strlen(artist))==0))
-        count++;
+      snprintf (candidate.url, OL_TS_LEN_MAX, PREFIX_LRC_QIANQIAN, buf2);
+      fprintf (stderr, "found: \'%s\' \'%s\'\n", candidate.title, candidate.artist);
+      count = ol_lrc_fetch_add_candidate (info,
+                                          candidates,
+                                          count,
+                                          TRY_MATCH_MAX,
+                                          &candidate);
+                                          
+      /* if ((info->title == NULL || */
+      /*      ignore_case_strcmp(candidates[count].title, info->title, strlen(info->title))==0) && */
+      /*     (info->artist == NULL || */
+      /*      ignore_case_strcmp(candidates[count].artist, info->artist, strlen(info->artist))==0)) */
+        /* count++; */
     }
   }
   if (deep)
   {
     rewind (fp2);
-    count = ol_lrc_fetch_qianqian_get_frame (title, artist, candidates, count, fp2, 0);
+    count = ol_lrc_fetch_qianqian_get_frame (info, candidates, count, fp2, 0);
   }
   fclose (fp2);
   return count;
 }
 
 static OlLrcCandidate *
-ol_lrc_fetch_qianqian_search(const char *title, const char *artist, int *size, const char* charset)
+ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* charset)
 {
   static OlLrcCandidate candidates[TRY_MATCH_MAX];
   int count=0;
@@ -242,27 +244,27 @@ ol_lrc_fetch_qianqian_search(const char *title, const char *artist, int *size, c
   int fd, ret, bl1, bl2;
 
   memset(candidates, 0, sizeof(candidates));
-  if(title == NULL && artist == NULL)
+  if(info == NULL || (info->title == NULL && info->artist == NULL))
     return NULL;
 
-  if(title != NULL) {
-    convert_to_gbk(title, buf, BUFSIZE, charset);
-    url_encoding(buf, strlen(buf), title_buf, BUFSIZE, TRUE);
+  if(info->title != NULL) {
+    convert_to_gbk(info->title, buf, BUFSIZE, charset);
+    url_encoding (buf, strlen(buf), title_buf, BUFSIZE, TRUE);
     /* strncpy (title_buf, title, BUFSIZE); */
   }
   /* if(artist != NULL) { */
   /*   url_encoding(artist, strlen(title), artist_buf, BUFSIZE, TRUE); */
   /* } */
 
-  snprintf(page_url, BUFSIZE - 1, PREFIX_PAGE_QIANQIAN, title_buf);
+  snprintf (page_url, BUFSIZE - 1, PREFIX_PAGE_QIANQIAN, title_buf);
   /* fprintf (stderr, "title:%s->%s\n", title, title_buf); */
   /* fprintf (stderr, "page url:%s\n", page_url); */
-  if((fd = mkstemp(tmpfilenam)) < 0)
+  if ((fd = mkstemp(tmpfilenam)) < 0)
     return NULL;
   /* Unlink an opened fd is OK. The fd is available and the file will be  */
   /* delete after the fd is closed. See apue for detail */
   unlink (fd);
-  if((fp = fdopen(fd, "w+")) == NULL)
+  if ((fp = fdopen(fd, "w+")) == NULL)
     return NULL;
   if((ret = fetch_into_file(page_url, QIANQIAN_REFER, fp)) < 0)
   {
@@ -270,19 +272,10 @@ ol_lrc_fetch_qianqian_search(const char *title, const char *artist, int *size, c
     return NULL;
   }
   rewind(fp);
-  count = ol_lrc_fetch_qianqian_get_frame (title, artist, candidates, count, fp, 1);
+  count = ol_lrc_fetch_qianqian_get_frame (info, candidates, count, fp, 1);
   *size = count;
   fclose(fp);
   return candidates;
-}
-
-OlLrcCandidate *
-ol_lrc_fetch_qianqian_search_wrapper(const OlMusicInfo *music_info, int *size, const char *charset)
-{
-  return (ol_lrc_fetch_qianqian_search(music_info->title,
-                                    music_info->artist,
-                                    size,
-                                    charset));
 }
 
 int 
@@ -321,7 +314,7 @@ ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const 
 
 static OlLrcFetchEngine qianqian = {
   N_("Qianqian"),
-  ol_lrc_fetch_qianqian_search_wrapper,
+  ol_lrc_fetch_qianqian_search,
   ol_lrc_fetch_qianqian_download,
 };
 

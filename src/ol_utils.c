@@ -113,3 +113,41 @@ ignore_case_strcmp(const char *str1, const char *str2, const size_t count)
   }
   return 0;
 }
+
+size_t
+ol_lcs (const char *str1, const char *str2)
+{
+  if (str1 == NULL ||
+      str2 == NULL)
+    return 0;
+  size_t len[2];
+  len[0] = strlen (str1);
+  len[1] = strlen (str2);
+  size_t i, j;
+  size_t **data;
+  data = g_new (int*, len[0]);
+  for (i = 0; i < len[0]; i++)
+  {
+    data[i] = g_new (int, len[1]);
+    for (j = 0; j < len[1]; j++)
+    {
+      data[i][j] = 0;
+      if (i > 0 && j > 0)
+      {
+        data[i][j] = data[i - 1][j - 1];
+      }
+      if ((tolower (str1[i]) == tolower (str2[j])))
+        data[i][j]++;
+      if (i > 0 && data[i - 1][j] > data[i][j])
+        data[i][j] = data[i - 1][j];
+      if (j > 0 && data[i][j - 1] > data[i][j])
+        data[i][j] = data[i][j - 1];
+    }
+  }
+  int ret = data[len[0] - 1][len[1] - 1];
+  for (i = 0; i < len[0]; i++)
+    g_free (data[i]);
+  g_free (data);
+  /* fprintf (stderr, "LCS (%s, %s) = %d\n", str1, str2, ret); */
+  return ret;
+}

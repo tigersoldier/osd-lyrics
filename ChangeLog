@@ -1,3 +1,13 @@
+2009-08-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch_qianqian.c: Uses new lrc compare algorithm
+
+	* src/ol_lrc_fetch_utils.c: Adds new lrc comare algorithm
+
+	* src/ol_utils.c: Adds LCS function to calculate largest common subsequence
+
+	* src/ol_lrc_fetch_sogou.c: Uses new lrc compare algorithm
+
 2009-08-28  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_main.c: Fix the bug that the lyric is not set when downloading succeeds
