@@ -28,6 +28,7 @@
 #include "ol_player.h"
 #include "ol_utils.h"
 #include "ol_lrc_fetch.h"
+#include "ol_lrc_fetch_ui.h"
 #include "ol_trayicon.h"
 #include "ol_intl.h"
 #include "ol_config.h"
@@ -157,6 +158,7 @@ gboolean download_lyric (OlMusicInfo *music_info)
   {
     char pathname[MAX_PATH_LEN];
     get_lyric_path_name (music_info, pathname);
+    ol_lrc_fetch_ui_show (engine, candidates, lrc_count, pathname);
     engine->download (&candidates[0], pathname, "UTF-8");
     printf ("download %s success\n", pathname);
     return TRUE;

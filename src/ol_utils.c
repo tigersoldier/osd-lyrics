@@ -123,8 +123,10 @@ ol_lcs (const char *str1, const char *str2)
   size_t len[2];
   len[0] = strlen (str1);
   len[1] = strlen (str2);
+  if (len[0] == 0 || len[1] == 0)
+    return 0;
   size_t i, j;
-  size_t **data;
+  int **data;
   data = g_new (int*, len[0]);
   for (i = 0; i < len[0]; i++)
   {

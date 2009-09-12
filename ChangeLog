@@ -1,3 +1,11 @@
+2009-09-12  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch_ui.c : download handler is half complete
+
+2009-08-31  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_utils.c: 
+
 2009-08-30  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch_qianqian.c: Uses new lrc compare algorithm

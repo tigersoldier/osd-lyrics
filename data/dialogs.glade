@@ -756,4 +756,71 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </widget>
     </child>
   </widget>
+  <widget class="GtkDialog" id="downloaddialog">
+    <property name="width_request">300</property>
+    <property name="height_request">200</property>
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Choose LRC file to download</property>
+    <property name="type_hint">normal</property>
+    <property name="has_separator">False</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox3">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <widget class="GtkTreeView" id="candidate-list">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="enable_grid_lines">vertical</property>
+          </widget>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area3">
+            <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <property name="layout_style">end</property>
+            <child>
+              <widget class="GtkButton" id="lrc-download">
+                <property name="label" translatable="yes">_Download</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_underline">True</property>
+                <signal name="clicked" handler="ol_lrc_fetch_ui_download"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="lrc-cancel">
+                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="ol_lrc_fetch_ui_cancel"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
 </glade-interface>

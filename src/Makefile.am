@@ -40,6 +40,7 @@ osd_lyrics_SOURCES = \
 	ol_trayicon.c \
 	ol_menu.c \
 	ol_lrc_fetch.c \
+	ol_lrc_fetch_ui.c \
 	ol_lrc_fetch_sogou.c \
 	ol_lrc_fetch_qianqian.c \
 	ol_lrc_fetch_utils.c \

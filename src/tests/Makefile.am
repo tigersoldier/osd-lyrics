@@ -5,11 +5,17 @@ check_PROGRAMS = \
 	ol_lrc_utility_test \
 	ol_lrc_fetch_test \
 	ol_config_test \
-	ol_color_test
+	ol_color_test \
+	ol_lrc_fetch_ui_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
+	@GLADE_CFLAGS@ \
 	-I$(top_srcdir)/src
+AM_CPPFLAGS = \
+	-DDATADIR='"$(datadir)"' \
+	-DICONDIR='"$(OL_ICONDIR)"' \
+	-DGLADEDIR='"$(OL_GLADEDIR)"'
 # Tests
 ol_osd_test_SOURCES = ol_osd_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
@@ -66,3 +72,17 @@ ol_color_test_SOURCES = \
 	$(top_srcdir)/src/ol_color.c
 ol_color_test_LDADD = \
 	@GTK2_LIBS@
+
+ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
+	$(top_srcdir)/src/ol_lrc_fetch.c \
+	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
+	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
+	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
+	$(top_srcdir)/src/ol_utils.c \
+	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
+	$(top_srcdir)/src/ol_glade.c
+ol_lrc_fetch_ui_test_LDADD = \
+	@CURL_LIBS@ \
+	@GTK2_LIBS@ \
+	@GLADE_LIBS@
+

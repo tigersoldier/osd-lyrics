@@ -427,6 +427,7 @@ ol_lrc_fetch_add_candidate (const OlMusicInfo *info,
                             size_t size,
                             struct _OlLrcCandidate *new_candidate)
 {
+  fprintf (stderr, "%s\n", __FUNCTION__);
   if (info == NULL || candidate_list == NULL || new_candidate == NULL ||
       count < 0 || size <= 0)
     return 0;
