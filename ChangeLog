@@ -1,3 +1,7 @@
+2009-09-14  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_exaile.c: Basic Exaile support
+
 2009-09-12  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch_ui.c : download handler is half complete

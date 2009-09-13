@@ -4,6 +4,7 @@
 
 #include "ol_player_exaile.h"
 #include "ol_utils_dbus.h"
+#include "ol_elapse_emulator.h"
 
 static const char service[] = "org.exaile.DBusInterface";
 static const char path[] = "/DBusInterfaceObject";
@@ -24,6 +25,7 @@ static const char current_position[] = "current_position";
 static DBusGConnection *connection = NULL;
 static DBusGProxy *proxy = NULL;
 static GError *error = NULL;
+static OlElapseEmulator *elapse_emulator = NULL;
 
 static gboolean ol_player_exaile_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_exaile_get_played_time (int *played_time);
@@ -34,8 +36,6 @@ static gboolean ol_player_exaile_init_dbus ();
 static gboolean
 ol_player_exaile_get_music_info (OlMusicInfo *info)
 {
-  printf ("%s\n",
-          __FUNCTION__);
   if (info == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
@@ -70,7 +70,7 @@ ol_player_exaile_get_music_info (OlMusicInfo *info)
   if (info->album)
   {
     g_free (info->album);
-    info->artist = NULL;
+    info->album = NULL;
   }
   if (!ol_dbus_get_string (proxy,
                            get_album,
@@ -78,22 +78,50 @@ ol_player_exaile_get_music_info (OlMusicInfo *info)
   {
     return FALSE;
   }
+  printf ("%s\n"
+          "  title:%s\n"
+          "  artist:%s\n",
+          __FUNCTION__,
+          info->title,
+          info->artist);
   return TRUE;
 }
 
 static gboolean
 ol_player_exaile_get_played_time (int *played_time)
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  /* printf ("%s\n", */
+  /*         __FUNCTION__); */
+  if (played_time == NULL)
+    return FALSE;
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile_init_dbus ())
+      return FALSE;
+  guint8 percent;
+  if (!ol_dbus_get_uint8 (proxy, current_position, &percent))
+    return FALSE;
+  int duration;
+  if (!ol_player_exaile_get_music_length (&duration))
+    return FALSE;
+  int exaile_time = duration * percent / 100;
+  if (elapse_emulator == NULL)
+  {
+    elapse_emulator = g_new (OlElapseEmulator, 1);
+    if (elapse_emulator != NULL)
+      ol_elapse_emulator_init (elapse_emulator, exaile_time, duration / 100);
+  }
+  if (elapse_emulator != NULL)
+    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, exaile_time);
+  else
+    *played_time = exaile_time;
   return TRUE;
 }
 
 static gboolean
 ol_player_exaile_get_music_length (int *len)
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  /* printf ("%s\n", */
+  /*         __FUNCTION__); */
   if (len == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)

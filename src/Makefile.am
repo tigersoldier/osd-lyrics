@@ -32,6 +32,7 @@ osd_lyrics_SOURCES = \
 	ol_player_songbird.c \
 	ol_player_xmms2.c \
 	ol_player_rhythmbox.c \
+	ol_elapse_emulator.c \
 	ol_utils.c \
 	ol_utils_dbus.c \
 	ol_utils_dcop.c \

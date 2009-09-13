@@ -20,7 +20,7 @@ ol_player_init ()
     ol_player_register_controller (ol_player_amarok1_get_controller (), "AmarOK 1.4");
     ol_player_register_controller (ol_player_amarok2_get_controller (), "AmarOK 2.x");
     ol_player_register_controller (ol_player_banshee_get_controller (), "Banshee");
-    /* ol_player_register_controller (ol_player_exaile_get_controller (), "Exaile"); */
+    ol_player_register_controller (ol_player_exaile_get_controller (), "Exaile");
     ol_player_register_controller (ol_player_audacious_get_controller (), "Audacious");
     /* ol_player_register_controller (ol_player_songbird_get_controller (), "Songbird"); */
     /* ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2"); */
