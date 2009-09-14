@@ -10,6 +10,7 @@ ol_elapse_emulator_init (OlElapseEmulator *emulator,
     return;
   emulator->first_time = time;
   emulator->prev_time = time;
+  emulator->last_time = time;
   gettimeofday (&emulator->begin_time, NULL);
   emulator->accuracy = accuracy;
 }
@@ -44,6 +45,20 @@ ol_elapse_emulator_get_real_ms (OlElapseEmulator *emulator,
       time = real_time;
     }
   }
+  emulator->last_time = time;
   return time;
+}
+
+int
+ol_elapse_emulator_get_last_ms (OlElapseEmulator *emulator,
+                                int time)
+{
+  if (emulator->first_time < 0 || emulator->last_time - time > emulator->accuracy || time - emulator->last_time > emulator->accuracy)
+  {
+    /* reinitialize timer */
+    printf ("prev:%d, time:%d\n", emulator->prev_time, time);
+    ol_elapse_emulator_init (emulator, time, emulator->accuracy);
+  }
+  return emulator->last_time;
 }
 

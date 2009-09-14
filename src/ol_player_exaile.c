@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ol_player.h"
 #include "ol_player_exaile.h"
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
@@ -32,6 +33,30 @@ static gboolean ol_player_exaile_get_played_time (int *played_time);
 static gboolean ol_player_exaile_get_music_length (int *len);
 static gboolean ol_player_exaile_get_activated ();
 static gboolean ol_player_exaile_init_dbus ();
+static enum OlPlayerStatus ol_player_exaile_get_status ();
+
+static enum OlPlayerStatus
+ol_player_exaile_get_status ()
+{
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile_init_dbus ())
+      return FALSE;
+  char *status = NULL;
+  enum OlPlayerStatus ret = OL_PLAYER_UNKNOWN;
+  ol_dbus_get_string (proxy, get_status, &status);
+  if (status != NULL)
+  {
+    fprintf (stderr, "status: %s\n", status);
+    if (strcmp (status, "playing") == 0)
+      ret = OL_PLAYER_PLAYING;
+    else if (strcmp (status, "paused") == 0)
+      ret = OL_PLAYER_PAUSED;
+    else if (strcmp (status, "stoped") == 0)
+      ret = OL_PLAYER_STOPPED;
+    g_free (status);
+  }
+  return ret;
+}
 
 static gboolean
 ol_player_exaile_get_music_info (OlMusicInfo *info)
@@ -92,28 +117,42 @@ ol_player_exaile_get_played_time (int *played_time)
 {
   /* printf ("%s\n", */
   /*         __FUNCTION__); */
+  guint8 percent;
+  int duration;
+  int exaile_time;
   if (played_time == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile_init_dbus ())
       return FALSE;
-  guint8 percent;
-  if (!ol_dbus_get_uint8 (proxy, current_position, &percent))
-    return FALSE;
-  int duration;
-  if (!ol_player_exaile_get_music_length (&duration))
-    return FALSE;
-  int exaile_time = duration * percent / 100;
-  if (elapse_emulator == NULL)
+  enum OlPlayerStatus status = ol_player_exaile_get_status ();
+  if (status == OL_PLAYER_PLAYING || status == OL_PLAYER_PAUSED)
   {
-    elapse_emulator = g_new (OlElapseEmulator, 1);
+    if (!ol_dbus_get_uint8 (proxy, current_position, &percent))
+      return FALSE;
+    if (!ol_player_exaile_get_music_length (&duration))
+      return FALSE;
+    exaile_time = duration * percent / 100;
+    if (elapse_emulator == NULL)
+    {
+      elapse_emulator = g_new (OlElapseEmulator, 1);
+      if (elapse_emulator != NULL)
+        ol_elapse_emulator_init (elapse_emulator, exaile_time, duration / 100);
+    }
     if (elapse_emulator != NULL)
-      ol_elapse_emulator_init (elapse_emulator, exaile_time, duration / 100);
+    {
+      if (status == OL_PLAYER_PLAYING)
+        *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, exaile_time);
+      else /* if (status == OL_PLAYER_PAUSED)  */
+        *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, exaile_time);
+    }
+    else
+      *played_time = exaile_time;
   }
-  if (elapse_emulator != NULL)
-    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, exaile_time);
   else
-    *played_time = exaile_time;
+  {
+    *played_time = -1;
+  }
   return TRUE;
 }
 

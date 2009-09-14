@@ -17,6 +17,7 @@ struct _OlElapseEmulator
 {
   int first_time;
   int prev_time;
+  int last_time;
   struct timeval begin_time;
   int accuracy;
 };
@@ -25,6 +26,8 @@ void ol_elapse_emulator_init (OlElapseEmulator *emulator,
                               int time,
                               int accuracy);
 int ol_elapse_emulator_get_real_ms (OlElapseEmulator *emulator,
+                                    int time);
+int ol_elapse_emulator_get_last_ms (OlElapseEmulator *emulator,
                                     int time);
 
 #endif /* _OL_ELAPSE_EMULATOR_H_ */

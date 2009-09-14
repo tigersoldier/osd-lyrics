@@ -4,6 +4,13 @@
 #include <glib.h>
 #include "ol_music_info.h"
 
+enum OlPlayerStatus{
+  OL_PLAYER_STOPPED,
+  OL_PLAYER_PLAYING,
+  OL_PLAYER_PAUSED,
+  OL_PLAYER_UNKNOWN,
+};
+
 typedef struct
 {
   gboolean (*get_music_info) (OlMusicInfo *info);

@@ -1,6 +1,8 @@
 2009-09-14  Tiger Soldier  <tigersoldi@gmail.com>
 
-	* src/ol_player_exaile.c: Basic Exaile support
+	* src/ol_player_exaile.c: Exaile support
+
+	* src/ol_elapse_emulator.c (ol_elapse_emulator_get_last_ms): Get last real ms, added for pause purpose
 
 2009-09-12  Tiger Soldier  <tigersoldi@gmail.com>
 
