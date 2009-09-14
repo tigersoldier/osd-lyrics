@@ -46,7 +46,7 @@ ol_player_exaile_get_status ()
   ol_dbus_get_string (proxy, get_status, &status);
   if (status != NULL)
   {
-    fprintf (stderr, "status: %s\n", status);
+    /* fprintf (stderr, "status: %s\n", status); */
     if (strcmp (status, "playing") == 0)
       ret = OL_PLAYER_PLAYING;
     else if (strcmp (status, "paused") == 0)

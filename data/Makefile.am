@@ -1,8 +1,12 @@
-icondir = @OL_ICONDIR@
-icon_DATA = \
+trayicondir = @OL_ICONDIR@
+trayicon_DATA = \
 	trayicon.png 
 gladedir = @OL_GLADEDIR@
 glade_DATA = \
 	dialogs.glade
 menudir = ${datadir}/applications
 menu_DATA = osd-lyrics.desktop
+icondir = ${datadir}/icons/hicolor/128x128/apps
+icon_DATA = osd-lyrics.png
+svgdir = ${datadir}/icons/hicolor/scalable/apps
+svg_DATA = osd-lyrics.svg
