@@ -11,7 +11,7 @@ echo "osdlyrics ($PACKAGE_VERSION.$CURDATE) unstable; urgency=low
 
   * Daily build
 
- -- TigerSoldier <tigersoldi@gmail.com>  `date '+%a, %d %b %Y %T %z'`
+ -- TigerSoldier <tigersoldi@gmail.com>  `date -R`
 " | cat - debian/changelog.old > debian/changelog
 
 #cat debian/changelog

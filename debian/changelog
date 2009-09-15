@@ -1,3 +1,17 @@
+osdlyrics (0.2-0~20090914~jaunty1) jaunty; urgency=low
+
+  * ADD: Exaile support
+  * ADD: New icon
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 14 Sep 2009 12:22:40 +0800
+
+osdlyrics (0.2-0~20090914~intrepid1) intrepid; urgency=low
+
+  * ADD: Exaile support
+  * ADD: New icon
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Mon, 14 Sep 2009 12:22:40 +0800
+
 osdlyrics (0.2-0~20090828~intrepid1) intrepid; urgency=low
 
   * FIX: The lyric is not set when downloading succeeds

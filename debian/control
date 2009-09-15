@@ -10,4 +10,16 @@ Package: osdlyrics
 Architecture: any
 Depends: libgtk2.0-0, libcurl3 | libcurl4, libdbus-glib-1-2, libglade2-0, ${shlibs:Depends}
 Description: An OSD lyrics show supports multiple players.
- <insert long description, indented with spaces>
+ OSD Lyrics is inspired by lrcdis. It is a third-party lyrics
+ display program, and focus on OSD lyrics display.
+ OSD Lyrics currently supports following media players:
+ * Amarok 1.4 (High CPU usage)
+ * Amarok 2.0
+ * Audacious
+ * Banshee
+ * Exaile
+ * Rhythmbox
+ OSD Lyrics can download lyrics from following web sites:
+ * Sogou
+ * Qianqian
+
