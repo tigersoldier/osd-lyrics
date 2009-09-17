@@ -523,6 +523,7 @@ ol_osd_window_unmap (GtkWidget *widget)
   if (GTK_WIDGET_MAPPED (widget))
   {
     gdk_window_hide (widget->window);
+    gdk_window_hide (osd->event_window);
     gdk_window_hide (osd->bg_window);
     GTK_WIDGET_CLASS (parent_class)->unmap (widget);
   }
