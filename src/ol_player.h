@@ -11,12 +11,19 @@ enum OlPlayerStatus{
   OL_PLAYER_UNKNOWN,
 };
 
+enum OlPlayerCapacity {
+  OL_PLAYER_PATH,
+  OL_PLAYER_CONTROL,
+  OL_PLAYER_STATUS,
+};
+
 typedef struct
 {
   gboolean (*get_music_info) (OlMusicInfo *info);
   gboolean (*get_activated) ();
   gboolean (*get_played_time) (int *played_time);
   gboolean (*get_music_length) (int *len);
+  enum OlPlayerStatus (*get_status) ();
   void (*free) ();
 } OlPlayerController;
 
