@@ -7,6 +7,7 @@ OSD Lyrics是独立程序，通过播放器提供的接口对播放器进行支�
  * Amarok 2.0
  * Audacious
  * Banshee
+ * Exaile
  * Rhythmbox
 
 =歌词下载=
@@ -29,4 +30,6 @@ OSD Lyrics的开发离不开开源软件的帮助。没有它们的代码作为�
  * Gnome OSD：OSD模式的实现很多参考了它的代码
  * lrcdis：第三方支持的创意和歌词下载的分析
  * Cairo-Dock：各种播放器支持的实现参考自它的musicPlayer插件
+ * 全局快捷键的实现取自 Gnome Do，代码可追溯到Red hat和Tomboy
  * TuaratriX同学(http://imtx.cn/)也曾在OSD的实现上帮助过作者
+ * Longyu Li 为我们设计了美丽的图标
