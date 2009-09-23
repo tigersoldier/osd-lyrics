@@ -52,13 +52,14 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
                          &data_list,
                          G_TYPE_INVALID))
   {
+    fprintf (stderr, "%s succeed\n", __FUNCTION__);
     return data_list;
   }
   else
   {
     return NULL;
   }
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  return NULL;
 }
 
 gboolean
@@ -88,7 +89,6 @@ ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
     if (track_number_str != NULL)
     {
       sscanf (track_number_str, "%d", &info->track_number);
-      g_free (track_number_str);
     }
     g_hash_table_destroy (data_list);
   }

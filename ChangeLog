@@ -1,3 +1,9 @@
+2009-09-24  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_songbird.c: Songbird support with MPRIS plugin
+
+	* src/ol_player_mpris.c (ol_player_mpris_get_music_info): Fixed a crashing bug caused by free extra string of track number
+
 2009-09-22  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* README: Adds acknowledgement for gnome-do and Longyu Li, the icon designer

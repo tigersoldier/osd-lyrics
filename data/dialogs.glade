@@ -16,7 +16,7 @@
 SarlmolApple &lt;sarlmolapple@gmail.com&gt;
 SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="translator_credits" translatable="yes">translator-credits</property>
-    <property name="artists">Longyu Li &lt;leaeasy@gmail.com&gt;</property>
+    <property name="artists">easy &lt;leaeasy@gmail.com&gt;</property>
     <property name="wrap_license">True</property>
     <signal name="response" handler="ol_about_response"/>
     <child internal-child="vbox">

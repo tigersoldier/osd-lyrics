@@ -1,3 +1,15 @@
+osdlyrics (0.2-0~20090923~intrepid1) intrepid; urgency=low
+
+  * CHANGE: Another new icon, this will be the formal icon of OSD Lyrics. Thanks easy <leaeasy@gmail.com>
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Wed, 23 Sep 2009 17:22:38 +0800
+
+osdlyrics (0.2-0~20090923~jaunty1) jaunty; urgency=low
+
+  * CHANGE: Another new icon, this will be the formal icon of OSD Lyrics. Thanks easy <leaeasy@gmail.com>
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Wed, 23 Sep 2009 17:22:38 +0800
+
 osdlyrics (0.2-0~20090914~jaunty1) jaunty; urgency=low
 
   * ADD: Exaile support
