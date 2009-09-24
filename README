@@ -9,6 +9,7 @@ OSD Lyrics communicates with music players through IPC. OSD Lyrics currently sup
  * Banshee
  * Exaile
  * Rhythmbox
+ * Songbird (with MPRIS extension installed)
 
 =Download Lyrics=
 

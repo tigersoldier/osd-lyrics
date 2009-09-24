@@ -22,6 +22,7 @@ static struct _OptionWidgets
   GtkWidget *osd_preview;
   GtkWidget *line_count[2];
   GtkWidget *download_engine;
+  GtkWidget *osd_translucent;
 } options;
 
 void ol_option_ok_clicked (GtkWidget *widget);
@@ -246,6 +247,12 @@ ol_option_update_widget (OptionWidgets *widgets)
     }
     g_free (download_engine);
   }
+  /* Translucent on mouse over */
+  if (options.osd_translucent != NULL)
+  {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.osd_translucent),
+                                  ol_config_get_bool (config, "OSD", "translucent-on-mouse-over"));
+  }
 }
 
 void
@@ -345,6 +352,12 @@ ol_option_ok_clicked (GtkWidget *widget)
       ol_config_set_string (config, "Download", "download-engine", engine_list[index]);
     }
   }
+  /* OSD translucent on mouse move*/
+  if (options.osd_translucent != NULL)
+  {
+    ol_config_set_bool (config, "OSD", "translucent-on-mouse-over",
+                        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.osd_translucent)));
+  }
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -391,6 +404,7 @@ ol_option_show ()
     options.line_count[0] = ol_glade_get_widget ("line-count-1");
     options.line_count[1] = ol_glade_get_widget ("line-count-2");
     options.download_engine = ol_glade_get_widget ("download-engine");
+    options.osd_translucent = ol_glade_get_widget ("translucent-on-mouse-over");
     if (options.download_engine != NULL)
     {
       int i, nengine;

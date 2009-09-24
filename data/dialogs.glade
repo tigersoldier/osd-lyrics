@@ -7,7 +7,7 @@
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
     <property name="copyright" translatable="yes">Copyright 2009 The OSD Lyrics project.</property>
-    <property name="comments" translatable="yes">An OSD lyric show supporting multiple media players and downloading.
+    <property name="comments" translatable="yes">An OSD lyric show compatible with various media players and supports lyrics downloading.
 </property>
     <property name="website">http://code.google.com/p/osd-lyrics/ </property>
     <property name="website_label" translatable="yes">http://code.google.com/p/osd-lyrics/</property>
@@ -181,6 +181,20 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </packing>
                 </child>
                 <child>
+                  <widget class="GtkCheckButton" id="translucent-on-mouse-over">
+                    <property name="label" translatable="yes">T_ranslucent on mouse over</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="yalign">0.55000001192092896</property>
+                    <property name="draw_indicator">True</property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="GtkFrame" id="lrc-align-frame">
                     <property name="visible">True</property>
                     <property name="label_xalign">0</property>
@@ -268,7 +282,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -534,7 +548,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -568,7 +582,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </widget>

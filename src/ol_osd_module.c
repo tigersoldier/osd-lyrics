@@ -158,6 +158,10 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
       gtk_widget_hide (GTK_WIDGET (module->osd));
     }
   }
+  else if (strcmp (name, "translucent-on-mouse-over") == 0)
+  {
+    ol_osd_window_set_translucent_on_mouse_over (osd, ol_config_get_bool (config, "OSD", name));
+  }
 }
 
 static void

@@ -779,7 +779,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   double alpha = 1.0;
   int font_height = ol_osd_render_get_font_height (osd->render_context);
-  if (priv->composited && priv->mouse_over)
+  if (priv->composited && priv->mouse_over && osd->translucent_on_mouse_over)
   {
     alpha = 0.3;
   }
@@ -1214,6 +1214,7 @@ ol_osd_window_init (OlOsdWindow *self)
   }
   self->render_context = ol_osd_render_context_new ();
   self->shape_pixmap = NULL;
+  self->translucent_on_mouse_over = FALSE;
   /* initilaize private data */
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (self);
   priv->xalign = priv->yalign = 0.5;
@@ -1343,4 +1344,19 @@ ol_osd_window_get_line_count (OlOsdWindow *osd)
 {
   g_return_val_if_fail (OL_IS_OSD_WINDOW (osd), 1);
   return osd->line_count;
+}
+
+void
+ol_osd_window_set_translucent_on_mouse_over (OlOsdWindow *osd,
+                                             gboolean value)
+{
+  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  osd->translucent_on_mouse_over = value;
+}
+
+gboolean
+ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd)
+{
+  g_return_val_if_fail (OL_IS_OSD_WINDOW (osd), FALSE);
+  return osd->translucent_on_mouse_over;
 }

@@ -62,6 +62,7 @@ struct _OlOsdWindow
   GdkPixmap *shape_pixmap;
   OlOsdRenderContext *render_context;
   guint line_count;
+  gboolean translucent_on_mouse_over;
 };
 
 struct _OlOsdWindowClass
@@ -283,4 +284,20 @@ void ol_osd_window_set_line_count (OlOsdWindow *osd,
  * @return number of lines, in the range of [1,2]
  */
 guint ol_osd_window_get_line_count (OlOsdWindow *osd);
+
+/** 
+ * @brief Sets whether the OSD window will be translucent when pointer is over it
+ * 
+ * @param osd An OlOsdWindow
+ * @param value whether the osd will be translucent
+ */
+void ol_osd_window_set_translucent_on_mouse_over (OlOsdWindow *osd,
+                                                  gboolean value);
+/** 
+ * @brief Gets whether the OSD window will be translucent when pointer is over it
+ * 
+ * @param osd An OlOsdWindow
+ * @return whether the osd will be translucent
+ */
+gboolean ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd);
 #endif // __OSD_WINDOW_H__

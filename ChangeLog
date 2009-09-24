@@ -1,5 +1,7 @@
 2009-09-24  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* Add options for translucent on mouse move
+
 	* src/ol_player_songbird.c: Songbird support with MPRIS plugin
 
 	* src/ol_player_mpris.c (ol_player_mpris_get_music_info): Fixed a crashing bug caused by free extra string of track number

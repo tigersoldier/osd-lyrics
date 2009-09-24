@@ -27,7 +27,7 @@ enum {
   PROP_INACTIVE_LRC_COLOR,
   PROP_LINE_COUNT,
   PROP_TOTAL_COUNT,
-  PROP_OSD_TRANSPRENT_ON_MOUSE_OVER,
+  PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER,
   PROP_DOWNLOAD_ENGINE,
 };
 
@@ -131,10 +131,10 @@ static const OlConfigStrListValue config_str_list[] = {
 static const OlConfigBoolValue config_bool[] = {
   {PROP_LOCKED, "locked", "OSD", "Lock", "Whether the OSD is locked", TRUE},
   {PROP_VISIBLE, "visible", "General", "Visible", "Show/hide", TRUE},
-  {PROP_OSD_TRANSPRENT_ON_MOUSE_OVER, "transparent-on-mouse-over", "OSD",
-   "Transparent on mouse over",
-   "When the pointer is on the lyrics, make them transparent",
-   TRUE},
+  {PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER, "translucent-on-mouse-over", "OSD",
+   "Translucent on mouse over",
+   "When the pointer is on the lyrics, make them semi-transparent",
+   FALSE},
 };
 
 static const OlConfigIntValue config_int[] = {
@@ -150,7 +150,7 @@ static const OlConfigDoubleValue config_double[] = {
   {PROP_YALIGN, "yalign", "OSD", "Vertical position",
    "Vertical position of window in desktop. "
    "0.0 is left top, 1.0 is bottom aligned",
-   0.0, 1.0, 1.0},
+   0.0, 1.0, 0.85},
   {PROP_FONT_SIZE, "font-size", "OSD", "OSD Font Size",
    "The font size of OSD lyrics",
    0.0, 10000.0, 30.0},

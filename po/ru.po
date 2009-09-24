@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-08-27 22:04+0800\n"
+"POT-Creation-Date: 2009-09-24 12:00+0800\n"
 "PO-Revision-Date: 2009-08-01 12:41+0000\n"
 "Last-Translator: Nkolay Parukhin <parukhin@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 src/ol_main.c:315 data/dialogs.glade:722
+#: src/ol_menu.c:101 src/ol_main.c:318 data/dialogs.glade:737
 msgid "_Lock"
 msgstr "_Заблокировать"
 
-#: src/ol_menu.c:111 data/dialogs.glade:730
+#: src/ol_menu.c:111 data/dialogs.glade:745
 msgid "_Hide"
 msgstr ""
 
@@ -29,11 +29,11 @@ msgstr ""
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
-#: src/ol_lrc_fetch_qianqian.c:323
+#: src/ol_lrc_fetch_qianqian.c:316
 msgid "Qianqian"
 msgstr ""
 
-#: src/ol_lrc_fetch_sogou.c:159
+#: src/ol_lrc_fetch_sogou.c:148
 msgid "Sogou"
 msgstr ""
 
@@ -42,7 +42,10 @@ msgid "Copyright 2009 The OSD Lyrics project."
 msgstr "Copyright 2009 Проект OSD Lyrics."
 
 #: data/dialogs.glade:10
-msgid "An OSD lyric show supporting multiple media players and downloading.\n"
+#, fuzzy
+msgid ""
+"An OSD lyric show compatible with various media players and supports lyrics "
+"downloading.\n"
 msgstr ""
 "OSD lyric поддерживает различные мультимедиа проигрыватели и скачивание "
 "лирики.\n"
@@ -61,110 +64,118 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Nkolay Parukhin https://launchpad.net/~parukhin"
 
-#: data/dialogs.glade:45
+#: data/dialogs.glade:46
 msgid "Preferences"
 msgstr "Настройки"
 
-#: data/dialogs.glade:71
+#: data/dialogs.glade:72
 msgid "_Font:"
 msgstr "_Шрифт:"
 
-#: data/dialogs.glade:98
+#: data/dialogs.glade:99
 msgid "_Width:"
 msgstr "Ширина:"
 
-#: data/dialogs.glade:127
+#: data/dialogs.glade:128
 msgid "Lyric lines:"
 msgstr ""
 
-#: data/dialogs.glade:141
+#: data/dialogs.glade:142
 msgid "Si_ngle line"
 msgstr ""
 
-#: data/dialogs.glade:156
+#: data/dialogs.glade:157
 msgid "_Double lines"
 msgstr ""
 
-#: data/dialogs.glade:201
+#: data/dialogs.glade:185
+msgid "T_ranslucent on mouse over"
+msgstr ""
+
+#: data/dialogs.glade:216
 msgid "F_irst line:"
 msgstr "_Первая строка:"
 
-#: data/dialogs.glade:227
+#: data/dialogs.glade:242
 msgid "_Second line:"
 msgstr "_Вторая строка:"
 
-#: data/dialogs.glade:259
+#: data/dialogs.glade:274
 msgid "<b>Lyric _Alignment</b>"
 msgstr "<b>_Выравнивание лирики</b>"
 
-#: data/dialogs.glade:294
+#: data/dialogs.glade:309
 msgid "Color _Theme:"
 msgstr "Цветовая _тема:"
 
-#: data/dialogs.glade:308
+#: data/dialogs.glade:323
 #, fuzzy
 msgid "Customize"
 msgstr "_Настроить цвета"
 
-#: data/dialogs.glade:316
+#: data/dialogs.glade:331
 msgid "C_ustomize colors"
 msgstr "_Настроить цвета"
 
-#: data/dialogs.glade:345
+#: data/dialogs.glade:360
 msgid "Acti_ve lyrics:"
 msgstr "_Активная лирика:"
 
-#: data/dialogs.glade:365 data/dialogs.glade:435
+#: data/dialogs.glade:380 data/dialogs.glade:450
 msgid "top"
 msgstr "сверху"
 
-#: data/dialogs.glade:375 data/dialogs.glade:462
+#: data/dialogs.glade:390 data/dialogs.glade:477
 msgid "middle"
 msgstr "по середине"
 
-#: data/dialogs.glade:399 data/dialogs.glade:489
+#: data/dialogs.glade:414 data/dialogs.glade:504
 msgid "bottom"
 msgstr "снизу"
 
-#: data/dialogs.glade:424
+#: data/dialogs.glade:439
 msgid "Inactiv_e lyrics:"
 msgstr "_Неактивная лирика:"
 
-#: data/dialogs.glade:525
+#: data/dialogs.glade:540
 msgid "<b>Lyric _Color</b>"
 msgstr "<b>_Цвет лирики</b>"
 
-#: data/dialogs.glade:561
+#: data/dialogs.glade:576
 msgid "<b>Preview</b>"
 msgstr ""
 
-#: data/dialogs.glade:578
+#: data/dialogs.glade:593
 msgid "_OSD"
 msgstr "_OSD"
 
-#: data/dialogs.glade:589
+#: data/dialogs.glade:604
 msgid "TODO: Add options here"
 msgstr "TODO: Добавить сюда параметры"
 
-#: data/dialogs.glade:598
+#: data/dialogs.glade:613
 msgid "_General"
 msgstr "_Общие"
 
-#: data/dialogs.glade:619
+#: data/dialogs.glade:634
 #, fuzzy
 msgid "Download _engine:"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:658
+#: data/dialogs.glade:673 data/dialogs.glade:803
 msgid "_Download"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:721
+#: data/dialogs.glade:736
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 
-#: data/dialogs.glade:729
+#: data/dialogs.glade:744
 msgid "Hide the OSD Window"
+msgstr ""
+
+#: data/dialogs.glade:778
+msgid "Choose LRC file to download"
 msgstr ""
 
 #~ msgid "gtk-cancel"
