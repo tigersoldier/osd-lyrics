@@ -1,3 +1,19 @@
+osdlyrics (0.2-0~20090924~jaunty1) jaunty; urgency=low
+
+  * ADD: Songbird support with MPRIS plugin
+  - ADD: options for translucent on mouse move
+  - FIX: Fixed a crashing bug caused by free extra string of track number
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 24 Sep 2009 12:07:03 +0800
+
+osdlyrics (0.2-0~20090924~intrepid) intrepid; urgency=low
+
+  * ADD: Songbird support with MPRIS plugin
+  - ADD: options for translucent on mouse move
+  - FIX: Fixed a crashing bug caused by free extra string of track number
+
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 24 Sep 2009 12:07:03 +0800
+
 osdlyrics (0.2-0~20090923~intrepid1) intrepid; urgency=low
 
   * CHANGE: Another new icon, this will be the formal icon of OSD Lyrics. Thanks easy <leaeasy@gmail.com>

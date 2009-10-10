@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "ol_player.h"
 #include "ol_player_banshee.h"
-#include "ol_player_exaile.h"
+#include "ol_player_exaile02.h"
+#include "ol_player_exaile03.h"
 #include "ol_player_amarok1.h"
 #include "ol_player_amarok2.h"
 #include "ol_player_audacious.h"
@@ -20,10 +21,11 @@ ol_player_init ()
     ol_player_register_controller (ol_player_amarok1_get_controller (), "AmarOK 1.4");
     ol_player_register_controller (ol_player_amarok2_get_controller (), "AmarOK 2.x");
     ol_player_register_controller (ol_player_banshee_get_controller (), "Banshee");
-    ol_player_register_controller (ol_player_exaile_get_controller (), "Exaile");
+    ol_player_register_controller (ol_player_exaile02_get_controller (), "Exaile 0.2");
+    ol_player_register_controller (ol_player_exaile03_get_controller (), "Exaile 0.3");
     ol_player_register_controller (ol_player_audacious_get_controller (), "Audacious");
-     ol_player_register_controller (ol_player_songbird_get_controller (), "Songbird"); 
-    /* ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2"); */
+    ol_player_register_controller (ol_player_songbird_get_controller (), "Songbird"); 
+    ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2");
     ol_player_register_controller (ol_player_rhythmbox_get_controller (), "Rhythmbox");
   }  
 }

@@ -1,3 +1,7 @@
+2009-10-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_exaile03.c: Add exaile 0.3 support
+
 2009-09-24  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* Add options for translucent on mouse move

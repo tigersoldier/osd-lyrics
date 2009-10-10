@@ -24,6 +24,9 @@ DBusGConnection
 gboolean
 ol_dbus_get_string (DBusGProxy *proxy, const gchar *method, gchar **returnval)
 {
+  g_return_val_if_fail (proxy != NULL, FALSE);
+  g_return_val_if_fail (method != NULL, FALSE);
+  g_return_val_if_fail (returnval != NULL, FALSE);
   if (dbus_g_proxy_call (proxy,
                          method,
                          NULL,
@@ -41,8 +44,36 @@ ol_dbus_get_string (DBusGProxy *proxy, const gchar *method, gchar **returnval)
 }
 
 gboolean
+ol_dbus_get_string_with_str_arg (DBusGProxy *proxy, const gchar *method, const gchar *arg, gchar **returnval)
+{
+  g_return_val_if_fail (proxy != NULL, FALSE);
+  g_return_val_if_fail (method != NULL, FALSE);
+  g_return_val_if_fail (returnval != NULL, FALSE);
+  g_return_val_if_fail (arg != NULL, FALSE);
+  if (dbus_g_proxy_call (proxy,
+                         method,
+                         NULL,
+                         G_TYPE_STRING,
+                         arg,
+                         G_TYPE_INVALID,
+                         G_TYPE_STRING,
+                         returnval,
+                         G_TYPE_INVALID))
+  {
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+gboolean
 ol_dbus_get_uint (DBusGProxy *proxy, const gchar *method, guint *returnval)
 {
+  g_return_val_if_fail (proxy != NULL, FALSE);
+  g_return_val_if_fail (method != NULL, FALSE);
+  g_return_val_if_fail (returnval != NULL, FALSE);
   GError *error = NULL;
   if (dbus_g_proxy_call (proxy,
                          method,
@@ -65,6 +96,9 @@ ol_dbus_get_uint (DBusGProxy *proxy, const gchar *method, guint *returnval)
 gboolean
 ol_dbus_get_int (DBusGProxy *proxy, const gchar *method, gint *returnval)
 {
+  g_return_val_if_fail (proxy != NULL, FALSE);
+  g_return_val_if_fail (method != NULL, FALSE);
+  g_return_val_if_fail (returnval != NULL, FALSE);
   GError *error = NULL;
   if (dbus_g_proxy_call (proxy,
                          method,
@@ -87,6 +121,9 @@ ol_dbus_get_int (DBusGProxy *proxy, const gchar *method, gint *returnval)
 gboolean
 ol_dbus_get_uint8 (DBusGProxy *proxy, const gchar *method, guint8 *returnval)
 {
+  g_return_val_if_fail (proxy != NULL, FALSE);
+  g_return_val_if_fail (method != NULL, FALSE);
+  g_return_val_if_fail (returnval != NULL, FALSE);
   if (dbus_g_proxy_call (proxy,
                          method,
                          NULL,

@@ -24,7 +24,8 @@ osd_lyrics_SOURCES = \
 	ol_osd_module.c \
 	ol_player.c \
 	ol_player_banshee.c \
-	ol_player_exaile.c \
+	ol_player_exaile02.c \
+	ol_player_exaile03.c \
 	ol_player_amarok1.c \
 	ol_player_amarok2.c \
 	ol_player_mpris.c \

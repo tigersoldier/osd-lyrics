@@ -21,6 +21,7 @@ DBusGConnection *ol_dbus_get_connection ();
  * @return If succeeded, return TRUE
  */
 gboolean ol_dbus_get_string (DBusGProxy *proxy, const gchar *method, gchar **returnval);
+gboolean ol_dbus_get_string_with_str_arg (DBusGProxy *proxy, const gchar *method, const gchar *arg, gchar **returnval);
 
 gboolean ol_dbus_get_uint (DBusGProxy *proxy, const gchar *method, guint *returnval);
 

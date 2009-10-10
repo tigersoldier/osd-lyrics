@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "ol_player.h"
-#include "ol_player_exaile.h"
+#include "ol_player_exaile02.h"
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
 
@@ -28,18 +28,18 @@ static DBusGProxy *proxy = NULL;
 static GError *error = NULL;
 static OlElapseEmulator *elapse_emulator = NULL;
 
-static gboolean ol_player_exaile_get_music_info (OlMusicInfo *info);
-static gboolean ol_player_exaile_get_played_time (int *played_time);
-static gboolean ol_player_exaile_get_music_length (int *len);
-static gboolean ol_player_exaile_get_activated ();
-static gboolean ol_player_exaile_init_dbus ();
-static enum OlPlayerStatus ol_player_exaile_get_status ();
+static gboolean ol_player_exaile02_get_music_info (OlMusicInfo *info);
+static gboolean ol_player_exaile02_get_played_time (int *played_time);
+static gboolean ol_player_exaile02_get_music_length (int *len);
+static gboolean ol_player_exaile02_get_activated ();
+static gboolean ol_player_exaile02_init_dbus ();
+static enum OlPlayerStatus ol_player_exaile02_get_status ();
 
 static enum OlPlayerStatus
-ol_player_exaile_get_status ()
+ol_player_exaile02_get_status ()
 {
   if (connection == NULL || proxy == NULL)
-    if (!ol_player_exaile_init_dbus ())
+    if (!ol_player_exaile02_init_dbus ())
       return FALSE;
   char *status = NULL;
   enum OlPlayerStatus ret = OL_PLAYER_UNKNOWN;
@@ -59,12 +59,12 @@ ol_player_exaile_get_status ()
 }
 
 static gboolean
-ol_player_exaile_get_music_info (OlMusicInfo *info)
+ol_player_exaile02_get_music_info (OlMusicInfo *info)
 {
   if (info == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
-    if (!ol_player_exaile_init_dbus ())
+    if (!ol_player_exaile02_init_dbus ())
       return FALSE;
   gchar *buf;
   /* gets the title of current music */
@@ -113,41 +113,41 @@ ol_player_exaile_get_music_info (OlMusicInfo *info)
 }
 
 static gboolean
-ol_player_exaile_get_played_time (int *played_time)
+ol_player_exaile02_get_played_time (int *played_time)
 {
   /* printf ("%s\n", */
   /*         __FUNCTION__); */
   guint8 percent;
   int duration;
-  int exaile_time;
+  int exaile02_time;
   if (played_time == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
-    if (!ol_player_exaile_init_dbus ())
+    if (!ol_player_exaile02_init_dbus ())
       return FALSE;
-  enum OlPlayerStatus status = ol_player_exaile_get_status ();
+  enum OlPlayerStatus status = ol_player_exaile02_get_status ();
   if (status == OL_PLAYER_PLAYING || status == OL_PLAYER_PAUSED)
   {
     if (!ol_dbus_get_uint8 (proxy, current_position, &percent))
       return FALSE;
-    if (!ol_player_exaile_get_music_length (&duration))
+    if (!ol_player_exaile02_get_music_length (&duration))
       return FALSE;
-    exaile_time = duration * percent / 100;
+    exaile02_time = duration * percent / 100;
     if (elapse_emulator == NULL)
     {
       elapse_emulator = g_new (OlElapseEmulator, 1);
       if (elapse_emulator != NULL)
-        ol_elapse_emulator_init (elapse_emulator, exaile_time, duration / 100);
+        ol_elapse_emulator_init (elapse_emulator, exaile02_time, duration / 100);
     }
     if (elapse_emulator != NULL)
     {
       if (status == OL_PLAYER_PLAYING)
-        *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, exaile_time);
+        *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, exaile02_time);
       else /* if (status == OL_PLAYER_PAUSED)  */
-        *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, exaile_time);
+        *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, exaile02_time);
     }
     else
-      *played_time = exaile_time;
+      *played_time = exaile02_time;
   }
   else
   {
@@ -157,14 +157,14 @@ ol_player_exaile_get_played_time (int *played_time)
 }
 
 static gboolean
-ol_player_exaile_get_music_length (int *len)
+ol_player_exaile02_get_music_length (int *len)
 {
   /* printf ("%s\n", */
   /*         __FUNCTION__); */
   if (len == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
-    if (!ol_player_exaile_init_dbus ())
+    if (!ol_player_exaile02_init_dbus ())
       return FALSE;
   gchar *buf = NULL;
   if (!ol_dbus_get_string (proxy, duration, &buf))
@@ -181,12 +181,12 @@ ol_player_exaile_get_music_length (int *len)
 }
 
 static gboolean
-ol_player_exaile_get_activated ()
+ol_player_exaile02_get_activated ()
 {
   printf ("%s\n",
           __FUNCTION__);
   if (connection == NULL || proxy == NULL)
-    if (!ol_player_exaile_init_dbus ())
+    if (!ol_player_exaile02_init_dbus ())
       return FALSE;
   gchar buf[1024];
   if (dbus_g_proxy_call (proxy,
@@ -206,7 +206,7 @@ ol_player_exaile_get_activated ()
 }
 
 static gboolean
-ol_player_exaile_init_dbus ()
+ol_player_exaile02_init_dbus ()
 {
   printf ("%s\n",
           __FUNCTION__);
@@ -240,14 +240,14 @@ ol_player_exaile_init_dbus ()
 }
 
 OlPlayerController*
-ol_player_exaile_get_controller ()
+ol_player_exaile02_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
   OlPlayerController *controller = g_new (OlPlayerController, 1);
-  controller->get_music_info = ol_player_exaile_get_music_info;
-  controller->get_activated = ol_player_exaile_get_activated;
-  controller->get_played_time = ol_player_exaile_get_played_time;
-  controller->get_music_length = ol_player_exaile_get_music_length;
+  controller->get_music_info = ol_player_exaile02_get_music_info;
+  controller->get_activated = ol_player_exaile02_get_activated;
+  controller->get_played_time = ol_player_exaile02_get_played_time;
+  controller->get_music_length = ol_player_exaile02_get_music_length;
   return controller;
 }
