@@ -1,3 +1,7 @@
+2009-10-11  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: Download lrc files in seperate child processes
+
 2009-09-17  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c (ol_osd_window_unmap): Fix issue #16
