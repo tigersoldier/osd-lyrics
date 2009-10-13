@@ -1,3 +1,4 @@
+#include <gtk/gtk.h>
 #include "ol_lrc_fetch.h"
 #include "string.h"
 #include "ol_lrc_fetch_sogou.h"
@@ -9,6 +10,39 @@ static OlLrcFetchEngine *engines[OL_LRC_FETCH_ENGINE_MAX] = {0};
 static int engine_count = 0;
 static int ol_lrc_fetch_add_engine (OlLrcFetchEngine *engine);
 static char *engine_list[OL_LRC_FETCH_ENGINE_MAX];
+
+OlLrcCandidate*
+ol_lrc_candidate_new ()
+{
+  OlLrcCandidate *candidate = g_new (OlLrcCandidate, 1);
+  if (candidate == NULL)
+    return NULL;
+  candidate->title[0] = '\0';
+  candidate->artist[0] = '\0';
+  candidate->url[0] = '\0';
+  candidate->rank = 0;
+  return candidate;
+}
+
+void
+ol_lrc_candidate_copy (OlLrcCandidate *dest, OlLrcCandidate *src)
+{
+  if (dest == NULL || src == NULL || dest == src)
+    return;
+  strcpy (dest->title, src->title);
+  strcpy (dest->artist, src->artist);
+  strcpy (dest->url, src->url);
+  dest->rank = src->rank;
+}
+
+void
+ol_lrc_candidate_free (OlLrcCandidate *ptr)
+{
+  if (ptr == NULL)
+    return;
+  free (ptr);
+}
+
 
 OlLrcFetchEngine *
 ol_lrc_fetch_get_engine (const char *name)

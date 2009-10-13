@@ -35,10 +35,12 @@
 #include "ol_config.h"
 #include "ol_osd_module.h"
 #include "ol_keybindings.h"
+#include "ol_lrc_fetch_module.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
 static const gchar *LRC_PATH = ".lyrics";
+static guint refresh_source = 0;
 
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
@@ -49,6 +51,7 @@ static gint previous_position = -1;
 static LrcQueue *lrc_file = NULL;
 static OlOsdModule *module = NULL;
 
+static void initialize (int argc, char **argv);
 static void ensure_lyric_dir ();
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
@@ -161,42 +164,13 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 
 gboolean download_lyric (OlMusicInfo *music_info)
 {
-  int lrc_count;
-  pid_t pid;
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
   fprintf (stderr, "Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
-  if (engine == NULL)
-    return FALSE;
-  if ((pid = fork ()) < 0)
-  {
-    // FIXME: log the error message
-    fprintf (stderr, "fork failed\n");
-  }
-  else if (pid == 0)                 // child
-  {
-    OlLrcCandidate *candidates = engine->search (music_info, &lrc_count, "UTF-8");
-    printf ("downloading...\n");
-    if (lrc_count == 0 || candidates == NULL)
-    {
-      printf ("download failed\n");
-      exit (1);
-    }
-    else
-    {
-      char pathname[MAX_PATH_LEN];
-      get_lyric_path_name (music_info, pathname);
-      /* ol_lrc_fetch_ui_show (engine, candidates, lrc_count, pathname); */
-      engine->download (&candidates[0], pathname, "UTF-8");
-      printf ("download %s success\n", pathname);
-      exit (0);
-    }
-  }
-  else                              // parent
-  {
-    return TRUE;
-  }
+  char pathname[MAX_PATH_LEN];
+  get_lyric_path_name (music_info, pathname);
+  ol_lrc_fetch_begin_search (engine, music_info);
 }
 
 gboolean
@@ -346,32 +320,32 @@ refresh_music_info (gpointer data)
   return TRUE;
 }
 
-int
-main (int argc, char **argv)
+static
+void initialize (int argc, char **argv)
 {
-
 #if ENABLE_NLS
   /* Set the text message domain.  */
-  printf ("initializing gettext: " PACKAGE " at " LOCALEDIR "\n");
   bindtextdomain (PACKAGE, LOCALEDIR);
   bind_textdomain_codeset(PACKAGE, "UTF-8");
   /* textdomain (PACKAGE); */
-  printf ("%s\n", _("_Lock"));
 #endif
-  struct sigaction act;
-  act.sa_handler = child_handler;
-  sigemptyset (&act.sa_mask);
-  act.sa_flags = 0;
-  sigaction (SIGCHLD, &act, NULL);
+  /* Handler for SIGCHLD to wait lrc downloading process */
+  signal (SIGCHLD, child_handler);
+  
+  g_thread_init(NULL);
   gtk_init (&argc, &argv);
   ensure_lyric_dir ();
   ol_player_init ();
   module = ol_osd_module_new ();
   ol_trayicon_inital ();
   ol_keybinding_init ();
-  ol_lrc_fetch_init ();
-  ol_get_string_from_hash_table (NULL, NULL);
-  g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
+  ol_lrc_fetch_module_init ();
+  refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
+}
+
+int
+main (int argc, char **argv)
+{
   gtk_main ();
   ol_player_free ();
   ol_osd_module_destroy (module);
