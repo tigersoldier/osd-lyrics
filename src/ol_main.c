@@ -50,6 +50,7 @@ static gint previous_duration = 0;
 static gint previous_position = -1;
 static LrcQueue *lrc_file = NULL;
 static OlOsdModule *module = NULL;
+static int fetch_id = 0;
 
 static void initialize (int argc, char **argv);
 static void ensure_lyric_dir ();
@@ -79,6 +80,30 @@ static void child_handler (int sig);
  */
 void get_lyric_path_name (OlMusicInfo *music_info, char *pathname);
 gboolean download_lyric (OlMusicInfo *music_info);
+gboolean on_search_done (struct OlLrcFetchResult *result);
+gboolean on_downloaded (char *filepath);
+
+gboolean
+on_downloaded (char *filepath)
+{
+  if (filepath != NULL)
+    check_lyric_file ();
+  return FALSE;
+}
+
+gboolean
+on_search_done (struct OlLrcFetchResult *result)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  g_return_val_if_fail (result != NULL, FALSE);
+  g_return_val_if_fail (result->count > 0, FALSE);
+  g_return_val_if_fail (result->candidates != NULL, FALSE);
+  g_return_val_if_fail (result->engine != NULL, FALSE);
+  char pathname[MAX_PATH_LEN];
+  get_lyric_path_name (&result->info, pathname);
+  ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count, pathname);
+  return FALSE;
+}
 
 /** 
  * @brief Gets the real lyric of the given lyric
@@ -168,8 +193,8 @@ gboolean download_lyric (OlMusicInfo *music_info)
   char *name = ol_config_get_string (config, "Download", "download-engine");
   fprintf (stderr, "Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
-  char pathname[MAX_PATH_LEN];
-  get_lyric_path_name (music_info, pathname);
+  /* char pathname[MAX_PATH_LEN]; */
+  /* get_lyric_path_name (music_info, pathname); */
   ol_lrc_fetch_begin_search (engine, music_info);
 }
 
@@ -332,6 +357,7 @@ void initialize (int argc, char **argv)
   /* Handler for SIGCHLD to wait lrc downloading process */
   signal (SIGCHLD, child_handler);
   
+  fprintf (stderr, "main\n");
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
   ensure_lyric_dir ();
@@ -340,12 +366,15 @@ void initialize (int argc, char **argv)
   ol_trayicon_inital ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
+  ol_lrc_fetch_add_async_search_callback ((GSourceFunc) on_search_done);
+  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) on_downloaded);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
 }
 
 int
 main (int argc, char **argv)
 {
+  initialize (argc, argv);
   gtk_main ();
   ol_player_free ();
   ol_osd_module_destroy (module);

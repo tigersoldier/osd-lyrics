@@ -3,6 +3,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_glade.h"
 #include "ol_intl.h"
+#include "ol_lrc_fetch_module.h"
 
 static GtkWidget *window = NULL;
 static GtkTreeView *list = NULL;
@@ -27,37 +28,42 @@ ol_lrc_fetch_ui_cancel (GtkWidget *widget, gpointer data)
   fprintf (stderr, "%s\n", __FUNCTION__);
   if (window != NULL)
     gtk_widget_hide (window);
-  exit (1);
 }
 
 gboolean
 ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
 {
   fprintf (stderr, "%s\n", __FUNCTION__);
-  GtkTreeSelection *selection;
-  OlLrcCandidate candidate;
+  GtkTreeSelection *selection = NULL;
+  OlLrcCandidate candidate = {0};
   if (list != NULL)
     selection = gtk_tree_view_get_selection (list);
   if (selection != NULL)
   {
     GtkTreeIter iter;
-    GtkTreeModel *model;
+    GtkTreeModel *model = NULL;
     gtk_tree_selection_get_selected (selection, &model, &iter);
+    char *title, *artist, *url;
     gtk_tree_model_get (model, &iter,
-                        TITLE_COLUMN, &candidate.title,
-                        ARTIST_COLUMN, &candidate.artist,
-                        URL_COLUMN, &candidate.url,
+                        TITLE_COLUMN, &title,
+                        ARTIST_COLUMN, &artist,
+                        URL_COLUMN, &url,
                         -1);
+    strcpy (candidate.title, title);
+    strcpy (candidate.artist, artist);
+    strcpy (candidate.url, url);
+    g_free (title); g_free (artist); g_free (url);
+    fprintf (stderr, "  title: %s, artist: %s, url: %s\n", candidate.title, candidate.artist, candidate.url);
     /* Get the index of selected candidate */
     /* GtkTreeIter first_iter; */
     /* gtk_tree_model_get_iter_first (model, &first_iter); */
     /* int index = 0; */
     /* gtk_tree_selection_iter_is_selected (selection, &iter); */
     /* TODO: download selected candidate */
-    fprintf (stderr, "download pressed\n");
-    engine->download (&candidate, filepath, "UTF-8");
-    exit (0);
+    fprintf (stderr, "  download pressed\n");
+    ol_lrc_fetch_begin_download (engine, &candidate, filepath);
   }
+  gtk_widget_hide (window);
 }
 
 static void
@@ -154,10 +160,14 @@ ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
                         ARTIST_COLUMN, candidates[i].artist,
                         URL_COLUMN, candidates[i].url,
                         -1);
+    /* fprintf (stderr, "  url: %s\n", candidates[i].url); */
     /* Select the first item */
     if (i == 0)
       gtk_tree_selection_select_iter (gtk_tree_view_get_selection (list),
                                       &iter);
   }
-  gtk_widget_show (window);
+  if (count == 1)
+    ol_lrc_fetch_ui_download (GTK_WIDGET (download_button), NULL);
+  else
+    gtk_widget_show (window);
 }
