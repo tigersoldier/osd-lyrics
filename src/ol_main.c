@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <signal.h>
 #include <pwd.h>
 #include "config.h"
 #include "ol_osd_window.h"
@@ -34,10 +35,12 @@
 #include "ol_config.h"
 #include "ol_osd_module.h"
 #include "ol_keybindings.h"
+#include "ol_lrc_fetch_module.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
 static const gchar *LRC_PATH = ".lyrics";
+static guint refresh_source = 0;
 
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
@@ -47,7 +50,9 @@ static gint previous_duration = 0;
 static gint previous_position = -1;
 static LrcQueue *lrc_file = NULL;
 static OlOsdModule *module = NULL;
+static int fetch_id = 0;
 
+static void initialize (int argc, char **argv);
 static void ensure_lyric_dir ();
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
@@ -62,6 +67,12 @@ static void change_music ();
 static char* replace_invalid_str (const char *str);
 static gboolean is_file_exist (const char *filename);
 /** 
+ * @brief Handles SIG_CHILD for download child process
+ * 
+ * @param signal 
+ */
+static void child_handler (int sig);
+/** 
  * Gets a music's full path filename
  * 
  * @param music_info The info of the music
@@ -69,6 +80,30 @@ static gboolean is_file_exist (const char *filename);
  */
 void get_lyric_path_name (OlMusicInfo *music_info, char *pathname);
 gboolean download_lyric (OlMusicInfo *music_info);
+gboolean on_search_done (struct OlLrcFetchResult *result);
+gboolean on_downloaded (char *filepath);
+
+gboolean
+on_downloaded (char *filepath)
+{
+  if (filepath != NULL)
+    check_lyric_file ();
+  return FALSE;
+}
+
+gboolean
+on_search_done (struct OlLrcFetchResult *result)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  g_return_val_if_fail (result != NULL, FALSE);
+  g_return_val_if_fail (result->count > 0, FALSE);
+  g_return_val_if_fail (result->candidates != NULL, FALSE);
+  g_return_val_if_fail (result->engine != NULL, FALSE);
+  char pathname[MAX_PATH_LEN];
+  get_lyric_path_name (&result->info, pathname);
+  ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count, pathname);
+  return FALSE;
+}
 
 /** 
  * @brief Gets the real lyric of the given lyric
@@ -80,6 +115,21 @@ gboolean download_lyric (OlMusicInfo *music_info);
  * @return The real lyric of the lrc. returns NULL if not available
  */
 LrcInfo* get_real_lyric (LrcInfo *lrc);
+
+static void
+child_handler (int sig)
+{
+  int status;
+  if (wait (&status) < 0)
+  {
+    fprintf (stderr, "wait error\n");
+    return;
+  }
+  if (status == 0)
+  {
+    check_lyric_file ();
+  }
+}
 
 static char*
 replace_invalid_str (const char *str)
@@ -139,30 +189,13 @@ get_lyric_path_name (OlMusicInfo *music_info, char *pathname)
 
 gboolean download_lyric (OlMusicInfo *music_info)
 {
-  int lrc_count;
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
   fprintf (stderr, "Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
-  if (engine == NULL)
-    return FALSE;
-  /* g_free (name); */
-  OlLrcCandidate *candidates = engine->search (music_info, &lrc_count, "UTF-8");
-  printf ("downloading...\n");
-  if (lrc_count == 0 || candidates == NULL)
-  {
-    printf ("download failed\n");
-    return FALSE;
-  }
-  else
-  {
-    char pathname[MAX_PATH_LEN];
-    get_lyric_path_name (music_info, pathname);
-    /* ol_lrc_fetch_ui_show (engine, candidates, lrc_count, pathname); */
-    engine->download (&candidates[0], pathname, "UTF-8");
-    printf ("download %s success\n", pathname);
-    return TRUE;
-  }
+  /* char pathname[MAX_PATH_LEN]; */
+  /* get_lyric_path_name (music_info, pathname); */
+  ol_lrc_fetch_begin_search (engine, music_info);
 }
 
 gboolean
@@ -175,26 +208,33 @@ is_file_exist (const char *filename)
   return stat (filename, &buf) == 0;
 }
 
+gboolean
+check_lyric_file ()
+{
+  gchar file_name[MAX_PATH_LEN];
+  get_lyric_path_name (&music_info, file_name);
+  if (!is_file_exist (file_name))
+  {
+    return FALSE;
+  }
+  lrc_file = ol_lrc_parser_get_lyric_info (file_name);
+  ol_osd_module_set_lrc (module, lrc_file);
+  return TRUE;
+}
+
 void
 change_music ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  gchar file_name[MAX_PATH_LEN];
-  get_lyric_path_name (&music_info, file_name);
   if (module != NULL)
   {
     ol_osd_module_set_music_info (module, &music_info);
     ol_osd_module_set_duration (module, previous_duration);
   }
   ol_osd_module_set_lrc (module, NULL);
-  if (!is_file_exist (file_name))
-  {
-    if (!download_lyric (&music_info) || !is_file_exist (file_name))
-    return;
-  }
-  lrc_file = ol_lrc_parser_get_lyric_info (file_name);
-  ol_osd_module_set_lrc (module, lrc_file);
+  if (!check_lyric_file ())
+    download_lyric (&music_info);
 }
 
 void
@@ -305,28 +345,36 @@ refresh_music_info (gpointer data)
   return TRUE;
 }
 
-int
-main (int argc, char **argv)
+static
+void initialize (int argc, char **argv)
 {
-
 #if ENABLE_NLS
   /* Set the text message domain.  */
-  printf ("initializing gettext: " PACKAGE " at " LOCALEDIR "\n");
   bindtextdomain (PACKAGE, LOCALEDIR);
   bind_textdomain_codeset(PACKAGE, "UTF-8");
   /* textdomain (PACKAGE); */
-  printf ("%s\n", _("_Lock"));
 #endif
+  /* Handler for SIGCHLD to wait lrc downloading process */
+  signal (SIGCHLD, child_handler);
   
+  fprintf (stderr, "main\n");
+  g_thread_init(NULL);
   gtk_init (&argc, &argv);
   ensure_lyric_dir ();
   ol_player_init ();
   module = ol_osd_module_new ();
   ol_trayicon_inital ();
   ol_keybinding_init ();
-  ol_lrc_fetch_init ();
-  ol_get_string_from_hash_table (NULL, NULL);
-  g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
+  ol_lrc_fetch_module_init ();
+  ol_lrc_fetch_add_async_search_callback ((GSourceFunc) on_search_done);
+  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) on_downloaded);
+  refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
+}
+
+int
+main (int argc, char **argv)
+{
+  initialize (argc, argv);
   gtk_main ();
   ol_player_free ();
   ol_osd_module_destroy (module);

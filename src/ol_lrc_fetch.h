@@ -16,6 +16,10 @@ struct _OlLrcCandidate
   int rank;
 };
 
+OlLrcCandidate *ol_lrc_candidate_new ();
+void ol_lrc_candidate_copy (OlLrcCandidate *dest, OlLrcCandidate *src);
+void ol_lrc_candidate_free (OlLrcCandidate *ptr);
+
 /** 
  * @brief fetch the candidate title-singer-url list;
  *        strongly depending on the web page structure.

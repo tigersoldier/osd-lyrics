@@ -54,7 +54,7 @@ AC_ARG_WITH(gprof-support,
 AC_MSG_RESULT(no))
 
 # Checks for libraries.
-PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0])
+PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0, gthread-2.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([GLADE], [libglade-2.0, gmodule-export-2.0])

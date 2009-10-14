@@ -19,33 +19,35 @@ ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src)
   if (dest == src)
     return;
   gchar *temp;
+  if (src->artist != NULL)
+    temp = g_strdup (src->artist);
+  else
+    temp = NULL;
   if (dest->artist != NULL)
   {
-    if (src->artist != NULL)
-      temp = g_strdup (src->artist);
-    else
-      temp = NULL;
     g_free (dest->artist);
-    dest->artist = temp;
   }
+  dest->artist = temp;
+
+  if (src->title != NULL)
+    temp = g_strdup (src->title);
+  else
+    temp = NULL;
   if (dest->title != NULL)
   {
-    if (src->title != NULL)
-      temp = g_strdup (src->title);
-    else
-      temp = NULL;
     g_free (dest->title);
-    dest->title = temp;
   }
+  dest->title = temp;
+
+  if (src->album != NULL)
+    temp = g_strdup (src->album);
+  else
+    temp = NULL;
   if (dest->album != NULL)
   {
-    if (src->album != NULL)
-      temp = g_strdup (src->album);
-    else
-      temp = NULL;
     g_free (dest->album);
-    dest->album = temp;
   }
+  dest->album = temp;
 }
 
 void

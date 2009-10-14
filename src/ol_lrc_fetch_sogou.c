@@ -32,6 +32,19 @@ convert_to_gbk(const char *init, char *target, size_t t_size, const char *localc
 static OlLrcCandidate *
 ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charset)
 {
+  if(info == NULL)
+    return NULL;
+  fprintf (stderr,
+           "%s\n"
+           "  title: %s\n"
+           "  artist: %s\n"
+           "  album: %s\n",
+           __FUNCTION__,
+           info->title,
+           info->artist,
+           info->album);
+  if (info->title == NULL && info->artist == NULL)
+    return NULL;
   static OlLrcCandidate result[TRY_MATCH_MAX];
   OlLrcCandidate candidate;
   char page_url[OL_URL_LEN_MAX];
@@ -45,8 +58,6 @@ ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charse
   int fd, ret, bl1, bl2, count=0;
 
   memset(result, 0, sizeof(result));
-  if(info == NULL || info->title == NULL && info->artist == NULL)
-    return NULL;
 
   if(info->title != NULL) {
     convert_to_gbk(info->title, buf, BUFSIZE, charset);
@@ -115,6 +126,7 @@ ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charse
 int 
 ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const char *charset)
 {
+  fprintf (stderr, "%s\n", __FUNCTION__);
   char *lrc_conv, *pathbuf;
   FILE *fp;
   int ret;

@@ -1,3 +1,13 @@
+2009-10-14  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: Multi-thread lyric downloading and lyric choose ui is implemented
+
+	* src/ol_lrc_fetch_module.h: New module implements multithread lyric downloading.
+
+2009-10-11  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: Download lrc files in seperate child processes
+
 2009-10-10  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_exaile03.c: Add exaile 0.3 support
