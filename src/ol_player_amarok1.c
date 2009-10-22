@@ -11,6 +11,7 @@ static const char PLAYED_TIME_CMD[] = "trackCurrentTimeMs";
 static const char MUSIC_LENGTH_CMD[] = "trackTotalTime";
 static const char IS_PLAYING_CMD[] = "isPlaying";
 
+static gboolean ol_player_amarok1_get_capacity ();
 static gboolean ol_player_amarok1_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_amarok1_get_played_time (int *played_time);
 static gboolean ol_player_amarok1_get_music_length (int *music_length);
@@ -126,6 +127,13 @@ ol_player_amarok1_get_activated ()
     return TRUE;
 }
 
+static int
+ol_player_amarok1_get_capacity ()
+{
+  return 0;
+}
+
+
 OlPlayerController*
 ol_player_amarok1_get_controller ()
 {
@@ -136,5 +144,12 @@ ol_player_amarok1_get_controller ()
   controller->get_activated = ol_player_amarok1_get_activated;
   controller->get_played_time = ol_player_amarok1_get_played_time;
   controller->get_music_length = ol_player_amarok1_get_music_length;
+  controller->get_capacity = ol_player_amarok1_get_capacity;
+  controller->get_status = NULL;
+  controller->play = NULL;
+  controller->pause = NULL;
+  controller->next = NULL;
+  controller->prev = NULL;
+  controller->seek = NULL;
   return controller;
 }

@@ -249,12 +249,12 @@ check_music_change (int time)
       previous_title != NULL)
     return;
   /* compares the previous title with current title */
-  if (controller && !controller->get_music_info (&music_info))
+  if (controller && !ol_player_get_music_info (controller, &music_info))
   {
     controller = NULL;
   }
   guint duration = 0;
-  if (controller && !controller->get_music_length (&duration))
+  if (controller && !ol_player_get_music_length (controller, &duration))
   {
     controller = NULL;
   }
@@ -330,7 +330,7 @@ refresh_music_info (gpointer data)
     controller = ol_player_get_active_player ();
   }
   guint time = 0;
-  if (controller && !controller->get_played_time (&time))
+  if (controller && !ol_player_get_played_time (controller, &time))
   {
     controller = NULL;
   }

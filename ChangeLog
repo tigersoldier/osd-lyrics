@@ -1,3 +1,11 @@
+2009-10-23  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player.h: Adds new interface to control players
+
+2009-10-16  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: Fixed some warning caused by NULL pointer
+
 2009-10-14  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_main.c: Multi-thread lyric downloading and lyric choose ui is implemented

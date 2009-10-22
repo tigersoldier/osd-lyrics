@@ -1,3 +1,24 @@
+osdlyrics (0.2-0~20091015~karmic1) karmic; urgency=low
+
+  * ADD: Multi-thread lyric downloading
+  * ADD: Lyric choose UI
+  * ADD: Exaile 0.3 support
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 15 Oct 2009 09:09:15 +0800
+
+osdlyrics (0.2-0~20091015~intrepid1) intrepid; urgency=low
+
+  * ADD: Multi-thread lyric downloading
+  * ADD: Lyric choose UI
+  * ADD: Exaile 0.3 support
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 15 Oct 2009 09:09:15 +0800
+
+osdlyrics (0.2-0~20091015~jaunty1) jaunty; urgency=low
+
+  * ADD: Multi-thread lyric downloading
+  * ADD: Lyric choose UI
+  * ADD: Exaile 0.3 support
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Thu, 15 Oct 2009 09:09:15 +0800
+
 osdlyrics (0.2-0~20090924~jaunty1) jaunty; urgency=low
 
   * ADD: Songbird support with MPRIS plugin
