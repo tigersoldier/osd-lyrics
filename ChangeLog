@@ -1,3 +1,12 @@
+2009-10-27  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_songbird.c: All player operation is supported in Songbird
+	* src/ol_player_exaile03.c: All player operation but seek is supported in Exaile 0.3
+	* src/ol_player_amarok2.c : All player operation is supported in Amarok2
+	* src/ol_player_audacious.c : All player operation is supported in Audacious
+	* src/tests/ol_player_test.c: New test for player
+	* src/ol_player_mpris.c : All player operation is supported in MPRIS
+
 2009-10-25  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c (ol_osd_window_update_lyric_pixmap): Remove the NULL check for pixmaps which is wrong

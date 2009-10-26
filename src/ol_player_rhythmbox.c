@@ -23,6 +23,7 @@ static gboolean ol_player_rhythmbox_init_dbus ();
 static gboolean ol_player_rhythmbox_get_activated ();
 static gboolean ol_player_rhythmbox_proxy_destroy_handler ();
 static void ol_player_rhythmbox_elapsed_changed (DBusGProxy *player_proxy, int elapsed, gpointer data);
+static int ol_player_rhythmbox_get_capacity ();
 
 static int first_time = -1;
 static int prev_time = 0;
@@ -239,15 +240,22 @@ ol_player_rhythmbox_init_dbus ()
   return TRUE;
 }
 
+static int
+ol_player_rhythmbox_get_capacity ()
+{
+  return 0;
+}
+
 OlPlayerController*
 ol_player_rhythmbox_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new (OlPlayerController, 1);
+  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_rhythmbox_get_music_info;
   controller->get_activated = ol_player_rhythmbox_get_activated;
   controller->get_played_time = ol_player_rhythmbox_get_played_time;
   controller->get_music_length = ol_player_rhythmbox_get_music_length;
+  controller->get_capacity = ol_player_get_capacity;
   return controller;
 }

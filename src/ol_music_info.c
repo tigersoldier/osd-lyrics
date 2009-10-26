@@ -8,7 +8,35 @@ ol_music_info_init (OlMusicInfo *info)
   info->artist = NULL;
   info->title = NULL;
   info->album = NULL;
+  info->uri = NULL;
   info->track_number = -1;
+}
+
+void
+ol_music_info_clear (OlMusicInfo *info)
+{
+  g_return_if_fail (info != NULL);
+  if (info->title)
+  {
+    g_free (info->title);
+    info->title = NULL;
+  }
+  if (info->artist)
+  {
+    g_free (info->artist);
+    info->artist = NULL;
+  }
+  if (info->album)
+  {
+    g_free (info->album);
+    info->album = NULL;
+  }
+  if (info->uri)
+  {
+    g_free (info->uri);
+    info->uri = NULL;
+  }
+  info->track_number = 0;
 }
 
 void

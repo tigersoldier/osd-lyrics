@@ -34,6 +34,7 @@ static gboolean ol_player_exaile02_get_music_length (int *len);
 static gboolean ol_player_exaile02_get_activated ();
 static gboolean ol_player_exaile02_init_dbus ();
 static enum OlPlayerStatus ol_player_exaile02_get_status ();
+static int ol_player_exaile02_get_capacity ();
 
 static enum OlPlayerStatus
 ol_player_exaile02_get_status ()
@@ -239,15 +240,23 @@ ol_player_exaile02_init_dbus ()
   return TRUE;
 }
 
+static int
+ol_player_exaile02_get_capacity ()
+{
+  return OL_PLAYER_STATUS;
+}
+
 OlPlayerController*
 ol_player_exaile02_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new (OlPlayerController, 1);
+  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_exaile02_get_music_info;
   controller->get_activated = ol_player_exaile02_get_activated;
   controller->get_played_time = ol_player_exaile02_get_played_time;
   controller->get_music_length = ol_player_exaile02_get_music_length;
+  controller->get_capacity = ol_player_exaile02_get_capacity;
+  controller->get_status = ol_player_get_status;
   return controller;
 }

@@ -28,5 +28,6 @@ gboolean ol_dbus_get_uint (DBusGProxy *proxy, const gchar *method, guint *return
 gboolean ol_dbus_get_int (DBusGProxy *proxy, const gchar *method, gint *returnval);
 
 gboolean ol_dbus_get_uint8 (DBusGProxy *proxy, const gchar *method, guint8 *returnval);
+gboolean ol_dbus_invoke (DBusGProxy *proxy, const gchar *method);
 
 #endif // __OL_UTILS_DBUS_H__

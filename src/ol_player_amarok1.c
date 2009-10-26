@@ -87,6 +87,7 @@ static gboolean
 ol_player_amarok1_get_music_info (OlMusicInfo *info)
 {
   g_return_val_if_fail (info != NULL, FALSE);
+  ol_music_info_clear (info);
   if (!ol_player_amarok1_get_string (TITLE_CMD, &info->title))
     return FALSE;
   if (!ol_player_amarok1_get_string (ARTIST_CMD, &info->artist))
@@ -139,7 +140,7 @@ ol_player_amarok1_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new (OlPlayerController, 1);
+  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_amarok1_get_music_info;
   controller->get_activated = ol_player_amarok1_get_activated;
   controller->get_played_time = ol_player_amarok1_get_played_time;

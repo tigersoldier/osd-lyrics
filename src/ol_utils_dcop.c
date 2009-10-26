@@ -23,14 +23,11 @@ ol_dcop_get_string (const gchar *cmd, gchar **returnval)
   }
   pclose (pPipe);
   strtok (buffer,"\n");
-  if (*returnval == NULL)
+  if (*returnval != NULL)
   {
-    *returnval = g_strdup (buffer);
+    g_free (*returnval);
   }
-  else
-  {
-    strcpy (*returnval, buffer);
-  }
+  *returnval = g_strdup (buffer);
 /*   fprintf (stderr, "DCOP returns: %s\n", buffer); */
   return TRUE;
 }

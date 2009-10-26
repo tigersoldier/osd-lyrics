@@ -62,16 +62,11 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
                         &data_list,
                         G_TYPE_INVALID))
   {
-    if (info->artist)
-      g_free (info->artist);
+    ol_music_info_clear (info);
     info->artist = g_strdup (ol_get_string_from_hash_table (data_list, "artist"));
     
-    if (info->album)
-      g_free (info->album);
     info->album = g_strdup (ol_get_string_from_hash_table (data_list, "album"));
     
-    if (info->title)
-      g_free (info->title);
     info->title = g_strdup (ol_get_string_from_hash_table (data_list, "name"));
     
     info->track_number = ol_get_int_from_hash_table (data_list, "track-number");
@@ -178,7 +173,7 @@ ol_player_banshee_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new (OlPlayerController, 1);
+  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_banshee_get_music_info;
   controller->get_activated = ol_player_banshee_get_activated;
   controller->get_played_time = ol_player_banshee_get_played_time;

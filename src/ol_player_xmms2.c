@@ -22,6 +22,14 @@ static gboolean ol_player_xmms2_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_xmms2_get_played_time (int *played_time);
 static gboolean ol_player_xmms2_get_music_length (int *len);
 static gboolean ol_player_xmms2_get_activated ();
+static enum OlPlayerStatus ol_player_xmms2_get_status ();
+static int ol_player_xmms2_get_capacity ();
+static gboolean ol_player_xmms2_play ();
+static gboolean ol_player_xmms2_pause ();
+static gboolean ol_player_xmms2_stop ();
+static gboolean ol_player_xmms2_prev ();
+static gboolean ol_player_xmms2_next ();
+static gboolean ol_player_xmms2_seek (int pos_ms);
 
 static OlPlayerMpris*
 ol_player_xmms2_get_mpris ()
@@ -114,15 +122,79 @@ ol_player_xmms2_get_activated ()
   return ol_player_mpris_get_activated (mpris);
 }
 
+static enum OlPlayerStatus
+ol_player_xmms2_get_status ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_get_status (mpris);
+}
+
+static int
+ol_player_xmms2_get_capacity ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_get_capacity (mpris);
+}
+
+static gboolean
+ol_player_xmms2_play ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_play (mpris);
+}
+
+static gboolean
+ol_player_xmms2_pause ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_pause (mpris);
+}
+
+static gboolean
+ol_player_xmms2_stop ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_stop (mpris);
+}
+
+static gboolean
+ol_player_xmms2_prev ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_prev (mpris);
+}
+
+static gboolean
+ol_player_xmms2_next ()
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_next (mpris);
+}
+
+static gboolean
+ol_player_xmms2_seek (int pos_ms)
+{
+  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
+  return ol_player_mpris_seek (mpris, pos_ms);
+}
+
 OlPlayerController*
 ol_player_xmms2_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new (OlPlayerController, 1);
+  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_xmms2_get_music_info;
   controller->get_activated = ol_player_xmms2_get_activated;
   controller->get_played_time = ol_player_xmms2_get_played_time;
   controller->get_music_length = ol_player_xmms2_get_music_length;
+  controller->get_status = ol_player_xmms2_get_status;
+  controller->get_capacity = ol_player_xmms2_get_capacity;
+  controller->play = ol_player_xmms2_play;
+  controller->pause = ol_player_xmms2_pause;
+  controller->stop = ol_player_xmms2_stop;
+  controller->prev = ol_player_xmms2_prev;
+  controller->next = ol_player_xmms2_next;
+  controller->seek = ol_player_xmms2_seek;
   return controller;
 }

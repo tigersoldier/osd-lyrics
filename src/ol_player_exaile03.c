@@ -10,14 +10,15 @@
 static const char service[] = "org.exaile.Exaile";
 static const char path[] = "/org/exaile/Exaile";
 static const char interface[] = "org.exaile.Exaile";
-/* static const char play[] = "Play"; */
-/* static const char play_pause[] = "PlayPause"; */
-/* static const char stop[] = "Stop"; */
-/* static const char next[] = "next_track"; */
-/* static const char previous[] = "Prev"; */
+static const char play[] = "Play";
+static const char play_pause[] = "PlayPause";
+static const char stop[] = "Stop";
+static const char next[] = "Next";
+static const char previous[] = "Prev";
 static const char get_title[] = "title";
 static const char get_artist[] = "artist";
 static const char get_album[] = "album";
+static const char get_uri[] = "__loc";
 /* static const char get_cover_path[] = "get_cover_path"; */
 static const char get_status[] = "status";
 static const char duration[] = "__length";
@@ -38,13 +39,19 @@ static gboolean ol_player_exaile03_get_music_length (int *len);
 static gboolean ol_player_exaile03_get_activated ();
 static gboolean ol_player_exaile03_init_dbus ();
 static enum OlPlayerStatus ol_player_exaile03_get_status ();
+static int ol_player_exaile03_get_capacity ();
+static gboolean ol_player_exaile03_play ();
+static gboolean ol_player_exaile03_pause ();
+static gboolean ol_player_exaile03_stop ();
+static gboolean ol_player_exaile03_prev ();
+static gboolean ol_player_exaile03_next ();
 
 static enum OlPlayerStatus
 ol_player_exaile03_get_status ()
 {
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile03_init_dbus ())
-      return FALSE;
+      return OL_PLAYER_ERROR;
   char *buf = NULL;
   enum OlPlayerStatus ret = OL_PLAYER_UNKNOWN;
   ol_dbus_get_string (proxy, query, &buf);
@@ -77,11 +84,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
       return FALSE;
   gchar *buf;
   /* gets the title of current music */
-  if (info->title)
-  {
-    g_free (info->title);
-    info->title = NULL;
-  }
+  ol_music_info_clear (info);
   if (!ol_dbus_get_string_with_str_arg (proxy,
                                         get_track_attr,
                                         get_title,
@@ -90,11 +93,6 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
     return FALSE;
   }
   /* gets the artist of current music */
-  if (info->artist)
-  {
-    g_free (info->artist);
-    info->artist = NULL;
-  }
   if (!ol_dbus_get_string_with_str_arg (proxy,
                                         get_track_attr,
                                         get_artist,
@@ -103,15 +101,17 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
     return FALSE;
   }
   /* gets the album of current music */
-  if (info->album)
-  {
-    g_free (info->album);
-    info->album = NULL;
-  }
   if (!ol_dbus_get_string_with_str_arg (proxy,
                                         get_track_attr,
                                         get_album,
                                         &info->album))
+  {
+    return FALSE;
+  }
+  if (!ol_dbus_get_string_with_str_arg (proxy,
+                                        get_track_attr,
+                                        get_uri,
+                                        &info->uri))
   {
     return FALSE;
   }
@@ -253,6 +253,76 @@ ol_player_exaile03_init_dbus ()
   return TRUE;
 }
 
+static int
+ol_player_exaile03_get_capacity ()
+{
+  fprintf (stderr, "%s\n",
+           __FUNCTION__);
+  return OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_STOP |
+    OL_PLAYER_PAUSE | OL_PLAYER_PREV | OL_PLAYER_NEXT;
+}
+
+static gboolean
+ol_player_exaile03_stop ()
+{
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile03_init_dbus ())
+      return FALSE;
+  return ol_dbus_invoke (proxy, stop);
+}
+
+static gboolean
+ol_player_exaile03_play ()
+{
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile03_init_dbus ())
+      return FALSE;
+  enum OlPlayerStatus status = ol_player_exaile03_get_status ();
+  if (status == OL_PLAYER_ERROR)
+    return FALSE;
+  switch (status)
+  {
+  case OL_PLAYER_PAUSED:
+    return ol_dbus_invoke (proxy, play_pause);
+  case OL_PLAYER_PLAYING:
+    return TRUE;
+  case OL_PLAYER_STOPPED:
+  default:
+    return ol_dbus_invoke (proxy, play);
+  }
+}
+
+static gboolean
+ol_player_exaile03_pause ()
+{
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile03_init_dbus ())
+      return FALSE;
+  enum OlPlayerStatus status = ol_player_exaile03_get_status ();
+  if (status == OL_PLAYER_ERROR)
+    return FALSE;
+  if (status == OL_PLAYER_PLAYING)
+    return ol_dbus_invoke (proxy, play_pause);
+}
+
+static gboolean
+ol_player_exaile03_prev ()
+{
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile03_init_dbus ())
+      return FALSE;
+  return ol_dbus_invoke (proxy, previous);
+}
+
+static gboolean
+ol_player_exaile03_next ()
+{
+  if (connection == NULL || proxy == NULL)
+    if (!ol_player_exaile03_init_dbus ())
+      return FALSE;
+  return ol_dbus_invoke (proxy, next);
+}
+
 OlPlayerController*
 ol_player_exaile03_get_controller ()
 {
@@ -263,5 +333,14 @@ ol_player_exaile03_get_controller ()
   controller->get_activated = ol_player_exaile03_get_activated;
   controller->get_played_time = ol_player_exaile03_get_played_time;
   controller->get_music_length = ol_player_exaile03_get_music_length;
+  controller->get_capacity = ol_player_exaile03_get_capacity;
+  controller->get_status = ol_player_exaile03_get_status;
+  controller->play = ol_player_exaile03_play;
+  controller->pause = ol_player_exaile03_pause;
+  controller->prev = ol_player_exaile03_prev;
+  controller->next = ol_player_exaile03_next;
+  controller->seek = NULL;
+  controller->stop = ol_player_exaile03_stop;
   return controller;
 }
+
