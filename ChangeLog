@@ -1,5 +1,6 @@
 2009-10-27  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_player_banshee.c : All player operation is supported in Banshee
 	* src/ol_player_songbird.c: All player operation is supported in Songbird
 	* src/ol_player_exaile03.c: All player operation but seek is supported in Exaile 0.3
 	* src/ol_player_amarok2.c : All player operation is supported in Amarok2
