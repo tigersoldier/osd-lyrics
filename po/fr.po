@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-09-24 12:00+0800\n"
+"POT-Creation-Date: 2009-10-27 10:28+0800\n"
 "PO-Revision-Date: 2009-08-03 12:47+0000\n"
 "Last-Translator: Pierre Slamich <pierre.slamich@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 src/ol_main.c:318 data/dialogs.glade:737
+#: src/ol_menu.c:101 data/dialogs.glade:737
 msgid "_Lock"
 msgstr ""
 
@@ -33,8 +33,16 @@ msgstr ""
 msgid "Qianqian"
 msgstr ""
 
-#: src/ol_lrc_fetch_sogou.c:148
+#: src/ol_lrc_fetch_sogou.c:160
 msgid "Sogou"
+msgstr ""
+
+#: src/ol_lrc_fetch_ui.c:107
+msgid "Title"
+msgstr ""
+
+#: src/ol_lrc_fetch_ui.c:112
+msgid "Artist"
 msgstr ""
 
 #: data/dialogs.glade:9

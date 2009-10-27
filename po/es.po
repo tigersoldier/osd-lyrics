@@ -7,168 +7,182 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-09-24 12:00+0800\n"
-"PO-Revision-Date: 2009-07-31 19:47+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2009-10-27 10:28+0800\n"
+"PO-Revision-Date: 2009-10-23 15:51+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
+"X-Launchpad-Export-Date: 2009-10-27 02:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 src/ol_main.c:318 data/dialogs.glade:737
+#: src/ol_menu.c:101 data/dialogs.glade:737
 msgid "_Lock"
-msgstr ""
+msgstr "B_loquear"
 
 #: src/ol_menu.c:111 data/dialogs.glade:745
 msgid "_Hide"
-msgstr ""
+msgstr "_Ocultar"
 
 #: src/ol_trayicon.c:36
 msgid "OSD Lyrics"
-msgstr ""
+msgstr "OSD Lyrics"
 
 #: src/ol_lrc_fetch_qianqian.c:316
 msgid "Qianqian"
+msgstr "Qianqian"
+
+#: src/ol_lrc_fetch_sogou.c:160
+msgid "Sogou"
+msgstr "Sogou"
+
+#: src/ol_lrc_fetch_ui.c:107
+msgid "Title"
 msgstr ""
 
-#: src/ol_lrc_fetch_sogou.c:148
-msgid "Sogou"
+#: src/ol_lrc_fetch_ui.c:112
+msgid "Artist"
 msgstr ""
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
-msgstr ""
+msgstr "Copyright 2009 El proyecto OSD Lyrics"
 
 #: data/dialogs.glade:10
 msgid ""
 "An OSD lyric show compatible with various media players and supports lyrics "
 "downloading.\n"
 msgstr ""
+"Una función de letras de canciones en OSD compatible con varios "
+"reproductores multimedia y que soporta la descarga de letras.\n"
 
 #: data/dialogs.glade:13
 msgid "http://code.google.com/p/osd-lyrics/"
-msgstr ""
+msgstr "http://code.google.com/p/osd-lyrics/"
 
 #: data/dialogs.glade:14
 msgid "GPL v3"
-msgstr ""
+msgstr "GPL v3"
 
 #: data/dialogs.glade:18
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  Feder Sáiz https://launchpad.net/~federsaiz"
+"  DiegoJ https://launchpad.net/~diegojromerolopez\n"
+"  Feder Sáiz https://launchpad.net/~federsaiz\n"
+"  José A. Fuentes Santiago https://launchpad.net/~joanfusan\n"
+"  Rodribuntu https://launchpad.net/~rajc-56\n"
+"  alakran https://launchpad.net/~alakran-1"
 
 #: data/dialogs.glade:46
 msgid "Preferences"
-msgstr ""
+msgstr "Preferencias"
 
 #: data/dialogs.glade:72
 msgid "_Font:"
-msgstr ""
+msgstr "_Fuente:"
 
 #: data/dialogs.glade:99
 msgid "_Width:"
-msgstr ""
+msgstr "_Ancho:"
 
 #: data/dialogs.glade:128
 msgid "Lyric lines:"
-msgstr ""
+msgstr "Líneas de la letra:"
 
 #: data/dialogs.glade:142
 msgid "Si_ngle line"
-msgstr ""
+msgstr "U_na línea"
 
 #: data/dialogs.glade:157
 msgid "_Double lines"
-msgstr ""
+msgstr "Lineas dobles"
 
 #: data/dialogs.glade:185
 msgid "T_ranslucent on mouse over"
-msgstr ""
+msgstr "T_ransparente al tener el ratón encima"
 
 #: data/dialogs.glade:216
 msgid "F_irst line:"
-msgstr ""
+msgstr "Pr_imera línea:"
 
 #: data/dialogs.glade:242
 msgid "_Second line:"
-msgstr ""
+msgstr "_Segunda línea"
 
 #: data/dialogs.glade:274
 msgid "<b>Lyric _Alignment</b>"
-msgstr ""
+msgstr "<b>Alineación de la letra</b>"
 
 #: data/dialogs.glade:309
 msgid "Color _Theme:"
-msgstr ""
+msgstr "Color del _Tema"
 
 #: data/dialogs.glade:323
 msgid "Customize"
-msgstr ""
+msgstr "Personalizar"
 
 #: data/dialogs.glade:331
 msgid "C_ustomize colors"
-msgstr ""
+msgstr "Personalizar colores"
 
 #: data/dialogs.glade:360
 msgid "Acti_ve lyrics:"
-msgstr ""
+msgstr "Letras acti_vas:"
 
 #: data/dialogs.glade:380 data/dialogs.glade:450
 msgid "top"
-msgstr ""
+msgstr "arriba"
 
 #: data/dialogs.glade:390 data/dialogs.glade:477
 msgid "middle"
-msgstr ""
+msgstr "en medio"
 
 #: data/dialogs.glade:414 data/dialogs.glade:504
 msgid "bottom"
-msgstr ""
+msgstr "abajo"
 
 #: data/dialogs.glade:439
 msgid "Inactiv_e lyrics:"
-msgstr ""
+msgstr "Letras inactiv_as:"
 
 #: data/dialogs.glade:540
 msgid "<b>Lyric _Color</b>"
-msgstr ""
+msgstr "<b>Color de letra</b>"
 
 #: data/dialogs.glade:576
 msgid "<b>Preview</b>"
-msgstr ""
+msgstr "<b>Vista previa</b>"
 
 #: data/dialogs.glade:593
 msgid "_OSD"
-msgstr ""
+msgstr "_OSD"
 
 #: data/dialogs.glade:604
 msgid "TODO: Add options here"
-msgstr ""
+msgstr "Añadir opciones aqui"
 
 #: data/dialogs.glade:613
 msgid "_General"
-msgstr ""
+msgstr "_General"
 
 #: data/dialogs.glade:634
 msgid "Download _engine:"
-msgstr ""
+msgstr "Motor de d_escarga:"
 
 #: data/dialogs.glade:673 data/dialogs.glade:803
 msgid "_Download"
-msgstr ""
+msgstr "_Descargar"
 
 #: data/dialogs.glade:736
 msgid "If locked, you can't move OSD window by mouse"
-msgstr ""
+msgstr "Si está bloqueada, no podrás mover la ventana OSD con el ratón."
 
 #: data/dialogs.glade:744
 msgid "Hide the OSD Window"
-msgstr ""
+msgstr "Ocultar la ventana OSD"
 
 #: data/dialogs.glade:778
 msgid "Choose LRC file to download"
-msgstr ""
+msgstr "Escoger el archivo LRC para descargar"
