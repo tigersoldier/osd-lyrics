@@ -7,7 +7,8 @@ check_PROGRAMS = \
 	ol_config_test \
 	ol_color_test \
 	ol_lrc_fetch_ui_test \
-	ol_lrc_fetch_module_test
+	ol_lrc_fetch_module_test \
+	ol_path_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -110,3 +111,12 @@ ol_lrc_fetch_module_test_LDADD = \
 	@DBUS_GLIB_LIBS@ \
 	@GLADE_LIBS@
 
+ol_path_test_SOURCES = \
+	 ol_path_test.c \
+	$(top_srcdir)/src/ol_path_manage.c \
+	$(top_srcdir)/src/ol_music_info.c
+ol_path_test_LDADD = \
+	@CURL_LIBS@ \
+	@GTK2_LIBS@ \
+	@DBUS_GLIB_LIBS@ \
+	@GLADE_LIBS@

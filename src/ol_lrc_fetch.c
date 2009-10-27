@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include "ol_lrc_fetch.h"
 #include "string.h"
