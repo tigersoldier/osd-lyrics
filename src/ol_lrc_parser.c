@@ -67,7 +67,7 @@ char *ol_lrc_parser_load_lyric_source(char *lyric_source)
   return lyric_file;
 }
 
-void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[],int lyric_id)
+void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[])
 {
   int InsertPos = -1;
   int i;
@@ -76,7 +76,6 @@ void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[]
   {
     list->list[0].lyric_time = lyric_time;
     strcpy(list->list[0].lyric_text, lyric_text);
-    list->list[0].lyric_id = lyric_id;
     list->list[0].prev = NULL;
     list->list[0].next = NULL;
     list->first = 0;
@@ -107,7 +106,6 @@ void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[]
         }
         list->list[list->length].lyric_time = lyric_time;
         strcpy(list->list[list->length].lyric_text, lyric_text);
-        list->list[list->length].lyric_id = lyric_id;
         InsertPos = (list->length = list->length + 1);
         break;
       }
@@ -119,7 +117,6 @@ void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[]
         list->list[list->length].next = lp;
         list->list[list->length].lyric_time = lyric_time;
         strcpy(list->list[list->length].lyric_text, lyric_text);
-        list->list[list->length].lyric_id = lyric_id;
         InsertPos = (list->length = list->length + 1);
       }
       lp = lp->prev;
@@ -139,7 +136,6 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
   int current_time = 0;
   int temp_offset,temp_offset1;
   int flag = 0;
-  int sign=0;
   memset(list, 0, sizeof(*list));
   do {
     
@@ -205,9 +201,20 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
         while((lyric_file[temp_offset] != 0x0d) && (lyric_file[temp_offset] != 0x0a) && (temp_offset < file_size))
           temp_offset++;
         lyric_file[temp_offset] = '\0';
-        ol_lrc_parser_insert_list(list, current_time - offset_time, lyric_text,sign++);
+        ol_lrc_parser_insert_list(list, current_time - offset_time, lyric_text);
       }
     }
   } while(current_offset < file_size);
+
+
+  LrcInfo *temp = &list->list[list->first];
+  int id = 0;
+  while(temp!=NULL)
+  {
+    temp->lyric_id = id;
+    id++;
+    temp=temp->next;
+  }
+  
   return list;
 }
