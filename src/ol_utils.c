@@ -91,7 +91,7 @@ ol_path_alloc(void)
 }
 
 int 
-ignore_case_strcmp(const char *str1, const char *str2, const size_t count)
+ol_stricmp(const char *str1, const char *str2, const size_t count)
 {
   const char *ptr1 = str1;
   const char *ptr2 = str2;
@@ -153,3 +153,27 @@ ol_lcs (const char *str1, const char *str2)
   /* fprintf (stderr, "LCS (%s, %s) = %d\n", str1, str2, ret); */
   return ret;
 }
+
+char*
+ol_strnncpy (char *dest,
+             size_t dest_len,
+             const char *src,
+             size_t src_len)
+{
+  if (dest == NULL || dest_len <= 0 || src == NULL || src_len < 0)
+    return NULL;
+  char *dest_end = dest + dest_len - 1;
+  size_t src_real_len = strlen (src);
+  if (src_len > src_real_len)
+    src_len = src_real_len;
+  const char *src_end = src + src_len;
+  if (dest_len < src_len + 1)   /* The space in dest is not enough */
+  {
+    dest[0] = '\0';
+    return NULL;
+  }
+  strncpy (dest, src, src_len);
+  dest[src_len] = '\0';
+  return dest + src_len;
+}
+

@@ -76,6 +76,16 @@ ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src)
     g_free (dest->album);
   }
   dest->album = temp;
+  
+  if (src->uri != NULL)
+    temp = g_strdup (src->uri);
+  else
+    temp = NULL;
+  if (dest->uri != NULL)
+  {
+    g_free (dest->uri);
+  }
+  dest->uri = temp;
 }
 
 void

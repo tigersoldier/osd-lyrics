@@ -58,7 +58,7 @@ ol_lrc_fetch_get_engine (const char *name)
   for (i = 0; i < engine_count; i++)
   {
     fprintf (stderr, "[%d]:%s\n", i, engines[i]->name);
-    if (ignore_case_strcmp (name, engines[i]->name, len) == 0)
+    if (ol_stricmp (name, engines[i]->name, len) == 0)
       return engines[i];
   }
   return engines[0];

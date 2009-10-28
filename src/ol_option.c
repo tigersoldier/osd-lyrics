@@ -233,9 +233,9 @@ ol_option_update_widget (OptionWidgets *widgets)
       gtk_tree_model_get (tree, &iter,
                           0, &engine_name,
                           -1);
-      if (ignore_case_strcmp (engine_name,
-                              _(download_engine),
-                              strlen (engine_name)) == 0)
+      if (ol_stricmp (engine_name,
+                      _(download_engine),
+                      strlen (engine_name)) == 0)
       {
         gtk_combo_box_set_active_iter (GTK_COMBO_BOX (options.download_engine),
                                        &iter);
