@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-27 10:28+0800\n"
+"POT-Creation-Date: 2009-10-29 11:54+0800\n"
 "PO-Revision-Date: 2009-08-03 12:47+0000\n"
 "Last-Translator: Pierre Slamich <pierre.slamich@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:737
+#: src/ol_menu.c:101 data/dialogs.glade:955
 msgid "_Lock"
 msgstr ""
 
-#: src/ol_menu.c:111 data/dialogs.glade:745
+#: src/ol_menu.c:111 data/dialogs.glade:963
 msgid "_Hide"
 msgstr ""
 
@@ -93,90 +93,98 @@ msgstr ""
 msgid "_Double lines"
 msgstr ""
 
-#: data/dialogs.glade:185
+#: data/dialogs.glade:186
 msgid "T_ranslucent on mouse over"
 msgstr ""
 
-#: data/dialogs.glade:216
+#: data/dialogs.glade:218
 msgid "F_irst line:"
 msgstr ""
 
-#: data/dialogs.glade:242
+#: data/dialogs.glade:244
 msgid "_Second line:"
 msgstr ""
 
-#: data/dialogs.glade:274
+#: data/dialogs.glade:276
 msgid "<b>Lyric _Alignment</b>"
 msgstr ""
 
-#: data/dialogs.glade:309
+#: data/dialogs.glade:312
 msgid "Color _Theme:"
 msgstr ""
 
-#: data/dialogs.glade:323
+#: data/dialogs.glade:326
 msgid "Customize"
 msgstr ""
 
-#: data/dialogs.glade:331
+#: data/dialogs.glade:334
 msgid "C_ustomize colors"
 msgstr ""
 
-#: data/dialogs.glade:360
+#: data/dialogs.glade:363
 msgid "Acti_ve lyrics:"
 msgstr ""
 
-#: data/dialogs.glade:380 data/dialogs.glade:450
+#: data/dialogs.glade:383 data/dialogs.glade:453
 msgid "top"
 msgstr ""
 
-#: data/dialogs.glade:390 data/dialogs.glade:477
+#: data/dialogs.glade:393 data/dialogs.glade:480
 msgid "middle"
 msgstr ""
 
-#: data/dialogs.glade:414 data/dialogs.glade:504
+#: data/dialogs.glade:417 data/dialogs.glade:507
 msgid "bottom"
 msgstr ""
 
-#: data/dialogs.glade:439
+#: data/dialogs.glade:442
 msgid "Inactiv_e lyrics:"
 msgstr ""
 
-#: data/dialogs.glade:540
+#: data/dialogs.glade:543
 msgid "<b>Lyric _Color</b>"
 msgstr ""
 
-#: data/dialogs.glade:576
+#: data/dialogs.glade:580
 msgid "<b>Preview</b>"
 msgstr ""
 
-#: data/dialogs.glade:593
+#: data/dialogs.glade:597
 msgid "_OSD"
 msgstr ""
 
-#: data/dialogs.glade:604
-msgid "TODO: Add options here"
+#: data/dialogs.glade:633
+msgid "_Path:"
 msgstr ""
 
-#: data/dialogs.glade:613
+#: data/dialogs.glade:722
+msgid "_Filename:"
+msgstr ""
+
+#: data/dialogs.glade:807
+msgid "<b>_Lyric Location</b>"
+msgstr ""
+
+#: data/dialogs.glade:831
 msgid "_General"
 msgstr ""
 
-#: data/dialogs.glade:634
+#: data/dialogs.glade:852
 msgid "Download _engine:"
 msgstr ""
 
-#: data/dialogs.glade:673 data/dialogs.glade:803
+#: data/dialogs.glade:891 data/dialogs.glade:1021
 msgid "_Download"
 msgstr ""
 
-#: data/dialogs.glade:736
+#: data/dialogs.glade:954
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 
-#: data/dialogs.glade:744
+#: data/dialogs.glade:962
 msgid "Hide the OSD Window"
 msgstr ""
 
-#: data/dialogs.glade:778
+#: data/dialogs.glade:996
 msgid "Choose LRC file to download"
 msgstr ""

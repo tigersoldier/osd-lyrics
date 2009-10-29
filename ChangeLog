@@ -1,3 +1,17 @@
+2009-10-29  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_option.c: Add UI for the lrc path and filename
+
+2009-10-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c : Adds LRC pattern support
+
+	* src/ol_music_info.c: FIX: copy URI when copying music_info
+
+	* src/ol_path_manage.c: Utilities to expand LRC path and filename patterns
+
+	* src/ol_config_property.h: New config entry for lrc path and filename pattern
+
 2009-10-27  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_banshee.c : All player operation is supported in Banshee

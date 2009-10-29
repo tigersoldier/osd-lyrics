@@ -47,8 +47,8 @@ static const char *OL_CONFIG_DEFAULT_LRC_PATH[] = {
 };
 
 static const char *OL_CONFIG_DEFAULT_LRC_FILENAME[] = {
-  "%p - %t",
-  "%t - %p",
+  "%p-%t",
+  "%t-%p",
   "%f",
   "%t",
   NULL,
