@@ -1,7 +1,7 @@
 #include "ol_lrc_parser.h"
 #define isnumeric(a) (((a >= '0') && (a <= '9')) ? 1 : 0)
 
-
+int ol_lrc_parser_get_offset_length(int offset);
 LrcInfo *ol_lrc_parser_get_first_Of_list(LrcQueue *list)
 {
   return &list->list[list->first];
@@ -56,7 +56,13 @@ char *ol_lrc_parser_load_lyric_source(char *lyric_source)
     printf("cannot open file!\n");
   }
   fseek( fp, 0, SEEK_END);
-  int file_length = ftell(fp);
+  struct stat buf;
+  if (lstat(lyric_source, &buf) < 0)
+  {
+    printf("cannot open file!\n");
+  }
+  int file_length = buf.st_size;
+  // int file_length = ftell(fp);
   char *lyric_file = malloc ((file_length + 1) * sizeof (char));
   fseek (fp, 0, SEEK_SET);
   memset(lyric_file,0,file_length+1);
@@ -158,6 +164,7 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
             offset_time += lyric_file[current_offset++] - '0';
           }
           offset_time = offset_time * flag;
+          printf("offsettime:%d\n",offset_time);
         }
       if(isnumeric(lyric_file[current_offset]))
       {
@@ -201,6 +208,9 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
         while((lyric_file[temp_offset] != 0x0d) && (lyric_file[temp_offset] != 0x0a) && (temp_offset < file_size))
           temp_offset++;
         lyric_file[temp_offset] = '\0';
+        printf("offsettime:%d\n",offset_time);
+        printf("currenttime:%d\n",current_time);
+        printf("diftime:%d\n",current_time-offset_time);
         ol_lrc_parser_insert_list(list, current_time - offset_time, lyric_text);
       }
     }
@@ -215,6 +225,112 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
     id++;
     temp=temp->next;
   }
+  list->offset = offset_time;
   
   return list;
+}
+void ol_lrc_parser_set_lyric_file_offset (char *lyric_source,int offset)
+{
+ /*refresh the lyric_source*/
+  char *lyric_file = ol_lrc_parser_load_lyric_source(lyric_source);
+  int file_length = strlen (lyric_file);
+  int offset_length = ol_lrc_parser_get_offset_length(offset)+9;
+
+  printf ("offset_length:%d\n",offset_length);
+
+  int before_length, after_length;
+  int before_offset,after_offset;
+  int current_offset = 0;
+  int sign = 0;
+  
+  /*find the offsets*/
+  do {
+    if (lyric_file[current_offset++] == '[')
+    {
+      if (strncmp (&lyric_file[current_offset], "offset:", 7) == 0)
+      {
+        before_offset = current_offset-1;
+        while (1)
+        {
+          if (lyric_file[current_offset++] == ']')
+          {
+            after_offset = current_offset;
+            sign = 1;
+            break;
+          }
+        }
+      }
+      else
+      {
+        if (isnumeric (lyric_file[current_offset]))
+        {
+          before_offset = after_offset = current_offset-1;
+          sign = 2;
+        }
+      }
+    }
+  }while(sign == 0);
+
+  before_length = before_offset+1;
+  after_length = file_length - after_length;
+  file_length = before_length + after_length +offset_length;
+  char *lyric_file_change = malloc ((file_length) * sizeof (char));
+  char *before_offset_lyric = malloc (before_length*sizeof (char));
+  char *after_offset_lyric = malloc (after_length*sizeof(char));
+  char *offset_lyric = malloc ((offset_length+1)*sizeof(char));
+  printf ("offset_length:%d\t before_length:%d\t after_length:%d\t file_length:%d\n",offset_length, before_length, after_length, file_length);
+
+  strncpy (before_offset_lyric, lyric_file, before_length-1);
+  printf ("before_offset_lyric:%s\n", before_offset_lyric);
+  printf("before_length:%d\n", strnlen(before_offset_lyric));
+
+  strncpy (after_offset_lyric, &lyric_file[after_offset], after_length-1);
+  printf ("after_offset_lyric:%s\n", after_offset_lyric);
+  printf("after_length:%d\n", strnlen(after_offset_lyric));
+
+  snprintf(offset_lyric, offset_length+1, "[offset:%d]", offset);
+  printf ("offset_lyric:%s\n", offset_lyric);
+  printf("offset_length:%d\n", strnlen(offset_lyric));
+
+  strncpy (lyric_file_change, before_offset_lyric,before_length);
+  strncpy (&lyric_file_change[before_offset], offset_lyric, offset_length);
+  strncpy (&lyric_file_change[before_offset+offset_length], after_offset_lyric, after_length);
+  printf("length:%d\n", strnlen(lyric_file_change));
+  printf ("offset_file_change:%s\n", lyric_file_change);
+  printf ("offset_length:%d\n",file_length);
+
+
+  /*save the lyric_file_change to the file stream */
+  FILE *fp;
+  if((fp=fopen(lyric_source,"w"))==NULL)
+  {
+    printf("cannot open file!\n");
+  }
+  fwrite(lyric_file_change,sizeof(char), file_length,fp);
+  fclose(fp);
+  
+}
+
+int ol_lrc_parser_get_offset_length(int offset)
+{
+  char offset_str[32];
+    printf ("file_offset:%d\n",offset);
+
+  sprintf(offset_str, "%d", offset);
+  return strlen (offset_str);
+}
+
+void ol_lrc_parser_set_lyric_offset(LrcQueue *list, int offset)
+{
+  int i = 0;
+  int old_offset = list->offset;
+  for (;i<list->length;i++)
+  {
+    list->list[i].lyric_time = list->list[i].lyric_time + old_offset-offset;
+  }
+  list->offset = offset;
+}
+int ol_lrc_parser_get_lyric_offset(LrcQueue *list)
+{
+  return list->offset;
 }

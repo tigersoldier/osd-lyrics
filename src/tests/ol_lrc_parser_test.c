@@ -2,9 +2,11 @@
 
 int main()
 {
-  char test[100]= "mytest.lrc";
+  char test[100]= "温柔.lrc";
+  ol_lrc_parser_set_lyric_file_offset (test, -102);
   LrcQueue *list;
   list = ol_lrc_parser_get_lyric_info(test);
+  printf ("offset:%d\n",list->offset);
 
   // printf("%d,%s", ol_lrc_parser_get_lyric_by_id(list,2)->lyric_time,ol_lrc_parser_get_lyric_by_id(list,6)->lyric_text);
   //printf("%s",test);
@@ -17,7 +19,7 @@ int main()
   // printf("%d",filesize);
   GetLrcInfo(lrcfile, filesize,List);
   int i=0;*/
-  LrcInfo *temp = &list->list[list->first];
+  /* LrcInfo *temp = &list->list[list->first];
   
   int i=0;
   printf("%d\n",list->length);
@@ -27,5 +29,6 @@ int main()
     temp = temp->next;
     i++;
     }
-  free (list);
+    free (list);*/
+  
 }

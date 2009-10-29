@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #define MAX_LINE 128
 #define MAX_LINE_LEN 255
@@ -20,6 +21,7 @@ typedef struct {
 	int length;
 	int first;
 	int last;
+        int offset;
 } LrcQueue;
 /** 
  * Loads an Lrc file and returns its content
@@ -33,7 +35,7 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source);
 /** 
  * Get the first LrcInfo from the current LrcQueue
  * 
- * @param list The LrcQueue
+ * @param lyric_source  The Lrc filepath
  * 
  * @return the LrcInfo, must not be freed.
  */
@@ -95,4 +97,26 @@ int ol_lrc_parser_get_lyric_id(LrcInfo *current_lyric);
  * @return the lrcInfo, must not be freed.
  */
 LrcInfo *ol_lrc_parser_get_lyric_by_id(LrcQueue *list,int lyric_id);
+/** 
+ * update the Lrc_time and offset_time from LrcQueue
+ *
+ * @param offset The offset of which should be ajusted 
+ * @param list The LrcQueue
+ */
+void ol_lrc_parser_set_lyric_offset(LrcQueue *list, int offset);
+/** 
+ * get the offset_time from LrcQueue
+ *
+ * @param list The LrcQueue
+ *
+ * @return the current offset time
+ */
+int ol_lrc_parser_get_lyric_offset(LrcQueue *list);
+/** 
+ * update the offset_time from file
+ *
+ * @param offset The offset of which should be ajusted 
+ * @param lyric_source The Lrc filepath
+ */
+void ol_lrc_parser_set_lyric_file_offset (char *lyric_source,int offset);
 #endif
