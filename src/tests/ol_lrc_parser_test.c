@@ -2,8 +2,8 @@
 
 int main()
 {
-  char test[100]= "温柔.lrc";
-  ol_lrc_parser_set_lyric_file_offset (test, -102);
+  char test[100]= "mytest.lrc";
+  ol_lrc_parser_set_lyric_file_offset (test, 102);
   LrcQueue *list;
   list = ol_lrc_parser_get_lyric_info(test);
   printf ("offset:%d\n",list->offset);
