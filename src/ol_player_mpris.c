@@ -28,7 +28,7 @@ static const char *GET_POSITION_METHOD = "PositionGet";
 static const char *SET_POSITION_METHOD = "PositionSet";
 
 static gboolean ol_player_mpris_init_dbus (OlPlayerMpris *mpris);
-static gboolean ol_player_mpris_proxy_free (OlPlayerMpris *mpris);
+static gboolean ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris);
 static GHashTable* ol_player_mpris_get_metadata (OlPlayerMpris *mpris);
 
 OlPlayerMpris*
@@ -41,9 +41,9 @@ ol_player_mpris_new (const char *service)
 }
 
 static gboolean
-ol_player_mpris_proxy_free (OlPlayerMpris *mpris)
+ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris)
 {
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, mpris->name);
+  fprintf (stderr, "%s:%c\n", __FUNCTION__, *mpris->name);
   g_object_unref (mpris->proxy);
   mpris->proxy = NULL;
   return FALSE;
@@ -60,7 +60,7 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
   if (dbus_g_proxy_call (mpris->proxy,
                          GET_METADATA_METHOD,
                          NULL,G_TYPE_INVALID,
-                         dbus_g_type_get_map("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
+                         dbus_g_type_get_map ("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
                          &data_list,
                          G_TYPE_INVALID))
   {
@@ -159,8 +159,8 @@ ol_player_mpris_get_activated (OlPlayerMpris *mpris)
 static gboolean
 ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
 {
-  fprintf (stderr, "%s\n",
-           __FUNCTION__);
+  fprintf (stderr, "%s:%0x\n",
+           __FUNCTION__, (int) mpris);
   DBusGConnection *connection = ol_dbus_get_connection ();
   GError *error = NULL;
   if (connection == NULL)
@@ -177,7 +177,8 @@ ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
       error = NULL;
       return FALSE;
     }
-    g_signal_connect (mpris->proxy, "destroy", G_CALLBACK (ol_player_mpris_proxy_free), mpris);
+    g_signal_connect (mpris->proxy, "destroy", G_CALLBACK (ol_player_mpris_proxy_free), (gpointer) mpris);
+    printf ("MPRIS address: %0x\n", (int)mpris);
   }
   return TRUE;
 }

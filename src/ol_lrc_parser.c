@@ -282,20 +282,20 @@ void ol_lrc_parser_set_lyric_file_offset (char *lyric_source,int offset)
 
   strncpy (before_offset_lyric, lyric_file, before_length-1);
   printf ("before_offset_lyric:%s\n", before_offset_lyric);
-  printf("before_length:%d\n", strnlen(before_offset_lyric));
+  printf("before_length:%d\n", strlen(before_offset_lyric));
 
   strncpy (after_offset_lyric, &lyric_file[after_offset], after_length-1);
   printf ("after_offset_lyric:%s\n", after_offset_lyric);
-  printf("after_length:%d\n", strnlen(after_offset_lyric));
+  printf("after_length:%d\n", strlen(after_offset_lyric));
 
   snprintf(offset_lyric, offset_length+1, "[offset:%d]", offset);
   printf ("offset_lyric:%s\n", offset_lyric);
-  printf("offset_length:%d\n", strnlen(offset_lyric));
+  printf("offset_length:%d\n", strlen(offset_lyric));
 
   strncpy (lyric_file_change, before_offset_lyric,before_length);
   strncpy (&lyric_file_change[before_offset], offset_lyric, offset_length);
   strncpy (&lyric_file_change[before_offset+offset_length], after_offset_lyric, after_length);
-  printf("length:%d\n", strnlen(lyric_file_change));
+  printf("length:%d\n", strlen(lyric_file_change));
   printf ("offset_file_change:%s\n", lyric_file_change);
   printf ("offset_length:%d\n",file_length);
 

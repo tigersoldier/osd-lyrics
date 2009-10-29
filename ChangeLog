@@ -1,3 +1,7 @@
+2009-10-29  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_mpris.c (ol_player_mpris_proxy_free): Issue 22: The function declaration is fixed
+
 2009-10-27  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_banshee.c : All player operation is supported in Banshee
