@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.2\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-31 11:28+0800\n"
+"POT-Creation-Date: 2009-10-31 20:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:976
+#: src/ol_menu.c:101 data/dialogs.glade:977
 msgid "_Lock"
 msgstr ""
 
-#: src/ol_menu.c:111 data/dialogs.glade:984
+#: src/ol_menu.c:111 data/dialogs.glade:985
 msgid "_Hide"
 msgstr ""
 
@@ -158,7 +158,7 @@ msgstr ""
 msgid "<b>_Path</b>"
 msgstr ""
 
-#: data/dialogs.glade:812
+#: data/dialogs.glade:813
 msgid ""
 "  %t - Title\n"
 "  %p - Artist\n"
@@ -167,30 +167,30 @@ msgid ""
 "  %f - File name (without extension)"
 msgstr ""
 
-#: data/dialogs.glade:830
+#: data/dialogs.glade:831
 msgid "<b>_Filename</b>"
 msgstr ""
 
-#: data/dialogs.glade:852
+#: data/dialogs.glade:853
 msgid "_Lyric Location"
 msgstr ""
 
-#: data/dialogs.glade:873
+#: data/dialogs.glade:874
 msgid "Download _engine:"
 msgstr ""
 
-#: data/dialogs.glade:912 data/dialogs.glade:1042
+#: data/dialogs.glade:913 data/dialogs.glade:1043
 msgid "_Download"
 msgstr ""
 
-#: data/dialogs.glade:975
+#: data/dialogs.glade:976
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 
-#: data/dialogs.glade:983
+#: data/dialogs.glade:984
 msgid "Hide the OSD Window"
 msgstr ""
 
-#: data/dialogs.glade:1017
+#: data/dialogs.glade:1018
 msgid "Choose LRC file to download"
 msgstr ""

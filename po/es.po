@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-31 11:28+0800\n"
+"POT-Creation-Date: 2009-10-31 20:15+0800\n"
 "PO-Revision-Date: 2009-10-23 15:51+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-10-27 02:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:976
+#: src/ol_menu.c:101 data/dialogs.glade:977
 msgid "_Lock"
 msgstr "B_loquear"
 
-#: src/ol_menu.c:111 data/dialogs.glade:984
+#: src/ol_menu.c:111 data/dialogs.glade:985
 msgid "_Hide"
 msgstr "_Ocultar"
 
@@ -168,7 +168,7 @@ msgstr ""
 msgid "<b>_Path</b>"
 msgstr "<b>Vista previa</b>"
 
-#: data/dialogs.glade:812
+#: data/dialogs.glade:813
 msgid ""
 "  %t - Title\n"
 "  %p - Artist\n"
@@ -177,33 +177,33 @@ msgid ""
 "  %f - File name (without extension)"
 msgstr ""
 
-#: data/dialogs.glade:830
+#: data/dialogs.glade:831
 #, fuzzy
 msgid "<b>_Filename</b>"
 msgstr "<b>Alineación de la letra</b>"
 
-#: data/dialogs.glade:852
+#: data/dialogs.glade:853
 #, fuzzy
 msgid "_Lyric Location"
 msgstr "<b>Color de letra</b>"
 
-#: data/dialogs.glade:873
+#: data/dialogs.glade:874
 msgid "Download _engine:"
 msgstr "Motor de d_escarga:"
 
-#: data/dialogs.glade:912 data/dialogs.glade:1042
+#: data/dialogs.glade:913 data/dialogs.glade:1043
 msgid "_Download"
 msgstr "_Descargar"
 
-#: data/dialogs.glade:975
+#: data/dialogs.glade:976
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Si está bloqueada, no podrás mover la ventana OSD con el ratón."
 
-#: data/dialogs.glade:983
+#: data/dialogs.glade:984
 msgid "Hide the OSD Window"
 msgstr "Ocultar la ventana OSD"
 
-#: data/dialogs.glade:1017
+#: data/dialogs.glade:1018
 msgid "Choose LRC file to download"
 msgstr "Escoger el archivo LRC para descargar"
 

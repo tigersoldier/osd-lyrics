@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-31 11:28+0800\n"
-"PO-Revision-Date: 2009-08-01 12:41+0000\n"
-"Last-Translator: Nkolay Parukhin <parukhin@gmail.com>\n"
+"POT-Creation-Date: 2009-10-31 20:15+0800\n"
+"PO-Revision-Date: 2009-10-31 07:17+0000\n"
+"Last-Translator: Koterpillar <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
+"X-Launchpad-Export-Date: 2009-10-31 11:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:976
+#: src/ol_menu.c:101 data/dialogs.glade:977
 msgid "_Lock"
 msgstr "_Заблокировать"
 
-#: src/ol_menu.c:111 data/dialogs.glade:984
+#: src/ol_menu.c:111 data/dialogs.glade:985
 msgid "_Hide"
-msgstr ""
+msgstr "_Скрыть"
 
 #: src/ol_trayicon.c:36
 msgid "OSD Lyrics"
@@ -31,32 +31,31 @@ msgstr "OSD Lyrics"
 
 #: src/ol_lrc_fetch_qianqian.c:316
 msgid "Qianqian"
-msgstr ""
+msgstr "Qianqian"
 
 #: src/ol_lrc_fetch_sogou.c:160
 msgid "Sogou"
-msgstr ""
+msgstr "Sogou"
 
 #: src/ol_lrc_fetch_ui.c:107
 msgid "Title"
-msgstr ""
+msgstr "Название"
 
 #: src/ol_lrc_fetch_ui.c:112
 msgid "Artist"
-msgstr ""
+msgstr "Исполнитель"
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
 msgstr "Copyright 2009 Проект OSD Lyrics."
 
 #: data/dialogs.glade:10
-#, fuzzy
 msgid ""
 "An OSD lyric show compatible with various media players and supports lyrics "
 "downloading.\n"
 msgstr ""
-"OSD lyric поддерживает различные мультимедиа проигрыватели и скачивание "
-"лирики.\n"
+"Вывод текста песен на экран (OSD) совместим с различными медиа-"
+"проигрывателями и поддерживает загрузку текстов из сети.\n"
 
 #: data/dialogs.glade:13
 msgid "http://code.google.com/p/osd-lyrics/"
@@ -70,7 +69,9 @@ msgstr "GPL v3"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  Nkolay Parukhin https://launchpad.net/~parukhin"
+"  Koterpillar https://launchpad.net/~koterpillar\n"
+"  Nkolay Parukhin https://launchpad.net/~parukhin\n"
+"  Vitaly Antonov https://launchpad.net/~legidium"
 
 #: data/dialogs.glade:46
 msgid "Preferences"
@@ -86,19 +87,19 @@ msgstr "Ширина:"
 
 #: data/dialogs.glade:128
 msgid "Lyric lines:"
-msgstr ""
+msgstr "Строки текста произведения"
 
 #: data/dialogs.glade:142
 msgid "Si_ngle line"
-msgstr ""
+msgstr "Одинарня линия"
 
 #: data/dialogs.glade:157
 msgid "_Double lines"
-msgstr ""
+msgstr "Двойные линии"
 
 #: data/dialogs.glade:186
 msgid "T_ranslucent on mouse over"
-msgstr ""
+msgstr "Полупрозрачный при наведением курсором мышки"
 
 #: data/dialogs.glade:218
 msgid "F_irst line:"
@@ -117,9 +118,8 @@ msgid "Color _Theme:"
 msgstr "Цветовая _тема:"
 
 #: data/dialogs.glade:326
-#, fuzzy
 msgid "Customize"
-msgstr "_Настроить цвета"
+msgstr "Личные предпочтения"
 
 #: data/dialogs.glade:334
 msgid "C_ustomize colors"
@@ -151,7 +151,7 @@ msgstr "<b>_Цвет лирики</b>"
 
 #: data/dialogs.glade:580
 msgid "<b>Preview</b>"
-msgstr ""
+msgstr "<b>Предварительный просмотр</b>"
 
 #: data/dialogs.glade:597
 msgid "_OSD"
@@ -165,7 +165,7 @@ msgstr ""
 msgid "<b>_Path</b>"
 msgstr ""
 
-#: data/dialogs.glade:812
+#: data/dialogs.glade:813
 msgid ""
 "  %t - Title\n"
 "  %p - Artist\n"
@@ -174,49 +174,42 @@ msgid ""
 "  %f - File name (without extension)"
 msgstr ""
 
-#: data/dialogs.glade:830
-#, fuzzy
+#: data/dialogs.glade:831
 msgid "<b>_Filename</b>"
-msgstr "<b>_Выравнивание лирики</b>"
+msgstr ""
 
-#: data/dialogs.glade:852
-#, fuzzy
+#: data/dialogs.glade:853
 msgid "_Lyric Location"
-msgstr "<b>_Цвет лирики</b>"
+msgstr ""
 
-#: data/dialogs.glade:873
-#, fuzzy
+#: data/dialogs.glade:874
 msgid "Download _engine:"
-msgstr "_Скачать"
+msgstr ""
 
-#: data/dialogs.glade:912 data/dialogs.glade:1042
+#: data/dialogs.glade:913 data/dialogs.glade:1043
 msgid "_Download"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:975
+#: data/dialogs.glade:976
 msgid "If locked, you can't move OSD window by mouse"
-msgstr ""
+msgstr "Когда окно OSD закрепленно, вы не можете перемещать его мышкой"
 
-#: data/dialogs.glade:983
+#: data/dialogs.glade:984
 msgid "Hide the OSD Window"
 msgstr ""
 
-#: data/dialogs.glade:1017
+#: data/dialogs.glade:1018
 msgid "Choose LRC file to download"
-msgstr ""
-
-#~ msgid "_General"
-#~ msgstr "_Общие"
-
-#, fuzzy
-#~ msgid "_Path:"
-#~ msgstr "Ширина:"
-
-#~ msgid "TODO: Add options here"
-#~ msgstr "TODO: Добавить сюда параметры"
+msgstr "Выберите LRC-файл для загрузки"
 
 #~ msgid "gtk-cancel"
 #~ msgstr "Отмена"
 
 #~ msgid "gtk-ok"
 #~ msgstr "ОК"
+
+#~ msgid "_General"
+#~ msgstr "_Общие"
+
+#~ msgid "TODO: Add options here"
+#~ msgstr "TODO: Добавить сюда параметры"
