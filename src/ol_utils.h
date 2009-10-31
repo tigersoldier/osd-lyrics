@@ -32,7 +32,23 @@ char* ol_path_alloc(void);
  * 
  * @return the same with the function: strcmp in <string.h>
  */
-int ignore_case_strcmp(const char *str1, const char *str2, const size_t count);
+int ol_stricmp(const char *str1, const char *str2, const size_t count);
+
+/** 
+ * @brief Copy the source string to the destination string
+ * If the length to be coyped is larger than that of the destination string,
+ * the copying will fail, and returns NULL.
+ * @param dest Destination string
+ * @param dest_len The length of destination string, including '\0'
+ * @param src Source string
+ * @param src_len The length of source string to be copyed
+ * 
+ * @return The end of the destination if suceeded, or NULL if failed.
+ */
+char* ol_strnncpy (char *dest,
+                   size_t dest_len,
+                   const char *src,
+                   size_t src_len);
 
 /** 
  * @Calculates the largest common substring for two strings

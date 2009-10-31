@@ -98,6 +98,7 @@ ol_config_init (OlConfig *self)
         while (config_str_list[i].default_value[len] != NULL)
           len++;
       }
+      fprintf (stderr, "name:%s len:%d\n", config_str_list[i].name, len);
       g_key_file_set_string_list (priv->config,
                                   config_str_list[i].group,
                                   config_str_list[i].name,

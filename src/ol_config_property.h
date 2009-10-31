@@ -29,6 +29,8 @@ enum {
   PROP_TOTAL_COUNT,
   PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER,
   PROP_DOWNLOAD_ENGINE,
+  PROP_LRC_PATH,
+  PROP_LRC_FILENAME,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -36,6 +38,20 @@ static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
 };
 static const char *OL_CONFIG_INACTIVE_LRC_COLOR[] = {
   "#99FFFF", "#0000FF", "#99FFFF", NULL,
+};
+
+static const char *OL_CONFIG_DEFAULT_LRC_PATH[] = {
+  "~/.lyrics",
+  "%",
+  NULL,
+};
+
+static const char *OL_CONFIG_DEFAULT_LRC_FILENAME[] = {
+  "%p-%t",
+  "%t-%p",
+  "%f",
+  "%t",
+  NULL,
 };
 
 typedef struct _OlConfigStrListValue OlConfigStrListValue;
@@ -127,6 +143,21 @@ static const OlConfigStrListValue config_str_list[] = {
    "Colors of active lyrics", 3, OL_CONFIG_ACTIVE_LRC_COLOR},
   {PROP_INACTIVE_LRC_COLOR, "inactive-lrc-color", "OSD", "Inactive lyric color",
    "Colors of inactive lyrics", 3, OL_CONFIG_INACTIVE_LRC_COLOR},
+  {PROP_LRC_PATH, "lrc-path", "General", "Path of lrc files",
+   "Path lists to search LRC files. Following patterns are allowed:\n"
+   "  ~/<path> : Subdirectories in Home directory;\n"
+   "  % : The same directory to the music;\n"
+   "  Others : Treated as normal path.",
+   -1, OL_CONFIG_DEFAULT_LRC_PATH},
+  {PROP_LRC_FILENAME, "lrc-filename", "General", "LRC filename patterns",
+   "Filename patterns to find LRC files. \n"
+   "Patterns can contains following place holders:\n"
+   "  %t: Title\n"
+   "  %p: Artist\n"
+   "  %a: Album\n"
+   "  %n: Track number\n"
+   "  %f: File name without extension",
+   -1, OL_CONFIG_DEFAULT_LRC_FILENAME},
 };
 static const OlConfigBoolValue config_bool[] = {
   {PROP_LOCKED, "locked", "OSD", "Lock", "Whether the OSD is locked", TRUE},

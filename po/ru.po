@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-27 10:28+0800\n"
+"POT-Creation-Date: 2009-10-31 11:28+0800\n"
 "PO-Revision-Date: 2009-08-01 12:41+0000\n"
 "Last-Translator: Nkolay Parukhin <parukhin@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-04 09:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:737
+#: src/ol_menu.c:101 data/dialogs.glade:976
 msgid "_Lock"
 msgstr "_Заблокировать"
 
-#: src/ol_menu.c:111 data/dialogs.glade:745
+#: src/ol_menu.c:111 data/dialogs.glade:984
 msgid "_Hide"
 msgstr ""
 
@@ -96,95 +96,124 @@ msgstr ""
 msgid "_Double lines"
 msgstr ""
 
-#: data/dialogs.glade:185
+#: data/dialogs.glade:186
 msgid "T_ranslucent on mouse over"
 msgstr ""
 
-#: data/dialogs.glade:216
+#: data/dialogs.glade:218
 msgid "F_irst line:"
 msgstr "_Первая строка:"
 
-#: data/dialogs.glade:242
+#: data/dialogs.glade:244
 msgid "_Second line:"
 msgstr "_Вторая строка:"
 
-#: data/dialogs.glade:274
+#: data/dialogs.glade:276
 msgid "<b>Lyric _Alignment</b>"
 msgstr "<b>_Выравнивание лирики</b>"
 
-#: data/dialogs.glade:309
+#: data/dialogs.glade:312
 msgid "Color _Theme:"
 msgstr "Цветовая _тема:"
 
-#: data/dialogs.glade:323
+#: data/dialogs.glade:326
 #, fuzzy
 msgid "Customize"
 msgstr "_Настроить цвета"
 
-#: data/dialogs.glade:331
+#: data/dialogs.glade:334
 msgid "C_ustomize colors"
 msgstr "_Настроить цвета"
 
-#: data/dialogs.glade:360
+#: data/dialogs.glade:363
 msgid "Acti_ve lyrics:"
 msgstr "_Активная лирика:"
 
-#: data/dialogs.glade:380 data/dialogs.glade:450
+#: data/dialogs.glade:383 data/dialogs.glade:453
 msgid "top"
 msgstr "сверху"
 
-#: data/dialogs.glade:390 data/dialogs.glade:477
+#: data/dialogs.glade:393 data/dialogs.glade:480
 msgid "middle"
 msgstr "по середине"
 
-#: data/dialogs.glade:414 data/dialogs.glade:504
+#: data/dialogs.glade:417 data/dialogs.glade:507
 msgid "bottom"
 msgstr "снизу"
 
-#: data/dialogs.glade:439
+#: data/dialogs.glade:442
 msgid "Inactiv_e lyrics:"
 msgstr "_Неактивная лирика:"
 
-#: data/dialogs.glade:540
+#: data/dialogs.glade:543
 msgid "<b>Lyric _Color</b>"
 msgstr "<b>_Цвет лирики</b>"
 
-#: data/dialogs.glade:576
+#: data/dialogs.glade:580
 msgid "<b>Preview</b>"
 msgstr ""
 
-#: data/dialogs.glade:593
+#: data/dialogs.glade:597
 msgid "_OSD"
 msgstr "_OSD"
 
-#: data/dialogs.glade:604
-msgid "TODO: Add options here"
-msgstr "TODO: Добавить сюда параметры"
+#: data/dialogs.glade:693
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr ""
 
-#: data/dialogs.glade:613
-msgid "_General"
-msgstr "_Общие"
+#: data/dialogs.glade:707
+msgid "<b>_Path</b>"
+msgstr ""
 
-#: data/dialogs.glade:634
+#: data/dialogs.glade:812
+msgid ""
+"  %t - Title\n"
+"  %p - Artist\n"
+"  %a - Album\n"
+"  %n - Track number\n"
+"  %f - File name (without extension)"
+msgstr ""
+
+#: data/dialogs.glade:830
+#, fuzzy
+msgid "<b>_Filename</b>"
+msgstr "<b>_Выравнивание лирики</b>"
+
+#: data/dialogs.glade:852
+#, fuzzy
+msgid "_Lyric Location"
+msgstr "<b>_Цвет лирики</b>"
+
+#: data/dialogs.glade:873
 #, fuzzy
 msgid "Download _engine:"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:673 data/dialogs.glade:803
+#: data/dialogs.glade:912 data/dialogs.glade:1042
 msgid "_Download"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:736
+#: data/dialogs.glade:975
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 
-#: data/dialogs.glade:744
+#: data/dialogs.glade:983
 msgid "Hide the OSD Window"
 msgstr ""
 
-#: data/dialogs.glade:778
+#: data/dialogs.glade:1017
 msgid "Choose LRC file to download"
 msgstr ""
+
+#~ msgid "_General"
+#~ msgstr "_Общие"
+
+#, fuzzy
+#~ msgid "_Path:"
+#~ msgstr "Ширина:"
+
+#~ msgid "TODO: Add options here"
+#~ msgstr "TODO: Добавить сюда параметры"
 
 #~ msgid "gtk-cancel"
 #~ msgstr "Отмена"

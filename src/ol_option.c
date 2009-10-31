@@ -3,9 +3,12 @@
 #include "ol_option.h"
 #include "ol_glade.h"
 #include "ol_config.h"
-#include "ol_osd_render.h"
+#include "ol_osd_render.h"      /* For getting preview for OSD font and color */
 #include "ol_lrc_fetch.h"
+#include "ol_path_manage.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
+
+#define BUFFER_SIZE 1024
 
 static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
@@ -23,15 +26,47 @@ static struct _OptionWidgets
   GtkWidget *line_count[2];
   GtkWidget *download_engine;
   GtkWidget *osd_translucent;
+  GtkWidget *lrc_path;
+  GtkWidget *lrc_path_text;
+  GtkWidget *lrc_filename;
+  GtkWidget *lrc_filename_text;
+  GtkWidget *lrc_filename_sample;
 } options;
+
+static struct ListExtraWidgets
+{
+  GtkWidget *entry;
+  GtkWidget *add_button;
+  GtkWidget *remove_button;
+  GtkWidget *list;
+} lrc_path_widgets, lrc_filename_widgets;
+
+enum TreeColumns {
+  TEXT_COLUMN = 0,
+};
 
 void ol_option_ok_clicked (GtkWidget *widget);
 void ol_option_cancel_clicked (GtkWidget *widget);
 void ol_option_update_preview (GtkWidget *widget);
-void ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data);
+void ol_option_preview_expose (GtkWidget *widget,
+                               GdkEventExpose *event,
+                               gpointer data);
+void ol_option_lrc_filename_changed (GtkEditable *editable,
+                                     gpointer user_data);
+static void ol_option_list_add_clicked (GtkButton *button,
+                                        struct ListExtraWidgets *widgets);
+static void ol_option_list_remove_clicked (GtkButton *button,
+                                           struct ListExtraWidgets *widgets);
+static void ol_option_list_select_changed (GtkTreeSelection *selection,
+                                           gpointer data);
+static void ol_option_list_entry_changed (GtkEditable *editable,
+                                          gpointer user_data);
 static OlColor ol_color_from_gdk_color (const GdkColor color);
 static GdkColor ol_color_to_gdk_color (const OlColor color);
 static void ol_option_update_widget (OptionWidgets *widgets);
+static char **get_list_content (GtkTreeView *view);
+static void set_list_content (GtkTreeView *view, char **list);
+
 /** 
  * @brief Get font family and font size from a GtkFontButton
  * 
@@ -43,6 +78,13 @@ static void ol_option_update_widget (OptionWidgets *widgets);
 static void ol_option_get_font_info (GtkFontButton *font,
                                      gchar **font_family,
                                      double *font_size);
+static void save_osd ();
+static void load_osd ();
+static void save_download ();
+static void load_download ();
+static void save_general ();
+static void load_general ();
+static void init_list (struct ListExtraWidgets *widgets);
 
 static void
 ol_option_get_font_info (GtkFontButton *font,
@@ -84,6 +126,127 @@ ol_color_to_gdk_color (const OlColor color)
   ret.green = color.g * 65535;
   ret.blue = color.b * 65535;
   return ret;
+}
+
+static void
+ol_option_list_add_clicked (GtkButton *button,
+                            struct ListExtraWidgets *widgets)
+{
+  if (button == NULL || widgets == NULL)
+    return;
+  if (widgets->list == NULL)
+    return;
+  GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widgets->list));
+  GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (widgets->list));
+  GtkTreeIter iter;
+  gtk_list_store_append (GTK_LIST_STORE (model), &iter);
+  gtk_tree_selection_select_iter (selection, &iter);
+}
+
+static void
+ol_option_list_remove_clicked (GtkButton *button,
+                               struct ListExtraWidgets *widgets)
+{
+  if (button == NULL || widgets == NULL)
+    return;
+  if (widgets->list == NULL)
+    return;
+  GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widgets->list));
+  GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (widgets->list));
+  GtkTreeIter iter;
+  gboolean selected = gtk_tree_selection_get_selected (selection, NULL, &iter);
+  if (!selected)
+    return;
+  gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+}
+
+static void
+ol_option_list_entry_changed (GtkEditable *editable,
+                              gpointer data)
+{
+  if (editable == NULL || data == NULL)
+    return;
+  struct ListExtraWidgets *widgets = (struct ListExtraWidgets *) data;
+  if (widgets->list == NULL)
+    return;
+  GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widgets->list));
+  GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (widgets->list));
+  GtkTreeIter iter;
+  gboolean selected = gtk_tree_selection_get_selected (selection, NULL, &iter);
+  if (!selected)
+    return;
+  char *text = gtk_editable_get_chars (editable, 0, -1);
+  gtk_list_store_set (GTK_LIST_STORE (model), &iter,
+                      TEXT_COLUMN, text,
+                      -1);
+  g_free (text);
+}
+
+void
+ol_option_lrc_filename_changed (GtkEditable *editable,
+                                gpointer user_data)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  static char buffer[BUFFER_SIZE] = "";
+  OlMusicInfo info;
+  if (options.lrc_filename_sample == NULL)
+    return;
+  ol_music_info_init (&info);
+  info.album = "Album";
+  info.title = "Title";
+  info.track_number = 1;
+  info.artist = "Artist";
+  info.uri = "file:///music_path/music_filename.ogg";
+  char *pattern = gtk_editable_get_chars (editable, 0, -1);
+  if (ol_path_get_lrc_pathname ("", pattern, &info,
+                                buffer, BUFFER_SIZE) >= 0)
+  {
+    gtk_label_set_text (GTK_LABEL (options.lrc_filename_sample), buffer + 1);
+  }
+  else
+  {
+    gtk_label_set_text (GTK_LABEL (options.lrc_filename_sample), "");
+  }
+  g_free (pattern);
+}
+
+static void
+ol_option_list_select_changed (GtkTreeSelection *selection, gpointer data)
+{
+  if (selection == NULL || data == NULL)
+    return;
+  struct ListExtraWidgets *widgets = (struct ListExtraWidgets *) data;
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  gboolean selected = gtk_tree_selection_get_selected (selection, &model, &iter);
+  if (widgets->entry != NULL)
+  {
+    gtk_widget_set_sensitive (widgets->entry, selected);
+    if (selected)
+    {
+      gchar *text = NULL;
+      gtk_tree_model_get (model, &iter,
+                          TEXT_COLUMN, &text,
+                          -1);
+      if (text != NULL)
+      {
+        gtk_entry_set_text (GTK_ENTRY (widgets->entry), text);
+        g_free (text);
+      }
+      else
+      {
+        gtk_entry_set_text (GTK_ENTRY (widgets->entry), "");
+      }
+    }
+    else
+    {
+      gtk_entry_set_text (GTK_ENTRY (widgets->entry), "");
+    }
+  }
+  if (widgets->remove_button != NULL)
+  {
+    gtk_widget_set_sensitive (widgets->remove_button, selected);
+  }
 }
 
 void
@@ -155,11 +318,19 @@ ol_option_update_preview (GtkWidget *widget)
 static void
 ol_option_update_widget (OptionWidgets *widgets)
 {
+  load_osd ();
+  load_download ();
+  load_general ();
+}
+
+static void
+load_osd ()
+{
   int i;
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
   /* Updates font */
-  GtkFontButton *font = GTK_FONT_BUTTON (widgets->font);
+  GtkFontButton *font = GTK_FONT_BUTTON (options.font);
   if (font != NULL)
   {
     gchar *font_family = ol_config_get_string (config,"OSD", "font-family");
@@ -169,7 +340,7 @@ ol_option_update_widget (OptionWidgets *widgets)
     g_free (font_family);
   }
   /* Updates Width */
-  GtkSpinButton *width_widget = GTK_SPIN_BUTTON (widgets->width);
+  GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
   if (width_widget != NULL)
   {
     gtk_spin_button_set_value (width_widget,
@@ -178,7 +349,7 @@ ol_option_update_widget (OptionWidgets *widgets)
   /* Lrc align */
   for (i = 0; i < 2; i++)
   {
-    GtkRange *lrc_align = GTK_RANGE (widgets->lrc_align[i]);
+    GtkRange *lrc_align = GTK_RANGE (options.lrc_align[i]);
     if (lrc_align != NULL)
     {
       char buffer[20];
@@ -220,33 +391,6 @@ ol_option_update_widget (OptionWidgets *widgets)
     GtkToggleButton *line_count_widget = GTK_TOGGLE_BUTTON (options.line_count[line_count]);
     gtk_toggle_button_set_active (line_count_widget, TRUE);
   }
-  /* Download engine */
-  if (options.download_engine != NULL)
-  {
-    char *download_engine = ol_config_get_string (config, "Download", "download-engine");
-    GtkTreeModel *tree = gtk_combo_box_get_model (GTK_COMBO_BOX (options.download_engine));
-    GtkTreeIter iter;
-    gboolean valid = gtk_tree_model_get_iter_first (tree, &iter);
-    while (valid)
-    {
-      char *engine_name;
-      gtk_tree_model_get (tree, &iter,
-                          0, &engine_name,
-                          -1);
-      if (ignore_case_strcmp (engine_name,
-                              _(download_engine),
-                              strlen (engine_name)) == 0)
-      {
-        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (options.download_engine),
-                                       &iter);
-        g_free (engine_name);
-        break;
-      }
-      g_free (engine_name);
-      valid = gtk_tree_model_iter_next (tree, &iter);
-    }
-    g_free (download_engine);
-  }
   /* Translucent on mouse over */
   if (options.osd_translucent != NULL)
   {
@@ -255,12 +399,11 @@ ol_option_update_widget (OptionWidgets *widgets)
   }
 }
 
-void
-ol_option_ok_clicked (GtkWidget *widget)
+static void
+save_osd ()
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
-  /* Updates Font */
   OlConfig *config = ol_config_get_instance ();
+  /* Updates Font */
   GtkFontButton *font = GTK_FONT_BUTTON (options.font);
   if (font != NULL)
   {
@@ -341,6 +484,18 @@ ol_option_ok_clicked (GtkWidget *widget)
       }
     }
   }
+  /* OSD translucent on mouse move*/
+  if (options.osd_translucent != NULL)
+  {
+    ol_config_set_bool (config, "OSD", "translucent-on-mouse-over",
+                        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.osd_translucent)));
+  }
+}
+
+static void
+save_download ()
+{
+  OlConfig *config = ol_config_get_instance ();
   /* Download Engine */
   if (options.download_engine != NULL)
   {
@@ -352,12 +507,158 @@ ol_option_ok_clicked (GtkWidget *widget)
       ol_config_set_string (config, "Download", "download-engine", engine_list[index]);
     }
   }
-  /* OSD translucent on mouse move*/
-  if (options.osd_translucent != NULL)
+}
+
+static void
+load_download ()
+{
+  OlConfig *config = ol_config_get_instance ();
+  /* Download engine */
+  if (options.download_engine != NULL)
   {
-    ol_config_set_bool (config, "OSD", "translucent-on-mouse-over",
-                        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.osd_translucent)));
+    char *download_engine = ol_config_get_string (config, "Download", "download-engine");
+    GtkTreeModel *tree = gtk_combo_box_get_model (GTK_COMBO_BOX (options.download_engine));
+    GtkTreeIter iter;
+    gboolean valid = gtk_tree_model_get_iter_first (tree, &iter);
+    while (valid)
+    {
+      char *engine_name;
+      gtk_tree_model_get (tree, &iter,
+                          0, &engine_name,
+                          -1);
+      if (ol_stricmp (engine_name,
+                      _(download_engine),
+                      strlen (engine_name)) == 0)
+      {
+        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (options.download_engine),
+                                       &iter);
+        g_free (engine_name);
+        break;
+      }
+      g_free (engine_name);
+      valid = gtk_tree_model_iter_next (tree, &iter);
+    }
+    g_free (download_engine);
   }
+}
+
+static char **
+get_list_content (GtkTreeView *view)
+{
+  if (view == NULL)
+    return NULL;
+  GtkTreeModel *model = gtk_tree_view_get_model (view);
+  int cnt = gtk_tree_model_iter_n_children (model, NULL);
+  char **list = g_new0 (char *, cnt + 1);
+  int i = 0;
+  GtkTreeIter iter;
+  if (gtk_tree_model_get_iter_first (model, &iter))
+  {
+    do
+    {
+      gtk_tree_model_get (model, &iter,
+                          TEXT_COLUMN, &list[i],
+                          -1);
+
+      i++;
+    } while (gtk_tree_model_iter_next (model, &iter));
+  }
+  return list;
+}
+
+static void
+save_general ()
+{
+  OlConfig *config = ol_config_get_instance ();
+  if (options.lrc_path != NULL)
+  {
+    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
+    char **list = get_list_content (view);
+    if (list)
+    {
+      ol_config_set_str_list (config,
+                              "General",
+                              "lrc-path",
+                              (const char **)list,
+                              g_strv_length (list));
+      g_strfreev (list);
+    }
+  }
+  if (options.lrc_filename != NULL)
+  {
+    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_filename);
+    char **list = get_list_content (view);
+    if (list != NULL)
+    {
+      ol_config_set_str_list (config,
+                              "General",
+                              "lrc-filename",
+                              (const char **)list,
+                              g_strv_length (list));
+      g_strfreev (list);
+    }
+  }
+}
+
+static void
+set_list_content (GtkTreeView *view, char **list)
+{
+  GtkTreeModel *model = gtk_tree_view_get_model (view);
+  GtkListStore *store = GTK_LIST_STORE (model);
+  gtk_list_store_clear (store);
+  int i;
+  GtkTreeIter iter;
+  for (i = 0; list[i] != NULL; i++)
+  {
+    gtk_list_store_append (store, &iter);
+    gtk_list_store_set (store, &iter,
+                        TEXT_COLUMN, list[i],
+                        -1);
+    GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+    
+    gtk_tree_path_free (path);
+  }
+}
+
+static void
+load_general ()
+{
+  OlConfig *config = ol_config_get_instance ();
+  if (options.lrc_path != NULL)
+  {
+    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
+    char **list = ol_config_get_str_list (config,
+                                          "General",
+                                          "lrc-path",
+                                          NULL);
+    if (list != NULL)
+    {
+      set_list_content (view, list);
+      g_strfreev (list);
+    }
+  }
+  if (options.lrc_filename != NULL)
+  {
+    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_filename);
+    char **list = ol_config_get_str_list (config,
+                                          "General",
+                                          "lrc-filename",
+                                          NULL);
+    if (list != NULL)
+    {
+      set_list_content (view, list);
+      g_strfreev (list);
+    }
+  }
+}
+
+void
+ol_option_ok_clicked (GtkWidget *widget)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  save_osd ();
+  save_download ();
+  save_general ();
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -374,6 +675,52 @@ ol_option_cancel_clicked (GtkWidget *widget)
   if (GTK_WIDGET_TOPLEVEL (toplevel))
   {
     gtk_widget_hide (toplevel);
+  }
+}
+
+static void
+init_list (struct ListExtraWidgets *widgets)
+{
+  GtkTreeView *list = GTK_TREE_VIEW (widgets->list);
+  if (list == NULL)
+    return;
+  GtkListStore *store = gtk_list_store_new (1,
+                                            G_TYPE_STRING);
+  GtkCellRenderer *renderer;
+  GtkTreeViewColumn *column;
+  renderer = gtk_cell_renderer_text_new ();
+  column = gtk_tree_view_column_new_with_attributes ("Pattern",
+                                                     renderer,
+                                                     "text", TEXT_COLUMN,
+                                                     NULL);
+  gtk_tree_view_append_column (list, column);
+  gtk_tree_view_set_model (list, GTK_TREE_MODEL (store));
+  GtkTreeSelection *select;
+  select = gtk_tree_view_get_selection (list);
+  gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+  g_signal_connect (G_OBJECT (select), "changed",
+                    G_CALLBACK (ol_option_list_select_changed),
+                    (gpointer) widgets);
+  ol_option_list_select_changed (select, (gpointer) widgets);
+  gtk_tree_view_set_reorderable (list, TRUE);
+  /* Setup extra widgets (add, remove, text entry)*/
+  if (widgets->entry != NULL)
+  {
+    g_signal_connect (G_OBJECT (widgets->entry), "changed",
+                      G_CALLBACK (ol_option_list_entry_changed),
+                      (gpointer) widgets);
+  }
+  if (widgets->remove_button != NULL)
+  {
+    g_signal_connect (G_OBJECT (widgets->remove_button), "clicked",
+                      G_CALLBACK (ol_option_list_remove_clicked),
+                      (gpointer) widgets);
+  }
+  if (widgets->add_button != NULL)
+  {
+    g_signal_connect (G_OBJECT (widgets->add_button), "clicked",
+                      G_CALLBACK (ol_option_list_add_clicked),
+                      (gpointer) widgets);
   }
 }
 
@@ -405,6 +752,12 @@ ol_option_show ()
     options.line_count[1] = ol_glade_get_widget ("line-count-2");
     options.download_engine = ol_glade_get_widget ("download-engine");
     options.osd_translucent = ol_glade_get_widget ("translucent-on-mouse-over");
+    options.lrc_path = ol_glade_get_widget ("lrc-path");
+    options.lrc_path_text = ol_glade_get_widget ("lrc-path-text");
+    options.lrc_filename = ol_glade_get_widget ("lrc-filename");
+    options.lrc_filename_text = ol_glade_get_widget ("lrc-filename-text");
+    options.lrc_filename_sample = ol_glade_get_widget ("lrc-filename-sample");
+    /* Init download engine combobox */
     if (options.download_engine != NULL)
     {
       int i, nengine;
@@ -416,6 +769,18 @@ ol_option_show ()
                                    _(download_engine[i]));
       }
     }
+    
+    lrc_path_widgets.entry = options.lrc_path_text;
+    lrc_path_widgets.list = options.lrc_path;
+    lrc_path_widgets.add_button = ol_glade_get_widget ("add-lrc-path");
+    lrc_path_widgets.remove_button = ol_glade_get_widget ("remove-lrc-path");
+    init_list (&lrc_path_widgets);
+    
+    lrc_filename_widgets.entry = options.lrc_filename_text;
+    lrc_filename_widgets.list = options.lrc_filename;
+    lrc_filename_widgets.add_button = ol_glade_get_widget ("add-lrc-filename");
+    lrc_filename_widgets.remove_button = ol_glade_get_widget ("remove-lrc-filename");
+    init_list (&lrc_filename_widgets);
   }
   ol_option_update_widget (&options);
   gtk_dialog_run (GTK_DIALOG (window));

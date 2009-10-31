@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-27 10:28+0800\n"
-"PO-Revision-Date: 2009-10-27 10:30+0800\n"
+"POT-Creation-Date: 2009-10-31 11:28+0800\n"
+"PO-Revision-Date: 2009-10-31 11:28+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,11 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-15 11:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:737
+#: src/ol_menu.c:101 data/dialogs.glade:976
 msgid "_Lock"
 msgstr "锁定(_L)"
 
-#: src/ol_menu.c:111 data/dialogs.glade:745
+#: src/ol_menu.c:111 data/dialogs.glade:984
 msgid "_Hide"
 msgstr "隐藏(_H)"
 
@@ -93,93 +93,125 @@ msgstr "单行(_N)"
 msgid "_Double lines"
 msgstr "双行(_D)"
 
-#: data/dialogs.glade:185
+#: data/dialogs.glade:186
 msgid "T_ranslucent on mouse over"
 msgstr "鼠标移到歌词上时半透明(_R)"
 
-#: data/dialogs.glade:216
+#: data/dialogs.glade:218
 msgid "F_irst line:"
 msgstr "首行(_I):"
 
-#: data/dialogs.glade:242
+#: data/dialogs.glade:244
 msgid "_Second line:"
 msgstr "次行(_S)"
 
-#: data/dialogs.glade:274
+#: data/dialogs.glade:276
 msgid "<b>Lyric _Alignment</b>"
 msgstr "<b>歌词对齐(_A)</b>"
 
-#: data/dialogs.glade:309
+#: data/dialogs.glade:312
 msgid "Color _Theme:"
 msgstr "配色方案(_T):"
 
-#: data/dialogs.glade:323
+#: data/dialogs.glade:326
 msgid "Customize"
 msgstr "自定义"
 
-#: data/dialogs.glade:331
+#: data/dialogs.glade:334
 msgid "C_ustomize colors"
 msgstr "自行配色(_U)"
 
-#: data/dialogs.glade:360
+#: data/dialogs.glade:363
 msgid "Acti_ve lyrics:"
 msgstr "已唱歌词(_V):"
 
-#: data/dialogs.glade:380 data/dialogs.glade:450
+#: data/dialogs.glade:383 data/dialogs.glade:453
 msgid "top"
 msgstr "上"
 
-#: data/dialogs.glade:390 data/dialogs.glade:477
+#: data/dialogs.glade:393 data/dialogs.glade:480
 msgid "middle"
 msgstr "中"
 
-#: data/dialogs.glade:414 data/dialogs.glade:504
+#: data/dialogs.glade:417 data/dialogs.glade:507
 msgid "bottom"
 msgstr "下"
 
-#: data/dialogs.glade:439
+#: data/dialogs.glade:442
 msgid "Inactiv_e lyrics:"
 msgstr "未唱歌词(_E):"
 
-#: data/dialogs.glade:540
+#: data/dialogs.glade:543
 msgid "<b>Lyric _Color</b>"
 msgstr "<b>歌词配色(_C)</b>"
 
-#: data/dialogs.glade:576
+#: data/dialogs.glade:580
 msgid "<b>Preview</b>"
 msgstr "<b>预览</b>"
 
-#: data/dialogs.glade:593
+#: data/dialogs.glade:597
 msgid "_OSD"
 msgstr "桌面歌词(_O)"
 
-#: data/dialogs.glade:604
-msgid "TODO: Add options here"
-msgstr "TODO: Add options here"
+#: data/dialogs.glade:693
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr "“%”表示当前播放歌曲所在目录。"
 
-#: data/dialogs.glade:613
-msgid "_General"
-msgstr "常规(_G)"
+#: data/dialogs.glade:707
+msgid "<b>_Path</b>"
+msgstr "<b>路径(_P)</b>"
 
-#: data/dialogs.glade:634
+#: data/dialogs.glade:812
+msgid ""
+"  %t - Title\n"
+"  %p - Artist\n"
+"  %a - Album\n"
+"  %n - Track number\n"
+"  %f - File name (without extension)"
+msgstr ""
+"  %t - 歌名\n"
+"  %p - 歌手\n"
+"  %a - 专辑\n"
+"  %n - 曲目编号\n"
+"  %f - 文件名"
+
+#: data/dialogs.glade:830
+msgid "<b>_Filename</b>"
+msgstr "<b>文件名(_F)</b>"
+
+#: data/dialogs.glade:852
+msgid "_Lyric Location"
+msgstr "歌词位置(_L)"
+
+#: data/dialogs.glade:873
 msgid "Download _engine:"
 msgstr "下载引擎(_E):"
 
-#: data/dialogs.glade:673 data/dialogs.glade:803
+#: data/dialogs.glade:912 data/dialogs.glade:1042
 msgid "_Download"
 msgstr "下载(_D)"
 
-#: data/dialogs.glade:736
+#: data/dialogs.glade:975
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "锁定后将无法用鼠标移动桌面歌词"
 
-#: data/dialogs.glade:744
+#: data/dialogs.glade:983
 msgid "Hide the OSD Window"
 msgstr "隐藏桌面歌词窗口"
 
-#: data/dialogs.glade:778
+#: data/dialogs.glade:1017
 msgid "Choose LRC file to download"
 msgstr "选择要下载的歌词"
+
+#~ msgid "_General"
+#~ msgstr "常规(_G)"
+
+#, fuzzy
+#~ msgid "_Path:"
+#~ msgstr "宽度(_W):"
+
+#~ msgid "TODO: Add options here"
+#~ msgstr "TODO: Add options here"
 
 #~ msgid "gtk-cancel"
 #~ msgstr "gtk-cancel"
