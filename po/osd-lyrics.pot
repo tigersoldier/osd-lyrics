@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.2\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-29 11:54+0800\n"
+"POT-Creation-Date: 2009-10-31 11:28+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:955
+#: src/ol_menu.c:101 data/dialogs.glade:976
 msgid "_Lock"
 msgstr ""
 
-#: src/ol_menu.c:111 data/dialogs.glade:963
+#: src/ol_menu.c:111 data/dialogs.glade:984
 msgid "_Hide"
 msgstr ""
 
@@ -150,38 +150,47 @@ msgstr ""
 msgid "_OSD"
 msgstr ""
 
-#: data/dialogs.glade:633
-msgid "_Path:"
+#: data/dialogs.glade:693
+msgid "A single \"%\" means the directory where the playing music is."
 msgstr ""
 
-#: data/dialogs.glade:722
-msgid "_Filename:"
+#: data/dialogs.glade:707
+msgid "<b>_Path</b>"
 msgstr ""
 
-#: data/dialogs.glade:807
-msgid "<b>_Lyric Location</b>"
+#: data/dialogs.glade:812
+msgid ""
+"  %t - Title\n"
+"  %p - Artist\n"
+"  %a - Album\n"
+"  %n - Track number\n"
+"  %f - File name (without extension)"
 msgstr ""
 
-#: data/dialogs.glade:831
-msgid "_General"
+#: data/dialogs.glade:830
+msgid "<b>_Filename</b>"
 msgstr ""
 
 #: data/dialogs.glade:852
+msgid "_Lyric Location"
+msgstr ""
+
+#: data/dialogs.glade:873
 msgid "Download _engine:"
 msgstr ""
 
-#: data/dialogs.glade:891 data/dialogs.glade:1021
+#: data/dialogs.glade:912 data/dialogs.glade:1042
 msgid "_Download"
 msgstr ""
 
-#: data/dialogs.glade:954
+#: data/dialogs.glade:975
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 
-#: data/dialogs.glade:962
+#: data/dialogs.glade:983
 msgid "Hide the OSD Window"
 msgstr ""
 
-#: data/dialogs.glade:996
+#: data/dialogs.glade:1017
 msgid "Choose LRC file to download"
 msgstr ""

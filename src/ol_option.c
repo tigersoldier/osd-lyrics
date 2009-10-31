@@ -3,9 +3,12 @@
 #include "ol_option.h"
 #include "ol_glade.h"
 #include "ol_config.h"
-#include "ol_osd_render.h"
+#include "ol_osd_render.h"      /* For getting preview for OSD font and color */
 #include "ol_lrc_fetch.h"
+#include "ol_path_manage.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
+
+#define BUFFER_SIZE 1024
 
 static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
@@ -27,6 +30,7 @@ static struct _OptionWidgets
   GtkWidget *lrc_path_text;
   GtkWidget *lrc_filename;
   GtkWidget *lrc_filename_text;
+  GtkWidget *lrc_filename_sample;
 } options;
 
 static struct ListExtraWidgets
@@ -47,6 +51,8 @@ void ol_option_update_preview (GtkWidget *widget);
 void ol_option_preview_expose (GtkWidget *widget,
                                GdkEventExpose *event,
                                gpointer data);
+void ol_option_lrc_filename_changed (GtkEditable *editable,
+                                     gpointer user_data);
 static void ol_option_list_add_clicked (GtkButton *button,
                                         struct ListExtraWidgets *widgets);
 static void ol_option_list_remove_clicked (GtkButton *button,
@@ -174,6 +180,34 @@ ol_option_list_entry_changed (GtkEditable *editable,
                       TEXT_COLUMN, text,
                       -1);
   g_free (text);
+}
+
+void
+ol_option_lrc_filename_changed (GtkEditable *editable,
+                                gpointer user_data)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  static char buffer[BUFFER_SIZE] = "";
+  OlMusicInfo info;
+  if (options.lrc_filename_sample == NULL)
+    return;
+  ol_music_info_init (&info);
+  info.album = "Album";
+  info.title = "Title";
+  info.track_number = 1;
+  info.artist = "Artist";
+  info.uri = "file:///music_path/music_filename.ogg";
+  char *pattern = gtk_editable_get_chars (editable, 0, -1);
+  if (ol_path_get_lrc_pathname ("", pattern, &info,
+                                buffer, BUFFER_SIZE) >= 0)
+  {
+    gtk_label_set_text (GTK_LABEL (options.lrc_filename_sample), buffer + 1);
+  }
+  else
+  {
+    gtk_label_set_text (GTK_LABEL (options.lrc_filename_sample), "");
+  }
+  g_free (pattern);
 }
 
 static void
@@ -722,6 +756,7 @@ ol_option_show ()
     options.lrc_path_text = ol_glade_get_widget ("lrc-path-text");
     options.lrc_filename = ol_glade_get_widget ("lrc-filename");
     options.lrc_filename_text = ol_glade_get_widget ("lrc-filename-text");
+    options.lrc_filename_sample = ol_glade_get_widget ("lrc-filename-sample");
     /* Init download engine combobox */
     if (options.download_engine != NULL)
     {

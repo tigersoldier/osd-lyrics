@@ -1,5 +1,7 @@
 2009-10-31  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* data/dialogs.glade: Improved UI for lrc location
+
 	* src/ol_option.c (init_list): Make the list dragable to reorder.
 
 2009-10-29  Tiger Soldier  <tigersoldi@gmail.com>

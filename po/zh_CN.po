@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-10-29 11:54+0800\n"
-"PO-Revision-Date: 2009-10-27 10:30+0800\n"
+"POT-Creation-Date: 2009-10-31 11:28+0800\n"
+"PO-Revision-Date: 2009-10-31 11:28+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,11 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-08-15 11:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:101 data/dialogs.glade:955
+#: src/ol_menu.c:101 data/dialogs.glade:976
 msgid "_Lock"
 msgstr "锁定(_L)"
 
-#: src/ol_menu.c:111 data/dialogs.glade:963
+#: src/ol_menu.c:111 data/dialogs.glade:984
 msgid "_Hide"
 msgstr "隐藏(_H)"
 
@@ -153,43 +153,62 @@ msgstr "<b>预览</b>"
 msgid "_OSD"
 msgstr "桌面歌词(_O)"
 
-#: data/dialogs.glade:633
-#, fuzzy
-msgid "_Path:"
-msgstr "宽度(_W):"
+#: data/dialogs.glade:693
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr "“%”表示当前播放歌曲所在目录。"
 
-#: data/dialogs.glade:722
-msgid "_Filename:"
+#: data/dialogs.glade:707
+msgid "<b>_Path</b>"
+msgstr "<b>路径(_P)</b>"
+
+#: data/dialogs.glade:812
+msgid ""
+"  %t - Title\n"
+"  %p - Artist\n"
+"  %a - Album\n"
+"  %n - Track number\n"
+"  %f - File name (without extension)"
 msgstr ""
+"  %t - 歌名\n"
+"  %p - 歌手\n"
+"  %a - 专辑\n"
+"  %n - 曲目编号\n"
+"  %f - 文件名"
 
-#: data/dialogs.glade:807
-#, fuzzy
-msgid "<b>_Lyric Location</b>"
-msgstr "<b>歌词配色(_C)</b>"
-
-#: data/dialogs.glade:831
-msgid "_General"
-msgstr "常规(_G)"
+#: data/dialogs.glade:830
+msgid "<b>_Filename</b>"
+msgstr "<b>文件名(_F)</b>"
 
 #: data/dialogs.glade:852
+msgid "_Lyric Location"
+msgstr "歌词位置(_L)"
+
+#: data/dialogs.glade:873
 msgid "Download _engine:"
 msgstr "下载引擎(_E):"
 
-#: data/dialogs.glade:891 data/dialogs.glade:1021
+#: data/dialogs.glade:912 data/dialogs.glade:1042
 msgid "_Download"
 msgstr "下载(_D)"
 
-#: data/dialogs.glade:954
+#: data/dialogs.glade:975
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "锁定后将无法用鼠标移动桌面歌词"
 
-#: data/dialogs.glade:962
+#: data/dialogs.glade:983
 msgid "Hide the OSD Window"
 msgstr "隐藏桌面歌词窗口"
 
-#: data/dialogs.glade:996
+#: data/dialogs.glade:1017
 msgid "Choose LRC file to download"
 msgstr "选择要下载的歌词"
+
+#~ msgid "_General"
+#~ msgstr "常规(_G)"
+
+#, fuzzy
+#~ msgid "_Path:"
+#~ msgstr "宽度(_W):"
 
 #~ msgid "TODO: Add options here"
 #~ msgstr "TODO: Add options here"

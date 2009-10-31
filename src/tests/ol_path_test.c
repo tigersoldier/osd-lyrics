@@ -52,6 +52,7 @@ check_expand_path ()
   const char absolute[] = "/path/to/lyric/";
   const char relative[] = "~/.lyrics/";
   const char from_uri[] = "%";
+  const char empty_uri[] = "";
   char buffer[BUFFER_SIZE] = "";
   OlMusicInfo info;
   ol_music_info_init (&info);
@@ -61,6 +62,8 @@ check_expand_path ()
   ol_path_expand_path_pattern (relative, NULL, buffer, BUFFER_SIZE);
   printf ("  %s\n", buffer);
   ol_path_expand_path_pattern (from_uri, &info, buffer, BUFFER_SIZE);
+  printf ("  %s\n", buffer);
+  ol_path_expand_path_pattern (empty_uri, &info, buffer, BUFFER_SIZE);
   printf ("  %s\n", buffer);
 }
 

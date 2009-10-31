@@ -114,6 +114,7 @@ ol_lrc_fetch_module_test_LDADD = \
 ol_path_test_SOURCES = \
 	 ol_path_test.c \
 	$(top_srcdir)/src/ol_path_manage.c \
+	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_music_info.c
 ol_path_test_LDADD = \
 	@CURL_LIBS@ \
