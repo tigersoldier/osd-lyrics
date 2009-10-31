@@ -58,6 +58,9 @@ static void ol_option_list_entry_changed (GtkEditable *editable,
 static OlColor ol_color_from_gdk_color (const GdkColor color);
 static GdkColor ol_color_to_gdk_color (const OlColor color);
 static void ol_option_update_widget (OptionWidgets *widgets);
+static char **get_list_content (GtkTreeView *view);
+static void set_list_content (GtkTreeView *view, char **list);
+
 /** 
  * @brief Get font family and font size from a GtkFontButton
  * 
@@ -566,7 +569,8 @@ save_general ()
 static void
 set_list_content (GtkTreeView *view, char **list)
 {
-  GtkListStore *store = GTK_LIST_STORE (gtk_tree_view_get_model (view));
+  GtkTreeModel *model = gtk_tree_view_get_model (view);
+  GtkListStore *store = GTK_LIST_STORE (model);
   gtk_list_store_clear (store);
   int i;
   GtkTreeIter iter;
@@ -576,6 +580,9 @@ set_list_content (GtkTreeView *view, char **list)
     gtk_list_store_set (store, &iter,
                         TEXT_COLUMN, list[i],
                         -1);
+    GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+    
+    gtk_tree_path_free (path);
   }
 }
 
@@ -661,6 +668,8 @@ init_list (struct ListExtraWidgets *widgets)
                     G_CALLBACK (ol_option_list_select_changed),
                     (gpointer) widgets);
   ol_option_list_select_changed (select, (gpointer) widgets);
+  gtk_tree_view_set_reorderable (list, TRUE);
+  /* Setup extra widgets (add, remove, text entry)*/
   if (widgets->entry != NULL)
   {
     g_signal_connect (G_OBJECT (widgets->entry), "changed",
