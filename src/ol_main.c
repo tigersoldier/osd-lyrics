@@ -37,12 +37,12 @@
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_path_manage.h"
+#include "ol_app.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
-static const gchar *LRC_PATH = ".lyrics";
-static guint refresh_source = 0;
 
+static guint refresh_source = 0;
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
@@ -54,7 +54,6 @@ static OlOsdModule *module = NULL;
 static int fetch_id = 0;
 
 static void initialize (int argc, char **argv);
-static void ensure_lyric_dir ();
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
 static void change_music ();
@@ -65,9 +64,14 @@ static gboolean is_file_exist (const char *filename);
  * @param signal 
  */
 static void child_handler (int sig);
-gboolean download_lyric (OlMusicInfo *music_info);
 gboolean on_search_done (struct OlLrcFetchResult *result);
 gboolean on_downloaded (char *filepath);
+
+OlMusicInfo*
+ol_app_get_current_music ()
+{
+  return &music_info;
+}
 
 /** 
  * @brief Invoke the given function on each lrc filename which fits the patterns and music info
@@ -140,27 +144,12 @@ child_handler (int sig)
   }
 }
 
-static void
-ensure_lyric_dir ()
-{
-  char *pathname = ol_path_alloc ();
-  const char *home_dir = g_get_home_dir ();
-  if (previous_artist == NULL)
-  {
-    sprintf (pathname, "%s/%s/", home_dir, LRC_PATH);
-  }
-  g_mkdir_with_parents (pathname, 0755);
-  free (pathname);
-}
-
 gboolean download_lyric (OlMusicInfo *music_info)
 {
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
   fprintf (stderr, "Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
-  /* char pathname[MAX_PATH_LEN]; */
-  /* get_lyric_path_name (music_info, pathname); */
   ol_lrc_fetch_begin_search (engine, music_info);
 }
 
@@ -379,7 +368,6 @@ void initialize (int argc, char **argv)
   fprintf (stderr, "main\n");
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
-  ensure_lyric_dir ();
   ol_player_init ();
   module = ol_osd_module_new ();
   ol_trayicon_inital ();
@@ -389,6 +377,13 @@ void initialize (int argc, char **argv)
   ol_lrc_fetch_add_async_download_callback ((GSourceFunc) on_downloaded);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
 }
+
+OlPlayerController*
+ol_app_get_controller ()
+{
+  return controller;
+}
+
 
 int
 main (int argc, char **argv)

@@ -979,8 +979,8 @@ ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
 void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
-  fprintf (stderr, "%s\n%s\n",
-           __FUNCTION__, lyric);
+  /* fprintf (stderr, "%s\n%s\n", */
+  /*          __FUNCTION__, lyric); */
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
   if (line < 0 || line >= OL_OSD_WINDOW_MAX_LINE_COUNT)
     return;

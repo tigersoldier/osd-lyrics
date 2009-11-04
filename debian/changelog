@@ -1,3 +1,17 @@
+osdlyrics (0.2-0~20091031~intrepid1) intrepid; urgency=low
+
+  * ADD: Player controll interface
+  * ADD: Lyric file location matching patterns support
+  - FIX: Crashes when quitting MPRIS-based players
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 01 Nov 2009 21:32:25 +0800
+
+osdlyrics (0.2-0~20091031~karmic1) karmic; urgency=low
+
+  * ADD: Player controll interface
+  * ADD: Lyric file location matching patterns support
+  - FIX: Crashes when quitting MPRIS-based players
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 01 Nov 2009 21:32:25 +0800
+
 osdlyrics (0.2-0~20091015~karmic1) karmic; urgency=low
 
   * ADD: Multi-thread lyric downloading

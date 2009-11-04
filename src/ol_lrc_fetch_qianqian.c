@@ -243,6 +243,7 @@ ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* cha
   FILE *fp;
   int fd, ret, bl1, bl2;
 
+  if (size != NULL) *size = 0;
   memset(candidates, 0, sizeof(candidates));
   if(info == NULL || (info->title == NULL && info->artist == NULL))
     return NULL;
@@ -250,19 +251,10 @@ ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* cha
   if(info->title != NULL) {
     convert_to_gbk(info->title, buf, BUFSIZE, charset);
     url_encoding (buf, strlen(buf), title_buf, BUFSIZE, TRUE);
-    /* strncpy (title_buf, title, BUFSIZE); */
   }
-  /* if(artist != NULL) { */
-  /*   url_encoding(artist, strlen(title), artist_buf, BUFSIZE, TRUE); */
-  /* } */
-
   snprintf (page_url, BUFSIZE - 1, PREFIX_PAGE_QIANQIAN, title_buf);
-  /* fprintf (stderr, "title:%s->%s\n", title, title_buf); */
-  /* fprintf (stderr, "page url:%s\n", page_url); */
   if ((fd = mkstemp(tmpfilenam)) < 0)
     return NULL;
-  /* Unlink an opened fd is OK. The fd is available and the file will be  */
-  /* delete after the fd is closed. See apue for detail */
   unlink (fd);
   if ((fp = fdopen(fd, "w+")) == NULL)
     return NULL;
@@ -273,7 +265,8 @@ ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* cha
   }
   rewind(fp);
   count = ol_lrc_fetch_qianqian_get_frame (info, candidates, count, fp, 1);
-  *size = count;
+  if (size != NULL)
+    *size = count;
   fclose(fp);
   return candidates;
 }
@@ -292,9 +285,6 @@ ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const 
 
   if((ret = fetch_into_memory(tsu->url, QIANQIAN_REFER, &lrc)) < 0)
     return -1;
-  /* lrc_conv = calloc(lrc.mem_len*2, sizeof(char)); */
-  /* convert("GBK", charset==NULL ? "UTF-8" : charset, lrc.mem_base, lrc.mem_len, lrc_conv, lrc.mem_len*2); */
-	
   pathbuf = ol_path_alloc();
   if(pathname == NULL)
     strcpy(pathbuf, "./");

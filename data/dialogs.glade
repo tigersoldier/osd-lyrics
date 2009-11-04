@@ -968,46 +968,106 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </widget>
     </child>
   </widget>
-  <widget class="GtkMenu" id="osd-menu">
+  <widget class="GtkMenu" id="pop-menu">
     <property name="visible">True</property>
     <child>
-      <widget class="GtkCheckMenuItem" id="osd-lock">
+      <widget class="GtkCheckMenuItem" id="menu-lock">
         <property name="visible">True</property>
         <property name="tooltip" translatable="yes">If locked, you can't move OSD window by mouse</property>
         <property name="label" translatable="yes">_Lock</property>
         <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_menu_lock"/>
       </widget>
     </child>
     <child>
-      <widget class="GtkCheckMenuItem" id="osd-hide">
+      <widget class="GtkCheckMenuItem" id="menu-hide">
         <property name="visible">True</property>
         <property name="tooltip" translatable="yes">Hide the OSD Window</property>
         <property name="label" translatable="yes">_Hide</property>
         <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_menu_hide"/>
       </widget>
     </child>
     <child>
-      <widget class="GtkImageMenuItem" id="osd-preference">
+      <widget class="GtkSeparatorMenuItem" id="menuitem1">
+        <property name="visible">True</property>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="menu-play">
+        <property name="label">gtk-media-play</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_play"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="menu-pause">
+        <property name="label">gtk-media-pause</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_pause"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="menu-stop">
+        <property name="label">gtk-media-stop</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_stop"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="menu-prev">
+        <property name="label">gtk-media-previous</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_prev"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="menu-next">
+        <property name="label">gtk-media-next</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_next"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkSeparatorMenuItem" id="menuitem5">
+        <property name="visible">True</property>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="menu-preference">
         <property name="label">gtk-preferences</property>
         <property name="visible">True</property>
         <property name="use_underline">True</property>
         <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_preference"/>
       </widget>
     </child>
     <child>
-      <widget class="GtkImageMenuItem" id="osd-about">
+      <widget class="GtkImageMenuItem" id="menu-about">
         <property name="label">gtk-about</property>
         <property name="visible">True</property>
         <property name="use_underline">True</property>
         <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_about"/>
       </widget>
     </child>
     <child>
-      <widget class="GtkImageMenuItem" id="osd-quit">
+      <widget class="GtkImageMenuItem" id="menu-quit">
         <property name="label">gtk-quit</property>
         <property name="visible">True</property>
         <property name="use_underline">True</property>
         <property name="use_stock">True</property>
+        <signal name="activate" handler="ol_menu_quit"/>
       </widget>
     </child>
   </widget>

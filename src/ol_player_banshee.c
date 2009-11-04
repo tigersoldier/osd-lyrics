@@ -280,7 +280,7 @@ ol_player_banshee_next ()
   if (control_proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
-  return dbus_g_proxy_call (proxy,
+  return dbus_g_proxy_call (control_proxy,
                             next,
                             NULL,
                             G_TYPE_BOOLEAN,
