@@ -989,6 +989,21 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </widget>
     </child>
     <child>
+      <widget class="GtkImageMenuItem" id="menu-download">
+        <property name="label" translatable="yes">_Download lyric</property>
+        <property name="visible">True</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">False</property>
+        <signal name="activate" handler="ol_menu_download"/>
+        <child internal-child="image">
+          <widget class="GtkImage" id="image1">
+            <property name="visible">True</property>
+            <property name="stock">gtk-go-down</property>
+          </widget>
+        </child>
+      </widget>
+    </child>
+    <child>
       <widget class="GtkSeparatorMenuItem" id="menuitem1">
         <property name="visible">True</property>
       </widget>

@@ -38,6 +38,7 @@
 #include "ol_lrc_fetch_module.h"
 #include "ol_path_manage.h"
 #include "ol_app.h"
+#include "ol_debug.h"
 
 #define REFRESH_INTERVAL 100
 #define MAX_PATH_LEN 1024
@@ -144,7 +145,7 @@ child_handler (int sig)
   }
 }
 
-gboolean download_lyric (OlMusicInfo *music_info)
+gboolean ol_app_download_lyric (OlMusicInfo *music_info)
 {
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
@@ -242,7 +243,7 @@ change_music ()
   }
   ol_osd_module_set_lrc (module, NULL);
   if (!check_lyric_file ())
-    download_lyric (&music_info);
+    ol_app_download_lyric (&music_info);
 }
 
 void
@@ -365,7 +366,7 @@ void initialize (int argc, char **argv)
   /* Handler for SIGCHLD to wait lrc downloading process */
   signal (SIGCHLD, child_handler);
   
-  fprintf (stderr, "main\n");
+  ol_logf (OL_INFO, "main\n");
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
   ol_player_init ();

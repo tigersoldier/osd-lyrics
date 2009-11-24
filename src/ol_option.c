@@ -7,6 +7,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_path_manage.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
+#include "ol_cell_renderer_button.h"
 
 #define BUFFER_SIZE 1024
 
@@ -43,6 +44,8 @@ static struct ListExtraWidgets
 
 enum TreeColumns {
   TEXT_COLUMN = 0,
+  REMOVE_COLUMN,
+  N_COLUMN,
 };
 
 void ol_option_ok_clicked (GtkWidget *widget);
@@ -613,6 +616,7 @@ set_list_content (GtkTreeView *view, char **list)
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter,
                         TEXT_COLUMN, list[i],
+                        REMOVE_COLUMN, GTK_STOCK_REMOVE,
                         -1);
     GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
     
@@ -684,15 +688,23 @@ init_list (struct ListExtraWidgets *widgets)
   GtkTreeView *list = GTK_TREE_VIEW (widgets->list);
   if (list == NULL)
     return;
-  GtkListStore *store = gtk_list_store_new (1,
+  GtkListStore *store = gtk_list_store_new (N_COLUMN,
+                                            G_TYPE_STRING,
                                             G_TYPE_STRING);
-  GtkCellRenderer *renderer;
+  GtkCellRenderer *textcell, *btncell;
   GtkTreeViewColumn *column;
-  renderer = gtk_cell_renderer_text_new ();
+  textcell = gtk_cell_renderer_text_new ();
+  btncell = ol_cell_renderer_button_new ();
   column = gtk_tree_view_column_new_with_attributes ("Pattern",
-                                                     renderer,
+                                                     textcell,
                                                      "text", TEXT_COLUMN,
                                                      NULL);
+  /* gtk_tree_view_column_pack_end (column, */
+  /*                                btncell, */
+  /*                                FALSE); */
+  /* gtk_tree_view_column_add_attribute (column, */
+  /*                                     btncell, */
+  /*                                     "text", REMOVE_COLUMN); */
   gtk_tree_view_append_column (list, column);
   gtk_tree_view_set_model (list, GTK_TREE_MODEL (store));
   GtkTreeSelection *select;

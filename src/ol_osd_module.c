@@ -186,6 +186,7 @@ ol_osd_module_init_osd (OlOsdModule *module)
   config_change_handler (config, "OSD", "lrc-align-1", module);
   config_change_handler (config, "OSD", "active-lrc-color", module);
   config_change_handler (config, "OSD", "inactive-lrc-color", module);
+  config_change_handler (config, "OSD", "translucent-on-mouse-over", module);
   g_signal_connect (module->osd, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);

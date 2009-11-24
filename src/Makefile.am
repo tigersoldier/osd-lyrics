@@ -54,6 +54,7 @@ osd_lyrics_SOURCES = \
 	ol_keybindings.c \
 	ol_commands.c \
 	ol_path_manage.c \
+	ol_cell_renderer_button.c \
 	ol_marshal.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@

@@ -54,6 +54,17 @@ void ol_menu_pause (GtkWidget *widget, gpointer data);
 void ol_menu_stop (GtkWidget *widget, gpointer data);
 void ol_menu_prev (GtkWidget *widget, gpointer data);
 void ol_menu_next (GtkWidget *widget, gpointer data);
+void ol_menu_download (GtkWidget *widget, gpointer data);
+
+void
+ol_menu_download (GtkWidget *widget, gpointer data)
+{
+  if (ol_app_get_controller () != NULL)
+  {
+    OlMusicInfo *info = ol_app_get_current_music ();
+    ol_app_download_lyric (info);
+  }
+}
 
 static void
 ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)

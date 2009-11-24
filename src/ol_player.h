@@ -5,9 +5,9 @@
 #include "ol_music_info.h"
 
 enum OlPlayerStatus{
-  OL_PLAYER_STOPPED,
-  OL_PLAYER_PLAYING,
+  OL_PLAYER_PLAYING = 0,
   OL_PLAYER_PAUSED,
+  OL_PLAYER_STOPPED,
   OL_PLAYER_UNKNOWN,
   OL_PLAYER_ERROR,
 };

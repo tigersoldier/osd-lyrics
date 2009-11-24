@@ -1,3 +1,11 @@
+2009-11-24  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_exaile03.c: FIX: Check status before getting music info or length for exaile 0.3
+
+2009-11-22  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_module.c (ol_osd_module_init_osd): Fix: translucent-on-mouse-over option does not work until the setting is changed after launched
+
 2009-11-04  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_app.h: Add global interface to get the infomation of the application
