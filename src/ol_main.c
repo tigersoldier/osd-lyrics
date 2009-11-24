@@ -337,6 +337,11 @@ refresh_music_info (gpointer data)
   if (controller == NULL)
   {
     controller = ol_player_get_active_player ();
+    if (controller == NULL)
+    {
+      printf (_("No supported player is running, exit.\n"));
+      gtk_main_quit ();
+    }
   }
   guint time = 0;
   if (controller && !ol_player_get_played_time (controller, &time))

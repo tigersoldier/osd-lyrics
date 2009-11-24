@@ -1,6 +1,7 @@
 2009-11-24  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_main.c (is_file_exist): FIX: Check if the type of file is a regular file
+	CHANGE: quit when no player available
 
 	* src/ol_player_exaile03.c: FIX: Check status before getting music info or length for exaile 0.3
 
