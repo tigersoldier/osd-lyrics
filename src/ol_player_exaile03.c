@@ -88,8 +88,8 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
   enum OlPlayerStatus status = ol_player_exaile03_get_status ();
   if (status == OL_PLAYER_PLAYING || status == OL_PLAYER_PAUSED)
   {
-    /* gets the title of current music */
     ol_music_info_clear (info);
+    /* gets the title of current music */
     if (!ol_dbus_get_string_with_str_arg (proxy,
                                           get_track_attr,
                                           get_title,
@@ -113,6 +113,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
     {
       return FALSE;
     }
+    /* gets the location of the file */
     if (!ol_dbus_get_string_with_str_arg (proxy,
                                           get_track_attr,
                                           get_uri,
@@ -124,11 +125,13 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
              "%s\n"
              "  title:%s\n"
              "  artist:%s\n"
-             "  album:%s\n",
+             "  album:%s\n"
+             "  uri:%s\n",
              __FUNCTION__,
              info->title,
              info->artist,
-             info->album);
+             info->album,
+             info->uri);
     return TRUE;
   }
   else if (status == OL_PLAYER_STOPPED)

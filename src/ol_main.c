@@ -160,8 +160,8 @@ is_file_exist (const char *filename)
   if (filename == NULL)
     return FALSE;
   struct stat buf;
-  printf ("stat:%d\n", stat (filename, &buf));
-  return stat (filename, &buf) == 0;
+  printf ("stat:%d mode:%d\n", stat (filename, &buf), (int)buf.st_mode);
+  return stat (filename, &buf) == 0 && S_ISREG (buf.st_mode);
 }
 
 gboolean
