@@ -7,6 +7,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_path_manage.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
+#include "ol_debug.h"
 #include "ol_cell_renderer_button.h"
 
 #define BUFFER_SIZE 1024
@@ -42,6 +43,14 @@ static struct ListExtraWidgets
   GtkWidget *list;
 } lrc_path_widgets, lrc_filename_widgets;
 
+struct ListExtraButton
+{
+  char *stock_name;
+  void (*click_func) (GtkCellRenderer *cell,
+                      gchar *path,
+                      GtkTreeView *view);
+};
+
 enum TreeColumns {
   TEXT_COLUMN = 0,
   REMOVE_COLUMN,
@@ -69,6 +78,12 @@ static GdkColor ol_color_to_gdk_color (const OlColor color);
 static void ol_option_update_widget (OptionWidgets *widgets);
 static char **get_list_content (GtkTreeView *view);
 static void set_list_content (GtkTreeView *view, char **list);
+static void list_remove_clicked (GtkCellRenderer *cell,
+                                 gchar *path,
+                                 GtkTreeView *view);
+static void list_browse_clicked (GtkCellRenderer *cell,
+                                 gchar *path,
+                                 GtkTreeView *view);
 
 /** 
  * @brief Get font family and font size from a GtkFontButton
@@ -87,7 +102,8 @@ static void save_download ();
 static void load_download ();
 static void save_general ();
 static void load_general ();
-static void init_list (struct ListExtraWidgets *widgets);
+static void init_list (struct ListExtraWidgets *widgets,
+                       struct ListExtraButton *buttons);
 
 static void
 ol_option_get_font_info (GtkFontButton *font,
@@ -683,7 +699,67 @@ ol_option_cancel_clicked (GtkWidget *widget)
 }
 
 static void
-init_list (struct ListExtraWidgets *widgets)
+append_button_to_column (GtkTreeViewColumn *column,
+                         GtkWidget *list,
+                         struct ListExtraButton *button)
+{
+  if (column == NULL)
+    return;
+  if (button == NULL || button->click_func == NULL || button->stock_name == NULL)
+    return;
+  GtkCellRenderer *btncell;
+  btncell = ol_cell_renderer_button_new ();
+  GValue remove_stock = {0};
+  g_value_init (&remove_stock, G_TYPE_STRING);
+  g_value_set_static_string (&remove_stock, button->stock_name);
+  g_object_set_property (G_OBJECT (btncell),
+                         "stock",
+                         &remove_stock);
+  g_value_unset (&remove_stock);
+  g_signal_connect (G_OBJECT (btncell), "clicked",
+                    G_CALLBACK (button->click_func),
+                    (gpointer) list);
+  gtk_tree_view_column_pack_start (column,
+                                   btncell,
+                                   FALSE);
+}
+
+static GtkTreeViewColumn *
+get_list_column (GtkWidget *list,
+                 struct ListExtraButton *buttons)
+{
+  GtkTreeViewColumn *column;
+  GtkCellRenderer *textcell;
+  textcell = gtk_cell_renderer_text_new ();
+  column = gtk_tree_view_column_new_with_attributes ("Pattern",
+                                                     textcell,
+                                                     "text", TEXT_COLUMN,
+                                                     NULL);
+  GValue text_editable = {0};
+  g_value_init (&text_editable, G_TYPE_BOOLEAN);
+  g_value_set_boolean (&text_editable, TRUE);
+  g_object_set_property (G_OBJECT (textcell),
+                         "editable",
+                         &text_editable);
+  g_value_unset (&text_editable);
+
+  while (buttons != NULL && buttons->stock_name != NULL && buttons->click_func != NULL)
+  {
+    append_button_to_column (column, list, buttons);
+    buttons++;
+  }
+  struct ListExtraButton remove_button = {
+    GTK_STOCK_REMOVE,
+    list_remove_clicked,
+  };
+  append_button_to_column (column, list, &remove_button);
+
+  return column;
+}
+
+static void
+init_list (struct ListExtraWidgets *widgets,
+           struct ListExtraButton *buttons)
 {
   GtkTreeView *list = GTK_TREE_VIEW (widgets->list);
   if (list == NULL)
@@ -691,21 +767,11 @@ init_list (struct ListExtraWidgets *widgets)
   GtkListStore *store = gtk_list_store_new (N_COLUMN,
                                             G_TYPE_STRING,
                                             G_TYPE_STRING);
-  GtkCellRenderer *textcell, *btncell;
-  GtkTreeViewColumn *column;
-  textcell = gtk_cell_renderer_text_new ();
-  btncell = ol_cell_renderer_button_new ();
-  column = gtk_tree_view_column_new_with_attributes ("Pattern",
-                                                     textcell,
-                                                     "text", TEXT_COLUMN,
-                                                     NULL);
-  /* gtk_tree_view_column_pack_end (column, */
-  /*                                btncell, */
-  /*                                FALSE); */
+    
   /* gtk_tree_view_column_add_attribute (column, */
   /*                                     btncell, */
-  /*                                     "text", REMOVE_COLUMN); */
-  gtk_tree_view_append_column (list, column);
+  /*                                     "stock", REMOVE_COLUMN); */
+  gtk_tree_view_append_column (list, get_list_column (widgets->list, buttons));
   gtk_tree_view_set_model (list, GTK_TREE_MODEL (store));
   GtkTreeSelection *select;
   select = gtk_tree_view_get_selection (list);
@@ -734,6 +800,39 @@ init_list (struct ListExtraWidgets *widgets)
                       G_CALLBACK (ol_option_list_add_clicked),
                       (gpointer) widgets);
   }
+}
+
+static void
+list_remove_clicked (GtkCellRenderer *cell,
+                     gchar *path,
+                     GtkTreeView *list)
+{
+  ol_logf (OL_DEBUG,
+           "%s\n"
+           "  path:%s\n",
+           __FUNCTION__,
+           path);
+  if (list == NULL || path == NULL || !GTK_IS_TREE_VIEW (list))
+    return;
+  ol_logf (OL_DEBUG, "  test\n");
+  GtkTreeModel *model = gtk_tree_view_get_model (list);
+  GtkTreeIter iter;
+  GtkTreePath *tree_path;
+  tree_path = gtk_tree_path_new_from_string (path);
+  if (gtk_tree_model_get_iter (model, &iter, tree_path))
+  {
+    ol_logf (OL_DEBUG, "  path valid\n");
+    gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+  }
+  gtk_tree_path_free (tree_path);
+}
+
+static void
+list_browse_clicked (GtkCellRenderer *cell,
+                     gchar *path,
+                     GtkTreeView *view)
+{
+  
 }
 
 void
@@ -786,13 +885,21 @@ ol_option_show ()
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_glade_get_widget ("add-lrc-path");
     lrc_path_widgets.remove_button = ol_glade_get_widget ("remove-lrc-path");
-    init_list (&lrc_path_widgets);
+    struct ListExtraButton path_buttons[] = {
+      {GTK_STOCK_DIRECTORY, list_browse_clicked},
+      {NULL, NULL},
+    };
+    init_list (&lrc_path_widgets, path_buttons);
     
     lrc_filename_widgets.entry = options.lrc_filename_text;
     lrc_filename_widgets.list = options.lrc_filename;
     lrc_filename_widgets.add_button = ol_glade_get_widget ("add-lrc-filename");
     lrc_filename_widgets.remove_button = ol_glade_get_widget ("remove-lrc-filename");
-    init_list (&lrc_filename_widgets);
+    struct ListExtraButton file_buttons[] = {
+      {GTK_STOCK_DIRECTORY, list_browse_clicked},
+      {NULL, NULL},
+    };
+    init_list (&lrc_filename_widgets, file_buttons);
   }
   ol_option_update_widget (&options);
   gtk_dialog_run (GTK_DIALOG (window));

@@ -7,6 +7,7 @@ static void ol_cell_renderer_button_finalize   (GObject *object);
 
 enum {
   EDITED,
+  CLICKED,
   LAST_SIGNAL
 };
 
@@ -14,6 +15,7 @@ enum {
   PROP_0,
 
   PROP_TEXT,
+  PROP_STOCK,
   /* PROP_MARKUP, */
   /* PROP_ATTRIBUTES, */
   /* PROP_SINGLE_PARAGRAPH_MODE, */
@@ -111,13 +113,6 @@ static void ol_cell_renderer_button_render (GtkCellRenderer *cell,
                                      GdkRectangle *expose_area,
                                      GtkCellRendererState flags);
 
-static GtkCellEditable *ol_cell_renderer_button_start_editing (GtkCellRenderer *cell,
-                                                        GdkEvent *event,
-                                                        GtkWidget *widget,
-                                                        const gchar *path,
-                                                        GdkRectangle *background_area,
-                                                        GdkRectangle *cell_area,
-                                                        GtkCellRendererState flags);
 static gint ol_cell_renderer_button_activate (GtkCellRenderer *cell,
                                        GdkEvent *event,
                                        GtkWidget *widget,
@@ -126,7 +121,7 @@ static gint ol_cell_renderer_button_activate (GtkCellRenderer *cell,
                                        GdkRectangle *cell_area,
                                        GtkCellRendererState flags);
 
-static PangoLayout* get_layout (OlCellRendererButton *celltext,
+static PangoLayout* get_layout (OlCellRendererButton *cellbutton,
                                 GtkWidget *widget,
                                 gboolean will_render,
                                 GtkCellRendererState flags);
@@ -140,21 +135,21 @@ static void get_size (GtkCellRenderer *cell,
                       gint *height);
 
 static void
-ol_cell_renderer_button_init (OlCellRendererButton *celltext)
+ol_cell_renderer_button_init (OlCellRendererButton *cellbutton)
 {
   OlCellRendererButtonPrivate *priv;
 
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (celltext);
+  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (cellbutton);
 
-  GTK_CELL_RENDERER (celltext)->xalign = 0.0;
-  GTK_CELL_RENDERER (celltext)->yalign = 0.5;
-  GTK_CELL_RENDERER (celltext)->xpad = 2;
-  GTK_CELL_RENDERER (celltext)->ypad = 2;
-  GTK_CELL_RENDERER (celltext)->mode = GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-  /* celltext->font_scale = 1.0; */
-  /* celltext->fixed_height_rows = -1; */
-  celltext->font = pango_font_description_new ();
-  celltext->stock_id = NULL;
+  GTK_CELL_RENDERER (cellbutton)->xalign = 0.0;
+  GTK_CELL_RENDERER (cellbutton)->yalign = 0.5;
+  GTK_CELL_RENDERER (cellbutton)->xpad = 2;
+  GTK_CELL_RENDERER (cellbutton)->ypad = 2;
+  GTK_CELL_RENDERER (cellbutton)->mode = GTK_CELL_RENDERER_MODE_ACTIVATABLE;
+  /* cellbutton->font_scale = 1.0; */
+  /* cellbutton->fixed_height_rows = -1; */
+  cellbutton->font = pango_font_description_new ();
+  cellbutton->stock_id = NULL;
 
   priv->width_chars = -1;
   priv->wrap_width = -1;
@@ -176,7 +171,6 @@ ol_cell_renderer_button_class_init (OlCellRendererButtonClass *class)
 
   cell_class->get_size = ol_cell_renderer_button_get_size;
   cell_class->render = ol_cell_renderer_button_render;
-  cell_class->start_editing = ol_cell_renderer_button_start_editing;
   cell_class->activate = ol_cell_renderer_button_activate;
 
   g_object_class_install_property (object_class,
@@ -184,6 +178,13 @@ ol_cell_renderer_button_class_init (OlCellRendererButtonClass *class)
                                    g_param_spec_string ("text",
                                                         ("Text"),
                                                         ("Text to render"),
+                                                        NULL,
+                                                        GTK_PARAM_READWRITE));
+  g_object_class_install_property (object_class,
+                                   PROP_STOCK,
+                                   g_param_spec_string ("stock",
+                                                        ("stock"),
+                                                        ("Stock name of icon"),
                                                         NULL,
                                                         GTK_PARAM_READWRITE));
 
@@ -198,6 +199,15 @@ ol_cell_renderer_button_class_init (OlCellRendererButtonClass *class)
                   G_TYPE_NONE, 2,
                   G_TYPE_STRING,
                   G_TYPE_STRING);
+  cell_renderer_button_signals [CLICKED] =
+    g_signal_new (("clicked"),
+                  G_OBJECT_CLASS_TYPE (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (OlCellRendererButtonClass, clicked),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   g_type_class_add_private (object_class, sizeof (OlCellRendererButtonPrivate));
 }
@@ -205,14 +215,14 @@ ol_cell_renderer_button_class_init (OlCellRendererButtonClass *class)
 static void
 ol_cell_renderer_button_finalize (GObject *object)
 {
-  OlCellRendererButton *celltext = OL_CELL_RENDERER_BUTTON (object);
+  OlCellRendererButton *cellbutton = OL_CELL_RENDERER_BUTTON (object);
   OlCellRendererButtonPrivate *priv;
 
   priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (object);
 
-  pango_font_description_free (celltext->font);
+  pango_font_description_free (cellbutton->font);
 
-  g_free (celltext->text);
+  g_free (cellbutton->text);
 
   G_OBJECT_CLASS (ol_cell_renderer_button_parent_class)->finalize (object);
 }
@@ -224,7 +234,7 @@ ol_cell_renderer_button_get_property (GObject        *object,
                                GValue         *value,
                                GParamSpec     *pspec)
 {
-  OlCellRendererButton *celltext = OL_CELL_RENDERER_BUTTON (object);
+  OlCellRendererButton *cellbutton = OL_CELL_RENDERER_BUTTON (object);
   OlCellRendererButtonPrivate *priv;
 
   priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (object);
@@ -232,7 +242,10 @@ ol_cell_renderer_button_get_property (GObject        *object,
   switch (param_id)
   {
   case PROP_TEXT:
-    g_value_set_string (value, celltext->text);
+    g_value_set_string (value, cellbutton->text);
+    break;
+  case PROP_STOCK:
+    g_value_set_string (value, cellbutton->stock_id);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -246,26 +259,34 @@ ol_cell_renderer_button_set_property (GObject *object,
                                const GValue *value,
                                GParamSpec *pspec)
 {
-  OlCellRendererButton *celltext = OL_CELL_RENDERER_BUTTON (object);
+  OlCellRendererButton *cellbutton = OL_CELL_RENDERER_BUTTON (object);
   OlCellRendererButtonPrivate *priv;
 
+  ol_logf (OL_DEBUG, "%s:%d\n", __FUNCTION__, param_id);
   priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (object);
 
   switch (param_id)
   {
   case PROP_TEXT:
-    g_free (celltext->text);
+    ol_logf (OL_DEBUG, "  text\n");
+    g_free (cellbutton->text);
 
     /* if (priv->markup_set) */
     /* { */
-    /*   if (celltext->extra_attrs) */
-    /*     pango_attr_list_unref (celltext->extra_attrs); */
-    /*   celltext->extra_attrs = NULL; */
+    /*   if (cellbutton->extra_attrs) */
+    /*     pango_attr_list_unref (cellbutton->extra_attrs); */
+    /*   cellbutton->extra_attrs = NULL; */
     /*   priv->markup_set = FALSE; */
     /* } */
 
-    celltext->text = g_strdup (g_value_get_string (value));
+    cellbutton->text = g_strdup (g_value_get_string (value));
     g_object_notify (object, "text");
+    break;
+  case PROP_STOCK:
+    ol_logf (OL_DEBUG, "  stock\n");
+    g_free (cellbutton->text);
+    cellbutton->stock_id = g_strdup (g_value_get_string (value));
+    g_object_notify (object, "stock");
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -279,32 +300,60 @@ ol_cell_renderer_button_new (void)
   return g_object_new (OL_TYPE_CELL_RENDERER_BUTTON, NULL);
 }
 
+static GdkPixbuf*
+get_icon (OlCellRendererButton *cellbutton,
+          GtkWidget *widget)
+{
+  GdkPixbuf *icon = NULL;
+  ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
+  if (cellbutton->stock_id != NULL)
+  {
+    ol_logf (OL_DEBUG, "  stock id = %s\n", cellbutton->stock_id);
+    icon = gtk_widget_render_icon (widget,
+                                   cellbutton->stock_id,
+                                   GTK_ICON_SIZE_SMALL_TOOLBAR,
+                                   NULL);
+  }
+  return icon;
+}
+
 static void
-get_icon_rect (GtkWidget *widget,
+get_icon_rect (OlCellRendererButton *cellbtn,
+               GtkWidget *widget,
                GdkRectangle *cell_area,
                GdkPixbuf *icon,
                int index,
                int *x_offset, int *y_offset, int *width, int *height)
 {
+  ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
   if (icon == NULL)
-    icon = gtk_widget_render_icon (widget,
-                                   GTK_STOCK_REMOVE,
-                                   GTK_ICON_SIZE_SMALL_TOOLBAR,
-                                   NULL);
+    icon = get_icon (cellbtn, widget);
   else
     g_object_ref (icon);
   gint icon_width, icon_height;
-  icon_width = gdk_pixbuf_get_width (icon);
-  icon_height = gdk_pixbuf_get_height (icon);
-  if (x_offset)
-    *x_offset = cell_area->width - icon_width * (index + 1);
-  if (y_offset)
-    *y_offset = (cell_area->height - icon_height) / 2;
+  if (icon == NULL)
+  {
+    icon_width = 0;
+    icon_height = 0;
+  }
+  else
+  {
+    icon_width = gdk_pixbuf_get_width (icon);
+    icon_height = gdk_pixbuf_get_height (icon);
+    if (cell_area)
+    {
+      if (x_offset)
+        *x_offset = cell_area->width - icon_width * (index + 1);
+      if (y_offset)
+        *y_offset = (cell_area->height - icon_height) / 2;
+    }
+    g_object_unref (icon);
+  }
   if (width)
     *width = icon_width;
   if (height)
     *height = icon_height;
-  g_object_unref (icon);
+  ol_logf (OL_DEBUG, "  icon size:%dx%d\n", icon_width, icon_height);
 }
 
 static void
@@ -317,32 +366,35 @@ ol_cell_renderer_button_render (GtkCellRenderer      *cell,
                          GtkCellRendererState  flags)
 
 {
-  ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
-  OlCellRendererButton *celltext = (OlCellRendererButton *) cell;
+  ol_logf (OL_DEBUG,
+           "%s\n"
+           "  flags:%d\n",
+           __FUNCTION__,
+           (int) flags);
+  OlCellRendererButton *cellbutton = (OlCellRendererButton *) cell;
   PangoLayout *layout;
-  GtkStateType state;
+  GtkStateType state = 0;
   gint x_offset;
   gint y_offset;
   OlCellRendererButtonPrivate *priv;
 
   priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (cell);
 
-  layout = get_layout (celltext, widget, TRUE, flags);
+  layout = get_layout (cellbutton, widget, TRUE, flags);
   get_size (cell, widget, cell_area, layout, &x_offset, &y_offset, NULL, NULL);
   /* ol_logf (OL_DEBUG, "  offset: (%d,%d)\n", x_offset, y_offset); */
   if (!cell->sensitive) 
   {
-    state = GTK_STATE_INSENSITIVE;
+    state |= GTK_STATE_INSENSITIVE;
   }
   else if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED)
   {
     if (GTK_WIDGET_HAS_FOCUS (widget))
-      state = GTK_STATE_SELECTED;
+      state |= GTK_STATE_SELECTED;
     else
-      state = GTK_STATE_ACTIVE;
+      state |= GTK_STATE_ACTIVE;
   }
-  else if ((flags & GTK_CELL_RENDERER_PRELIT) == GTK_CELL_RENDERER_PRELIT &&
-	   GTK_WIDGET_STATE (widget) == GTK_STATE_PRELIGHT)
+  else if ((flags & GTK_CELL_RENDERER_PRELIT) == GTK_CELL_RENDERER_PRELIT)
   {
     state = GTK_STATE_PRELIGHT;
   }
@@ -368,33 +420,34 @@ ol_cell_renderer_button_render (GtkCellRenderer      *cell,
                     cell_area->y + y_offset + cell->ypad,
                     layout);
   g_object_unref (layout);
-  /* if (state == GTK_STATE_SELECTED | */
-  /*     state == GTK_STATE_PRELIGHT) */
+  /* if (cell->sensitive && */
+  /*     (flags & GTK_CELL_RENDERER_PRELIT) == GTK_CELL_RENDERER_PRELIT) */
   {
-    GdkPixbuf *remove_icon = gtk_widget_render_icon (widget,
-                                                     GTK_STOCK_REMOVE,
-                                                     GTK_ICON_SIZE_SMALL_TOOLBAR,
-                                                     NULL);
-    gint icon_width, icon_height, icon_x, icon_y;
-    get_icon_rect (widget,
-                   cell_area,
-                   remove_icon,
-                   0,
-                   &icon_x, &icon_y, &icon_width, &icon_height);
-    gdk_draw_pixbuf (window,
-                     widget->style->black_gc,
-                     remove_icon,
-                     0,           /* src_x */
-                     0,           /* src_y */
-                     cell_area->x + icon_x - cell->xpad,
-                     cell_area->y + icon_y,
-                     icon_width,
-                     icon_height,
-                     GDK_RGB_DITHER_NORMAL,
-                     0, 0);
+    GdkPixbuf *icon = get_icon (cellbutton, widget);
+    if (icon != NULL)
+    {
+      gint icon_width, icon_height, icon_x, icon_y;
+      get_icon_rect (OL_CELL_RENDERER_BUTTON (cell),
+                     widget,
+                     cell_area,
+                     icon,
+                     0,
+                     &icon_x, &icon_y, &icon_width, &icon_height);
+      gdk_draw_pixbuf (window,
+                       widget->style->black_gc,
+                       icon,
+                       0,           /* src_x */
+                       0,           /* src_y */
+                       cell_area->x + icon_x - cell->xpad,
+                       cell_area->y + icon_y,
+                       icon_width,
+                       icon_height,
+                       GDK_RGB_DITHER_NORMAL,
+                       0, 0);
 
-    g_object_unref (remove_icon);
-  }
+      g_object_unref (icon);
+    } /* if icon */
+  } /* if state */
 }
 
 static void
@@ -408,25 +461,25 @@ add_attr (PangoAttrList  *attr_list,
 }
 
 static PangoLayout*
-get_layout (OlCellRendererButton *celltext,
+get_layout (OlCellRendererButton *cellbutton,
             GtkWidget           *widget,
             gboolean             will_render,
             GtkCellRendererState flags)
 {
-  /* ol_logf (OL_DEBUG, "%s\n", __FUNCTION__); */
+  ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
   PangoAttrList *attr_list;
   PangoLayout *layout;
   OlCellRendererButtonPrivate *priv;
 
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (celltext);
+  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (cellbutton);
   
-  layout = gtk_widget_create_pango_layout (widget, celltext->text);
+  layout = gtk_widget_create_pango_layout (widget, cellbutton->text);
   attr_list = pango_attr_list_new ();
   pango_layout_set_single_paragraph_mode (layout, TRUE);
 
   if (will_render)
   {
-    add_attr (attr_list, pango_attr_font_desc_new (celltext->font));
+    add_attr (attr_list, pango_attr_font_desc_new (cellbutton->font));
   }
 
   pango_layout_set_ellipsize (layout, priv->ellipsize);
@@ -468,77 +521,113 @@ get_size (GtkCellRenderer *cell,
 	  gint            *height)
 {
   ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
-  OlCellRendererButton *celltext = (OlCellRendererButton *) cell;
+  OlCellRendererButton *cellbutton = (OlCellRendererButton *) cell;
   PangoRectangle rect;
   OlCellRendererButtonPrivate *priv;
 
   priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (cell);
 
-  PangoContext *context;
-  PangoFontMetrics *metrics;
-  PangoFontDescription *font_desc;
-  gint row_height;
-
-  font_desc = pango_font_description_copy_static (widget->style->font_desc);
-  pango_font_description_merge_static (font_desc, celltext->font, TRUE);
-
-  context = gtk_widget_get_pango_context (widget);
-
-  metrics = pango_context_get_metrics (context,
-                                       font_desc,
-                                       pango_context_get_language (context));
-  row_height = (pango_font_metrics_get_ascent (metrics) +
-                pango_font_metrics_get_descent (metrics));
-  pango_font_metrics_unref (metrics);
-
-  pango_font_description_free (font_desc);
-
+  gint btn_width = (cell->xpad) * 2;
+  gint btn_height = (cell->ypad) * 2;
+  
+  GdkPixbuf *icon = get_icon (cellbutton, widget);
+  if (icon != NULL)
+  {
+    gint icon_width, icon_height, icon_x, icon_y;
+    get_icon_rect (OL_CELL_RENDERER_BUTTON (cell),
+                   widget,
+                   cell_area,
+                   icon,
+                   0,
+                   &icon_x, &icon_y, &icon_width, &icon_height);
+    
+    g_object_unref (icon);
+    btn_width += icon_width;
+    btn_height += icon_height;
+  }
+  if (btn_height < cell->height)
+    btn_height = cell->height;
   gtk_cell_renderer_set_fixed_size (cell,
-                                    cell->width, 2*cell->ypad +
-                                    PANGO_PIXELS (row_height));
-  ol_logf (OL_DEBUG,
-           "  size: %dx%d\n",
-           cell->width,
-           2*cell->ypad +
-           PANGO_PIXELS (row_height));
-
-  if (layout)
-    g_object_ref (layout);
-  else
-    layout = get_layout (celltext, widget, FALSE, 0);
-
-  pango_layout_get_pixel_extents (layout, NULL, &rect);
+                                    btn_width,
+                                    btn_height);
   if (height)
-    *height = cell->ypad * 2 + rect.height;
-
+    *height = btn_height;
   if (width)
-    *width = cell->xpad * 2 + rect.x + rect.width;
-
+    *width = btn_width;
   if (cell_area)
   {
-    ol_logf (OL_DEBUG, "  cell_area:%dx%d\n", cell_area->width, cell_area->height);
     if (x_offset)
-    {
-      if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
-        *x_offset = (1.0 - cell->xalign) * (cell_area->width - (rect.x + rect.width + (2 * cell->xpad)));
-      else 
-        *x_offset = cell->xalign * (cell_area->width - (rect.x + rect.width + (2 * cell->xpad)));
-
-      *x_offset = MAX(*x_offset, 0);
-    }
+      *x_offset = cell_area->x;
     if (y_offset)
-    {
-      *y_offset = cell->yalign * (cell_area->height - (rect.height + (2 * cell->ypad)));
-      *y_offset = MAX (*y_offset, 0);
-    }
+      *y_offset = cell_area->y;
+    ol_logf (OL_DEBUG, "  offset: %dx%d\n", cell_area->x, cell_area->y);
   }
-  else
-  {
-    if (x_offset) *x_offset = 0;
-    if (y_offset) *y_offset = 0;
-  }
+  ol_logf (OL_DEBUG, "  size: %dx%d\n", btn_width, btn_height);
+  /* PangoContext *context; */
+  /* PangoFontMetrics *metrics; */
+  /* PangoFontDescription *font_desc; */
+  /* gint row_height; */
 
-  g_object_unref (layout);
+  /* font_desc = pango_font_description_copy_static (widget->style->font_desc); */
+  /* pango_font_description_merge_static (font_desc, cellbutton->font, TRUE); */
+
+  /* context = gtk_widget_get_pango_context (widget); */
+
+  /* metrics = pango_context_get_metrics (context, */
+  /*                                      font_desc, */
+  /*                                      pango_context_get_language (context)); */
+  /* row_height = (pango_font_metrics_get_ascent (metrics) + */
+  /*               pango_font_metrics_get_descent (metrics)); */
+  /* pango_font_metrics_unref (metrics); */
+
+  /* pango_font_description_free (font_desc); */
+
+  /* gtk_cell_renderer_set_fixed_size (cell, */
+  /*                                   cell->width, 2*cell->ypad + */
+  /*                                   PANGO_PIXELS (row_height)); */
+  /* ol_logf (OL_DEBUG, */
+  /*          "  size: %dx%d\n", */
+  /*          cell->width, */
+  /*          2*cell->ypad + */
+  /*          PANGO_PIXELS (row_height)); */
+
+  /* if (layout) */
+  /*   g_object_ref (layout); */
+  /* else */
+  /*   layout = get_layout (cellbutton, widget, FALSE, 0); */
+
+  /* pango_layout_get_pixel_extents (layout, NULL, &rect); */
+  /* if (height) */
+  /*   *height = cell->ypad * 2 + rect.height; */
+
+  /* if (width) */
+  /*   *width = cell->xpad * 2 + rect.x + rect.width; */
+
+  /* if (cell_area) */
+  /* { */
+  /*   ol_logf (OL_DEBUG, "  cell_area:%dx%d\n", cell_area->width, cell_area->height); */
+  /*   if (x_offset) */
+  /*   { */
+  /*     if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL) */
+  /*       *x_offset = (1.0 - cell->xalign) * (cell_area->width - (rect.x + rect.width + (2 * cell->xpad))); */
+  /*     else  */
+  /*       *x_offset = cell->xalign * (cell_area->width - (rect.x + rect.width + (2 * cell->xpad))); */
+
+  /*     *x_offset = MAX(*x_offset, 0); */
+  /*   } */
+  /*   if (y_offset) */
+  /*   { */
+  /*     *y_offset = cell->yalign * (cell_area->height - (rect.height + (2 * cell->ypad))); */
+  /*     *y_offset = MAX (*y_offset, 0); */
+  /*   } */
+  /* } */
+  /* else */
+  /* { */
+  /*   if (x_offset) *x_offset = 0; */
+  /*   if (y_offset) *y_offset = 0; */
+  /* } */
+
+  /* g_object_unref (layout); */
 }
 
 
@@ -555,21 +644,6 @@ ol_cell_renderer_button_get_size (GtkCellRenderer *cell,
 	    x_offset, y_offset, width, height);
 }
 
-static GtkCellEditable *
-ol_cell_renderer_button_start_editing (GtkCellRenderer *cell,
-                                GdkEvent *event,
-                                GtkWidget *widget,
-                                const gchar *path,
-                                GdkRectangle *background_area,
-                                GdkRectangle *cell_area,
-                                GtkCellRendererState flags)
-{
-  ol_logf (OL_DEBUG,
-           "%s\n",
-           __FUNCTION__);
-  return NULL;
-}
-
 static gint
 ol_cell_renderer_button_activate (GtkCellRenderer      *cell,
                            GdkEvent             *event,
@@ -584,7 +658,7 @@ ol_cell_renderer_button_activate (GtkCellRenderer      *cell,
            "  event type:%d\n",
            __FUNCTION__,
            event->type);
-  ol_logf (OL_INFO,
+  ol_logf (OL_DEBUG,
            "  bg area: (%d,%d) %dx%d\n"
            "  cell area: (%d,%d) %dx%d\n",
            background_area->x, background_area->y,
@@ -594,17 +668,15 @@ ol_cell_renderer_button_activate (GtkCellRenderer      *cell,
   if (event->type == GDK_BUTTON_PRESS)
   {
     GdkEventButton button = event->button;
-    ol_logf (OL_INFO,
+    ol_logf (OL_DEBUG,
              "  pointer (%d,%d)\n",
              (int)button.x, (int)button.y);
-    GdkPixbuf *remove_icon = gtk_widget_render_icon (widget,
-                                                     GTK_STOCK_REMOVE,
-                                                     GTK_ICON_SIZE_SMALL_TOOLBAR,
-                                                     NULL);
-    gint icon_width, icon_height;
-    icon_width = gdk_pixbuf_get_width (remove_icon);
-    icon_height = gdk_pixbuf_get_height (remove_icon);
-    g_object_unref (remove_icon);
+    if (button.x >= cell_area->x && button.x < cell_area->x + cell_area->width &&
+        button.y >= cell_area->y && button.y < cell_area->y + cell_area->height)
+    {
+      ol_logf (OL_DEBUG, "  clicked\n");
+      g_signal_emit (cell, cell_renderer_button_signals[CLICKED], 0, path);
+    }
   }
   return FALSE;
 }

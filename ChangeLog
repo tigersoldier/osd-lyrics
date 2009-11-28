@@ -1,3 +1,8 @@
+2009-11-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_rhythmbox.c (ol_player_rhythmbox_get_controller): FIX: The handler of get_capacity of rhythmbox is set correctly.
+	ADD: Rhythmbox now supports all player futures
+
 2009-11-24  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_main.c (is_file_exist): FIX: Check if the type of file is a regular file

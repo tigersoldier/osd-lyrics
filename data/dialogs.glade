@@ -83,7 +83,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_font">True</property>
-                        <signal name="font_set" handler="ol_option_font_set"/>
                         <signal name="font_set" handler="ol_option_update_preview"/>
                       </widget>
                       <packing>
@@ -655,7 +654,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_underline">True</property>
                                         <property name="use_stock">True</property>
-                                        <signal name="clicked" handler="ol_option_add_lrc_path_clicked"/>
                                       </widget>
                                       <packing>
                                         <property name="position">0</property>
@@ -668,7 +666,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_stock">True</property>
-                                        <signal name="clicked" handler="ol_option_remove_lrc_path_clicked"/>
                                       </widget>
                                       <packing>
                                         <property name="position">1</property>
@@ -765,7 +762,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_stock">True</property>
-                                        <signal name="clicked" handler="ol_option_add_lrc_filename_clicked"/>
                                       </widget>
                                       <packing>
                                         <property name="position">0</property>
@@ -778,7 +774,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_stock">True</property>
-                                        <signal name="clicked" handler="ol_option_remove_lrc_filename_clicked"/>
                                       </widget>
                                       <packing>
                                         <property name="position">1</property>

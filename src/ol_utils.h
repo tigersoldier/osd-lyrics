@@ -4,8 +4,8 @@
 
 #define ol_get_array_len(arr) (sizeof (arr) / sizeof (arr[0]))
 
-gchar* ol_get_string_from_hash_table (GHashTable *hash_table, gchar *name);
-gint ol_get_int_from_hash_table (GHashTable *hash_table, gchar *name);
+gchar* ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *name);
+gint ol_get_int_from_hash_table (GHashTable *hash_table, const gchar *name);
 
 /** 
  * @brief Checks if a string is empty

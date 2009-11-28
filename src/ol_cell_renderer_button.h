@@ -31,9 +31,11 @@ struct _OlCellRendererButtonClass
 {
   GtkCellRendererClass parent_class;
 
-  void (* edited) (OlCellRendererButton *cell_renderer_text,
+  void (* edited) (OlCellRendererButton *cell_renderer_button,
 		   const gchar         *path,
 		   const gchar         *new_text);
+  void (* clicked) (OlCellRendererButton *cell_renderer_button,
+		   const gchar         *path);
 
 };
 

@@ -8,7 +8,7 @@
 #include "ol_utils.h"
 
 gchar*
-ol_get_string_from_hash_table (GHashTable *hash_table, gchar *key)
+ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
 {
   if (!hash_table)
     return NULL;
@@ -21,7 +21,7 @@ ol_get_string_from_hash_table (GHashTable *hash_table, gchar *key)
 }
 
 gint
-ol_get_int_from_hash_table (GHashTable *hash_table, gchar *key)
+ol_get_int_from_hash_table (GHashTable *hash_table, const gchar *key)
 {
   if (!hash_table)
     return -1;

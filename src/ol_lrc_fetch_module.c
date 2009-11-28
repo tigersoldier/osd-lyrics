@@ -1,4 +1,5 @@
 #include "ol_lrc_fetch_module.h"
+#include "ol_debug.h"
 
 struct DownloadContext
 {
@@ -35,7 +36,7 @@ ol_lrc_fetch_add_timeout (gpointer ptr,
 static gpointer
 ol_lrc_fetch_search_func (gpointer data)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   for (;;)
   {
     g_mutex_lock (search_mutex);
@@ -67,6 +68,7 @@ ol_lrc_fetch_search_func (gpointer data)
 static gpointer
 ol_lrc_fetch_download_func (struct DownloadContext *context)
 {
+  ol_log_func ();
   if (context == NULL)
     return;
   char *file = NULL;
@@ -125,7 +127,7 @@ int
 ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
 {
   g_mutex_lock (search_mutex);
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   engine = _engine;
   ol_music_info_copy (&music_info,_music_info);
   fprintf (stderr,
@@ -145,7 +147,7 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
 void
 ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine, OlLrcCandidate *candidate, const char *pathname)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   struct DownloadContext *context = g_new (struct DownloadContext, 1);
   context->engine = engine;
   context->candidate = ol_lrc_candidate_new ();

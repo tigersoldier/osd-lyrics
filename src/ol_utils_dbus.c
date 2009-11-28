@@ -134,6 +134,21 @@ ol_dbus_get_uint8 (DBusGProxy *proxy, const gchar *method, guint8 *returnval)
 }
 
 gboolean
+ol_dbus_get_bool (DBusGProxy *proxy, const gchar *method, gboolean *returnval)
+{
+  g_return_val_if_fail (proxy != NULL, FALSE);
+  g_return_val_if_fail (method != NULL, FALSE);
+  g_return_val_if_fail (returnval != NULL, FALSE);
+  return dbus_g_proxy_call (proxy,
+                            method,
+                            NULL,
+                            G_TYPE_INVALID,
+                            G_TYPE_BOOLEAN,
+                            returnval,
+                            G_TYPE_INVALID);
+}
+
+gboolean
 ol_dbus_invoke (DBusGProxy *proxy, const gchar *method)
 {
   g_return_val_if_fail (proxy != NULL, FALSE);

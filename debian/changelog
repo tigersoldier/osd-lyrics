@@ -1,16 +1,13 @@
-osdlyrics (0.2-0~20091031~intrepid1) intrepid; urgency=low
+osdlyrics (0.2-0~20091124~karmic1) karmic; urgency=low
 
   * ADD: Player controll interface
   * ADD: Lyric file location matching patterns support
+  - ADD: Redownload lyric file via pop-up menu
+  - CHANGE: quit when no player available
+  - FIX: Check status before getting music info or length for exaile 0.3
   - FIX: Crashes when quitting MPRIS-based players
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 01 Nov 2009 21:32:25 +0800
-
-osdlyrics (0.2-0~20091031~karmic1) karmic; urgency=low
-
-  * ADD: Player controll interface
-  * ADD: Lyric file location matching patterns support
-  - FIX: Crashes when quitting MPRIS-based players
- -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Sun, 01 Nov 2009 21:32:25 +0800
+  - FIX: Check if the type of file is a regular file
+ -- Tiger Soldier (OSD Lyrics) <tigersoldi@gmail.com>  Tue, 24 Nov 2009 23:44:03 +0800
 
 osdlyrics (0.2-0~20091015~karmic1) karmic; urgency=low
 

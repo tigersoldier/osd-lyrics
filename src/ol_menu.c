@@ -17,6 +17,7 @@
 #include "ol_commands.h"
 #include "ol_app.h"
 #include "ol_glade.h"
+#include "ol_debug.h"
 
 static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
 static GtkWidget *popup_menu = NULL;
@@ -69,7 +70,8 @@ ol_menu_download (GtkWidget *widget, gpointer data)
 static void
 ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)
 {
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
+  ol_log_func ();
+  ol_logf (OL_DEBUG, "  name:%s\n", name);
   if (strcmp (name, "locked") == 0)
   {
     gboolean locked = ol_config_get_bool (config, "OSD", "locked");
@@ -131,7 +133,7 @@ ol_menu_play (GtkWidget *widget, gpointer data)
   OlPlayerController *player = ol_app_get_controller ();
   if (player == NULL)
     return;
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   ol_player_play (player);
 }
 
@@ -217,6 +219,7 @@ ol_menu_init ()
 static void
 ol_menu_update_player_control ()
 {
+  ol_log_func ();
   OlPlayerController *controller = ol_app_get_controller ();
   if (menu.play)
   {
@@ -280,6 +283,7 @@ ol_menu_update_player_control ()
 GtkWidget*
 ol_menu_get_popup ()
 {
+  ol_log_func ();
   if (popup_menu == NULL)
   {
     ol_menu_init ();
