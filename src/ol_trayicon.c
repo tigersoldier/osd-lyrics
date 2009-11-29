@@ -31,14 +31,26 @@ popup (GtkStatusIcon *status_icon,
 
 void ol_trayicon_inital ()
 {
-  status_icon = gtk_status_icon_new_from_file (TRAYICON_FILE);
-  gtk_status_icon_set_visible (status_icon, TRUE);
-  gtk_status_icon_set_tooltip (status_icon, _("OSD Lyrics"));
+  if (status_icon == NULL)
+  {
+    status_icon = gtk_status_icon_new_from_file (TRAYICON_FILE);
+    gtk_status_icon_set_visible (status_icon, TRUE);
+    gtk_status_icon_set_tooltip (status_icon, _("OSD Lyrics"));
 
-  /* Connect signals */
-  g_signal_connect (G_OBJECT (status_icon), "popup-menu",
-                    G_CALLBACK (popup), NULL);
+    /* Connect signals */
+    g_signal_connect (G_OBJECT (status_icon), "popup-menu",
+                      G_CALLBACK (popup), NULL);
 
-  g_signal_connect (G_OBJECT (status_icon), "activate",
-                    G_CALLBACK (activate), NULL);
+    g_signal_connect (G_OBJECT (status_icon), "activate",
+                      G_CALLBACK (activate), NULL);
+  }
+}
+
+void ol_trayicon_free ()
+{
+  if (status_icon != NULL)
+  {
+    g_object_unref (status_icon);
+    status_icon = NULL;
+  }
 }

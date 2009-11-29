@@ -33,13 +33,15 @@ static struct _OptionWidgets
   GtkWidget *lrc_filename;
   GtkWidget *lrc_filename_text;
   GtkWidget *lrc_filename_sample;
+  GtkWidget *path_chooser;
+  GtkWidget *filename_menu;
 } options;
 
 static struct ListExtraWidgets
 {
   GtkWidget *entry;
   GtkWidget *add_button;
-  GtkWidget *remove_button;
+  GtkWidget *extra_button;
   GtkWidget *list;
 } lrc_path_widgets, lrc_filename_widgets;
 
@@ -65,10 +67,24 @@ void ol_option_preview_expose (GtkWidget *widget,
                                gpointer data);
 void ol_option_lrc_filename_changed (GtkEditable *editable,
                                      gpointer user_data);
+void ol_option_menu_title_activate (GtkMenuItem *menuitem,
+                                    gpointer user_data);
+void ol_option_menu_artist_activate (GtkMenuItem *menuitem,
+                                    gpointer user_data);
+void ol_option_menu_album_activate (GtkMenuItem *menuitem,
+                                    gpointer user_data);
+void ol_option_menu_number_activate (GtkMenuItem *menuitem,
+                                    gpointer user_data);
+void ol_option_menu_filename_activate (GtkMenuItem *menuitem,
+                                    gpointer user_data);
 static void ol_option_list_add_clicked (GtkButton *button,
                                         struct ListExtraWidgets *widgets);
 static void ol_option_list_remove_clicked (GtkButton *button,
                                            struct ListExtraWidgets *widgets);
+void ol_option_filename_clicked (GtkButton *button,
+                                 struct ListExtraWidgets *widgets);
+void ol_option_path_clicked (GtkButton *button,
+                             struct ListExtraWidgets *widgets);
 static void ol_option_list_select_changed (GtkTreeSelection *selection,
                                            gpointer data);
 static void ol_option_list_entry_changed (GtkEditable *editable,
@@ -84,6 +100,9 @@ static void list_remove_clicked (GtkCellRenderer *cell,
 static void list_browse_clicked (GtkCellRenderer *cell,
                                  gchar *path,
                                  GtkTreeView *view);
+static void list_pattern_clicked (GtkCellRenderer *cell,
+                                  gchar *path,
+                                  GtkTreeView *view);
 
 /** 
  * @brief Get font family and font size from a GtkFontButton
@@ -160,12 +179,16 @@ ol_option_list_add_clicked (GtkButton *button,
   GtkTreeIter iter;
   gtk_list_store_append (GTK_LIST_STORE (model), &iter);
   gtk_tree_selection_select_iter (selection, &iter);
+  if (widgets->entry)
+    gtk_widget_grab_focus (widgets->entry);
 }
 
 static void
 ol_option_list_remove_clicked (GtkButton *button,
                                struct ListExtraWidgets *widgets)
 {
+  ol_assert (button != NULL);
+  ol_assert (widgets != NULL);
   if (button == NULL || widgets == NULL)
     return;
   if (widgets->list == NULL)
@@ -177,6 +200,51 @@ ol_option_list_remove_clicked (GtkButton *button,
   if (!selected)
     return;
   gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+}
+
+void
+ol_option_filename_clicked (GtkButton *button,
+                            struct ListExtraWidgets *widgets)
+{
+  ol_log_func ();
+  ol_assert (options.filename_menu != NULL);
+  gtk_menu_popup (GTK_MENU (options.filename_menu),
+                  NULL,         /* parent_menu_shell */
+                  NULL,         /* parent_menu_item */
+                  NULL,         /* func */
+                  NULL,         /* data */
+                  1,
+                  gtk_get_current_event_time());
+}
+
+void
+ol_option_path_clicked (GtkButton *button,
+                        struct ListExtraWidgets *widgets)
+{
+  ol_log_func ();
+  ol_assert (options.path_chooser != NULL);
+  ol_assert (lrc_path_widgets.entry != NULL);
+  const char *current_path = gtk_entry_get_text (GTK_ENTRY (lrc_path_widgets.entry));
+  if (strcmp (current_path, "%s") != 0)
+  {  
+    ol_debugf ("  current path:%s\n", current_path);
+    char expanded_path[BUFFER_SIZE];
+    /* expand `~' to home directory*/
+    ol_path_expand_path_pattern (current_path, NULL,
+                                 expanded_path, BUFFER_SIZE);
+    ol_debugf ("  expanded path:%s\n", expanded_path);
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (options.path_chooser),
+                                         expanded_path);
+  }
+  if (gtk_dialog_run (GTK_DIALOG (options.path_chooser)) == GTK_RESPONSE_ACCEPT)
+  {
+    char *path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (options.path_chooser));
+    ol_debugf ("  path:%s\n", path);
+    gtk_entry_set_text (GTK_ENTRY (lrc_path_widgets.entry),
+                                   path);
+    g_free (path);
+  }
+  gtk_widget_hide (options.path_chooser);
 }
 
 static void
@@ -262,9 +330,9 @@ ol_option_list_select_changed (GtkTreeSelection *selection, gpointer data)
       gtk_entry_set_text (GTK_ENTRY (widgets->entry), "");
     }
   }
-  if (widgets->remove_button != NULL)
+  if (widgets->extra_button != NULL)
   {
-    gtk_widget_set_sensitive (widgets->remove_button, selected);
+    gtk_widget_set_sensitive (widgets->extra_button, selected);
   }
 }
 
@@ -788,12 +856,6 @@ init_list (struct ListExtraWidgets *widgets,
                       G_CALLBACK (ol_option_list_entry_changed),
                       (gpointer) widgets);
   }
-  if (widgets->remove_button != NULL)
-  {
-    g_signal_connect (G_OBJECT (widgets->remove_button), "clicked",
-                      G_CALLBACK (ol_option_list_remove_clicked),
-                      (gpointer) widgets);
-  }
   if (widgets->add_button != NULL)
   {
     g_signal_connect (G_OBJECT (widgets->add_button), "clicked",
@@ -832,7 +894,69 @@ list_browse_clicked (GtkCellRenderer *cell,
                      gchar *path,
                      GtkTreeView *view)
 {
-  
+  ol_log_func ();
+}
+
+static void
+list_pattern_clicked (GtkCellRenderer *cell,
+                      gchar *path,
+                      GtkTreeView *view)
+{
+  ol_log_func ();
+}
+
+static void
+insert_to_filename (const char *text)
+{
+  ol_log_func ();
+  ol_debugf ("  text:%s\n", text);
+  ol_assert (lrc_filename_widgets.entry != NULL);
+  ol_assert (text != NULL);
+  GtkEditable *editable = GTK_EDITABLE (lrc_filename_widgets.entry);
+  gtk_editable_delete_selection (editable);
+  gint position = gtk_editable_get_position (editable);
+  gtk_editable_insert_text (editable,
+                            text,
+                            strlen (text),
+                            &position);
+  ol_debugf ("  position after: %d\n", position);
+  gtk_widget_grab_focus (lrc_filename_widgets.entry);
+  gtk_editable_set_position (editable, position);
+}
+
+void
+ol_option_menu_title_activate (GtkMenuItem *menuitem,
+                               gpointer user_data)
+{
+  insert_to_filename ("%t");
+}
+
+void
+ol_option_menu_artist_activate (GtkMenuItem *menuitem,
+                                gpointer user_data)
+{
+  insert_to_filename ("%p");
+}
+
+void
+ol_option_menu_album_activate (GtkMenuItem *menuitem,
+                               gpointer user_data)
+{
+  insert_to_filename ("%a");
+}
+
+void
+ol_option_menu_number_activate (GtkMenuItem *menuitem,
+                                gpointer user_data)
+{
+  insert_to_filename ("%n");
+}
+
+void
+ol_option_menu_filename_activate (GtkMenuItem *menuitem,
+                                  gpointer user_data)
+{
+  insert_to_filename ("%f");
 }
 
 void
@@ -884,9 +1008,9 @@ ol_option_show ()
     lrc_path_widgets.entry = options.lrc_path_text;
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_glade_get_widget ("add-lrc-path");
-    lrc_path_widgets.remove_button = ol_glade_get_widget ("remove-lrc-path");
+    lrc_path_widgets.extra_button = ol_glade_get_widget ("lrc-path-browse");
     struct ListExtraButton path_buttons[] = {
-      {GTK_STOCK_DIRECTORY, list_browse_clicked},
+      /* {GTK_STOCK_DIRECTORY, list_browse_clicked}, */
       {NULL, NULL},
     };
     init_list (&lrc_path_widgets, path_buttons);
@@ -894,12 +1018,24 @@ ol_option_show ()
     lrc_filename_widgets.entry = options.lrc_filename_text;
     lrc_filename_widgets.list = options.lrc_filename;
     lrc_filename_widgets.add_button = ol_glade_get_widget ("add-lrc-filename");
-    lrc_filename_widgets.remove_button = ol_glade_get_widget ("remove-lrc-filename");
+    lrc_filename_widgets.extra_button = ol_glade_get_widget ("lrc-filename-pattern");
     struct ListExtraButton file_buttons[] = {
-      {GTK_STOCK_DIRECTORY, list_browse_clicked},
+      /* {GTK_STOCK_INFO, list_pattern_clicked}, */
       {NULL, NULL},
     };
     init_list (&lrc_filename_widgets, file_buttons);
+
+    options.path_chooser = gtk_file_chooser_dialog_new (_("Select a folder"),
+                                                        GTK_WINDOW (window),
+                                                        GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+                                                        GTK_STOCK_CANCEL,
+                                                        GTK_RESPONSE_CANCEL,
+                                                        GTK_STOCK_OPEN,
+                                                        GTK_RESPONSE_ACCEPT,
+                                                        NULL);
+    gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
+                                         TRUE);
+    options.filename_menu = ol_glade_get_widget ("filename-pattern-popup");
   }
   ol_option_update_widget (&options);
   gtk_dialog_run (GTK_DIALOG (window));

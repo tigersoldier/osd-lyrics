@@ -399,5 +399,6 @@ main (int argc, char **argv)
   ol_player_free ();
   ol_osd_module_destroy (module);
   module = NULL;
+  ol_trayicon_free ();
   return 0;
 }

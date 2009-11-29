@@ -647,25 +647,36 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="visible">True</property>
                                     <property name="homogeneous">True</property>
                                     <child>
-                                      <widget class="GtkButton" id="add-lrc-path">
-                                        <property name="label">gtk-add</property>
+                                      <widget class="GtkButton" id="lrc-path-browse">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="use_stock">True</property>
+                                        <property name="relief">none</property>
+                                        <signal name="clicked" handler="ol_option_path_clicked"/>
+                                        <child>
+                                          <widget class="GtkImage" id="image3">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-directory</property>
+                                          </widget>
+                                        </child>
                                       </widget>
                                       <packing>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkButton" id="remove-lrc-path">
-                                        <property name="label">gtk-remove</property>
+                                      <widget class="GtkButton" id="add-lrc-path">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_stock">True</property>
+                                        <property name="relief">none</property>
+                                        <property name="use_underline">True</property>
+                                        <child>
+                                          <widget class="GtkImage" id="image2">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-add</property>
+                                          </widget>
+                                        </child>
                                       </widget>
                                       <packing>
                                         <property name="position">1</property>
@@ -745,6 +756,11 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   <widget class="GtkEntry" id="lrc-filename-text">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="tooltip" translatable="yes" comments="Tooltip for lyric filename pattern. Title is the title of the track.">  %t - Title
+  %p - Artist
+  %a - Album
+  %n - Track number
+  %f - File name (without extension)</property>
                                     <property name="invisible_char">&#x25CF;</property>
                                     <signal name="changed" handler="ol_option_lrc_filename_changed"/>
                                   </widget>
@@ -756,24 +772,35 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   <widget class="GtkHBox" id="hbox8">
                                     <property name="visible">True</property>
                                     <child>
-                                      <widget class="GtkButton" id="add-lrc-filename">
-                                        <property name="label">gtk-add</property>
+                                      <widget class="GtkButton" id="lrc-filename-pattern">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_stock">True</property>
+                                        <property name="relief">none</property>
+                                        <signal name="clicked" handler="ol_option_filename_clicked"/>
+                                        <child>
+                                          <widget class="GtkImage" id="image5">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-edit</property>
+                                          </widget>
+                                        </child>
                                       </widget>
                                       <packing>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkButton" id="remove-lrc-filename">
-                                        <property name="label">gtk-remove</property>
+                                      <widget class="GtkButton" id="add-lrc-filename">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_stock">True</property>
+                                        <property name="relief">none</property>
+                                        <child>
+                                          <widget class="GtkImage" id="image4">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-add</property>
+                                          </widget>
+                                        </child>
                                       </widget>
                                       <packing>
                                         <property name="position">1</property>
@@ -799,21 +826,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="position">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label24">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">  %t - Title
-  %p - Artist
-  %a - Album
-  %n - Track number
-  %f - File name (without extension)</property>
-                              </widget>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="position">3</property>
                               </packing>
                             </child>
                           </widget>
@@ -1145,6 +1157,54 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
             <property name="position">0</property>
           </packing>
         </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkMenu" id="filename-pattern-popup">
+    <property name="visible">True</property>
+    <child>
+      <widget class="GtkMenuItem" id="menu-track-title">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">The title of the current track</property>
+        <property name="label" translatable="yes">%t - Title</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_option_menu_title_activate"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkMenuItem" id="menu-track-artist">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">The artist of the current track</property>
+        <property name="label" translatable="yes">%p - Artist</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_option_menu_artist_activate"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkMenuItem" id="menu-track-album">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">The title of album of the current track</property>
+        <property name="label" translatable="yes">%a - Album</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_option_menu_album_activate"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkMenuItem" id="menu-track-number">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">The number of the current track</property>
+        <property name="label" translatable="yes">%n - Track number</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_option_menu_number_activate"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkMenuItem" id="menu-track-filename">
+        <property name="visible">True</property>
+        <property name="tooltip" translatable="yes">The filename of the current track</property>
+        <property name="label" translatable="yes">%f - Filename</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_option_menu_filename_activate"/>
       </widget>
     </child>
   </widget>

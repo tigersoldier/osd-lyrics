@@ -1,4 +1,13 @@
+2009-11-29  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_option.c: CHANGE： The list of lyric path and filename pattern are improved.
+
+	* src/ol_player_rhythmbox.c: Rhythmbox doen't return false when stopped.
+	The elapsed time of Rhythmbox won't jump when resume playing.
+
 2009-11-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_module.c: FIX: Remove fload reference of osd_window
 
 	* src/ol_player_rhythmbox.c (ol_player_rhythmbox_get_controller): FIX: The handler of get_capacity of rhythmbox is set correctly.
 	ADD: Rhythmbox now supports all player futures

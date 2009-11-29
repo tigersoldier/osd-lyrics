@@ -19,7 +19,7 @@ gboolean ol_is_string_empty (const char *str);
 /** 
  * @brief allocate memory for pathname, from APUE
  * 
- * @return pointer to this memory if success, or NULL
+ * @return pointer to this memory if success, or NULL. Should be free with free()
  */
 char* ol_path_alloc(void);
 

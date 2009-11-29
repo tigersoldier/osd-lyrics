@@ -1,4 +1,5 @@
 #include "ol_osd_module.h"
+#include "ol_debug.h"
 /** 
  * @brief Gets the real lyric of the given lyric
  * A REAL lyric is the nearest lyric to the given lyric, whose text is not empty
@@ -167,7 +168,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
 static void
 ol_osd_module_init_osd (OlOsdModule *module)
 {
-  module->osd = OL_OSD_WINDOW (ol_osd_window_new ());
+  module->osd = OL_OSD_WINDOW (g_object_ref_sink (ol_osd_window_new ()));
   if (module->osd == NULL)
     return;
   /* ol_osd_window_resize (osd, 1024, 100); */
@@ -213,7 +214,10 @@ void
 ol_osd_module_destroy (OlOsdModule *module)
 {
   if (module->osd != NULL)
+  {
     g_object_unref (module->osd);
+    module->osd = NULL;
+  }
   ol_music_info_finalize (&module->music_info);
   g_free (module);
 }

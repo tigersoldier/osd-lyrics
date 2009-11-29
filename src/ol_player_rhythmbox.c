@@ -5,6 +5,7 @@
 #include "ol_utils_dbus.h"
 #include "ol_utils.h"
 #include "ol_debug.h"
+#include "ol_elapse_emulator.h"
 
 static const char SERVICE[] = "org.gnome.Rhythmbox";
 static const char PATH_PLAYER[] = "/org/gnome/Rhythmbox/Player";
@@ -23,6 +24,7 @@ static const char PREVIOUSE[] = "previous";
 static const char NEXT[] = "next";
 static const char GET_PLAYING[] = "getPlaying";
 static const char SEEK[] = "setElapsed";
+static GHashTable *STOP_PROPERTIES = (GHashTable*)-1;
 
 static DBusGProxy *proxy_player = NULL;
 static DBusGProxy *proxy_shell = NULL;
@@ -46,16 +48,11 @@ static gboolean ol_player_rhythmbox_prev ();
 static gboolean ol_player_rhythmbox_next ();
 static gboolean ol_player_rhythmbox_seek (int pos_ms);
 
-static int first_time = -1;
-static int prev_time = 0;
-struct timeval begin_time;
+static OlElapseEmulator elapse;
 
 static int
 ol_player_rhythmbox_init_timer (int time)
 {
-  first_time = time;
-  prev_time = time;
-  gettimeofday (&begin_time, NULL);
 }
 
 /** 
@@ -70,32 +67,15 @@ ol_player_rhythmbox_init_timer (int time)
 static int
 ol_player_rhythmbox_get_real_ms (int time)
 {
-  if (first_time < 0 || prev_time - time > 1000 || time - prev_time > 1000)
+  if (ol_player_rhythmbox_get_status () != OL_PLAYER_PLAYING)
   {
-    /* reinitialize timer */
-    puts ("init1");
-    printf ("prev:%d, time:%d\n", prev_time, time);
-    ol_player_rhythmbox_init_timer (time);
+    int real_time = ol_elapse_emulator_get_last_ms (&elapse, time);
+    /* reset timer to current time to avoid error on resume playing*/
+    ol_elapse_emulator_init (&elapse, real_time, elapse.accuracy);
+    return real_time;
   }
   else
-  {
-    struct timeval current_time;
-    gettimeofday (&current_time, NULL);
-    int real_time = first_time +
-      (current_time.tv_sec - begin_time.tv_sec) * 1000 +
-      (current_time.tv_usec - begin_time.tv_usec) / 1000;
-    if (real_time - time > 1000 || time - real_time > 1000 )
-    {
-      ol_logf (OL_DEBUG, "real_time: %d, time: %d\n", real_time, time);
-      ol_player_rhythmbox_init_timer (time);
-    }
-    else
-    {
-      prev_time = time;
-      time = real_time;
-    }
-  }
-  return time;
+    return ol_elapse_emulator_get_real_ms (&elapse, time);
 }
 
 static gboolean
@@ -128,7 +108,7 @@ ol_player_rhythmbox_get_song_properties ()
   if (proxy_player == NULL || proxy_shell == NULL)
     if (!ol_player_rhythmbox_init_dbus ())
       return NULL;
-  GHashTable *data_list = NULL;;
+  GHashTable *data_list = NULL;
   char *uri = NULL;
   if (ol_dbus_get_string (proxy_player, GET_URI, &uri))
   {
@@ -142,8 +122,8 @@ ol_player_rhythmbox_get_song_properties ()
     }
     else
     {
-      ol_logf (OL_DEBUG, "failed %s\n", uri);
-      data_list = NULL;
+      ol_logf (OL_DEBUG, "  failed, uri:%s\n", uri);
+      data_list = STOP_PROPERTIES;
     }
     g_free (uri);
   }
@@ -161,26 +141,30 @@ ol_player_rhythmbox_get_music_info (OlMusicInfo *info)
   GHashTable *data_list;
   char *uri = NULL;
   gboolean ret = TRUE;
-  if (data_list = ol_player_rhythmbox_get_song_properties ())
+  data_list = ol_player_rhythmbox_get_song_properties ();
+  if (data_list)
   {
     ol_music_info_clear (info);
-    info->artist = g_strdup (ol_get_string_from_hash_table (data_list, PROP_ARTIST));
-    info->title = g_strdup (ol_get_string_from_hash_table (data_list, PROP_TITLE));
-    info->album = g_strdup (ol_get_string_from_hash_table (data_list, PROP_ALBUM));
-    info->track_number = ol_get_int_from_hash_table (data_list, PROP_TRACK);
-    ol_dbus_get_string (proxy_player, GET_URI, &info->uri);
-    ol_debugf ("gogogo\n");
-    g_hash_table_destroy (data_list);
-    ol_debugf("  artist:%s\n"
-              "  title:%s\n"
-              "  album:%s\n"
-              "  track:%d\n"
-              "  uri:%s\n",
-              info->artist,
-              info->title,
-              info->album,
-              info->track_number,
-              info->uri);
+    if (data_list != STOP_PROPERTIES)
+    {
+      info->artist = g_strdup (ol_get_string_from_hash_table (data_list, PROP_ARTIST));
+      info->title = g_strdup (ol_get_string_from_hash_table (data_list, PROP_TITLE));
+      info->album = g_strdup (ol_get_string_from_hash_table (data_list, PROP_ALBUM));
+      info->track_number = ol_get_int_from_hash_table (data_list, PROP_TRACK);
+      ol_dbus_get_string (proxy_player, GET_URI, &info->uri);
+      ol_debugf ("gogogo\n");
+      g_hash_table_destroy (data_list);
+      ol_debugf("  artist:%s\n"
+                "  title:%s\n"
+                "  album:%s\n"
+                "  track:%d\n"
+                "  uri:%s\n",
+                info->artist,
+                info->title,
+                info->album,
+                info->track_number,
+                info->uri);
+    }
   }
   else
   {
@@ -192,6 +176,8 @@ ol_player_rhythmbox_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_rhythmbox_get_played_time (int *played_time)
 {
+  /* ol_log_func (); */
+  ol_assert (played_time != NULL);
   if (!played_time)
     return FALSE;
   if ((!proxy_player || !proxy_shell) && !ol_player_rhythmbox_init_dbus ())
@@ -208,8 +194,15 @@ ol_player_rhythmbox_get_music_length (int *len)
   GHashTable *data_list = ol_player_rhythmbox_get_song_properties ();
   if (data_list == NULL)
     return FALSE;
-  *len = ol_get_int_from_hash_table (data_list, "duration");
-  g_hash_table_destroy (data_list);
+  if (data_list == STOP_PROPERTIES)
+  {
+    *len = 0;
+  }
+  else
+  {
+    *len = ol_get_int_from_hash_table (data_list, "duration");
+    g_hash_table_destroy (data_list);
+  }
   return TRUE;
 }
 
@@ -224,8 +217,7 @@ ol_player_rhythmbox_get_activated ()
 static gboolean
 ol_player_rhythmbox_init_dbus ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   DBusGConnection *connection = ol_dbus_get_connection ();
   if (connection == NULL)
   {
@@ -335,6 +327,7 @@ ol_player_rhythmbox_pause ()
 static gboolean
 ol_player_rhythmbox_stop ()
 {
+  ol_log_func ();
   if (!ol_player_rhythmbox_pause ())
     return FALSE;
   return ol_player_rhythmbox_seek (0);
@@ -371,7 +364,7 @@ ol_player_rhythmbox_seek (int pos_ms)
                             SEEK,
                             NULL,
                             G_TYPE_UINT,
-                            (guint) pos_ms,
+                            (guint) pos_ms / 1000,
                             G_TYPE_INVALID,
                             G_TYPE_INVALID);
 }
@@ -380,6 +373,7 @@ OlPlayerController*
 ol_player_rhythmbox_get_controller ()
 {
   ol_log_func ();
+  ol_elapse_emulator_init (&elapse, 0, 1000);
   OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_rhythmbox_get_music_info;
   controller->get_activated = ol_player_rhythmbox_get_activated;

@@ -18,6 +18,7 @@
  */
 #include <gtk/gtkprivate.h>
 #include "ol_osd_window.h"
+#include "ol_debug.h"
 
 #define OL_OSD_WINDOW_GET_PRIVATE(obj)   (G_TYPE_INSTANCE_GET_PRIVATE  \
                                           ((obj),                      \
@@ -979,6 +980,7 @@ ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
 void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
+  ol_log_func ();
   /* fprintf (stderr, "%s\n%s\n", */
   /*          __FUNCTION__, lyric); */
   g_return_if_fail (OL_IS_OSD_WINDOW (osd));
@@ -1246,6 +1248,7 @@ ol_osd_window_new ()
 static void
 ol_osd_window_destroy (GtkObject *object)
 {
+  ol_log_func ();
   GtkWidget *widget = GTK_WIDGET (object);
   OlOsdWindow *osd = OL_OSD_WINDOW (object);
   int i;
@@ -1256,6 +1259,21 @@ ol_osd_window_destroy (GtkObject *object)
       g_free (osd->lyrics[i]);
       osd->lyrics[i] = NULL;
     }
+    if (osd->active_lyric_pixmap[i] != NULL)
+    {
+      g_object_unref (osd->active_lyric_pixmap[i]);
+      osd->active_lyric_pixmap[i] = NULL;
+    }
+    if (osd->inactive_lyric_pixmap[i] != NULL)
+    {
+      g_object_unref (osd->inactive_lyric_pixmap[i]);
+      osd->inactive_lyric_pixmap[i] = NULL;
+    }
+  }
+  if (osd->shape_pixmap != NULL)
+  {
+    g_object_unref (osd->shape_pixmap);
+    osd->shape_pixmap = NULL;
   }
   if (osd->render_context != NULL)
   {
