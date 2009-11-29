@@ -40,6 +40,7 @@ ol_about_show ()
     window = ol_glade_get_widget ("aboutdialog");
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (window), PACKAGE_VERSION);
     g_signal_connect (window, "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
+    gtk_about_dialog_set_logo (
   }
   g_return_if_fail (window != NULL);
   gtk_dialog_run (GTK_DIALOG (window));

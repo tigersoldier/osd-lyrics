@@ -1,3 +1,7 @@
+2009-11-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* configure.ac: New release version
+
 2009-11-29  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_option.c: CHANGE： The list of lyric path and filename pattern are improved.
