@@ -110,12 +110,21 @@ on_search_done (struct OlLrcFetchResult *result)
 {
   fprintf (stderr, "%s\n", __FUNCTION__);
   g_return_val_if_fail (result != NULL, FALSE);
-  g_return_val_if_fail (result->count > 0, FALSE);
   g_return_val_if_fail (result->candidates != NULL, FALSE);
   g_return_val_if_fail (result->engine != NULL, FALSE);
-  for_each_lrc_pattern (&result->info,
-                        on_search_done_func,
-                        (gpointer) result);
+  if (result->count > 0)
+  {
+    for_each_lrc_pattern (&result->info,
+                          on_search_done_func,
+                          (gpointer) result);
+    if (module != NULL)
+      ol_osd_module_clear_message (module);
+  }
+  else
+  {
+    if (module != NULL)
+      ol_osd_module_search_fail_message (module, _("Lyrics not found"));
+  }
   return FALSE;
 }
 
@@ -152,6 +161,8 @@ gboolean ol_app_download_lyric (OlMusicInfo *music_info)
   fprintf (stderr, "Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
   ol_lrc_fetch_begin_search (engine, music_info);
+  if (module != NULL)
+    ol_osd_module_search_message (module, _("Searching lyrics"));
 }
 
 gboolean

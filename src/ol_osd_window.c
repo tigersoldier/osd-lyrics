@@ -229,7 +229,7 @@ ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event)
 static gboolean
 ol_osd_window_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
 {
-  printf ("enter\n");
+  ol_log_func ();
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (!priv->locked && !gdk_window_is_visible (osd->bg_window))
@@ -243,9 +243,9 @@ ol_osd_window_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
 static gboolean
 ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
 {
-  printf ("leave\n"
-          "  (%0.0lf,%0.0lf)\n",
-          event->x_root, event->y_root);
+  ol_log_func ();
+  ol_debugf ("  (%0.0lf,%0.0lf)\n",
+             event->x_root, event->y_root);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (!priv->pressed &&
@@ -263,7 +263,7 @@ ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
 static void
 ol_osd_window_show (GtkWidget *widget)
 {
-  printf ("show\n");
+  ol_log_func ();
   GTK_WIDGET_SET_FLAGS (widget, GTK_VISIBLE);
   gtk_widget_map (widget);
 }
@@ -295,8 +295,8 @@ ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd)
 static void
 ol_osd_window_realize (GtkWidget *widget)
 {
-  g_return_if_fail (!GTK_WIDGET_REALIZED (widget));
-  printf ("realize\n");
+  ol_assert (!GTK_WIDGET_REALIZED (widget));
+  ol_log_func ();
   OlOsdWindow *osd;
   GdkWindowAttr attr;
   GdkWindow *parent_window;
@@ -494,7 +494,7 @@ ol_osd_window_mouse_timer (gpointer data)
 static void
 ol_osd_window_map (GtkWidget *widget)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   if (GTK_WIDGET_MAPPED (widget))
     return;
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
@@ -519,7 +519,7 @@ ol_osd_window_map (GtkWidget *widget)
 static void
 ol_osd_window_unmap (GtkWidget *widget)
 {
-  printf ("unmap\n");
+  ol_log_func ();
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (GTK_WIDGET_MAPPED (widget))
@@ -649,8 +649,7 @@ ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked)
 static void
 ol_osd_window_compute_position (OlOsdWindow *osd, GtkAllocation *alloc)
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   if (alloc == NULL)
     return;
   GtkWidget *widget = GTK_WIDGET (osd);
@@ -953,6 +952,8 @@ ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
 {
   int i;
   int w, h;
+  if (!GTK_WIDGET_REALIZED (GTK_WIDGET (osd)))
+    return;
   /* draws the inactive pixmaps */
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
@@ -969,7 +970,9 @@ ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
                                     osd->active_colors[i]);
   }
   ol_osd_draw_lyric_pixmap (osd, &osd->active_lyric_pixmap[line], osd->lyrics[line]);
-  gdk_drawable_get_size (osd->active_lyric_pixmap[line], &w, &h);
+  w = h = 0;
+  if (osd->active_lyric_pixmap[line] != NULL)
+    gdk_drawable_get_size (osd->active_lyric_pixmap[line], &w, &h);
   int font_height = ol_osd_render_get_font_height (osd->render_context);
   osd->lyric_rects[line].x = ol_osd_window_calc_lyric_xpos (osd, line);
   osd->lyric_rects[line].y = font_height * line * (1 + LINE_PADDING);
@@ -981,9 +984,7 @@ void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
   ol_log_func ();
-  /* fprintf (stderr, "%s\n%s\n", */
-  /*          __FUNCTION__, lyric); */
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   if (line < 0 || line >= OL_OSD_WINDOW_MAX_LINE_COUNT)
     return;
   if (osd->lyrics[line] != NULL)

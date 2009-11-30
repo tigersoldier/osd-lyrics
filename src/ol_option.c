@@ -1,6 +1,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include "ol_option.h"
+#include "ol_about.h"
 #include "ol_glade.h"
 #include "ol_config.h"
 #include "ol_osd_render.h"      /* For getting preview for OSD font and color */
@@ -59,6 +60,7 @@ enum TreeColumns {
   N_COLUMN,
 };
 
+void ol_option_about_clicked (GtkWidget *widget, gpointer data);
 void ol_option_ok_clicked (GtkWidget *widget);
 void ol_option_cancel_clicked (GtkWidget *widget);
 void ol_option_update_preview (GtkWidget *widget);
@@ -123,6 +125,12 @@ static void save_general ();
 static void load_general ();
 static void init_list (struct ListExtraWidgets *widgets,
                        struct ListExtraButton *buttons);
+
+void
+ol_option_about_clicked (GtkWidget *widget, gpointer data)
+{
+  ol_about_show ();
+}
 
 static void
 ol_option_get_font_info (GtkFontButton *font,
@@ -1036,6 +1044,10 @@ ol_option_show ()
     gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
                                          TRUE);
     options.filename_menu = ol_glade_get_widget ("filename-pattern-popup");
+    /* display the about button at the left edge */
+    gtk_button_box_set_child_secondary (ol_glade_get_widget ("dialog-action_area2"),
+                                        ol_glade_get_widget ("option-aboug"),
+                                        TRUE);
   }
   ol_option_update_widget (&options);
   gtk_dialog_run (GTK_DIALOG (window));

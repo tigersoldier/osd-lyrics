@@ -271,7 +271,7 @@ ol_player_rhythmbox_get_capacity ()
 static enum OlPlayerStatus
 ol_player_rhythmbox_get_status ()
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   if (proxy_player == NULL || proxy_shell == NULL)
     if (!ol_player_rhythmbox_init_dbus ())
       return OL_PLAYER_ERROR;

@@ -1,5 +1,7 @@
 #include "ol_osd_module.h"
 #include "ol_debug.h"
+
+const int MESSAGE_DURATION_MS = 3000;
 /** 
  * @brief Gets the real lyric of the given lyric
  * A REAL lyric is the nearest lyric to the given lyric, whose text is not empty
@@ -15,11 +17,12 @@ static void ol_osd_module_update_next_lyric (OlOsdModule *module,
 static void ol_osd_module_init_osd (OlOsdModule *module);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
+static gboolean hide_message (OlOsdModule *module);
 
 static void
 ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   OlConfig *config = ol_config_get_instance ();
   double xalign, yalign;
   ol_osd_window_get_alignment (osd, &xalign, &yalign);
@@ -199,12 +202,14 @@ ol_osd_module_init_osd (OlOsdModule *module)
 OlOsdModule*
 ol_osd_module_new ()
 {
+  ol_log_func ();
   OlOsdModule *module = g_new (OlOsdModule, 1);
   module->osd = NULL;
   module->lrc_file = NULL;
   module->lrc_id = -1;
   module->lrc_next_id = -1;
   module->current_line = 0;
+  module->message_source = 0;
   ol_music_info_init (&module->music_info);
   ol_osd_module_init_osd (module);
   return module;
@@ -213,6 +218,7 @@ ol_osd_module_new ()
 void
 ol_osd_module_destroy (OlOsdModule *module)
 {
+  ol_log_func ();
   if (module->osd != NULL)
   {
     g_object_unref (module->osd);
@@ -225,6 +231,7 @@ ol_osd_module_destroy (OlOsdModule *module)
 void
 ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info)
 {
+  ol_log_func ();
   g_return_if_fail (music_info != NULL);
   ol_music_info_copy (&module->music_info, music_info);
   if (module->osd != NULL)
@@ -294,13 +301,16 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
       if (ol_config_get_bool (ol_config_get_instance (), "General", "visible"))
         gtk_widget_show (GTK_WIDGET (module->osd));
     }
-  }
+  } /* if (module->lrc_file != NULL && module->osd != NULL) */
   else
   {
     if (module->osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd)))
     {
-      module->display = FALSE;
-      gtk_widget_hide (GTK_WIDGET (module->osd));
+      if (module->message_source == 0)
+      {
+        module->display = FALSE;
+        gtk_widget_hide (GTK_WIDGET (module->osd));
+      }
     }
   }
 }
@@ -320,7 +330,12 @@ ol_osd_module_get_real_lyric (LrcInfo *lrc)
 void
 ol_osd_module_set_lrc (OlOsdModule *module, LrcQueue *lrc_file)
 {
+  ol_log_func ();
   module->lrc_file = lrc_file;
+  if (lrc_file != NULL && module->message_source != 0)
+  {
+    ol_osd_module_clear_message (module);
+  }
   /* if (lrc_file != NULL) */
   /*   module->display = TRUE; */
 }
@@ -328,5 +343,65 @@ ol_osd_module_set_lrc (OlOsdModule *module, LrcQueue *lrc_file)
 void
 ol_osd_module_set_duration (OlOsdModule *module, int duration)
 {
+  ol_log_func ();
   module->duration = duration;
+}
+
+void
+ol_osd_module_set_message (OlOsdModule *module,
+                           const char *message,
+                           int duration_ms)
+{
+  ol_log_func ();
+  ol_assert (module != NULL);
+  ol_assert (message != NULL);
+  ol_assert (module->osd != NULL);
+  if (module->lrc_file != NULL)
+    return;
+  ol_debugf ("  message:%s\n", message);
+  ol_osd_window_set_current_line (module->osd, 0);
+  ol_osd_window_set_current_percentage (module->osd, 1.0);
+  ol_osd_window_set_lyric (module->osd, 0, message);
+  ol_osd_window_set_lyric (module->osd, 1, NULL);
+  gtk_widget_show (GTK_WIDGET (module->osd));
+  if (module->message_source != 0)
+    g_source_remove (module->message_source);
+  module->message_source = g_timeout_add (duration_ms,
+                                            (GSourceFunc) hide_message,
+                                            (gpointer) module);
+}
+
+void
+ol_osd_module_search_message (OlOsdModule *module, const char *message)
+{
+  ol_osd_module_set_message (module, message, -1);
+}
+
+void
+ol_osd_module_search_fail_message (OlOsdModule *module, const char *message)
+{
+  ol_osd_module_set_message (module, message, MESSAGE_DURATION_MS);
+}
+
+static gboolean
+hide_message (OlOsdModule *module)
+{
+  ol_log_func ();
+  ol_assert (module != NULL);
+  ol_assert (module->lrc_file == NULL);
+  ol_osd_window_set_lyric (module->osd, 0, NULL);
+  gtk_widget_hide (GTK_WIDGET (module->osd));
+  module->message_source = 0;
+  return FALSE;
+}
+
+void
+ol_osd_module_clear_message (OlOsdModule *module)
+{
+  ol_log_func ();
+  if (module->message_source != 0)
+  {
+    g_source_remove (module->message_source);
+    hide_message (module);
+  }
 }

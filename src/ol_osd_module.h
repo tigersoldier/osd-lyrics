@@ -20,6 +20,7 @@ struct _OlOsdModule
   LrcQueue *lrc_file;
   gboolean display;
   OlOsdWindow *osd;
+  guint message_source;
 };
 
 OlOsdModule* ol_osd_module_new ();
@@ -28,5 +29,11 @@ void ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info)
 void ol_osd_module_set_played_time (OlOsdModule *module, int played_time);
 void ol_osd_module_set_lrc (OlOsdModule *module, LrcQueue *lrc_file);
 void ol_osd_module_set_duration (OlOsdModule *module, int duration);
+void ol_osd_module_set_message (OlOsdModule *module,
+                                const char *message,
+                                int duration_ms);
+void ol_osd_module_search_message (OlOsdModule *module, const char *message);
+void ol_osd_module_search_fail_message (OlOsdModule *module, const char *message);
+void ol_osd_module_clear_message (OlOsdModule *module);
 
 #endif /* _OL_OSD_MODULE_H_ */

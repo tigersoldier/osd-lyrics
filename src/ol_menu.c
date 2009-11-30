@@ -48,7 +48,6 @@ static struct Menu
 void ol_menu_lock (GtkWidget *widget, gpointer data);
 void ol_menu_hide (GtkWidget *widget, gpointer data);
 void ol_menu_quit (GtkWidget *widget, gpointer data);
-void ol_menu_about (GtkWidget *widget, gpointer data);
 void ol_menu_preference (GtkWidget *widget, gpointer data);
 void ol_menu_play (GtkWidget *widget, gpointer data);
 void ol_menu_pause (GtkWidget *widget, gpointer data);
@@ -113,12 +112,6 @@ ol_menu_quit (GtkWidget *widget,
               gpointer data)
 {
   gtk_main_quit ();
-}
-
-void
-ol_menu_about (GtkWidget *widget, gpointer data)
-{
-  ol_about_show ();
 }
 
 void
