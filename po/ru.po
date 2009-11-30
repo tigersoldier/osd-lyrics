@@ -7,17 +7,27 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2009-11-29 23:19+0800\n"
-"PO-Revision-Date: 2009-10-31 07:17+0000\n"
-"Last-Translator: Koterpillar <Unknown>\n"
+"POT-Creation-Date: 2009-11-30 16:22+0800\n"
+"PO-Revision-Date: 2009-11-06 15:27+0000\n"
+"Last-Translator: Klim <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-31 11:28+0000\n"
+"X-Launchpad-Export-Date: 2009-11-30 08:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_main.c:342
+#: src/ol_main.c:126
+#, fuzzy
+msgid "Lyrics not found"
+msgstr "Распо_ложение текста"
+
+#: src/ol_main.c:165
+#, fuzzy
+msgid "Searching lyrics"
+msgstr "_Неактивная лирика:"
+
+#: src/ol_main.c:353
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
@@ -66,8 +76,10 @@ msgstr "GPL v3"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  Koterpillar https://launchpad.net/~koterpillar\n"
+"  Alexey Kotlyarov https://launchpad.net/~koterpillar\n"
+"  Klim https://launchpad.net/~klim\n"
 "  Nkolay Parukhin https://launchpad.net/~parukhin\n"
+"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
 "  Vitaly Antonov https://launchpad.net/~legidium"
 
 #: data/dialogs.glade:46
@@ -154,15 +166,16 @@ msgstr "<b>Предварительный просмотр</b>"
 msgid "_OSD"
 msgstr "_OSD"
 
-#: data/dialogs.glade:701
+#: data/dialogs.glade:709
 msgid "A single \"%\" means the directory where the playing music is."
 msgstr ""
+"Просто \"%\" означает каталог, в котором расположена играющая сейчас музыка."
 
-#: data/dialogs.glade:715
+#: data/dialogs.glade:723
 msgid "<b>_Path</b>"
-msgstr ""
+msgstr "<b>_Путь</b>"
 
-#: data/dialogs.glade:759
+#: data/dialogs.glade:775
 msgid ""
 "  %t - Title\n"
 "  %p - Artist\n"
@@ -170,87 +183,89 @@ msgid ""
 "  %n - Track number\n"
 "  %f - File name (without extension)"
 msgstr ""
+"  %t - Название\n"
+"  %p - Исполнитель\n"
+"  %a - Альбом\n"
+"  %n - Номер дорожки\n"
+"  %f - Имя файла (без расширения)"
 
-#: data/dialogs.glade:838
+#: data/dialogs.glade:854
 msgid "<b>_Filename</b>"
-msgstr ""
+msgstr "<b>Имя _файла</b>"
 
-#: data/dialogs.glade:860
+#: data/dialogs.glade:876
 msgid "_Lyric Location"
-msgstr ""
+msgstr "Распо_ложение текста"
 
-#: data/dialogs.glade:881
+#: data/dialogs.glade:897
 msgid "Download _engine:"
-msgstr ""
+msgstr "Система для поиска текстов:"
 
-#: data/dialogs.glade:920 data/dialogs.glade:1125
+#: data/dialogs.glade:936 data/dialogs.glade:1155
 msgid "_Download"
 msgstr "_Скачать"
 
-#: data/dialogs.glade:983
+#: data/dialogs.glade:1015
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Когда окно OSD закрепленно, вы не можете перемещать его мышкой"
 
-#: data/dialogs.glade:984
+#: data/dialogs.glade:1016
 msgid "_Lock"
 msgstr "_Заблокировать"
 
-#: data/dialogs.glade:992
+#: data/dialogs.glade:1024
 msgid "Hide the OSD Window"
-msgstr ""
+msgstr "Скрыть OSD"
 
-#: data/dialogs.glade:993
+#: data/dialogs.glade:1025
 msgid "_Hide"
 msgstr "_Скрыть"
 
-#: data/dialogs.glade:1000
-#, fuzzy
+#: data/dialogs.glade:1032
 msgid "_Download lyric"
-msgstr "_Скачать"
+msgstr ""
 
-#: data/dialogs.glade:1100
+#: data/dialogs.glade:1123
 msgid "Choose LRC file to download"
 msgstr "Выберите LRC-файл для загрузки"
 
-#: data/dialogs.glade:1168
+#: data/dialogs.glade:1198
 msgid "The title of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1169
-#, fuzzy
+#: data/dialogs.glade:1199
 msgid "%t - Title"
-msgstr "Название"
+msgstr ""
 
-#: data/dialogs.glade:1177
+#: data/dialogs.glade:1207
 msgid "The artist of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1178
-#, fuzzy
+#: data/dialogs.glade:1208
 msgid "%p - Artist"
-msgstr "Исполнитель"
+msgstr ""
 
-#: data/dialogs.glade:1186
+#: data/dialogs.glade:1216
 msgid "The title of album of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1187
+#: data/dialogs.glade:1217
 msgid "%a - Album"
 msgstr ""
 
-#: data/dialogs.glade:1195
+#: data/dialogs.glade:1225
 msgid "The number of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1196
+#: data/dialogs.glade:1226
 msgid "%n - Track number"
 msgstr ""
 
-#: data/dialogs.glade:1204
+#: data/dialogs.glade:1234
 msgid "The filename of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1205
+#: data/dialogs.glade:1235
 msgid "%f - Filename"
 msgstr ""
 

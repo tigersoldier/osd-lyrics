@@ -1,5 +1,11 @@
 2009-11-30  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_about.c: CHANGE:Display logo in about dialog
+
+	* src/ol_osd_module.c: ADD:Display message when searching lyrics
+
+	* src/ol_osd_window.c (ol_osd_window_update_lyric_pixmap): FIX: Don't calculate the size of lyric pixmap when the lyric is NULL.
+
 	* configure.ac: New release version
 
 2009-11-29  Tiger Soldier  <tigersoldi@gmail.com>

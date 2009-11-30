@@ -1,7 +1,17 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
+PACKAGE=osd-lyrics
+PACKAGE_NAME="OSD Lyrics"
+MAJOR_VER=0
+MINOR_VER=2
+BUILD=20091130
+AC_SUBST(PACKAGE)
+AC_SUBST(PACKAGE_NAME)
+AC_SUBST(MAJOR_VER)
+AC_SUBST(MINOR_VER)
+AC_SUBST(BUILD)
 
-AC_INIT([osd-lyrics], [0.2.20091129], [http://code.google.com/p/osd-lyrics/issues/list])
+AC_INIT([osd-lyrics], [0.2.20091130], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
@@ -19,9 +29,9 @@ AC_CONFIG_FILES([ po/Makefile.in
 ])
 
 #define paths
-OL_ICONDIR="$datadir/osd-lyrics/icons"
+OL_ICONDIR="$datadir/$PACKAGE/icons"
 AC_SUBST(OL_ICONDIR)
-OL_GLADEDIR="$datadir/osd-lyrics"
+OL_GLADEDIR="$datadir/$PACKAGE"
 AC_SUBST(OL_GLADEDIR)
 
 # gprof support

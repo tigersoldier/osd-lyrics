@@ -619,11 +619,19 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <widget class="GtkTreeView" id="lrc-path">
-                                <property name="height_request">100</property>
+                              <widget class="GtkScrolledWindow" id="scrolledwindow1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="headers_visible">False</property>
+                                <property name="hscrollbar_policy">automatic</property>
+                                <property name="vscrollbar_policy">automatic</property>
+                                <child>
+                                  <widget class="GtkTreeView" id="lrc-path">
+                                    <property name="height_request">100</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="headers_visible">False</property>
+                                  </widget>
+                                </child>
                               </widget>
                               <packing>
                                 <property name="position">0</property>
@@ -739,11 +747,19 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <widget class="GtkTreeView" id="lrc-filename">
-                                <property name="height_request">100</property>
+                              <widget class="GtkScrolledWindow" id="scrolledwindow2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="headers_visible">False</property>
+                                <property name="hscrollbar_policy">automatic</property>
+                                <property name="vscrollbar_policy">automatic</property>
+                                <child>
+                                  <widget class="GtkTreeView" id="lrc-filename">
+                                    <property name="height_request">100</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="headers_visible">False</property>
+                                  </widget>
+                                </child>
                               </widget>
                               <packing>
                                 <property name="position">0</property>
@@ -965,6 +981,22 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="position">1</property>
               </packing>
             </child>
+            <child>
+              <widget class="GtkButton" id="option-aboug">
+                <property name="label">gtk-about</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="ol_option_about_clicked"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+                <property name="secondary">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -1075,15 +1107,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </widget>
     </child>
     <child>
-      <widget class="GtkImageMenuItem" id="menu-about">
-        <property name="label">gtk-about</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="ol_menu_about"/>
-      </widget>
-    </child>
-    <child>
       <widget class="GtkImageMenuItem" id="menu-quit">
         <property name="label">gtk-quit</property>
         <property name="visible">True</property>
@@ -1106,10 +1129,18 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
-          <widget class="GtkTreeView" id="candidate-list">
+          <widget class="GtkScrolledWindow" id="scrolledwindow3">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="enable_grid_lines">vertical</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <widget class="GtkTreeView" id="candidate-list">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="enable_grid_lines">vertical</property>
+              </widget>
+            </child>
           </widget>
           <packing>
             <property name="position">1</property>
@@ -1118,7 +1149,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area3">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="lrc-download">
