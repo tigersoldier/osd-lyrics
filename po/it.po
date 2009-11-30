@@ -1,0 +1,269 @@
+# Italian translation for osd-lyrics
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the osd-lyrics package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: osd-lyrics\n"
+"Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
+"POT-Creation-Date: 2009-11-30 16:22+0800\n"
+"PO-Revision-Date: 2009-11-10 13:42+0000\n"
+"Last-Translator: morphine <maledettopc@gmail.com>\n"
+"Language-Team: Italian <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-11-30 08:32+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: src/ol_main.c:126
+#, fuzzy
+msgid "Lyrics not found"
+msgstr "Posizione testo"
+
+#: src/ol_main.c:165
+#, fuzzy
+msgid "Searching lyrics"
+msgstr "Testi inattivi"
+
+#: src/ol_main.c:353
+#, c-format
+msgid "No supported player is running, exit.\n"
+msgstr ""
+
+#: src/ol_trayicon.c:38
+msgid "OSD Lyrics"
+msgstr "Testi OSD"
+
+#: src/ol_lrc_fetch_qianqian.c:306
+msgid "Qianqian"
+msgstr "Qianqian"
+
+#: src/ol_lrc_fetch_sogou.c:160
+msgid "Sogou"
+msgstr "Sogou"
+
+#: src/ol_lrc_fetch_ui.c:107
+msgid "Title"
+msgstr "Titolo"
+
+#: src/ol_lrc_fetch_ui.c:112
+msgid "Artist"
+msgstr "Artista"
+
+#: data/dialogs.glade:9
+msgid "Copyright 2009 The OSD Lyrics project."
+msgstr "Copyright 2009 The OSD Lyrics project."
+
+#: data/dialogs.glade:10
+msgid ""
+"An OSD lyric show compatible with various media players and supports lyrics "
+"downloading.\n"
+msgstr ""
+"OSD lyric è compatibile con vari lettori multimediali e supporta lo "
+"scaricamento dei testi\n"
+
+#: data/dialogs.glade:13
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr "http://code.google.com/p/osd-lyrics/"
+
+#: data/dialogs.glade:14
+msgid "GPL v3"
+msgstr "GPL v3"
+
+#: data/dialogs.glade:18
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  morphine https://launchpad.net/~maledettopc"
+
+#: data/dialogs.glade:46
+msgid "Preferences"
+msgstr "Preferenze"
+
+#: data/dialogs.glade:72
+msgid "_Font:"
+msgstr "Tipo di carattere"
+
+#: data/dialogs.glade:98
+msgid "_Width:"
+msgstr "Larghezza"
+
+#: data/dialogs.glade:127
+msgid "Lyric lines:"
+msgstr "Riga del testo"
+
+#: data/dialogs.glade:141
+msgid "Si_ngle line"
+msgstr "Linea singola"
+
+#: data/dialogs.glade:156
+msgid "_Double lines"
+msgstr "Linea doppia"
+
+#: data/dialogs.glade:185
+msgid "T_ranslucent on mouse over"
+msgstr "Traslucido quando passa il mouse"
+
+#: data/dialogs.glade:217
+msgid "F_irst line:"
+msgstr "Prima linea"
+
+#: data/dialogs.glade:243
+msgid "_Second line:"
+msgstr "Seconda linea"
+
+#: data/dialogs.glade:275
+msgid "<b>Lyric _Alignment</b>"
+msgstr "Allineamento testo"
+
+#: data/dialogs.glade:311
+msgid "Color _Theme:"
+msgstr "Tema colore"
+
+#: data/dialogs.glade:325
+msgid "Customize"
+msgstr "Personalizza"
+
+#: data/dialogs.glade:333
+msgid "C_ustomize colors"
+msgstr "Personalizza colori"
+
+#: data/dialogs.glade:362
+msgid "Acti_ve lyrics:"
+msgstr "Testi attivi"
+
+#: data/dialogs.glade:382 data/dialogs.glade:452
+msgid "top"
+msgstr "Alto"
+
+#: data/dialogs.glade:392 data/dialogs.glade:479
+msgid "middle"
+msgstr "Medio"
+
+#: data/dialogs.glade:416 data/dialogs.glade:506
+msgid "bottom"
+msgstr "Basso"
+
+#: data/dialogs.glade:441
+msgid "Inactiv_e lyrics:"
+msgstr "Testi inattivi"
+
+#: data/dialogs.glade:542
+msgid "<b>Lyric _Color</b>"
+msgstr "Colore testo"
+
+#: data/dialogs.glade:579
+msgid "<b>Preview</b>"
+msgstr "Anteprima"
+
+#: data/dialogs.glade:596
+msgid "_OSD"
+msgstr "OSD"
+
+#: data/dialogs.glade:709
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr "Un singolo \"%\" significa la cartella dove si trova la musica"
+
+#: data/dialogs.glade:723
+msgid "<b>_Path</b>"
+msgstr "Percorso"
+
+#: data/dialogs.glade:775
+msgid ""
+"  %t - Title\n"
+"  %p - Artist\n"
+"  %a - Album\n"
+"  %n - Track number\n"
+"  %f - File name (without extension)"
+msgstr ""
+"  %t - Titolo\n"
+"%p - Artista\n"
+"%a - Album\n"
+"%n - Numero di traccia\n"
+"%f - Nome File (senza estensione)\n"
+"\tNota: \tThere are line breaks here. Each one represents a line break. "
+"Start a new line in the equivalent position in the translation.\n"
+"\tNote: \tThere are leading/trailing spaces here. Each one represents a "
+"space character. Enter a space in the equivalent position in the translation."
+
+#: data/dialogs.glade:854
+msgid "<b>_Filename</b>"
+msgstr "Nome file"
+
+#: data/dialogs.glade:876
+msgid "_Lyric Location"
+msgstr "Posizione testo"
+
+#: data/dialogs.glade:897
+msgid "Download _engine:"
+msgstr "Motore di ricerca"
+
+#: data/dialogs.glade:936 data/dialogs.glade:1155
+msgid "_Download"
+msgstr "Scarica"
+
+#: data/dialogs.glade:1015
+msgid "If locked, you can't move OSD window by mouse"
+msgstr "se bloccato, non puoi muovere la finestra OSD con il mouse"
+
+#: data/dialogs.glade:1016
+msgid "_Lock"
+msgstr "Blocca"
+
+#: data/dialogs.glade:1024
+msgid "Hide the OSD Window"
+msgstr "Nascondi la finestra OSD"
+
+#: data/dialogs.glade:1025
+msgid "_Hide"
+msgstr "Nascondi"
+
+#: data/dialogs.glade:1032
+msgid "_Download lyric"
+msgstr ""
+
+#: data/dialogs.glade:1123
+msgid "Choose LRC file to download"
+msgstr "Scegli il testo da scaricare"
+
+#: data/dialogs.glade:1198
+msgid "The title of the current track"
+msgstr ""
+
+#: data/dialogs.glade:1199
+msgid "%t - Title"
+msgstr ""
+
+#: data/dialogs.glade:1207
+msgid "The artist of the current track"
+msgstr ""
+
+#: data/dialogs.glade:1208
+msgid "%p - Artist"
+msgstr ""
+
+#: data/dialogs.glade:1216
+msgid "The title of album of the current track"
+msgstr ""
+
+#: data/dialogs.glade:1217
+msgid "%a - Album"
+msgstr ""
+
+#: data/dialogs.glade:1225
+msgid "The number of the current track"
+msgstr ""
+
+#: data/dialogs.glade:1226
+msgid "%n - Track number"
+msgstr ""
+
+#: data/dialogs.glade:1234
+msgid "The filename of the current track"
+msgstr ""
+
+#: data/dialogs.glade:1235
+msgid "%f - Filename"
+msgstr ""
