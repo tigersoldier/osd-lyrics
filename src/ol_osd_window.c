@@ -984,6 +984,7 @@ void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
   ol_log_func ();
+  ol_debugf ("  lyric:%s\n", lyric);
   ol_assert (OL_IS_OSD_WINDOW (osd));
   if (line < 0 || line >= OL_OSD_WINDOW_MAX_LINE_COUNT)
     return;

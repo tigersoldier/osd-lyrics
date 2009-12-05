@@ -1,4 +1,5 @@
 #include "ol_lrc_parser.h"
+#include "ol_debug.h"
 #define isnumeric(a) (((a >= '0') && (a <= '9')) ? 1 : 0)
 
 int ol_lrc_parser_get_offset_length(int offset);
@@ -55,6 +56,9 @@ char *ol_lrc_parser_load_lyric_source(char *lyric_source)
   if((fp=fopen(lyric_source,"r"))==NULL)
   {
     printf("cannot open file!\n");
+    char *lyric_file = malloc (sizeof (char));
+    lyric_file[0] = '\0';
+    return lyric_file;
   }
   fseek( fp, 0, SEEK_END);
   struct stat buf;
@@ -71,11 +75,13 @@ char *ol_lrc_parser_load_lyric_source(char *lyric_source)
   {
     /* TODO: error occurs when reading file */
   }
+  lyric_file[file_length] = '\0';
   return lyric_file;
 }
 
 void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[])
 {
+  ol_assert (list != NULL);
   int InsertPos = -1;
   int i;
   LrcInfo *lp = &list->list[list->last];
@@ -131,8 +137,112 @@ void ol_lrc_parser_insert_list(LrcQueue *list, int lyric_time, char lyric_text[]
   }
 }
 
+static int ol_lrc_parser_get_field_end (char *lyric_file,
+                                        int offset)
+{
+  if (lyric_file == NULL)
+    return offset;
+  while(lyric_file[offset]!=']' &&
+        lyric_file[offset] != '\0' &&
+        lyric_file[offset] != '\n' &&
+        lyric_file[offset] != '\r')
+  {
+    offset++;
+  }
+  return offset;
+}
+
+static int ol_lrc_parser_parse_offset (LrcQueue *list,
+                                       char *lyric_file,
+                                       int *current_offset,
+                                       int *offset_time)
+{
+  int flag = 0;
+  *offset_time = 0;
+  if(strncmp(&lyric_file[(*current_offset) + 1], "offset:", 7) == 0)
+  {
+    *current_offset += 8;
+    if(lyric_file[*current_offset] == '-')
+    {
+      flag = -1;
+      (*current_offset)++;
+    }
+    else
+    {
+      flag = 1;
+      if (lyric_file[*current_offset] == '+')
+        (*current_offset)++;
+    }
+    while(lyric_file[*current_offset] != ']' && lyric_file[*current_offset] != '\0')
+    {
+      *offset_time *= 10;
+      *offset_time += lyric_file[(*current_offset)++] - '0';
+    }
+    *offset_time = *offset_time * flag;
+    ol_debugf ("  offsettime:%d\n", *offset_time);
+  }
+  return flag;
+}
+
+static int ol_lrc_parser_get_field_time (char *lyric_file,
+                                         int offset)
+{
+  if (lyric_file[offset] != '[')
+    return -1;
+  offset++;
+  int temp_offset1 = ol_lrc_parser_get_field_end (lyric_file,
+                                                  offset);
+  if (lyric_file[temp_offset1] != ']')
+    return -1;
+  lyric_file[temp_offset1] = 0;
+  /* ol_debugf ("  field time: %s\n", lyric_file + offset); */
+  char *tmptimeptr = lyric_file + temp_offset1;
+  double timepar[3] = {0};
+  int i = 0;
+  do{
+    while (tmptimeptr != lyric_file + offset && *tmptimeptr != ':')
+      tmptimeptr--;
+    if (*tmptimeptr == ':')
+      tmptimeptr++;
+    sscanf (tmptimeptr, "%lf", &timepar[i]);
+    tmptimeptr-=2;
+    i++;
+  } while (tmptimeptr > lyric_file + offset && i >= 0);
+
+  return ((timepar[2]*60+timepar[1])*60+timepar[0])*1000;
+}
+
+static int ol_lrc_parser_get_lyric_beign_offset (char *lyric_file,
+                                                 int offset)
+{
+  /* gets the position of the begin of the lyric*/
+  /* FIXME: consider that there is a [ in the lyric but not ] */
+  while((lyric_file[offset] == '[') &&
+        isnumeric(lyric_file[offset + 1]))
+  {
+    while((lyric_file[offset] != ']') && (lyric_file[offset] != 0))
+      offset++;
+    if (lyric_file[offset] != '\0')
+      offset++;
+  }
+  return offset;
+}
+
+static int ol_lrc_parser_get_line_end_offset (char *str)
+{
+  if (str == 0)
+    return 0;
+  int offset = 0;
+  while(str[offset] != '\r' &&
+        str[offset] != '\n' &&
+        str[offset] != '\0')
+    offset++;
+  return offset;
+}
+
 LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
 {
+  ol_log_func ();
   char *lyric_file = ol_lrc_parser_load_lyric_source(lyric_source);
   LrcQueue *list = malloc (sizeof(LrcQueue));
   memset(list,0,sizeof(LrcQueue));
@@ -140,80 +250,46 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
   
   int offset_time = 0;
   int current_offset = 0;
-  int current_time = 0;
-  int temp_offset,temp_offset1;
-  int flag = 0;
+  int offset_flag = 0;
+  //ol_debugf ("  file_size: %d\n", file_size);
   memset(list, 0, sizeof(*list));
   do {
-    
-    if(lyric_file[current_offset++] == '[')
+    /* ol_debugf ("  current_offset:%d\n", current_offset); */
+    if(lyric_file[current_offset] == '[')
     {
-      if(flag == 0)
-        if(strncmp(&lyric_file[current_offset], "offset:", 7) == 0)
-        {
-          current_offset += 7;
-          if(lyric_file[current_offset] == '-')
-          {
-            flag = -1;
-            current_offset++;
-          }
-          else
-            flag = 1;
-          while(lyric_file[current_offset] != ']')
-          {
-            offset_time *= 10;
-            offset_time += lyric_file[current_offset++] - '0';
-          }
-          offset_time = offset_time * flag;
-          printf("offsettime:%d\n",offset_time);
-        }
-      if(isnumeric(lyric_file[current_offset]))
+      if(offset_flag == 0)
       {
-        char *lyric_text;
-        flag = 1;
-        temp_offset1 = current_offset;
-        while(lyric_file[temp_offset1]!=']')
-        {
-          temp_offset1++;
-        }
-        char *tmptimeptr = lyric_file + temp_offset1;
-        double timepar[3] = {0};
-        int i = 0;
-        do{
-          while (tmptimeptr != lyric_file + current_offset && *tmptimeptr != ':')
-            tmptimeptr--;
-          if (*tmptimeptr == ':')
-            tmptimeptr++;
-          sscanf (tmptimeptr, "%lf", &timepar[i]);
-          tmptimeptr-=2;
-          i++;
-        } while (tmptimeptr > lyric_file + current_offset && i >= 0);
-
-        current_time = ((timepar[2]*60+timepar[1])*60+timepar[0])*1000;
-                
-        while(lyric_file[current_offset]!=']')
-        {
-          current_offset++;
-        }
-        current_offset++;
-        temp_offset = current_offset;
-        /* gets the position of the begin of the lyric*/
-        /* FIXME: consider that there is a [ in the lyric but not ] */
-        while((lyric_file[temp_offset] == '[') && isnumeric(lyric_file[temp_offset + 1]))
-        {
-          while((lyric_file[temp_offset] != ']') && (temp_offset < file_size))
-            temp_offset++;
-          temp_offset++;
-        }
-        lyric_text = &lyric_file[temp_offset];
-        while((lyric_file[temp_offset] != 0x0d) && (lyric_file[temp_offset] != 0x0a) && (temp_offset < file_size))
-          temp_offset++;
-        lyric_file[temp_offset] = '\0';
-        /* printf("offsettime:%d\n",offset_time); */
-        /* printf("currenttime:%d\n",current_time); */
-        /* printf("diftime:%d\n",current_time-offset_time); */
-        ol_lrc_parser_insert_list(list, current_time - offset_time, lyric_text);
+        offset_flag = ol_lrc_parser_parse_offset (list,
+                                           lyric_file,
+                                           &current_offset,
+                                           &offset_time);
+        if (offset_flag != 0)
+          continue;
       }
+      if(isnumeric(lyric_file[current_offset + 1]))
+      {
+        int lyric_offset = ol_lrc_parser_get_lyric_beign_offset (lyric_file,
+                                                            current_offset);
+        char *lyric_text = &lyric_file[lyric_offset];
+        int end_offset = ol_lrc_parser_get_line_end_offset (lyric_text);
+        lyric_text[end_offset] = '\0';
+        /* ol_debugf ("  lyric_text: %s\n", lyric_text); */
+        offset_flag = 1;
+        int current_time = 0;
+        while ((current_time = ol_lrc_parser_get_field_time (lyric_file, current_offset)) != -1)
+        {
+          /* ol_debugf ("  current time: %d\n", current_time); */
+          current_offset = ol_lrc_parser_get_field_end (lyric_file,
+                                                        current_offset);
+          current_offset++;
+          ol_lrc_parser_insert_list(list, current_time - offset_time, lyric_text);
+        }
+        current_offset = lyric_offset + end_offset;
+      }
+    } /* if(lyric_file[current_offset++] == '[') */
+    else
+    {
+      current_offset++;
     }
   } while(current_offset < file_size);
 

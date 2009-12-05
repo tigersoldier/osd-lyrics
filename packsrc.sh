@@ -13,7 +13,7 @@ cd ..
 mdirname=osdlyrics-$version
 [ -e $dirname ] && rm -rf $mdirname
 mv osdlyrics $mdirname
-fullversion=$version.`date +%Y%m%d`
+fullversion=$version
 tarname=osdlyrics-$fullversion.tar.gz
 [ -e $tarname ] && rm -rf $tarname
 tar zcvf $tarname $mdirname

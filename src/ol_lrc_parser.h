@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-#define MAX_LINE 128
+#define MAX_LINE 512
 #define MAX_LINE_LEN 255
 typedef struct _LrcInfo {
 	int lyric_time;

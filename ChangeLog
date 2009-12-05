@@ -1,3 +1,7 @@
+2009-12-06  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_parser.c: Fix: lrc file parse error when lack of matching right bracket
+
 2009-11-30  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_about.c: CHANGE:Display logo in about dialog

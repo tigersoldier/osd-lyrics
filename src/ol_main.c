@@ -110,9 +110,8 @@ on_search_done (struct OlLrcFetchResult *result)
 {
   fprintf (stderr, "%s\n", __FUNCTION__);
   g_return_val_if_fail (result != NULL, FALSE);
-  g_return_val_if_fail (result->candidates != NULL, FALSE);
   g_return_val_if_fail (result->engine != NULL, FALSE);
-  if (result->count > 0)
+  if (result->count > 0 && result->candidates != 0)
   {
     for_each_lrc_pattern (&result->info,
                           on_search_done_func,

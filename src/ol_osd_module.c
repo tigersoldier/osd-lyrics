@@ -18,6 +18,7 @@ static void ol_osd_module_init_osd (OlOsdModule *module);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
 static gboolean hide_message (OlOsdModule *module);
+static void clear_lyrics (OlOsdModule *module);
 
 static void
 ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
@@ -234,16 +235,8 @@ ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info)
   ol_log_func ();
   g_return_if_fail (music_info != NULL);
   ol_music_info_copy (&module->music_info, music_info);
-  if (module->osd != NULL)
-  {
-    module->display = FALSE;
-    gtk_widget_hide (GTK_WIDGET (module->osd));
-    ol_osd_window_set_lyric (module->osd, 0, NULL);
-    ol_osd_window_set_lyric (module->osd, 1, NULL);
-  }
-  module->current_line = 0;
-  module->lrc_id = -1;
-  module->lrc_next_id = -1;
+  clear_lyrics (module);
+  hide_message (module);
 }
 
 void
@@ -271,7 +264,10 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
     if (module->lrc_id != id)
     {
       if (id == -1)
+      {
+        clear_lyrics (module);
         return;
+      }
       if (id != module->lrc_next_id)
       {
         module->current_line = 0;
@@ -285,10 +281,10 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
       {
         ol_osd_window_set_percentage (module->osd, module->current_line, 1.0);
         module->current_line = 1 - module->current_line;
-      }
+      } /* if (id != module->lrc_next_id) */
       module->lrc_id = id;
       ol_osd_window_set_current_line (module->osd, module->current_line);
-    }
+    } /* if (module->lrc_id != id) */
     if (id == lyric_id && percentage > 0.5)
       ol_osd_module_update_next_lyric (module, info);
     if (id == lyric_id)
@@ -306,11 +302,7 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
   {
     if (module->osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd)))
     {
-      if (module->message_source == 0)
-      {
-        module->display = FALSE;
-        gtk_widget_hide (GTK_WIDGET (module->osd));
-      }
+      clear_lyrics (module);
     }
   }
 }
@@ -393,6 +385,21 @@ hide_message (OlOsdModule *module)
   gtk_widget_hide (GTK_WIDGET (module->osd));
   module->message_source = 0;
   return FALSE;
+}
+
+static void
+clear_lyrics (OlOsdModule *module)
+{
+  if (module->osd != NULL && module->message_source == 0)
+  {
+    module->display = FALSE;
+    gtk_widget_hide (GTK_WIDGET (module->osd));
+    ol_osd_window_set_lyric (module->osd, 0, NULL);
+    ol_osd_window_set_lyric (module->osd, 1, NULL);
+  }
+  module->current_line = 0;
+  module->lrc_id = -1;
+  module->lrc_next_id = -1;
 }
 
 void
