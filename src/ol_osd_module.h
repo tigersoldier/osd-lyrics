@@ -34,6 +34,7 @@ void ol_osd_module_set_message (OlOsdModule *module,
                                 int duration_ms);
 void ol_osd_module_search_message (OlOsdModule *module, const char *message);
 void ol_osd_module_search_fail_message (OlOsdModule *module, const char *message);
+void ol_osd_module_download_fail_message (OlOsdModule *module, const char *message);
 void ol_osd_module_clear_message (OlOsdModule *module);
 
 #endif /* _OL_OSD_MODULE_H_ */

@@ -375,6 +375,12 @@ ol_osd_module_search_fail_message (OlOsdModule *module, const char *message)
   ol_osd_module_set_message (module, message, MESSAGE_DURATION_MS);
 }
 
+void
+ol_osd_module_download_fail_message (OlOsdModule *module, const char *message)
+{
+  ol_osd_module_set_message (module, message, MESSAGE_DURATION_MS);
+}
+
 static gboolean
 hide_message (OlOsdModule *module)
 {

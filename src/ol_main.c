@@ -92,6 +92,8 @@ on_downloaded (char *filepath)
 {
   if (filepath != NULL)
     check_lyric_file ();
+  else
+    ol_osd_module_download_fail_message (module, _("Download failed"));
   return FALSE;
 }
 
