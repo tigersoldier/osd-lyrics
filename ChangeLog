@@ -1,5 +1,7 @@
 2009-12-11  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_lrc_fetch_module.c (ol_lrc_fetch_download_func): FIX: Crash when downloading failed due to file is NULL ans should not call g_strdup
+
 	* src/ol_lrc_utility.c (ol_lrc_utility_get_lyric_by_time): FIX: Crash due to NULL parameters
 
 2009-12-10  Tiger Soldier  <tigersoldi@gmail.com>

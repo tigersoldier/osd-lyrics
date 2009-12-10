@@ -87,9 +87,11 @@ ol_lrc_fetch_download_func (struct DownloadContext *context)
   fprintf (stderr, "path: %s\n", file);
   g_ptr_array_foreach (download_listeners,
                        ol_lrc_fetch_add_timeout,
-                       g_strdup (file));
-  ol_lrc_candidate_free (context->candidate);
-  g_free (context->filepath);
+                       file);
+  if (context->candidate != NULL)
+    ol_lrc_candidate_free (context->candidate);
+  if (context->filepath != NULL)
+    g_free (context->filepath);
   g_free (context);
   return NULL;
 }
@@ -149,6 +151,10 @@ void
 ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine, OlLrcCandidate *candidate, const char *pathname)
 {
   ol_log_func ();
+  ol_assert (engine != NULL);
+  ol_assert (candidate != NULL);
+  ol_assert (pathname != NULL);
+  ol_debugf ("  pathname: %s\n", pathname);
   struct DownloadContext *context = g_new (struct DownloadContext, 1);
   context->engine = engine;
   context->candidate = ol_lrc_candidate_new ();
