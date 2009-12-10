@@ -39,7 +39,7 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source);
  * 
  * @return the LrcInfo, must not be freed.
  */
-LrcInfo *ol_lrc_parser_get_first_Of_list(LrcQueue *list);
+LrcInfo *ol_lrc_parser_get_first_of_list(LrcQueue *list);
 /** 
  * Get The last LrcInfo from the current LrcQueue
  * 
@@ -47,7 +47,7 @@ LrcInfo *ol_lrc_parser_get_first_Of_list(LrcQueue *list);
  * 
  * @Return The Lrcinfo,Must Not be freed.
  */
-LrcInfo *ol_lrc_parser_get_last_Of_list(LrcQueue *list);
+LrcInfo *ol_lrc_parser_get_last_of_list(LrcQueue *list);
 /** 
  * Get the next LrcInfo of the current one
  * 

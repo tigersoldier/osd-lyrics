@@ -1,10 +1,20 @@
 #include "ol_lrc_parser.h"
 #include "ol_debug.h"
+#include "ol_test_util.h"
+#include "ol_lrc_utility.h"
 
-void test2 ()
+void test ()
 {
   ol_log_func ();
-  LrcQueue *lrc = ol_lrc_parser_get_lyric_info ("lyric2.lrc");
+  LrcQueue *lrc = ol_lrc_parser_get_lyric_info ("lyric1.lrc");
+  LrcInfo *info = ol_lrc_parser_get_first_of_list (lrc);
+  char *text = ol_lrc_parser_get_lyric_text (info);
+  printf ("%s\n", text);
+  ol_test_expect (strcmp (text, "托す者へ～My Dear～") == 0);
+  double perc;
+  int lrc_id;
+  text = NULL;
+  ol_lrc_utility_get_lyric_by_time (lrc, 26990, 9999999, text, &perc, &lrc_id);
 }
 
 void offset_without_right_bracket ()
@@ -21,7 +31,7 @@ void lack_of_right_bracket ()
 
 int main()
 {
-  test2 ();
+  test ();
   offset_without_right_bracket ();
   lack_of_right_bracket ();
   /* char test[100]= "mytest.lrc"; */

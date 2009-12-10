@@ -1,3 +1,17 @@
+2009-12-11  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_utility.c (ol_lrc_utility_get_lyric_by_time): FIX: Crash due to NULL parameters
+
+2009-12-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_parser.c: FIX: Deadloop on parsing LRC files.
+
+	* src/ol_lrc_parser.h: Typto, Of->of
+
+2009-12-09  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_option.c (ol_option_show): Check GTK version for gtk_file_chooser_set_create_folders()
+
 2009-12-06  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_parser.c: Fix: lrc file parse error when lack of matching right bracket

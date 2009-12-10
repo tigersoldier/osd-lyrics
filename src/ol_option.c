@@ -1041,8 +1041,10 @@ ol_option_show ()
                                                         GTK_STOCK_OPEN,
                                                         GTK_RESPONSE_ACCEPT,
                                                         NULL);
-    gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
+#if GTK_CHECK_VERSION (2, 18, 0)
+  gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
                                          TRUE);
+#endif
     options.filename_menu = ol_glade_get_widget ("filename-pattern-popup");
     /* display the about button at the left edge */
     gtk_button_box_set_child_secondary (ol_glade_get_widget ("dialog-action_area2"),

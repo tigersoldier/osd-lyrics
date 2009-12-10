@@ -54,6 +54,7 @@ ol_lrc_fetch_search_func (gpointer data)
     
     int lrc_count;
     search_result.candidates = search_result.engine->search (&search_result.info, &search_result.count, "UTF-8");
+    ol_debug ("  search done");
     g_mutex_lock (search_mutex);
     if (search_id == search_result.id)
     {

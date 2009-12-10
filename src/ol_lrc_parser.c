@@ -3,12 +3,12 @@
 #define isnumeric(a) (((a >= '0') && (a <= '9')) ? 1 : 0)
 
 int ol_lrc_parser_get_offset_length(int offset);
-LrcInfo *ol_lrc_parser_get_first_Of_list(LrcQueue *list)
+LrcInfo *ol_lrc_parser_get_first_of_list(LrcQueue *list)
 {
   return &list->list[list->first];
 }
 
-LrcInfo *ol_lrc_parser_get_last_Of_list(LrcQueue *list)
+LrcInfo *ol_lrc_parser_get_last_of_list(LrcQueue *list)
 {
   return &list->list[list->last];
 }
@@ -51,11 +51,11 @@ LrcInfo *ol_lrc_parser_get_lyric_by_id(LrcQueue *list,int lyric_id)
 
 char *ol_lrc_parser_load_lyric_source(char *lyric_source)
 {
-  fprintf (stderr, "%s:s\n", __FUNCTION__, lyric_source);
+  ol_debugf ("%s:%s\n", __FUNCTION__, lyric_source);
   FILE *fp;
   if((fp=fopen(lyric_source,"r"))==NULL)
   {
-    printf("cannot open file!\n");
+    ol_debugf ("  cannot open file!\n");
     char *lyric_file = malloc (sizeof (char));
     lyric_file[0] = '\0';
     return lyric_file;
@@ -64,7 +64,7 @@ char *ol_lrc_parser_load_lyric_source(char *lyric_source)
   struct stat buf;
   if (lstat(lyric_source, &buf) < 0)
   {
-    printf("cannot open file!\n");
+    ol_debugf ("cannot open file!\n");
   }
   int file_length = buf.st_size;
   // int file_length = ftell(fp);
@@ -286,13 +286,16 @@ LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
         }
         current_offset = lyric_offset + end_offset;
       }
+      else
+      {
+        current_offset += ol_lrc_parser_get_line_end_offset (lyric_file + current_offset);
+      }
     } /* if(lyric_file[current_offset++] == '[') */
     else
     {
       current_offset++;
     }
   } while(current_offset < file_size);
-
 
   LrcInfo *temp = &list->list[list->first];
   int id = 0;
