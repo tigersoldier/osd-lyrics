@@ -13,81 +13,91 @@ static GCond *search_cond = NULL;
 static GMutex *search_mutex = NULL;
 static GMutex *search_thread_mutex = NULL;
 static int search_id = 0;
-static OlLrcFetchEngine *engine = NULL;
-static OlMusicInfo music_info;
-static struct OlLrcFetchResult search_result;
 static GPtrArray *search_listeners;
 static GPtrArray *download_listeners;
-static gboolean first_run = TRUE;
 
-static gpointer ol_lrc_fetch_search_func (gpointer data);
+static gpointer ol_lrc_fetch_search_func (struct OlLrcFetchResult *search_result);
 static gpointer ol_lrc_fetch_download_func (struct DownloadContext *context);
-static void ol_lrc_fetch_add_timeout (gpointer ptr,
-                                      gpointer userdata);
+static struct OlLrcFetchResult* ol_lrc_fetch_result_new ();
+static void ol_lrc_fetch_result_free (struct OlLrcFetchResult *result);
+
+typedef void (*FreeFunc)(gpointer userdata);
+
+struct CallerParam {
+  GPtrArray *func_array;
+  gpointer userdata;
+  FreeFunc data_free_func;
+};
 
 static void
-ol_lrc_fetch_add_timeout (gpointer ptr,
-                          gpointer userdata)
+ol_lrc_fetch_run_func (GSourceFunc func,
+                       gpointer data)
 {
-  GSourceFunc callbackFunc = (GSourceFunc) ptr;
-  g_timeout_add (1, callbackFunc, userdata);
+  func (data);
+}
+
+static gboolean
+ol_lrc_fetch_run_funcs (struct CallerParam *param)
+{
+  g_ptr_array_foreach (param->func_array,
+                       (GFunc)ol_lrc_fetch_run_func,
+                       param->userdata);
+  if (param->data_free_func != NULL && param->userdata != NULL)
+    param->data_free_func (param->userdata);
+  g_free (param);
+  return FALSE;
+}
+
+static void
+ol_lrc_fetch_run_on_ui_thread (GPtrArray *func_array,
+                               gpointer userdata,
+                               FreeFunc data_free_func)
+{
+  struct CallerParam *new_params = g_new0 (struct CallerParam, 1);
+  new_params->func_array = func_array;
+  new_params->userdata = userdata;
+  new_params->data_free_func = data_free_func;
+  g_timeout_add (1, (GSourceFunc) ol_lrc_fetch_run_funcs, new_params);
 }
 
 static gpointer
-ol_lrc_fetch_search_func (gpointer data)
+ol_lrc_fetch_search_func (struct OlLrcFetchResult *search_result)
 {
+  /* TODO: make it a single thread with a message loop */
   ol_log_func ();
-  for (;;)
-  {
-    g_mutex_lock (search_mutex);
-    if (first_run)
-    {
-      g_mutex_unlock (search_thread_mutex);
-      first_run = FALSE;
-    }
-    g_cond_wait (search_cond, search_mutex);
-    fprintf (stderr, "search request\n");
-    search_result.engine = engine;
-    ol_music_info_copy (&search_result.info, &music_info);
-    search_result.id = search_id;
-    g_mutex_unlock (search_mutex);
-    
-    int lrc_count;
-    search_result.candidates = search_result.engine->search (&search_result.info, &search_result.count, "UTF-8");
-    ol_debug ("  search done");
-    g_mutex_lock (search_mutex);
-    if (search_id == search_result.id)
-    {
-      g_ptr_array_foreach (search_listeners,
-                           ol_lrc_fetch_add_timeout,
-                           &search_result);
-    }
-    g_mutex_unlock (search_mutex);
-  }
+  ol_assert_ret (search_result != NULL, NULL);
+  int lrc_count;
+  search_result->candidates = search_result->engine->search (&search_result->info,
+                                                             &search_result->count,
+                                                             "UTF-8");
+  ol_debug ("  search done");
+  ol_lrc_fetch_run_on_ui_thread (search_listeners,
+                                 search_result,
+                                 (FreeFunc) ol_lrc_fetch_result_free);
+  return NULL;
 }
 
 static gpointer
 ol_lrc_fetch_download_func (struct DownloadContext *context)
 {
   ol_log_func ();
-  if (context == NULL)
-    return;
+  ol_assert_ret (context != NULL, NULL);
   char *file = NULL;
   if (context->candidate != NULL &&
       context->engine != NULL &&
       context->filepath != NULL)
   {
     fprintf (stderr, "  gogogo\n");
-    if (context->engine->download (context->candidate, context->filepath, "UTF-8") >= 0)
+    if (context->engine->download (context->candidate,
+                                   context->filepath,
+                                   "UTF-8") >= 0)
     {
       fprintf (stderr, "download %s success\n", context->filepath);
-      file = context->filepath;
+      file = g_strdup (context->filepath);
     }
   }
   fprintf (stderr, "path: %s\n", file);
-  g_ptr_array_foreach (download_listeners,
-                       ol_lrc_fetch_add_timeout,
-                       file);
+  ol_lrc_fetch_run_on_ui_thread (download_listeners, file, g_free);
   if (context->candidate != NULL)
     ol_lrc_candidate_free (context->candidate);
   if (context->filepath != NULL)
@@ -112,16 +122,6 @@ void
 ol_lrc_fetch_module_init ()
 {
   ol_lrc_fetch_init ();
-  search_cond = g_cond_new ();
-  search_mutex = g_mutex_new ();
-  search_thread_mutex = g_mutex_new ();
-  ol_music_info_init (&music_info);
-  g_mutex_lock (search_thread_mutex);
-  search_thread = g_thread_create (ol_lrc_fetch_search_func,
-                                   NULL,
-                                   FALSE,
-                                   NULL);
-  g_mutex_lock (search_thread_mutex);
   search_listeners = g_ptr_array_new ();
   download_listeners = g_ptr_array_new ();
 }
@@ -129,26 +129,32 @@ ol_lrc_fetch_module_init ()
 int
 ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
 {
-  g_mutex_lock (search_mutex);
   ol_log_func ();
-  engine = _engine;
-  ol_music_info_copy (&music_info,_music_info);
+  ol_assert_ret (_engine != NULL, -1);
+  ol_assert_ret (_music_info != NULL, -1);
   fprintf (stderr,
            "  title: %s\n"
            "  artist: %s\n"
            "  album: %s\n",
-           music_info.title,
-           music_info.artist,
-           music_info.album);
+           _music_info->title,
+           _music_info->artist,
+           _music_info->album);
   search_id++;
-  g_mutex_unlock (search_mutex);
-  fprintf (stderr, "  send cond\n");
-  g_cond_signal (search_cond);
+  struct OlLrcFetchResult *search_result = ol_lrc_fetch_result_new ();
+  search_result->engine = _engine;
+  ol_music_info_copy (&search_result->info, _music_info);
+  search_result->id = search_id++;
+  search_thread = g_thread_create ((GThreadFunc) ol_lrc_fetch_search_func,
+                                   search_result,
+                                   FALSE,
+                                   NULL);
   return search_id;
 }
 
 void
-ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine, OlLrcCandidate *candidate, const char *pathname)
+ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
+                             OlLrcCandidate *candidate,
+                             const char *pathname)
 {
   ol_log_func ();
   ol_assert (engine != NULL);
@@ -166,3 +172,17 @@ ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine, OlLrcCandidate *candidate
                    NULL);
 }
 
+static struct OlLrcFetchResult*
+ol_lrc_fetch_result_new ()
+{
+  struct OlLrcFetchResult *ret = g_new0 (struct OlLrcFetchResult, 1);
+  ol_music_info_init (&ret->info);
+  return ret;
+}
+
+static void
+ol_lrc_fetch_result_free (struct OlLrcFetchResult *result)
+{
+  ol_music_info_clear (&result->info);
+  g_free (result);
+}

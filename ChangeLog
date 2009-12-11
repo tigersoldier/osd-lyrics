@@ -1,3 +1,7 @@
+2009-12-12  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch_module.c: Change the module of search thread to be multiple thread each process a single search requestion. It is better to change into a singleton with a message later.
+
 2009-12-11  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch_module.c (ol_lrc_fetch_download_func): FIX: Crash when downloading failed due to file is NULL ans should not call g_strdup

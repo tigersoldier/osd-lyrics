@@ -6,6 +6,7 @@
 #include "ol_lrc_fetch_qianqian.h"
 #include "ol_utils.h"
 #include "ol_intl.h"
+#include "ol_debug.h"
 
 #define PREFIX_PAGE_QIANQIAN "http://www.qianqian.com/lrcresult.php?qfield=1&pageflag=1&qword=%s"
 #define PREFIX_FRAME_QIANQIAN "http://www.qianqian.com/lrcresult_frame.php?qword=%s&qfield=1"
@@ -231,6 +232,7 @@ ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
 static OlLrcCandidate *
 ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* charset)
 {
+  ol_log_func ();
   static OlLrcCandidate candidates[TRY_MATCH_MAX];
   int count=0;
   char page_url[OL_URL_LEN_MAX];
