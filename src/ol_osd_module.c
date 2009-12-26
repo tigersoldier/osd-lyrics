@@ -359,8 +359,8 @@ ol_osd_module_set_message (OlOsdModule *module,
   if (module->message_source != 0)
     g_source_remove (module->message_source);
   module->message_source = g_timeout_add (duration_ms,
-                                            (GSourceFunc) hide_message,
-                                            (gpointer) module);
+                                          (GSourceFunc) hide_message,
+                                          (gpointer) module);
 }
 
 void

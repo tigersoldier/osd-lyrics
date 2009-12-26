@@ -33,12 +33,14 @@ static void
 ol_lrc_fetch_run_func (GSourceFunc func,
                        gpointer data)
 {
+  ol_log_func ();
   func (data);
 }
 
 static gboolean
 ol_lrc_fetch_run_funcs (struct CallerParam *param)
 {
+  ol_log_func ();
   g_ptr_array_foreach (param->func_array,
                        (GFunc)ol_lrc_fetch_run_func,
                        param->userdata);
@@ -53,11 +55,13 @@ ol_lrc_fetch_run_on_ui_thread (GPtrArray *func_array,
                                gpointer userdata,
                                FreeFunc data_free_func)
 {
+  ol_log_func ();
   struct CallerParam *new_params = g_new0 (struct CallerParam, 1);
   new_params->func_array = func_array;
   new_params->userdata = userdata;
   new_params->data_free_func = data_free_func;
   g_timeout_add (1, (GSourceFunc) ol_lrc_fetch_run_funcs, new_params);
+  ol_debug ("  done\n");
 }
 
 static gpointer
@@ -67,6 +71,7 @@ ol_lrc_fetch_search_func (struct OlLrcFetchResult *search_result)
   ol_log_func ();
   ol_assert_ret (search_result != NULL, NULL);
   int lrc_count;
+  search_result->candidates = NULL;
   search_result->candidates = search_result->engine->search (&search_result->info,
                                                              &search_result->count,
                                                              "UTF-8");
@@ -148,6 +153,7 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
                                    search_result,
                                    FALSE,
                                    NULL);
+  /* ol_lrc_fetch_search_func (search_result); */
   return search_id;
 }
 

@@ -78,14 +78,17 @@ ol_player_exaile03_get_status ()
 static gboolean
 ol_player_exaile03_get_music_info (OlMusicInfo *info)
 {
-  ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
-  if (info == NULL)
-    return FALSE;
+  ol_log_func ();
+  ol_assert (info != NULL);
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile03_init_dbus ())
+    {
+      ol_logf (OL_ERROR, "Initialize dbus proxy failed\n");
       return FALSE;
+    }
   gchar *buf;
   enum OlPlayerStatus status = ol_player_exaile03_get_status ();
+  ol_debugf ("  status: %d\n", (int)status);
   if (status == OL_PLAYER_PLAYING || status == OL_PLAYER_PAUSED)
   {
     ol_music_info_clear (info);
@@ -95,6 +98,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
                                           get_title,
                                           &info->title))
     {
+      ol_error ("  Get title failed");
       return FALSE;
     }
     /* gets the artist of current music */
@@ -103,6 +107,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
                                           get_artist,
                                           &info->artist))
     {
+      ol_error ("  Get artist failed");
       return FALSE;
     }
     /* gets the album of current music */
@@ -111,7 +116,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
                                           get_album,
                                           &info->album))
     {
-      return FALSE;
+      ol_error ("  Get album failed");
     }
     /* gets the location of the file */
     if (!ol_dbus_get_string_with_str_arg (proxy,
@@ -119,7 +124,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
                                           get_uri,
                                           &info->uri))
     {
-      return FALSE;
+      ol_error ("  Get track number failed");
     }
     ol_logf (OL_DEBUG,
              "%s\n"
@@ -148,8 +153,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_exaile03_get_played_time (int *played_time)
 {
-  ol_logf (OL_DEBUG, "%s\n",
-           __FUNCTION__);
+  /* ol_log_func (); */
   char *posstr = NULL;
   int minute, second;
   int exaile03_time;

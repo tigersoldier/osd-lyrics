@@ -8,6 +8,7 @@
 #include "ol_music_info.h"
 #include "ol_lrc_fetch.h"
 #include "ol_utils.h"
+#include "ol_debug.h"
 
 const int RANK_SCALE = 100000;
 const double RANK_ACCEPT_FACTOR = 0.5;
@@ -18,6 +19,7 @@ static char errbuf[CURL_ERROR_SIZE];
 size_t
 convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen)
 {
+  ol_log_func ();
   size_t ret;
   if(icv == NULL)
     return (size_t)-1;
@@ -46,6 +48,7 @@ convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen)
 size_t
 convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen)
 {
+  ol_log_func ();
   size_t ret;
   iconv_t cv;
   char **input = &src;
@@ -53,7 +56,7 @@ convert(const char *from_charset, const char *to_charset, char *src, size_t srcl
   memset(dest, 0, destlen);
 
   if((cv = iconv_open(to_charset, from_charset)) == (iconv_t)-1) {
-    fprintf(stderr, "the conversion from %s to %s is not supported by the implementation.\n", from_charset, to_charset);
+    ol_errorf ("  the conversion from %s to %s is not supported by the implementation.\n", from_charset, to_charset);
     return (size_t)-1;
   }
 
@@ -79,6 +82,7 @@ convert(const char *from_charset, const char *to_charset, char *src, size_t srcl
 static CURL *
 my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func, void *data, long connecttimeout)
 {
+  ol_log_func ();
   CURLcode code;
   CURL *curl_handler;
   if(curl_global_init(CURL_GLOBAL_ALL) != 0) {
@@ -98,18 +102,26 @@ my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func,
     curl_handler = curl_easy_init();
 
   if(curl_handler == NULL) {
-    fprintf(stderr, "failed to create CURL easy session handler\n");
+    ol_errorf ("failed to create CURL easy session handler\n");
     return NULL;
   }
 
   code = curl_easy_setopt(curl_handler, CURLOPT_ERRORBUFFER, errbuf);
   if(code != CURLE_OK) {
-    fprintf(stderr, "failed to set error buffer [%d]\n", code);
+    ol_errorf ("failed to set error buffer [%d]\n", code);
     return NULL;
   }
+
+  /* For multiple thread support */
+  /* code = curl_easy_setopt(curl_handler, CURLOPT_NOSIGNAL, 1); */
+  /* if (code != CURLE_OK) { */
+  /*   ol_errorf ("failed to set no signal parameter [%s]\n", errbuf); */
+  /*   return NULL; */
+  /* } */
+  
   code = curl_easy_setopt(curl_handler, CURLOPT_URL, url);
   if(code != CURLE_OK) {
-    fprintf(stderr, "failed to set URL [%s]\n", errbuf);
+    ol_errorf("failed to set URL [%s]\n", errbuf);
     return NULL;
   }
   if (refer != NULL)
@@ -117,33 +129,27 @@ my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func,
     code = curl_easy_setopt (curl_handler, CURLOPT_REFERER, refer);
     if (code != CURLE_OK)
     {
-      fprintf(stderr, "failed to set refer utl [%s]\n", errbuf);
+      ol_errorf("failed to set refer utl [%s]\n", errbuf);
       return NULL;
     }
   }
   if(func != NULL) {
     code = curl_easy_setopt(curl_handler, CURLOPT_WRITEFUNCTION, func);
     if(code != CURLE_OK) {
-      fprintf(stderr, "failed to set writefunction [%s]\n", errbuf);
+      ol_errorf("failed to set writefunction [%s]\n", errbuf);
       return NULL;
     }
   }
   if(data != NULL) {
     code = curl_easy_setopt(curl_handler, CURLOPT_WRITEDATA, data);
     if(code != CURLE_OK) {
-      fprintf(stderr, "failed to set writedata [%s]\n", errbuf);
+      ol_errorf("failed to set writedata [%s]\n", errbuf);
       return NULL;
     }
   }
-  /*
-   * Pass a long. 
-   * It should contain the maximum time in seconds that you allow the connection to the server to take. 
-   * This only limits the connection phase, once it has connected, this option is of no more use. 
-   * Set to zero to disable connection timeout (it will then only timeout on the system's internal timeouts).
-   */
   code = curl_easy_setopt(curl_handler, CURLOPT_CONNECTTIMEOUT, connecttimeout);
   if(code != CURLE_OK) {
-    fprintf(stderr, "failed to set connecttimeout [%s]\n", errbuf);
+    ol_errorf("failed to set connecttimeout [%s]\n", errbuf);
     return NULL;
   }
 
@@ -153,6 +159,7 @@ my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func,
 int
 fetch_into_file(const char *url, const char *refer, FILE *fp)
 {
+  ol_log_func ();
   CURL *curl;
   CURLcode code;
 
@@ -163,6 +170,7 @@ fetch_into_file(const char *url, const char *refer, FILE *fp)
   code = curl_easy_perform(curl);
   if(code != CURLE_OK) {
     fprintf(stderr, "failed to perform: [%s]\n", errbuf);
+    curl_easy_cleanup(curl);
     return -1;
   }
   curl_easy_cleanup(curl);
@@ -181,6 +189,7 @@ myrealloc(void *ptr, size_t size)
 static size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
+  ol_log_func ();
   struct memo *memstr = (struct memo *)data;
   size_t need = size * nmemb;
 
@@ -196,6 +205,7 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 int
 fetch_into_memory(const char *url, const char *refer, struct memo *dest)
 {
+  ol_log_func ();
   CURL *curl;
   CURLcode code;
   WriteCallback callback = WriteMemoryCallback;
@@ -226,6 +236,7 @@ fetch_into_memory(const char *url, const char *refer, struct memo *dest)
 int
 url_encoding(const char *src, const int srclen, char *dest, int destlen, int space_cat)
 {
+  ol_log_func ();
   int i;
   int j = 0; 
   char ch;
@@ -294,6 +305,7 @@ chartonum(char ch)
 int
 url_decoding(const char *src, const int srclen, char *dest, int destlen)
 {
+  ol_log_func ();
   char ch;
   int idx1, idx2;
   int i;
@@ -329,6 +341,7 @@ url_decoding(const char *src, const int srclen, char *dest, int destlen)
 int
 curl_url_encoding(CURL *curl, char *input, char *output, size_t size)
 {
+  ol_log_func ();
   char *escp;
   int flag = 0;
   if(curl == NULL) {
@@ -370,6 +383,7 @@ curl_url_encoding(CURL *curl, char *input, char *output, size_t size)
 int
 curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
 {
+  ol_log_func ();
   char *unescp;
   int flag = 0;
   if(curl == NULL) {
@@ -403,6 +417,7 @@ static int
 ol_lrc_fetch_calc_rank (const OlMusicInfo *info,
                         OlLrcCandidate *candidate)
 {
+  ol_log_func ();
   if (info == NULL || candidate == NULL)
     return -1;
   double ret = 0.0;
@@ -427,7 +442,7 @@ ol_lrc_fetch_add_candidate (const OlMusicInfo *info,
                             size_t size,
                             struct _OlLrcCandidate *new_candidate)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   if (info == NULL || candidate_list == NULL || new_candidate == NULL ||
       count < 0 || size <= 0)
     return 0;
