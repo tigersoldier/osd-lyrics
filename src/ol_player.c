@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "config.h"
 #include "ol_player.h"
 #include "ol_player_banshee.h"
 #include "ol_player_exaile02.h"
@@ -9,6 +10,9 @@
 #include "ol_player_songbird.h"
 #include "ol_player_xmms2.h"
 #include "ol_player_rhythmbox.h"
+#ifdef ENABLE_MPD
+#include "ol_player_mpd.h"
+#endif  /* ENABLE_MPD */
 
 static GArray *controllers = NULL;
 
@@ -27,6 +31,9 @@ ol_player_init ()
     ol_player_register_controller (ol_player_songbird_get_controller (), "Songbird"); 
     ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2");
     ol_player_register_controller (ol_player_rhythmbox_get_controller (), "Rhythmbox");
+#ifdef ENABLE_MPD
+    ol_player_register_controller (ol_player_mpd_get_controller (), "MPD");
+#endif  /* ENABLE_MPD */
   }  
 }
 

@@ -19,7 +19,7 @@ int
 ol_elapse_emulator_get_real_ms (OlElapseEmulator *emulator,
                                 int time)
 {
-  if (emulator->first_time < 0 || emulator->prev_time - time > emulator->accuracy || time - emulator->prev_time > emulator->accuracy)
+  if (emulator->first_time < 0 || emulator->prev_time - time > emulator->accuracy || time - emulator->last_time > 150)
   {
     /* reinitialize timer */
     puts ("init1");

@@ -1,3 +1,7 @@
+2009-12-27  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_mpd.c: ADD: MPD support
+
 2009-12-12  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch_module.c: Change the module of search thread to be multiple thread each process a single search requestion. It is better to change into a singleton with a message later.

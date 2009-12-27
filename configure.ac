@@ -63,11 +63,36 @@ AC_ARG_WITH(gprof-support,
 ],
 AC_MSG_RESULT(no))
 
+AC_ARG_ENABLE([mpd],
+  [AS_HELP_STRING([--disable-mpd], [Disables MPD support])],
+  [],
+  [enable_mpd=yes])
+
 # Checks for libraries.
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0, gthread-2.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([GLADE], [libglade-2.0, gmodule-export-2.0])
+MPD_CFLAGS=
+MPD_LIBS=
+AS_IF([test "x$enable_mpd" != "xno"],
+  [PKG_CHECK_MODULES([MPD], [libmpd],
+    [AC_DEFINE([ENABLE_MPD], [1], [Define if compile to support MPD])
+     #BUILD_MPD_SUPPORT=1
+    ],
+    [enable_mpd=no
+     #BUILD_MPD_SUPPORT=0
+     AC_MSG_FAILURE(
+       [libmpd is not available, use --disable-mpd to disable MPD support])
+    ])
+  ],
+  [BUILD_MPD_SUPPORT=0
+   AC_SUBST(MPD_CFLAGS)
+   AC_SUBST(MPD_LIBS)
+  ]
+)
+#AM_CONDITIONAL(BUILD_MPD_SUPPORT, [test "x$enable_mpd" != "xno"])
+#AC_SUBST(BUILD_MPD_SUPPORT)
 # i18n support from GNU gettext.
 AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])
