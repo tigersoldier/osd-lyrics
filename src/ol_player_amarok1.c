@@ -1,3 +1,5 @@
+#include "config.h"
+#ifdef ENABLE_AMAROK1
 #include <stdio.h>
 #include <glib.h>
 #include "ol_player_amarok1.h"
@@ -154,3 +156,4 @@ ol_player_amarok1_get_controller ()
   controller->seek = NULL;
   return controller;
 }
+#endif  /* ENABLE_AMAROK1 */

@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if compile to support Amarok 1.4 */
+#undef ENABLE_AMAROK1
+
 /* Define if compile to support MPD */
 #undef ENABLE_MPD
 

@@ -4,7 +4,9 @@
 #include "ol_player_banshee.h"
 #include "ol_player_exaile02.h"
 #include "ol_player_exaile03.h"
+#ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
+#endif  /* ENABLE_AMAROK1 */
 #include "ol_player_amarok2.h"
 #include "ol_player_audacious.h"
 #include "ol_player_songbird.h"
@@ -22,7 +24,9 @@ ol_player_init ()
   if (controllers == NULL)
   {
     controllers = g_array_new (FALSE, TRUE, sizeof (OlPlayerController*));
+#ifdef ENABLE_AMAROK1
     ol_player_register_controller (ol_player_amarok1_get_controller (), "AmarOK 1.4");
+#endif
     ol_player_register_controller (ol_player_amarok2_get_controller (), "AmarOK 2.x");
     ol_player_register_controller (ol_player_banshee_get_controller (), "Banshee");
     ol_player_register_controller (ol_player_exaile02_get_controller (), "Exaile 0.2");

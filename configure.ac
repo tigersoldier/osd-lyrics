@@ -64,9 +64,17 @@ AC_ARG_WITH(gprof-support,
 AC_MSG_RESULT(no))
 
 AC_ARG_ENABLE([mpd],
-  [AS_HELP_STRING([--disable-mpd], [Disables MPD support])],
+  [AS_HELP_STRING([--disable-mpd], [Disables MPD support. You won't need libmpd if you use this option])],
   [],
   [enable_mpd=yes])
+
+AC_ARG_ENABLE([amarok1],
+  [AS_HELP_STRING([--enable-amarok1], [Enables Amarok 1.4 support])],
+  [],
+  [enable_amarok1=no])
+
+AS_IF([test "x$enable_amarok1" != xno],
+  [AC_DEFINE([ENABLE_AMAROK1], [1], [Define if compile to support Amarok 1.4])])
 
 # Checks for libraries.
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0, gthread-2.0])
