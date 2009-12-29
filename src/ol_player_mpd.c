@@ -7,11 +7,14 @@
 #include "ol_player_mpd.h"
 #include "ol_player.h"
 #include "ol_elapse_emulator.h"
+#include "ol_config.h"
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-static char *hostname = "localhost";
-static const int port = 6600;
+static char *DEFAULT_HOSTNAME = "localhost";
+static const int DEFAULT_PORT = 6600;
+static char *hostname = NULL;
+static int port;
 static MpdObj *mpd = NULL;
 static OlElapseEmulator *elapse_emulator = NULL;
 
@@ -29,6 +32,8 @@ static gboolean ol_player_mpd_stop ();
 static gboolean ol_player_mpd_prev ();
 static gboolean ol_player_mpd_next ();
 static gboolean ol_player_mpd_seek (int pos_ms);
+static gboolean ol_player_mpd_init ();
+static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 
 static gboolean
 ol_player_mpd_get_music_info (OlMusicInfo *info)
@@ -37,6 +42,7 @@ ol_player_mpd_get_music_info (OlMusicInfo *info)
   ol_assert_ret (info != NULL, FALSE);
   if (!ol_player_mpd_ensure_connection ())
     return FALSE;
+  mpd_status_update (mpd);
   mpd_Song *song = mpd_playlist_get_current_song (mpd);
   if (song)
   {
@@ -73,6 +79,7 @@ ol_player_mpd_get_music_length (int *len)
   ol_assert_ret (len != NULL, FALSE);
   if (!ol_player_mpd_ensure_connection ())
     return FALSE;
+  mpd_status_update (mpd);
   *len = mpd_status_get_total_song_time (mpd) * 1000;
   ol_debugf ("  length = %dms\n", *len);
   return TRUE;
@@ -123,21 +130,34 @@ ol_player_mpd_ensure_connection ()
   /* ol_log_func (); */
   if (mpd == NULL)
   {
-    /* TODO: use user defined hostname and port instead the default one */
-    mpd = mpd_new (hostname, port, NULL);
-    if (mpd == NULL)
-    {
-      ol_error ("Create MPD Object failed");
+    if (!ol_player_mpd_init ())
       return FALSE;
-    }
-    mpd_set_connection_timeout (mpd, 0.1);
-    /* TODO: connect signals here */
   }
   if (mpd_check_connected (mpd))
     return TRUE;
   int result = mpd_connect (mpd);
   ol_debugf ("  connect result: %d\n", result);
   return result == MPD_OK;
+}
+
+static gboolean
+ol_player_mpd_init ()
+{
+  OlConfig *config = ol_config_get_instance ();
+  hostname = ol_config_get_string (config, "Player", "mpd-hostname");
+  if (hostname == NULL)
+    hostname = g_strdup (DEFAULT_HOSTNAME);
+  port = ol_config_get_int (config, "Player", "mpd-port");
+  if (port == 0)
+    port = DEFAULT_PORT;
+  mpd = mpd_new (hostname, port, NULL);
+  if (mpd == NULL)
+  {
+    ol_error ("Create MPD Object failed");
+    return FALSE;
+  }
+  mpd_set_connection_timeout (mpd, 0.1);
+  /* TODO: connect signals here */
 }
 
 static enum
@@ -226,6 +246,33 @@ ol_player_mpd_seek (int pos_ms)
     return FALSE;
   mpd_player_seek (mpd, pos_ms / 1000);
   return TRUE;
+}
+
+static void
+config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata)
+{
+  ol_log_func ();
+  ol_debugf ("  [%s]%s\n", group, name);
+  if (strcmp (name, "mpd-hostname") == 0)
+  {
+    ol_debugf ("  mpd-hostname: %s\n", ol_config_get_string (config, group, name));
+    if (hostname != NULL)
+      g_free (hostname);
+    hostname = ol_config_get_string (config, group, name);
+    if (hostname == NULL)
+      hostname = g_strdup (DEFAULT_HOSTNAME);
+    if (mpd != NULL)
+      mpd_set_hostname (mpd, hostname);
+  }
+  if (strcmp (name, "mpd-port") == 0)
+  {
+    ol_debugf ("  mpd-port: %d\n", ol_config_get_int (config, group, name));
+    port = ol_config_get_int (config, group, name);
+    if (port == 0)
+      port = DEFAULT_PORT;
+    if (mpd != NULL)
+      mpd_set_port (mpd, port);
+  }
 }
 
 OlPlayerController*

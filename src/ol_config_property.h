@@ -10,6 +10,7 @@
 
 #ifndef _OL_CONFIG_PROPERTY_H_
 #define _OL_CONFIG_PROPERTY_H_
+#include "config.h"
 
 enum {
   PROP_0,
@@ -31,6 +32,10 @@ enum {
   PROP_DOWNLOAD_ENGINE,
   PROP_LRC_PATH,
   PROP_LRC_FILENAME,
+#ifdef ENABLE_MPD
+  PROP_MPD_HOSTNAME,
+  PROP_MPD_PORT,
+#endif
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -171,6 +176,9 @@ static const OlConfigBoolValue config_bool[] = {
 static const OlConfigIntValue config_int[] = {
   {PROP_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
   {PROP_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
+#ifdef ENABLE_MPD
+  {PROP_MPD_PORT, "mpd-port", "Player", "MPD Port", "The port of MPD service to connect", 1, 10000000, 6600},
+#endif
 };
 
 static const OlConfigDoubleValue config_double[] = {
@@ -200,6 +208,11 @@ static const OlConfigStringValue config_str[] = {
   {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
    "Download engine", "Select the source where LRC files are downloaded from",
    "sogou"},
+#ifdef ENABLE_MPD
+  {PROP_MPD_HOSTNAME, "mpd_hostname", "Player",
+   "Hostname of MPD", "The server to connect for MPD service",
+   "localhost"},
+#endif
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */
