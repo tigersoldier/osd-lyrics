@@ -1,0 +1,285 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: osd-lyrics 0.1\n"
+"Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
+"POT-Creation-Date: 2010-01-04 19:01+0800\n"
+"PO-Revision-Date: 2010-01-04 22:25+0800\n"
+"Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
+"Language-Team: Simplified Chinese <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-08-15 11:44+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: src/ol_main.c:89
+msgid "Download failed"
+msgstr "下載失敗"
+
+#: src/ol_main.c:127
+msgid "Cannot create the lyric directory"
+msgstr "無法建立歌詞目錄"
+
+#: src/ol_main.c:138
+msgid "Lyrics not found"
+msgstr "找不到符合的歌詞"
+
+#: src/ol_main.c:167
+msgid "Searching lyrics"
+msgstr "正在搜索歌詞"
+
+#: src/ol_main.c:346
+#, c-format
+msgid "No supported player is running, exit.\n"
+msgstr "沒有偵測到支援的播放器，程式自動結束。\n"
+
+#: src/ol_trayicon.c:38
+msgid "OSD Lyrics"
+msgstr "OSD Lyrics"
+
+#: src/ol_lrc_fetch_qianqian.c:308
+msgid "Qianqian"
+msgstr "千千"
+
+#: src/ol_lrc_fetch_sogou.c:160
+msgid "Sogou"
+msgstr "搜狗"
+
+#: src/ol_lrc_fetch_ui.c:107
+msgid "Title"
+msgstr "歌名"
+
+#: src/ol_lrc_fetch_ui.c:112
+msgid "Artist"
+msgstr "歌手"
+
+#: data/dialogs.glade:9
+msgid "Copyright 2009 The OSD Lyrics project."
+msgstr "版權所有 2009 OSD Lyrics 項目組。"
+
+#: data/dialogs.glade:10
+msgid ""
+"An OSD lyric show compatible with various media players and supports lyrics "
+"downloading.\n"
+msgstr "支援多種播放器和自動歌詞下載的桌面歌詞秀\n"
+
+#: data/dialogs.glade:13
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr "http://code.google.com/p/osd-lyrics/"
+
+#: data/dialogs.glade:14
+msgid "GPL v3"
+msgstr "GPL v3"
+
+#: data/dialogs.glade:18
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Tiger Soldier https://launchpad.net/~tigersoldi"
+
+#: data/dialogs.glade:46
+msgid "Preferences"
+msgstr "個人偏好"
+
+#: data/dialogs.glade:72
+msgid "_Font:"
+msgstr "字型(_F):"
+
+#: data/dialogs.glade:98
+msgid "_Width:"
+msgstr "寬度(_W):"
+
+#: data/dialogs.glade:127
+msgid "Lyric lines:"
+msgstr "歌詞行數:"
+
+#: data/dialogs.glade:141
+msgid "Si_ngle line"
+msgstr "單行(_N)"
+
+#: data/dialogs.glade:156
+msgid "_Double lines"
+msgstr "雙行(_D)"
+
+#: data/dialogs.glade:185
+msgid "T_ranslucent on mouse over"
+msgstr "滑鼠移到歌詞上時半透通(_R)"
+
+#: data/dialogs.glade:217
+msgid "F_irst line:"
+msgstr "首行(_I):"
+
+#: data/dialogs.glade:243
+msgid "_Second line:"
+msgstr "次行(_S)"
+
+#: data/dialogs.glade:275
+msgid "<b>Lyric _Alignment</b>"
+msgstr "<b>歌詞對齊(_A)</b>"
+
+#: data/dialogs.glade:311
+msgid "Color _Theme:"
+msgstr "配色方案(_T):"
+
+#: data/dialogs.glade:325
+msgid "Customize"
+msgstr "自訂"
+
+#: data/dialogs.glade:333
+msgid "C_ustomize colors"
+msgstr "自行配色(_U)"
+
+#: data/dialogs.glade:362
+msgid "Acti_ve lyrics:"
+msgstr "已唱歌詞(_V):"
+
+#: data/dialogs.glade:382 data/dialogs.glade:452
+msgid "top"
+msgstr "上"
+
+#: data/dialogs.glade:392 data/dialogs.glade:479
+msgid "middle"
+msgstr "中"
+
+#: data/dialogs.glade:416 data/dialogs.glade:506
+msgid "bottom"
+msgstr "下"
+
+#: data/dialogs.glade:441
+msgid "Inactiv_e lyrics:"
+msgstr "未唱歌詞(_E):"
+
+#: data/dialogs.glade:542
+msgid "<b>Lyric _Color</b>"
+msgstr "<b>歌詞配色(_C)</b>"
+
+#: data/dialogs.glade:579
+msgid "<b>Preview</b>"
+msgstr "<b>預覽</b>"
+
+#: data/dialogs.glade:596
+msgid "_OSD"
+msgstr "桌面歌詞(_O)"
+
+#: data/dialogs.glade:709
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr "“%”表示目前播放歌曲所在目錄。"
+
+#: data/dialogs.glade:723
+msgid "<b>_Path</b>"
+msgstr "<b>路徑(_P)</b>"
+
+#: data/dialogs.glade:775
+msgid ""
+"  %t - Title\n"
+"  %p - Artist\n"
+"  %a - Album\n"
+"  %n - Track number\n"
+"  %f - File name (without extension)"
+msgstr ""
+"  %t - 歌名\n"
+"  %p - 歌手\n"
+"  %a - 專輯\n"
+"  %n - 曲目編號\n"
+"  %f - 檔名"
+
+#: data/dialogs.glade:854
+msgid "<b>_Filename</b>"
+msgstr "<b>檔名(_F)</b>"
+
+#: data/dialogs.glade:876
+msgid "_Lyric Location"
+msgstr "歌詞位置(_L)"
+
+#: data/dialogs.glade:897
+msgid "Download _engine:"
+msgstr "下載引擎(_E):"
+
+#: data/dialogs.glade:936 data/dialogs.glade:1155
+msgid "_Download"
+msgstr "下載(_D)"
+
+#: data/dialogs.glade:1015
+msgid "If locked, you can't move OSD window by mouse"
+msgstr "鎖定后將無法用滑鼠移動桌面歌詞"
+
+#: data/dialogs.glade:1016
+msgid "_Lock"
+msgstr "鎖定(_L)"
+
+#: data/dialogs.glade:1024
+msgid "Hide the OSD Window"
+msgstr "隱藏桌面歌詞視窗"
+
+#: data/dialogs.glade:1025
+msgid "_Hide"
+msgstr "隱藏(_H)"
+
+#: data/dialogs.glade:1032
+msgid "_Download lyric"
+msgstr "下載歌詞(_D)"
+
+#: data/dialogs.glade:1123
+msgid "Choose LRC file to download"
+msgstr "選取要下載的歌詞"
+
+#: data/dialogs.glade:1198
+msgid "The title of the current track"
+msgstr "目前歌曲名"
+
+#: data/dialogs.glade:1199
+msgid "%t - Title"
+msgstr "%t - 歌名"
+
+#: data/dialogs.glade:1207
+msgid "The artist of the current track"
+msgstr "目前歌曲歌手"
+
+#: data/dialogs.glade:1208
+msgid "%p - Artist"
+msgstr "%p - 歌手"
+
+#: data/dialogs.glade:1216
+msgid "The title of album of the current track"
+msgstr "目前歌曲的專輯名"
+
+#: data/dialogs.glade:1217
+msgid "%a - Album"
+msgstr "%a - 專輯"
+
+#: data/dialogs.glade:1225
+msgid "The number of the current track"
+msgstr "目前歌曲的編號"
+
+#: data/dialogs.glade:1226
+msgid "%n - Track number"
+msgstr "%n - 曲目編號"
+
+#: data/dialogs.glade:1234
+msgid "The filename of the current track"
+msgstr "目前歌曲的檔名"
+
+#: data/dialogs.glade:1235
+msgid "%f - Filename"
+msgstr "%f - 音樂檔名"
+
+#~ msgid "_General"
+#~ msgstr "常規(_G)"
+
+#, fuzzy
+#~ msgid "_Path:"
+#~ msgstr "路徑(_P):"
+
+#~ msgid "TODO: Add options here"
+#~ msgstr "TODO: Add options here"
+
+#~ msgid "gtk-cancel"
+#~ msgstr "gtk-cancel"
+
+#~ msgid "gtk-ok"
+#~ msgstr "gtk-ok"
