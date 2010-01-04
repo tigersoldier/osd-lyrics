@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
 "POT-Creation-Date: 2010-01-04 19:01+0800\n"
-"PO-Revision-Date: 2010-01-04 22:24+0800\n"
+"PO-Revision-Date: 2010-01-04 22:32+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,7 @@ msgstr "下載失敗"
 
 #: src/ol_main.c:127
 msgid "Cannot create the lyric directory"
-msgstr "無法建立歌詞目錄"
+msgstr "無法建立歌詞資料夾"
 
 #: src/ol_main.c:138
 msgid "Lyrics not found"
@@ -31,7 +31,7 @@ msgstr "找不到符合的歌詞"
 
 #: src/ol_main.c:167
 msgid "Searching lyrics"
-msgstr "正在搜索歌詞"
+msgstr "正在搜尋歌詞"
 
 #: src/ol_main.c:346
 #, c-format
