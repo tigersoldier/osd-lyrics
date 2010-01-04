@@ -21,15 +21,18 @@ DEPEND="
 	gnome-base/libglade
 	net-misc/curl
 	x11-libs/gtk+
-	mpd? (media-libs/libmpd)"
+	mpd? ( media-libs/libmpd )"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
 	eautoreconf
 }
 
-src_compile() {
+src_configure() {
 	econf $(use_enable mpd)
+}
+
+src_compile() {
 	emake DESTDIR="${D}" || die "Compile failed"
 }
 
@@ -39,9 +42,8 @@ src_install() {
 }
 
 pkg_postinst() {
-
-    if ! use mpd ;then
-	elog "MPD support is disabled. To compile with MPD support, emerge ${PN}"
-	elog "with ``mpd'' USE flag"
-    fi
+	if ! use mpd ;then
+		elog "MPD support is disabled. To compile with MPD support, emerge ${PN}"
+		elog "with \`\`mpd'' USE flag"
+	fi
 }

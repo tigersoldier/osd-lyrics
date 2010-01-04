@@ -57,22 +57,15 @@ static int fetch_id = 0;
 static void initialize (int argc, char **argv);
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
-static void change_music ();
-static gboolean is_file_exist (const char *filename);
+static void on_music_changed ();
 /** 
  * @brief Handles SIG_CHILD for download child process
  * 
  * @param signal 
  */
 static void child_handler (int sig);
-gboolean on_search_done (struct OlLrcFetchResult *result);
-gboolean on_downloaded (char *filepath);
-
-OlMusicInfo*
-ol_app_get_current_music ()
-{
-  return &music_info;
-}
+static gboolean on_search_done (struct OlLrcFetchResult *result);
+static gboolean on_downloaded (char *filepath);
 
 /** 
  * @brief Invoke the given function on each lrc filename which fits the patterns and music info
@@ -83,11 +76,11 @@ ol_app_get_current_music ()
  * 
  * @return TRUE if the func returns TRUE.
  */
-gboolean for_each_lrc_pattern (OlMusicInfo *info,
-                               gboolean (*func)(char *filename, gpointer data),
-                               gpointer data);
+static gboolean for_each_lrc_pattern (OlMusicInfo *info,
+                                      gboolean (*func)(char *filename, gpointer data),
+                                      gpointer data);
 
-gboolean
+static gboolean
 on_downloaded (char *filepath)
 {
   if (filepath != NULL)
@@ -97,17 +90,29 @@ on_downloaded (char *filepath)
   return FALSE;
 }
 
-gboolean
+static gboolean
 on_search_done_func (gchar *filename, gpointer data)
 {
   fprintf (stderr, "%s:%s\n", __FUNCTION__, filename);
   if (filename == NULL || data == NULL)
     return FALSE;
+  gchar * dirname = g_path_get_dirname (filename);
+  if (dirname == NULL)
+    return FALSE;
+  if (g_mkdir_with_parents (dirname, S_IRUSR | S_IWUSR | S_IXUSR |
+                             S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
+  {
+    ol_debugf ("  make directory '%s' failed\n", dirname);
+    g_free (dirname);
+    return FALSE;
+  }
+  g_free (dirname);
   struct OlLrcFetchResult *result = (struct OlLrcFetchResult*) data;
   ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count, filename);
+  return TRUE;
 }
 
-gboolean
+static gboolean
 on_search_done (struct OlLrcFetchResult *result)
 {
   fprintf (stderr, "%s\n", __FUNCTION__);
@@ -115,11 +120,17 @@ on_search_done (struct OlLrcFetchResult *result)
   g_return_val_if_fail (result->engine != NULL, FALSE);
   if (result->count > 0 && result->candidates != 0)
   {
-    for_each_lrc_pattern (&result->info,
-                          on_search_done_func,
-                          (gpointer) result);
-    if (module != NULL)
-      ol_osd_module_clear_message (module);
+    if (!for_each_lrc_pattern (&result->info,
+                               on_search_done_func,
+                               (gpointer) result))
+    {
+      ol_osd_module_download_fail_message (module, _("Cannot create the lyric directory"));
+    }
+    else
+    {
+      if (module != NULL)
+        ol_osd_module_clear_message (module);
+    }
   }
   else
   {
@@ -128,17 +139,6 @@ on_search_done (struct OlLrcFetchResult *result)
   }
   return FALSE;
 }
-
-/** 
- * @brief Gets the real lyric of the given lyric
- * A REAL lyric is the nearest lyric to the given lyric, whose text is not empty
- * If the given lyric text is not empty, the given lyric is a real lyric
- * If not real lyric available, returns NULL
- * @param lrc An LrcInfo
- * 
- * @return The real lyric of the lrc. returns NULL if not available
- */
-LrcInfo* get_real_lyric (LrcInfo *lrc);
 
 static void
 child_handler (int sig)
@@ -155,7 +155,8 @@ child_handler (int sig)
   }
 }
 
-gboolean ol_app_download_lyric (OlMusicInfo *music_info)
+gboolean
+ol_app_download_lyric (OlMusicInfo *music_info)
 {
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
@@ -166,21 +167,12 @@ gboolean ol_app_download_lyric (OlMusicInfo *music_info)
     ol_osd_module_search_message (module, _("Searching lyrics"));
 }
 
-gboolean
-is_file_exist (const char *filename)
-{
-  if (filename == NULL)
-    return FALSE;
-  struct stat buf;
-  printf ("stat:%d mode:%d\n", stat (filename, &buf), (int)buf.st_mode);
-  return stat (filename, &buf) == 0 && S_ISREG (buf.st_mode);
-}
-
-gboolean
+static gboolean
 for_each_lrc_pattern (OlMusicInfo *info,
                       gboolean (*func)(char *filename, gpointer data),
                       gpointer data)
 {
+  ol_log_func ();
   OlConfig *config = ol_config_get_instance ();
   int pathlen, namelen;
   char **path_list = ol_config_get_str_list (config, "General", "lrc-path", &pathlen);
@@ -190,20 +182,20 @@ for_each_lrc_pattern (OlMusicInfo *info,
   if (path_list == NULL || name_list == NULL ||
       info == NULL || func == NULL)
     return FALSE;
-  fprintf (stderr, "uri: %s\n", info->uri);
+  ol_debugf ("  uri: %s\n", info->uri);
   gchar file_name[MAX_PATH_LEN] = "";
   int i, j;
   for (i = 0; path_list[i]; i++)
     for (j = 0; name_list[j]; j++)
     {
-      fprintf (stderr, "path:%s, name:%s\n", path_list[i], name_list[j]);
+      ol_debugf ("  path:%s, name:%s\n", path_list[i], name_list[j]);
       if (ol_path_get_lrc_pathname (path_list[i],
                                     name_list[j],
                                     info,
                                     file_name,
                                     MAX_PATH_LEN) >= 0)
       {
-        fprintf (stderr, "%s\n", file_name);
+        ol_debugf ("  %s\n", file_name);
         if (func (file_name, data))
         {
           g_strfreev (path_list);
@@ -220,8 +212,9 @@ for_each_lrc_pattern (OlMusicInfo *info,
 gboolean
 check_lyric_file_func (char *filename, gpointer data)
 {
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, filename);
-  if (!is_file_exist (filename))
+  ol_log_func ();
+  ol_debugf ("  filename:%s\n", filename);
+  if (!ol_path_is_file (filename))
   {
     return FALSE;
   }
@@ -243,11 +236,10 @@ check_lyric_file ()
   return ret;
 }
 
-void
-change_music ()
+static void
+on_music_changed ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   if (module != NULL)
   {
     ol_osd_module_set_music_info (module, &music_info);
@@ -258,7 +250,7 @@ change_music ()
     ol_app_download_lyric (&music_info);
 }
 
-void
+static void
 check_music_change (int time)
 {
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
@@ -338,11 +330,11 @@ check_music_change (int time)
   }
   if (changed)
   {
-    change_music ();
+    on_music_changed ();
   }
 }
 
-gint
+static gint
 refresh_music_info (gpointer data)
 {
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
@@ -402,6 +394,11 @@ ol_app_get_controller ()
   return controller;
 }
 
+OlMusicInfo*
+ol_app_get_current_music ()
+{
+  return &music_info;
+}
 
 int
 main (int argc, char **argv)

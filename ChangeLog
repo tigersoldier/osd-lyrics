@@ -1,3 +1,7 @@
+2010-01-04  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: FIX: issue 35, create lyrics directory on downloading if not exists.
+
 2009-12-27  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_mpd.c: ADD: MPD support

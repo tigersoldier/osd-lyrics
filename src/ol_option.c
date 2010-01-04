@@ -1004,7 +1004,7 @@ ol_option_show ()
     if (options.download_engine != NULL)
     {
       int i, nengine;
-      char **download_engine = ol_lrc_fetch_get_engine_list (&nengine);
+      char **download_engine = (char **)ol_lrc_fetch_get_engine_list (&nengine);
       for (i = 0; i < nengine; i++)
       {
         printf ("append: %s\n", download_engine[i]);
@@ -1047,7 +1047,7 @@ ol_option_show ()
 #endif
     options.filename_menu = ol_glade_get_widget ("filename-pattern-popup");
     /* display the about button at the left edge */
-    gtk_button_box_set_child_secondary (ol_glade_get_widget ("dialog-action_area2"),
+    gtk_button_box_set_child_secondary (GTK_BUTTON_BOX (ol_glade_get_widget ("dialog-action_area2")),
                                         ol_glade_get_widget ("option-aboug"),
                                         TRUE);
   }
