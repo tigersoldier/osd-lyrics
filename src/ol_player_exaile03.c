@@ -99,7 +99,6 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
                                           &info->title))
     {
       ol_error ("  Get title failed");
-      return FALSE;
     }
     /* gets the artist of current music */
     if (!ol_dbus_get_string_with_str_arg (proxy,
@@ -108,7 +107,6 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
                                           &info->artist))
     {
       ol_error ("  Get artist failed");
-      return FALSE;
     }
     /* gets the album of current music */
     if (!ol_dbus_get_string_with_str_arg (proxy,
