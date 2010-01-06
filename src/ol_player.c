@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "config.h"
 #include "ol_player.h"
+#include "ol_debug.h"
 #include "ol_player_banshee.h"
 #include "ol_player_exaile02.h"
 #include "ol_player_exaile03.h"
@@ -10,7 +11,9 @@
 #include "ol_player_amarok2.h"
 #include "ol_player_audacious.h"
 #include "ol_player_songbird.h"
+#ifdef ENABLE_XMMS2
 #include "ol_player_xmms2.h"
+#endif  /* ENABLE_XMMS2 */
 #include "ol_player_rhythmbox.h"
 #ifdef ENABLE_MPD
 #include "ol_player_mpd.h"
@@ -33,7 +36,9 @@ ol_player_init ()
     ol_player_register_controller (ol_player_exaile03_get_controller (), "Exaile 0.3");
     ol_player_register_controller (ol_player_audacious_get_controller (), "Audacious");
     ol_player_register_controller (ol_player_songbird_get_controller (), "Songbird"); 
+#ifdef ENABLE_XMMS2
     ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2");
+#endif  /* ENABLE_XMMS2 */
     ol_player_register_controller (ol_player_rhythmbox_get_controller (), "Rhythmbox");
 #ifdef ENABLE_MPD
     ol_player_register_controller (ol_player_mpd_get_controller (), "MPD");
@@ -54,18 +59,17 @@ ol_player_free ()
 OlPlayerController*
 ol_player_get_active_player ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   if (controllers == NULL)
   {
     return NULL;
   }
   int i;
-  printf ("controller count:%d\n", controllers->len);
+  ol_debugf ("controller count:%d\n", controllers->len);
   for (i = 0; i < controllers->len; i++)
   {
     OlPlayerController *controller = g_array_index (controllers, OlPlayerController*, i);
-    printf ("trying player %d\n", i);
+    ol_debugf ("trying player %d\n", i);
     if (controller && controller->get_activated ())
     {
       return controller;
@@ -79,7 +83,7 @@ ol_player_register_controller (OlPlayerController *controller, const gchar *name
 {
   if (controllers == NULL)
     return;
-  controller->get_activated ();
+  /* controller->get_activated (); */
   g_array_append_val (controllers, controller);
 }
 

@@ -10,6 +10,9 @@
    language is requested. */
 #undef ENABLE_NLS
 
+/* Define if compile to support XMMS2 */
+#undef ENABLE_XMMS2
+
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
 #undef HAVE_CFLOCALECOPYCURRENT

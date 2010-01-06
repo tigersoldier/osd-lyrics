@@ -68,6 +68,11 @@ AC_ARG_ENABLE([mpd],
   [],
   [enable_mpd=yes])
 
+AC_ARG_ENABLE([xmms2],
+  [AS_HELP_STRING([--disable-xmms2], [Disables XMMS2 support. You won't need libxmmsclient if you use this option])],
+  [],
+  [enable_xmms2=yes])
+
 AC_ARG_ENABLE([amarok1],
   [AS_HELP_STRING([--enable-amarok1], [Enables Amarok 1.4 support])],
   [],
@@ -97,6 +102,24 @@ AS_IF([test "x$enable_mpd" != "xno"],
   [BUILD_MPD_SUPPORT=0
    AC_SUBST(MPD_CFLAGS)
    AC_SUBST(MPD_LIBS)
+  ]
+)
+XMMS2_CFLAGS=
+XMMS2_LIBS=
+AS_IF([test "x$enable_xmms2" != "xno"],
+  [PKG_CHECK_MODULES([XMMS2], [xmms2-client],
+    [AC_DEFINE([ENABLE_XMMS2], [1], [Define if compile to support XMMS2])
+     #BUILD_XMMS2_SUPPORT=1
+    ],
+    [enable_xmms2=no
+     #BUILD_XMMS2_SUPPORT=0
+     AC_MSG_FAILURE(
+       [xmms2-client is not available, use --disable-xmms2 to disable XMMS2 support])
+    ])
+  ],
+  [BUILD_XMMS2_SUPPORT=0
+   AC_SUBST(XMMS2_CFLAGS)
+   AC_SUBST(XMMS2_LIBS)
   ]
 )
 #AM_CONDITIONAL(BUILD_MPD_SUPPORT, [test "x$enable_mpd" != "xno"])

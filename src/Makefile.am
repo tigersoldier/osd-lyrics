@@ -8,11 +8,12 @@ INCLUDES = \
 	@DBUS_GLIB_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	@GLADE_CFLAGS@ \
-	@MPD_CFLAGS@
+	@MPD_CFLAGS@ \
+	@XMMS2_CFLAGS@
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGLADEDIR='"$(OL_GLADEDIR)"'
+	-DGLADEDIR='"$(OL_GLADEDIR)"' 
 
 osd_lyrics_SOURCES = \
 	ol_main.c \
@@ -65,7 +66,8 @@ osd_lyrics_LDADD = \
 	@DBUS_GLIB_LIBS@ \
 	@CURL_LIBS@ \
 	@GLADE_LIBS@ \
-	@MPD_LIBS@
+	@MPD_LIBS@ \
+	@XMMS2_LIBS@
 osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
 
 # Librarys

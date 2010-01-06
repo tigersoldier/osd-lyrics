@@ -1,26 +1,18 @@
-#include <stdio.h>
-#include <sys/time.h>
-#include <dbus/dbus-glib.h>
+#include "config.h"
+#ifdef ENABLE_XMMS2
+#include <stdlib.h>
+#include <xmmsclient/xmmsclient.h>
 #include "ol_player_xmms2.h"
-#include "ol_utils.h"
-#include "ol_utils_dbus.h"
-#include "ol_player_mpris.h"
+#include "ol_debug.h"
 
-static const char *SERVICE = "org.mpris.xmms2";
-
-static int first_time = -1;
-static int prev_time = 0;
-struct timeval begin_time;
-
-static OlPlayerMpris *mpris = NULL;
-
-static OlPlayerMpris* ol_player_xmms2_get_mpris ();
-/* static int ol_player_xmms2_get_real_ms (int time); */
-/* static int ol_player_xmms2_init_timer (int time); */
+static xmmsc_connection_t *connection = NULL;
+static gboolean connected = FALSE;
 
 static gboolean ol_player_xmms2_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_xmms2_get_played_time (int *played_time);
 static gboolean ol_player_xmms2_get_music_length (int *len);
+static gboolean ol_player_xmms2_conenct ();
+static gboolean ol_player_xmms2_ensure_connection ();
 static gboolean ol_player_xmms2_get_activated ();
 static enum OlPlayerStatus ol_player_xmms2_get_status ();
 static int ol_player_xmms2_get_capacity ();
@@ -30,159 +22,386 @@ static gboolean ol_player_xmms2_stop ();
 static gboolean ol_player_xmms2_prev ();
 static gboolean ol_player_xmms2_next ();
 static gboolean ol_player_xmms2_seek (int pos_ms);
+static gboolean ol_player_xmms2_init ();
+static void disconnect_callback (void *user_data);
+static gboolean ol_player_xmms2_connect ();
+/** 
+ * @brief Play the music relative to the current one
+ * 
+ * @param rel The relative position, can be negative
+ * 
+ * @return TRUE if succeeded
+ */
+static gboolean ol_player_xmms2_go_rel (int rel);
+/** 
+ * @brief Gets a string value from a dict
+ * 
+ * @param dict A dict, you can get it from return_value with xmmsv_propdict_to_dict
+ * @param key The key of the value
+ * 
+ * @return If succeeded, a new string containing the value. If failed, returns a NULL. The returned string should be free with g_free.
+ */
+static char *ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key);
+/** 
+ * @brief Gets the id of the current playing music
+ * 
+ * @return Positive if succeeded. 0 if failed or nothing is playing.
+ */
+static int32_t ol_player_xmms2_get_currend_id ();
 
-static OlPlayerMpris*
-ol_player_xmms2_get_mpris ()
+static void
+disconnect_callback (void *user_data)
 {
-  if (mpris == NULL)
+  ol_log_func ();
+  connected = FALSE;
+}
+
+static gboolean
+ol_player_xmms2_init ()
+{
+  ol_log_func ();
+  ol_debug ("init XMMS2");
+  if (connection == NULL)
   {
-    mpris = ol_player_mpris_new (SERVICE);
+    connection = xmmsc_init ("osd-lyrics");
+    if (!connection)
+    {
+      ol_error ("Initialize XMMS2 connection failed.");
+      return FALSE;
+    }
   }
-  return mpris;
-}
-
-/* static int */
-/* ol_player_xmms2_init_timer (int time) */
-/* { */
-/*   first_time = time; */
-/*   prev_time = time; */
-/*   gettimeofday (&begin_time, NULL); */
-/* } */
-
-/* /\**  */
-/*  * Return real position in milliseconds */
-/*  * Because Xmms2 return position only in seconds, which means the position */
-/*  * is rounded to 1000, so we need to simulate a timer to get proper time */
-/*  * in milliseconds */
-/*  * @param time  */
-/*  *  */
-/*  * @return  */
-/*  *\/ */
-/* static int */
-/* ol_player_xmms2_get_real_ms (int time) */
-/* { */
-/*   if (first_time < 0 || prev_time - time > 1000 || time - prev_time > 1000) */
-/*   { */
-/*     /\* reinitialize timer *\/ */
-/*     puts ("init1"); */
-/*     printf ("prev:%d, time:%d\n", prev_time, time); */
-/*     ol_player_xmms2_init_timer (time); */
-/*   } */
-/*   else */
-/*   { */
-/*     struct timeval current_time; */
-/*     gettimeofday (&current_time, NULL); */
-/*     int real_time = first_time + */
-/*       (current_time.tv_sec - begin_time.tv_sec) * 1000 + */
-/*       (current_time.tv_usec - begin_time.tv_usec) / 1000; */
-/*     if (real_time - time > 1000 || time - real_time > 1000 ) */
-/*     { */
-/*       puts ("init2"); */
-/*       printf ("real_time: %d, time: %d\n", real_time, time); */
-/*       ol_player_xmms2_init_timer (time); */
-/*     } */
-/*     else */
-/*     { */
-/*       prev_time = time; */
-/*       time = real_time; */
-/*     } */
-/*   } */
-/*   return time; */
-/* } */
-
-static gboolean
-ol_player_xmms2_get_music_info (OlMusicInfo *info)
-{
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_get_music_info (mpris, info);
+  ol_debug ("Now connect");
+  return ol_player_xmms2_connect ();
 }
 
 static gboolean
-ol_player_xmms2_get_played_time (int *played_time)
+ol_player_xmms2_connect ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  /* if (!ol_player_mpris_get_played_time (mpris, played_time)) */
-  /*   return FALSE; */
-  /* *played_time = ol_player_xmms2_get_real_ms (*played_time); */
-  /* return TRUE; */
-  return ol_player_mpris_get_played_time (mpris, played_time);
+  /* ol_log_func (); */
+  if (connection == NULL && connected == FALSE && !ol_player_xmms2_init ())
+    return FALSE;
+  connected = xmmsc_connect (connection, getenv ("XMMS_PATH"));
+  if (connected)
+    xmmsc_disconnect_callback_set (connection, disconnect_callback, NULL);
+  return connected;
 }
 
 static gboolean
-ol_player_xmms2_get_music_length (int *len)
+ol_player_xmms2_ensure_connection ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_get_music_length (mpris, len);
+  /* ol_log_func (); */
+  if (connection == NULL && !ol_player_xmms2_init ())
+    return FALSE;
+  gboolean ret = TRUE;
+  if (connected)
+    xmmsc_io_in_handle (connection);
+  if (connected && xmmsc_io_want_out (connection))
+    xmmsc_io_out_handle (connection);
+  if (!connected)
+  {
+    ret = ol_player_xmms2_connect ();
+  }
+  if (!ret)
+    ol_debug ("Ensure connection failed!");
+  return ret;
 }
 
 static gboolean
 ol_player_xmms2_get_activated ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_get_activated (mpris);
+  ol_log_func ();
+  return ol_player_xmms2_ensure_connection ();
 }
 
 static enum OlPlayerStatus
 ol_player_xmms2_get_status ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_get_status (mpris);
+  if (!ol_player_xmms2_ensure_connection ())
+    return OL_PLAYER_ERROR;
+  int ret;
+  xmmsc_result_t *result = xmmsc_playback_status (connection);
+  xmmsc_result_wait (result);
+  xmmsv_t *return_value = xmmsc_result_get_value (result);
+  if (xmmsv_is_error (return_value))
+  {
+    ret = OL_PLAYER_ERROR;
+  }
+  else
+  {
+    int32_t status;
+    if (xmmsv_get_int (return_value, &status))
+    {
+      switch (status)
+      {
+      case XMMS_PLAYBACK_STATUS_STOP:
+        ret = OL_PLAYER_STOPPED;
+        break;
+      case XMMS_PLAYBACK_STATUS_PLAY:
+        ret = OL_PLAYER_PLAYING;
+        break;
+      case XMMS_PLAYBACK_STATUS_PAUSE:
+        ret = OL_PLAYER_PAUSED;
+        break;
+      default:
+        ret = OL_PLAYER_UNKNOWN;
+        break;
+      }
+    }
+    else
+    {
+      ret = OL_PLAYER_ERROR;
+    }
+  }
+  xmmsc_result_unref (result);
+  return ret;
+}
+
+static int32_t
+ol_player_xmms2_get_currend_id ()
+{
+  ol_log_func ();
+  if (!ol_player_xmms2_ensure_connection ())
+    return 0;
+  int32_t ret = 0;
+  xmmsc_result_t *result = xmmsc_playback_current_id (connection);
+  xmmsc_result_wait (result);
+  xmmsv_t *return_value = xmmsc_result_get_value (result);
+  if (xmmsv_is_error (return_value))
+  {
+    ol_error ("Error on getting current id");
+    ret = 0;
+  }
+  else
+  {
+    if (!xmmsv_get_int (return_value, &ret))
+    {
+      ol_error ("Get id from result failed");
+      ret = 0;
+    }
+  }
+  xmmsc_result_unref (result);
+  return ret;
+}
+
+static char *
+ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key)
+{
+  ol_log_func ();
+  ol_assert_ret (dict != NULL, NULL);
+  ol_assert_ret (key != NULL, NULL);
+  const char *val = NULL;
+  xmmsv_t *dict_entry = NULL;
+  if (xmmsv_dict_get (dict, key, &dict_entry) &&
+      xmmsv_get_string (dict_entry, &val))
+  {
+    return g_strdup (val);
+  }
+  return NULL;
+}
+
+static int32_t
+ol_player_xmms2_get_dict_int (xmmsv_t *dict, const char *key)
+{
+  ol_log_func ();
+  ol_assert_ret (dict != NULL, 0);
+  ol_assert_ret (key != NULL, 0);
+  int32_t val = 0;
+  xmmsv_t *dict_entry = NULL;
+  if (xmmsv_dict_get (dict, key, &dict_entry) &&
+      xmmsv_get_int (dict_entry, &val))
+  {
+    return val;
+  }
+  return 0;
+}
+
+static gboolean
+ol_player_xmms2_get_music_info (OlMusicInfo *info)
+{
+  ol_log_func ();
+  ol_assert_ret (info != NULL, FALSE);
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  ol_music_info_clear (info);
+  int32_t id = ol_player_xmms2_get_currend_id ();
+  if (id > 0)
+  {
+    xmmsc_result_t *result = xmmsc_medialib_get_info (connection, id);
+    xmmsc_result_wait (result);
+    xmmsv_t *return_value = xmmsc_result_get_value (result);
+    if (xmmsv_is_error (return_value))
+    {
+      ol_error ("Get music info from XMMS2 failed.");
+    }
+    else
+    {
+      xmmsv_t *dict = xmmsv_propdict_to_dict (return_value, NULL);
+      info->title = ol_player_xmms2_get_dict_string (dict, "title");
+      info->artist = ol_player_xmms2_get_dict_string (dict, "artist");
+      info->album = ol_player_xmms2_get_dict_string (dict, "album");
+      info->track_number = ol_player_xmms2_get_dict_int (dict, "tracknr");
+      info->uri = ol_player_xmms2_get_dict_string (dict, "url");
+      ol_logf (OL_DEBUG,
+               "%s\n"
+               "  title:%s\n"
+               "  artist:%s\n"
+               "  album:%s\n"
+               "  uri:%s\n",
+               __FUNCTION__,
+               info->title,
+               info->artist,
+               info->album,
+               info->uri);
+    }
+    xmmsc_result_unref (result);
+  }
+  return TRUE;
+}
+
+static gboolean
+ol_player_xmms2_get_played_time (int *played_time)
+{
+  /* ol_log_func (); */
+  ol_assert_ret (played_time != NULL, FALSE);
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  xmmsc_result_t *result = xmmsc_playback_playtime (connection);
+  xmmsc_result_wait (result);
+  xmmsv_t *return_value = xmmsc_result_get_value (result);
+  if (xmmsv_is_error (return_value))
+  {
+    ol_error ("Get played time from XMMS2 failed");
+    return FALSE;
+  }
+  int32_t elapsed = 0;
+  xmmsv_get_int (return_value, &elapsed);
+  *played_time = elapsed;
+  xmmsc_result_unref (result);
+  /* ol_debugf ("time: %d\n", *played_time); */
+  return TRUE;
+}
+
+static gboolean
+ol_player_xmms2_get_music_length (int *len)
+{
+  ol_log_func ();
+  ol_assert_ret (len != NULL, FALSE);
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  *len = 0;
+  int32_t id = ol_player_xmms2_get_currend_id ();
+  if (id > 0)
+  {
+    xmmsc_result_t *result = xmmsc_medialib_get_info (connection, id);
+    xmmsc_result_wait (result);
+    xmmsv_t *return_value = xmmsc_result_get_value (result);
+    if (xmmsv_is_error (return_value))
+    {
+      ol_error ("Get music info from XMMS2 failed.");
+    }
+    else
+    {
+      xmmsv_t *dict = xmmsv_propdict_to_dict (return_value, NULL);
+      *len = ol_player_xmms2_get_dict_int (return_value, "duration");
+    }
+    xmmsc_result_unref (result);
+  }
+  return TRUE;
 }
 
 static int
 ol_player_xmms2_get_capacity ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_get_capacity (mpris);
+  ol_log_func ();
+  return OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_PAUSE | OL_PLAYER_STOP |
+    OL_PLAYER_PREV | OL_PLAYER_NEXT | OL_PLAYER_SEEK;
 }
 
 static gboolean
 ol_player_xmms2_play ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_play (mpris);
+  ol_log_func ();
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  xmmsc_result_unref (xmmsc_playback_start (connection));
+  return TRUE;
 }
 
 static gboolean
 ol_player_xmms2_pause ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_pause (mpris);
+  ol_log_func ();
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  xmmsc_result_unref (xmmsc_playback_pause (connection));
+  return TRUE;
 }
 
 static gboolean
 ol_player_xmms2_stop ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_stop (mpris);
+  ol_log_func ();
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  xmmsc_result_unref (xmmsc_playback_stop (connection));
+  return TRUE;
+}
+
+static gboolean
+ol_player_xmms2_go_rel (int rel)
+{
+  ol_log_func ();
+  ol_debugf ("  rel:%d\n", rel);
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  xmmsc_result_t *result = xmmsc_playlist_set_next_rel (connection, rel);
+  xmmsc_result_wait (result);
+  xmmsv_t *return_value = xmmsc_result_get_value (result);
+  if (xmmsv_is_error (return_value))
+  {
+    ol_debug ("Error on setting playlist next");
+    return FALSE;
+  }
+  xmmsc_result_unref (result);
+
+  result = xmmsc_playback_tickle (connection);
+  xmmsc_result_wait (result);
+  if (xmmsc_result_iserror (result))
+  {
+    ol_debug ("Error on tickle playback");
+    return FALSE;
+  }
+  xmmsc_result_unref (result);
+  return TRUE;
 }
 
 static gboolean
 ol_player_xmms2_prev ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_prev (mpris);
+  return ol_player_xmms2_go_rel (-1);
 }
 
 static gboolean
 ol_player_xmms2_next ()
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_next (mpris);
+  return ol_player_xmms2_go_rel (1);
 }
-
+  
 static gboolean
 ol_player_xmms2_seek (int pos_ms)
 {
-  OlPlayerMpris *mpris = ol_player_xmms2_get_mpris ();
-  return ol_player_mpris_seek (mpris, pos_ms);
+  ol_log_func ();
+  if (!ol_player_xmms2_ensure_connection ())
+    return FALSE;
+  xmmsc_result_unref (xmmsc_playback_seek_ms (connection, pos_ms));
+  return TRUE;
 }
+  
 
 OlPlayerController*
 ol_player_xmms2_get_controller ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_xmms2_get_music_info;
   controller->get_activated = ol_player_xmms2_get_activated;
@@ -198,3 +417,4 @@ ol_player_xmms2_get_controller ()
   controller->seek = ol_player_xmms2_seek;
   return controller;
 }
+#endif  /* ENABLE_XMMS2 */

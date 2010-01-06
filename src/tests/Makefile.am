@@ -13,6 +13,8 @@ check_PROGRAMS = \
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@GLADE_CFLAGS@ \
+	@MPD_CFLAGS@ \
+	@XMMS2_CFLAGS@ \
 	-I$(top_srcdir)/src
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
@@ -37,16 +39,21 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_exaile03.c \
 	$(top_srcdir)/src/ol_player_audacious.c \
 	$(top_srcdir)/src/ol_player_rhythmbox.c \
+	$(top_srcdir)/src/ol_player_mpd.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
 	$(top_srcdir)/src/ol_player_songbird.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
+	$(top_srcdir)/src/ol_config.c \
+	$(top_srcdir)/src/ol_marshal.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_utils_dbus.c \
 	$(top_srcdir)/src/ol_utils_dcop.c \
 	$(top_srcdir)/src/ol_music_info.c 
 ol_player_test_LDADD = \
 	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@
+	@DBUS_GLIB_LIBS@ \
+	@XMMS2_LIBS@ \
+	@MPD_LIBS@
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
 	$(top_srcdir)/src/ol_lrc_parser.c \
