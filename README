@@ -1,15 +1,15 @@
-OSD Lyrics is inspired by lrcdis. It is a third-party lyrics display program, and focus on OSD lyrics display.
+OSD Lyrics is inspired by lrcdis. With OSD Lyrics, you can enjoy an OSD lyrics show with various media players in Linux.
 
-=Media Player Support=
+=Compatible Media Players=
 
-OSD Lyrics communicates with music players through IPC. OSD Lyrics currently supports following media players:  
- * Amarok 1.4 (High CPU usage)
- * Amarok 2.0
+ * Amarok 2.0 and 1.4 (1.4 are disabled by default, use --enable-amarok1 to compile)
  * Audacious
  * Banshee
- * Exaile
+ * Exaile (Both 0.2 and 0.3)
+ * MPD
  * Rhythmbox
  * Songbird (with MPRIS extension installed)
+ * XMMS2
 
 =Download Lyrics=
 
@@ -19,10 +19,17 @@ OSD Lyrics can download lyrics from following web sites:
 
 You can switch the download engine in preference dialog.
 
+=Have Trouble?=
+
+ * Read our FAQ: http://code.google.com/p/osd-lyrics/wiki/FAQ
+ * Post to our discussion group(http://groups.google.com/group/osd-lyrics) or send a mail to osd-lyrics@googlegroups.com.
+ * You can also fire an issue to http://code.google.com/p/osd-lyrics/issues/list.
+
 =Get Involved=
 
  * If you would like to translate OSD Lyrics to other languagues, please visit https://translations.launchpad.net/osd-lyrics
  * If there is any feature request, suggestion, or bug, feel free to report them to  http://code.google.com/p/osd-lyrics/issues/list
+ *If there is any Grammar mistake in both documentation and software interface, please let me know :)
 
 =Acknowledgement=
 
@@ -31,5 +38,6 @@ Some open source projects help the authors to develop OSD Lyrics, as well as som
  * lrcdis: The idea of third-party lyrics program, and the analysis of LRC download protocols
  * Cairo-Dock: Its musicPlayer plugin helps the authors to implement most music player support
  * The global keybinding implementation is taken from Gnome Do, which is originally from Red hat and Tomboy
- * TuaratriX (http://imtx.cn/) has help one of the author on the implementation of OSD
- * Longyu Li designed our beautiful icon.
+ * TuaratriX (http://imtx.cn/) has help one of the author on the implementation of OSD, and is maintaining the Ubuntu PPA repository.
+ * easy designed our beautiful icon.
+ * liangsuilong(http://liangsuilong.co.cc/) maintains the Fedora RPM repository.
