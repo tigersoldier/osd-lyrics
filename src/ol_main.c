@@ -48,6 +48,7 @@ static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
+static gchar *previous_uri = NULL;
 static gint previous_duration = 0;
 static gint previous_position = -1;
 static LrcQueue *lrc_file = NULL;
@@ -256,7 +257,6 @@ check_music_change (int time)
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
-  gboolean stop = FALSE;
   /* fprintf (stderr, "%d-%d\n", previous_position, time); */
   if (previous_position >=0 && time >= previous_position &&
       previous_title != NULL)
@@ -271,47 +271,16 @@ check_music_change (int time)
   {
     controller = NULL;
   }
-  if (music_info.title == NULL)
-  {
-    if (previous_title != NULL)
-    {
-      g_free (previous_title);
-      previous_title = NULL;
-    }
-    stop = TRUE;
-  }
-  else if (previous_title == NULL)
-  {
+  if (!ol_streq (music_info.title, previous_title))
     changed = TRUE;
-    previous_title = g_strdup (music_info.title);
-  }
-  else if (strcmp (previous_title, music_info.title) != 0)
-  {
-    changed = TRUE;
-    g_free (previous_title);
-    previous_title = g_strdup (music_info.title);
-  }
+  ol_strptrcpy (&previous_title, music_info.title);
   /* compares the previous artist with current  */
-  if (music_info.artist == NULL)
-  {
-    if (previous_artist != NULL)
-    {
-      g_free (previous_artist);
-      previous_artist = NULL;
-      changed = TRUE;
-    }
-  }
-  else if (previous_artist == NULL)
-  {
+  if (!ol_streq (music_info.artist, previous_artist))
     changed = TRUE;
-    previous_artist = g_strdup (music_info.artist);
-  }
-  else if (strcmp (previous_artist, music_info.artist) != 0)
-  {
+  ol_strptrcpy (&previous_artist, music_info.artist);
+  if (!ol_streq (music_info.uri, previous_uri))
     changed = TRUE;
-    g_free (previous_artist);
-    previous_artist = g_strdup (music_info.artist);
-  }
+  ol_strptrcpy (&previous_uri, music_info.uri);
   /* compares the previous duration */
   /* FIXME: because the a of banshee, some lyrics may return different
      duration for the same song when plays to different position, so the
@@ -320,14 +289,8 @@ check_music_change (int time)
   /* { */
   /*   printf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
-    previous_duration = duration;
   /* } */
-  if (stop)
-  {
-    /* if (osd != NULL && GTK_WIDGET_MAPPED (osd)) */
-    /*   gtk_widget_hide (GTK_WIDGET (osd)); */
-    /* return; */
-  }
+  previous_duration = duration;
   if (changed)
   {
     on_music_changed ();

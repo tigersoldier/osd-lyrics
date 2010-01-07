@@ -59,4 +59,29 @@ char* ol_strnncpy (char *dest,
  * @return the length of the largest common substring
  */
 size_t ol_lcs (const char *str1, const char *str2);
+
+/** 
+ * @Checks whether two strings are equale
+ * Strings are different if one of them is NULL but another not,
+ * or their content are different
+ * 
+ * @param str1 The first string or NULL
+ * @param str2 The second string or NULL
+ * 
+ * @return TRUE if they are equal
+ */
+int ol_streq (const char *str1, const char *str2);
+
+/** 
+ * @Copy the content of a string pointer to another
+ * 
+ * @param dest The target string pointer. If it doesn't point to NULL, \
+ * it will be free with g_free
+ * @param src The source string. If it is not NULL, \
+ * it will be copyed with g_strdup, the dupped string will be assigned to  \
+ * dest. Otherwise the dest will be NULL after copied.
+ * 
+ * @return The string that dest points to after copying
+ */
+char *ol_strptrcpy (char **dest, const char *src);
 #endif // __OL_UTILS_H__

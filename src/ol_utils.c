@@ -6,6 +6,7 @@
 #include <glib-object.h>
 
 #include "ol_utils.h"
+#include "ol_debug.h"
 
 gchar*
 ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
@@ -177,3 +178,26 @@ ol_strnncpy (char *dest,
   return dest + src_len;
 }
 
+gboolean
+ol_streq (const char *str1, const char *str2)
+{
+  if (str1 == str2)
+    return TRUE;
+  if (str1 == NULL || str2 == NULL)
+    return FALSE;
+  return (strcmp (str1, str2) == 0);
+}
+
+char *
+ol_strptrcpy (char **dest, const char *src)
+{
+  ol_assert_ret (dest != NULL, NULL);
+  ol_assert_ret (src != NULL, NULL);
+  if (*dest != NULL)
+    g_free (*dest);
+  if (src == NULL)
+    *dest = NULL;
+  else
+    *dest = g_strdup (src);
+  return *dest;
+}

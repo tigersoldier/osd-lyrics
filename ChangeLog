@@ -1,3 +1,9 @@
+2010-01-08  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c (check_music_change): FIX: issue 40. Music change check failed when a music with its title unset.
+
+	* src/ol_utils.c : Add ol_strptrcpy and ol_streq.
+
 2010-01-07  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_path_manage.h: Change the return value from size_t to int, since size_t is unsigned but we need to return -1
