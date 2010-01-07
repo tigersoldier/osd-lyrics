@@ -192,7 +192,6 @@ char *
 ol_strptrcpy (char **dest, const char *src)
 {
   ol_assert_ret (dest != NULL, NULL);
-  ol_assert_ret (src != NULL, NULL);
   if (*dest != NULL)
     g_free (*dest);
   if (src == NULL)
