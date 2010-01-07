@@ -31,7 +31,7 @@ static char* ol_uri_get_filename (char *dest,
                                   const char *uri,
                                   gboolean with_ext);
 
-size_t
+int
 ol_path_get_lrc_pathname (const char *path_pattern,
                           const char *file_pattern,
                           OlMusicInfo *music_info,
@@ -41,7 +41,7 @@ ol_path_get_lrc_pathname (const char *path_pattern,
   if (path_pattern == NULL || file_pattern == NULL ||
       music_info == NULL || pathname == NULL || len <= 0)
     return -1;
-  size_t current = ol_path_expand_path_pattern (path_pattern,
+  int current = ol_path_expand_path_pattern (path_pattern,
                                                 music_info,
                                                 pathname,
                                                 len);
@@ -53,12 +53,15 @@ ol_path_get_lrc_pathname (const char *path_pattern,
     current++;
     pathname[current]  = '\0';
   }
-  size_t offset = ol_path_expand_file_pattern (file_pattern,
+  int offset = ol_path_expand_file_pattern (file_pattern,
                                                music_info,
                                                pathname + current,
                                                len - current);
   if (offset == -1)
+  {
+    ol_debugf ("  Expand pattern '%s' failed\n", file_pattern);
     return -1;
+  }
   current += offset;
   if (ol_stricmp (&pathname[current - 4], ".lrc", 4) != 0)
   {
@@ -85,7 +88,7 @@ replace_invalid_str (const char *str)
   return ret;
 }
 
-size_t
+int
 ol_path_expand_file_pattern (const char *pattern,
                              OlMusicInfo *music_info,
                              char *filename,
@@ -147,7 +150,10 @@ ol_path_expand_file_pattern (const char *pattern,
         break;
       } /* switch */
       if (append == NULL)
+      {
+        ol_debugf ("  append is NULL, pattern: %c\n", *(ptr2 + 1));
         return -1;
+      }
       current = ol_strnncpy (current, end - current,
                              append, strlen (append));
       if (current == NULL)
@@ -225,7 +231,7 @@ ol_uri_get_path (char *dest,
   return ret;
 }
 
-size_t
+int
 ol_path_expand_path_pattern (const char *pattern,
                              OlMusicInfo *music_info,
                              char *filename,

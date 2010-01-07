@@ -189,11 +189,11 @@ for_each_lrc_pattern (OlMusicInfo *info,
     for (j = 0; name_list[j]; j++)
     {
       ol_debugf ("  path:%s, name:%s\n", path_list[i], name_list[j]);
-      if (ol_path_get_lrc_pathname (path_list[i],
-                                    name_list[j],
-                                    info,
-                                    file_name,
-                                    MAX_PATH_LEN) >= 0)
+      if ((ol_path_get_lrc_pathname (path_list[i],
+                                     name_list[j],
+                                     info,
+                                     file_name,
+                                     MAX_PATH_LEN)) != -1)
       {
         ol_debugf ("  %s\n", file_name);
         if (func (file_name, data))

@@ -15,11 +15,11 @@
  *
  * @return The length of the pathname, of -1 if failed
  */
-size_t ol_path_get_lrc_pathname (const char *path_pattern,
-                                 const char *file_pattern,
-                                 OlMusicInfo *music_info,
-                                 char *pathname,
-                                 size_t len);
+int ol_path_get_lrc_pathname (const char *path_pattern,
+                              const char *file_pattern,
+                              OlMusicInfo *music_info,
+                              char *pathname,
+                              size_t len);
 
 /** 
  * @brief Expands the pattern to a file name according to the infomation of a music
@@ -37,10 +37,10 @@ size_t ol_path_get_lrc_pathname (const char *path_pattern,
  * 
  * @return The length of the expanded file name, or -1 if failed
  */
-size_t ol_path_expand_file_pattern (const char *pattern,
-                                    OlMusicInfo *music_info,
-                                    char *filename,
-                                    size_t len);
+int ol_path_expand_file_pattern (const char *pattern,
+                                 OlMusicInfo *music_info,
+                                 char *filename,
+                                 size_t len);
 /** 
  * @brief Expands the pattern to a directory path according to the infomation of a music
  * The pattern can be one of the three forms:
@@ -54,10 +54,10 @@ size_t ol_path_expand_file_pattern (const char *pattern,
  * 
  * @return The length of the expanded file name, or -1 if failed
  */
-size_t ol_path_expand_path_pattern (const char *pattern,
-                                    OlMusicInfo *music_info,
-                                    char *filename,
-                                    size_t len);
+int ol_path_expand_path_pattern (const char *pattern,
+                                 OlMusicInfo *music_info,
+                                 char *filename,
+                                 size_t len);
 
 /** 
  * @brief Check whether a file exists and is a regular file.
