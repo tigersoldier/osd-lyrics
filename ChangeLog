@@ -1,5 +1,7 @@
 2010-01-09  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* configure.ac: New Release
+
 	* src/ol_utils_cmdline.c: ADD: Command line utilities
 
 	* src/ol_player_moc.c: ADD: MOC support
