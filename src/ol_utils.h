@@ -84,4 +84,27 @@ int ol_streq (const char *str1, const char *str2);
  * @return The string that dest points to after copying
  */
 char *ol_strptrcpy (char **dest, const char *src);
+
+/** 
+ * @brief Find the first '\n', change it into '\0' and return the pointer to \
+ *        the next line
+ * 
+ * @param str the string to be splited, cannot be NULL
+ * 
+ * @return The pointer to the next line. If no '\n' exists, return NULL
+ */
+char *ol_split_a_line (char *str);
+
+/** 
+ * @brief Fill the heading and tailing white spaces of str with '\0', \
+ *        and returns the pointer to the first non-space character. \
+ *        If the string is empty, simply return NULL
+ * 
+ * @param str The string to be trimed. If it is NULL, returns NULL.
+ * 
+ * @return The pointer to the first non-space character, \
+ *         or NULL if str is empty or NULL.
+ */
+char *ol_trim_string (char *str);
+
 #endif // __OL_UTILS_H__

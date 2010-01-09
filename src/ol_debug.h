@@ -1,6 +1,8 @@
 #ifndef _OL_DEBUG_H_
 #define _OL_DEBUG_H_
 
+#include <stdio.h>
+
 enum OlDebugLevel {
   OL_ERROR = 0,
   OL_DEBUG = 1,

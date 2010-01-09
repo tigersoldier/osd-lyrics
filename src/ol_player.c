@@ -18,6 +18,7 @@
 #ifdef ENABLE_MPD
 #include "ol_player_mpd.h"
 #endif  /* ENABLE_MPD */
+#include "ol_player_moc.h"
 
 static GArray *controllers = NULL;
 
@@ -43,6 +44,7 @@ ol_player_init ()
 #ifdef ENABLE_MPD
     ol_player_register_controller (ol_player_mpd_get_controller (), "MPD");
 #endif  /* ENABLE_MPD */
+    ol_player_register_controller (ol_player_moc_get_controller (), "MOC");
   }  
 }
 

@@ -2,6 +2,7 @@
 #define _OL_PATH_MANAGE_H_
 
 #include <string.h>
+#include <glib.h>
 #include "ol_music_info.h"
 
 /** 

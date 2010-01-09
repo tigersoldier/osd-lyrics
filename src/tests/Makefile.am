@@ -8,7 +8,8 @@ check_PROGRAMS = \
 	ol_color_test \
 	ol_lrc_fetch_ui_test \
 	ol_lrc_fetch_module_test \
-	ol_path_test
+	ol_path_test \
+	ol_utils_cmdline_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -21,6 +22,11 @@ AM_CPPFLAGS = \
 	-DICONDIR='"$(OL_ICONDIR)"' \
 	-DGLADEDIR='"$(OL_GLADEDIR)"'
 # Tests
+ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
+	$(top_srcdir)/src/ol_utils_cmdline.c
+ol_utils_cmdline_test_LDADD = \
+	@GTK2_LIBS@
+
 ol_osd_test_SOURCES = ol_osd_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
 	$(top_srcdir)/src/ol_osd_render.c \

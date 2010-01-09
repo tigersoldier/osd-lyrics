@@ -1,3 +1,9 @@
+2010-01-09  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_utils_cmdline.c: ADD: Command line utilities
+
+	* src/ol_player_moc.c: ADD: MOC support
+
 2010-01-08  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_main.c (check_music_change): FIX: issue 40. Music change check failed when a music with its title unset.

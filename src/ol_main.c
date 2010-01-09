@@ -64,7 +64,7 @@ static void on_music_changed ();
  * 
  * @param signal 
  */
-static void child_handler (int sig);
+/* static void child_handler (int sig); */
 static gboolean on_search_done (struct OlLrcFetchResult *result);
 static gboolean on_downloaded (char *filepath);
 
@@ -141,20 +141,20 @@ on_search_done (struct OlLrcFetchResult *result)
   return FALSE;
 }
 
-static void
-child_handler (int sig)
-{
-  int status;
-  if (wait (&status) < 0)
-  {
-    fprintf (stderr, "wait error\n");
-    return;
-  }
-  if (status == 0)
-  {
-    check_lyric_file ();
-  }
-}
+/* static void */
+/* child_handler (int sig) */
+/* { */
+/*   int status; */
+/*   if (wait (&status) < 0) */
+/*   { */
+/*     fprintf (stderr, "wait error\n"); */
+/*     return; */
+/*   } */
+/*   if (status == 0) */
+/*   { */
+/*     check_lyric_file (); */
+/*   } */
+/* } */
 
 gboolean
 ol_app_download_lyric (OlMusicInfo *music_info)
@@ -336,7 +336,7 @@ void initialize (int argc, char **argv)
   /* textdomain (PACKAGE); */
 #endif
   /* Handler for SIGCHLD to wait lrc downloading process */
-  signal (SIGCHLD, child_handler);
+  /* signal (SIGCHLD, child_handler); */
   
   ol_logf (OL_INFO, "main\n");
   g_thread_init(NULL);

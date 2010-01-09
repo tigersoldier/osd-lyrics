@@ -200,3 +200,38 @@ ol_strptrcpy (char **dest, const char *src)
     *dest = g_strdup (src);
   return *dest;
 }
+
+char *
+ol_split_a_line (char *str)
+{
+  ol_assert_ret (str != NULL, NULL);
+  while (*str != '\n' && *str != '\0') str++;
+  if (*str == '\n')
+  {
+    *str = '\0';
+    return str + 1;
+  }
+  else
+    return NULL;
+}
+
+char
+*ol_trim_string (char *str)
+{
+  if (str == NULL)
+    return NULL;
+  while (isspace (*str))
+  {
+    *str = '\0';
+    str++;
+  }
+  if (*str == '\0')             /* The whole string is space */
+    return NULL;
+  size_t len = strlen (str) - 1;
+  while (isspace (str[len]))
+  {
+    str[len] = '\0';
+    len--;
+  }
+  return str;
+}
