@@ -5,11 +5,6 @@ PACKAGE_NAME="OSD Lyrics"
 MAJOR_VER=0
 MINOR_VER=2
 BUILD=20100109
-AC_SUBST(PACKAGE)
-AC_SUBST(PACKAGE_NAME)
-AC_SUBST(MAJOR_VER)
-AC_SUBST(MINOR_VER)
-AC_SUBST(BUILD)
 
 AC_INIT([osd-lyrics], [0.2.20100109], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE
@@ -60,8 +55,7 @@ AC_ARG_WITH(gprof-support,
     AC_SUBST(gmondir)
     ;;
   esac 
-],
-AC_MSG_RESULT(no))
+])
 
 AC_ARG_ENABLE([mpd],
   [AS_HELP_STRING([--disable-mpd], [Disables MPD support. You won't need libmpd if you use this option])],
@@ -109,7 +103,23 @@ XMMS2_LIBS=
 AS_IF([test "x$enable_xmms2" != "xno"],
   [PKG_CHECK_MODULES([XMMS2], [xmms2-client],
     [AC_DEFINE([ENABLE_XMMS2], [1], [Define if compile to support XMMS2])
+    dnl OLD_CFLAGS="$CFLAGS"
+    dnl CFLAGS="$CFLAGS $XMMS2_CFLAGS"
+    #AC_DEFINE([XMMS2_MAIN_VERSION], 0, [The main version of XMMS2 client])
+    dnl AC_CHECK_HEADERS([xmmsc/xmmsv.h]) 
+    dnl AC_COMPILE_IFELSE([
+    dnl 	#include <xmmsclient/xmmsclient.h>
+    dnl 	void foo () {
+    dnl 		xmmsc_playback_seek_ms (NULL, 0, 0);
+    dnl 	}
+    dnl ], 
+    dnl [AC_DEFINE([XMMS_SEEK_WHENCE], [1], [Define if xmms_playback_seek_ms takes whence parameter])])
+    dnl CFLAGS="$OLD_CFLAGS"
+    dnl PKG_CHECK_EXISTS(
+    dnl 	[xmms2-client >= 0.6], 
+    dnl 	[AC_DEFINE([XMMS2_HAVE_XMMSV], 1, [Whether we can use xmmsv_t])])
      #BUILD_XMMS2_SUPPORT=1
+    #AC_SUBST(xmms2_version)
     ],
     [enable_xmms2=no
      #BUILD_XMMS2_SUPPORT=0

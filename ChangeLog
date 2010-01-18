@@ -1,3 +1,8 @@
+2010-01-18  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_xmms2.c: FIX: Backward compatibility of old XMMS2 versions without xmmsv_t
+	FIX: Compatible with new xmms_playback_seek_ms with whence parameter
+
 2010-01-09  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* configure.ac: New Release

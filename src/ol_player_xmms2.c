@@ -33,6 +33,146 @@ static gboolean ol_player_xmms2_connect ();
  * @return TRUE if succeeded
  */
 static gboolean ol_player_xmms2_go_rel (int rel);
+
+#if XMMS_IPC_PROTOCOL_VERSION < 13 /* Before xmmsv_t introduced */
+typedef xmmsc_result_t xmmsv_t;
+xmmsv_t *
+xmmsc_result_get_value (xmmsc_result_t *result)
+{
+  return result;
+}
+
+int
+xmmsv_is_error (xmmsv_t *val)
+{
+  return xmmsc_result_iserror (val);
+}
+
+int
+xmmsv_get_int (xmmsv_t *val, int32_t *r)
+{
+  return xmmsc_result_get_int (val, r);
+}
+
+int
+xmmsv_get_string (xmmsv_t *val, const char **r)
+{
+  return xmmsc_result_get_string (val, r);
+}
+
+struct TargetInt {
+  const char *key;
+  int val;
+  int succeed;
+};
+
+static void
+xmmsv_propdict_get_int (const void *key,
+                        xmmsc_result_value_type_t type,
+                        const void *value,
+                        const char *source,
+                        void *user_data)
+{
+  struct TargetInt *target = (struct TargetInt *) user_data;
+  if (type != XMMSC_RESULT_VALUE_TYPE_INT32)
+  {
+    return;
+  }
+  if (strcmp (key, target->key) == 0)
+  {
+    target->val = XPOINTER_TO_INT (value);
+    target->succeed = 1;
+  }
+}
+
+
+static int
+xmmsv_dict_get_int (xmmsv_t *dictv, const char *key, int32_t *val)
+{
+  ol_assert_ret (dictv != NULL, 0);
+  ol_assert_ret (key != NULL, 0);
+  ol_assert_ret (val != NULL, 0);
+  struct TargetInt target;
+  target.key = key;
+  target.val = 0;
+  target.succeed = 0;
+  if (!xmmsc_result_propdict_foreach (dictv, xmmsv_propdict_get_int, &target))
+    return 0;
+  if (target.succeed)
+    *val = target.val;
+  return target.succeed;
+}
+
+struct TargetString {
+  const char *key;
+  char *val;
+  int succeed;
+};
+
+static void
+xmmsv_propdict_get_string (const void *key,
+                           xmmsc_result_value_type_t type,
+                           const void *value,
+                           const char *source,
+                           void *user_data)
+{
+  struct TargetString *target = (struct TargetString *) user_data;
+  if (type != XMMSC_RESULT_VALUE_TYPE_STRING)
+  {
+    return;
+  }
+  if (strcmp (key, target->key) == 0)
+  {
+    target->val = g_strdup (value);
+    target->succeed = 1;
+  }
+}
+
+static int
+xmmsv_dict_get_string (xmmsv_t *dictv, const char *key, const char **val)
+{
+  ol_assert_ret (dictv != NULL, 0);
+  ol_assert_ret (key != NULL, 0);
+  ol_assert_ret (val != NULL, 0);
+  struct TargetString target;
+  target.key = key;
+  target.val = NULL;
+  target.succeed = 0;
+  if (!xmmsc_result_propdict_foreach (dictv, xmmsv_propdict_get_string, &target))
+    return 0;
+  if (target.succeed)
+    *val = target.val;
+  return target.succeed;
+}
+
+static xmmsv_t *
+xmmsv_propdict_to_dict (xmmsv_t *propdict, const char **src_prefs)
+{
+  return propdict;
+}
+
+#else  /* We have xmmsv_t, so things are easy */
+static int
+xmmsv_dict_get_string (xmmsv_t *dict,
+                       const char *key,
+                       const char **val)
+{
+  xmmsv_t *dict_entry;
+  return (xmmsv_dict_get (dict, key, &dict_entry) &&
+          xmmsv_get_string (dict_entry, val));
+}
+
+static int
+xmmsv_dict_get_int (xmmsv_t *dict,
+                    const char *key,
+                    int32_t *val)
+{
+  xmmsv_t *dict_entry;
+  return (xmmsv_dict_get (dict, key, &dict_entry) &&
+          xmmsv_get_int (dict_entry, val));
+}
+#endif  /* XMMS_IPC_PROTOCOL_VERSION < 13 */
+
 /** 
  * @brief Gets a string value from a dict
  * 
@@ -191,8 +331,7 @@ ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key)
   ol_assert_ret (key != NULL, NULL);
   const char *val = NULL;
   xmmsv_t *dict_entry = NULL;
-  if (xmmsv_dict_get (dict, key, &dict_entry) &&
-      xmmsv_get_string (dict_entry, &val))
+  if (xmmsv_dict_get_string (dict, key, &val))
   {
     return g_strdup (val);
   }
@@ -207,8 +346,7 @@ ol_player_xmms2_get_dict_int (xmmsv_t *dict, const char *key)
   ol_assert_ret (key != NULL, 0);
   int32_t val = 0;
   xmmsv_t *dict_entry = NULL;
-  if (xmmsv_dict_get (dict, key, &dict_entry) &&
-      xmmsv_get_int (dict_entry, &val))
+  if (xmmsv_dict_get_int (dict, key, &val))
   {
     return val;
   }
@@ -393,7 +531,11 @@ ol_player_xmms2_seek (int pos_ms)
   ol_log_func ();
   if (!ol_player_xmms2_ensure_connection ())
     return FALSE;
+#if XMMS_IPC_PROTOCOL_VERSION >= 16
+  xmmsc_result_unref (xmmsc_playback_seek_ms (connection, pos_ms, XMMS_PLAYBACK_SEEK_SET));
+#else
   xmmsc_result_unref (xmmsc_playback_seek_ms (connection, pos_ms));
+#endif
   return TRUE;
 }
   

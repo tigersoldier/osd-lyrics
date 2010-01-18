@@ -12,7 +12,7 @@
 GETTEXT_MACRO_VERSION = 0.17
 
 PACKAGE = osd-lyrics
-VERSION = 0.2.20100106
+VERSION = 0.2.20100109
 PACKAGE_BUGREPORT = http://code.google.com/p/osd-lyrics/issues/list
 
 SHELL = /bin/sh
@@ -162,7 +162,7 @@ $(DOMAIN).pot-update: $(POTFILES) $(srcdir)/POTFILES.in remove-potcdate.sed
 	      --files-from=$(srcdir)/POTFILES.in \
 	      --copyright-holder='$(COPYRIGHT_HOLDER)' \
 	      --package-name="$${package_gnu}osd-lyrics" \
-	      --package-version='0.2.20100106' \
+	      --package-version='0.2.20100109' \
 	      --msgid-bugs-address="$$msgid_bugs_address" \
 	    ;; \
 	esac
