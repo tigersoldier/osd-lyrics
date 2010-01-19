@@ -158,6 +158,7 @@ ol_player_mpd_init ()
   }
   mpd_set_connection_timeout (mpd, 0.1);
   /* TODO: connect signals here */
+  return TRUE;
 }
 
 static enum

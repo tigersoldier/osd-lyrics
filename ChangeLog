@@ -1,3 +1,7 @@
+2010-01-19  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_mpd.c (ol_player_mpd_init): FIX: Issue 42, connect to MPD successfully but report failed.
+
 2010-01-18  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_xmms2.c: FIX: Backward compatibility of old XMMS2 versions without xmmsv_t
