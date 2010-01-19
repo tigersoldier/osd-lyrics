@@ -9,7 +9,7 @@ enum OlDebugLevel {
   OL_INFO = 2,
 };
 
-#define ol_logf(level, ...)           ( fprintf (stderr, __VA_ARGS__))
+#define ol_logf(level, ...)           ( fprintf (stdout, __VA_ARGS__))
 #define ol_log_func()                 ( ol_logf (OL_DEBUG, "%s\n", __FUNCTION__))
 #define ol_debugf(...)                ( ol_logf (OL_DEBUG, __VA_ARGS__))
 #define ol_debug(...)                 ( ol_logf (OL_DEBUG, "%s\n", __VA_ARGS__))

@@ -1,5 +1,7 @@
 2010-01-19  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_debug.h (ol_logf): CHANGE: Issue 44, a workaround to print debug messages to stdout to avoid output to .xsession-errors
+
 	* src/ol_player_mpd.c (ol_player_mpd_init): FIX: Issue 42, connect to MPD successfully but report failed.
 
 2010-01-18  Tiger Soldier  <tigersoldi@gmail.com>
