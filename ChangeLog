@@ -1,6 +1,6 @@
 2010-01-22  Tiger Soldier  <tigersoldi@gmail.com>
 
-	* src/ol_player_amarok2.c (ol_player_amarok2_get_controller): FIX: Issue 49, infinite recursion when getting status of amarok 
+	* src/ol_player_amarok2.c (ol_player_amarok2_get_controller): FIX: Issue 49, infinite recursion when getting status of amarok
 
 2010-01-21  Tiger Soldier  <tigersoldi@gmail.com>
 
@@ -10,7 +10,7 @@
 
 	* src/ol_debug.h (ol_logf): CHANGE: Issue 44, a workaround to print debug messages to stdout to avoid output to .xsession-errors
 
-	* src/ol_player_mpd.c (ol_player_mpd_init): FIX: Issue 42, connect to MPD successfully but report failed.
+	* src/ol_player_mpd.c (ol_player_mpd_init): FIX: Issue 42, connect to MPD successfully but report failed. Thanks to sightok.net
 
 2010-01-18  Tiger Soldier  <tigersoldi@gmail.com>
 
