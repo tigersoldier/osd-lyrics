@@ -1,3 +1,7 @@
+2010-01-22  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_amarok2.c (ol_player_amarok2_get_controller): FIX: Issue 49, infinite recursion when getting status of amarok 
+
 2010-01-21  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: ADD: Outline width property for OSD Window
