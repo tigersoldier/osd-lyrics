@@ -167,6 +167,10 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   {
     ol_osd_window_set_translucent_on_mouse_over (osd, ol_config_get_bool (config, "OSD", name));
   }
+  else if (strcmp (name, "outline-width") == 0)
+  {
+    ol_osd_window_set_outline_width (osd, ol_config_get_int (config, "OSD", name));
+  }
 }
 
 static void
@@ -192,6 +196,7 @@ ol_osd_module_init_osd (OlOsdModule *module)
   config_change_handler (config, "OSD", "active-lrc-color", module);
   config_change_handler (config, "OSD", "inactive-lrc-color", module);
   config_change_handler (config, "OSD", "translucent-on-mouse-over", module);
+  config_change_handler (config, "OSD", "outline-width", module);
   g_signal_connect (module->osd, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);

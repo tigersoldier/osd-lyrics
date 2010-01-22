@@ -18,6 +18,7 @@ enum {
   PROP_XALIGN,
   PROP_YALIGN,
   PROP_FONT_SIZE,
+  PROP_OUTLINE_WIDTH,
   PROP_WIDTH,
   PROP_LOCKED,
   PROP_VISIBLE,
@@ -178,6 +179,7 @@ static const OlConfigIntValue config_int[] = {
   {PROP_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
 #ifdef ENABLE_MPD
   {PROP_MPD_PORT, "mpd-port", "Player", "MPD Port", "The port of MPD service to connect", 1, 10000000, 6600},
+  {PROP_OUTLINE_WIDTH, "outline-width", "OSD", "Outline width of OSD", "The width of outline in OSD", 0, 10, 3},
 #endif
 };
 

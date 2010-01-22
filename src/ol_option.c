@@ -21,6 +21,7 @@ static struct _OptionWidgets
   GtkWidget *ok;
   GtkWidget *cancel;
   GtkWidget *font;
+  GtkWidget *outline_width;
   GtkWidget *width;
   GtkWidget *lrc_align[2];
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
@@ -357,6 +358,11 @@ ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   render = ol_osd_render_context_new ();
   ol_osd_render_set_font_family (render, font_family);
   ol_osd_render_set_font_size (render, font_size);
+  if (options.outline_width != NULL)
+  {
+    int outline = gtk_spin_button_get_value (GTK_SPIN_BUTTON (options.outline_width));
+    ol_osd_render_set_outline_width (render, outline);
+  }
   int tw, th, w, h;
   gdk_drawable_get_size (widget->window, &w, &h);
   ol_osd_render_get_pixel_size (render, preview_text, &tw, &th);
@@ -433,6 +439,13 @@ load_osd ()
     gtk_font_button_set_font_name (font, font_name);
     g_free (font_name);
     g_free (font_family);
+  }
+  /* Outline Width */
+  GtkSpinButton *outline_widget = GTK_SPIN_BUTTON (options.outline_width);
+  if (outline_widget != NULL)
+  {
+    gtk_spin_button_set_value (outline_widget,
+                               ol_config_get_int (config, "OSD", "outline-width"));
   }
   /* Updates Width */
   GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
@@ -514,6 +527,15 @@ save_osd ()
                           "font-size",
                           font_size);
     g_free (font_family);
+  }
+  /* Outline Width */
+  GtkSpinButton *outline_widget = GTK_SPIN_BUTTON (options.outline_width);
+  if (outline_widget != NULL)
+  {
+    ol_config_set_int (config,
+                       "OSD",
+                       "outline-width",
+                       gtk_spin_button_get_value (outline_widget));
   }
   /* Updates Width */
   GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
@@ -981,6 +1003,7 @@ ol_option_show ()
     options.ok = ol_glade_get_widget ("optionok");
     options.cancel = ol_glade_get_widget ("optioncancel");
     options.font = ol_glade_get_widget ("osd-font");
+    options.outline_width = ol_glade_get_widget ("outline-width");
     options.width = ol_glade_get_widget ("osd-width");
     options.lrc_align[0] = ol_glade_get_widget ("lrc-align-0");
     options.lrc_align[1] = ol_glade_get_widget ("lrc-align-1");

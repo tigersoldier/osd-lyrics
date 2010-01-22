@@ -12,9 +12,9 @@ typedef struct
 {
   char *font_family;
   double font_size;
+  int outline_width;
   OlColor linear_colors[OL_LINEAR_COLOR_COUNT];
   double linear_pos[OL_LINEAR_COLOR_COUNT];
-  double outline_width;
   PangoContext *pango_context;
   PangoLayout *pango_layout;
   char *text;
@@ -67,6 +67,24 @@ void ol_osd_render_set_font_size (OlOsdRenderContext *context,
  * @return The font size for the context
  */
 double ol_osd_render_get_font_size (OlOsdRenderContext *context);
+
+/** 
+ * @brief Sets the outline width
+ * 
+ * @param context An OlOsdRenderContext
+ * @param width Outline width, must be positive
+ */
+void ol_osd_render_set_outline_width (OlOsdRenderContext *context,
+                                      const int width);
+
+/** 
+ * @brief Gets the outline width for a context
+ * 
+ * @param context An OlOsdRenderContext;
+ * 
+ * @return The outline width for the context
+ */
+int ol_osd_render_get_outline_width (OlOsdRenderContext *context);
 
 /** 
  * @brief Gets the height of the font of a context

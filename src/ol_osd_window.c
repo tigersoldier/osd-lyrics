@@ -1327,9 +1327,31 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
 double
 ol_osd_window_get_font_size (OlOsdWindow *osd)
 {
-  if (osd == NULL || osd->render_context == NULL)
-    return 0.0;
+  ol_assert_ret (osd != NULL, 0.0);
+  ol_assert_ret (osd->render_context != NULL, 0.0);
   return ol_osd_render_get_font_size (osd->render_context);
+}
+
+void
+ol_osd_window_set_outline_width (OlOsdWindow *osd,
+                                 const int width)
+{
+  ol_assert (osd != NULL);
+  ol_assert (osd->render_context != NULL);
+  ol_osd_render_set_outline_width (osd->render_context, width);
+  int i;
+  for (i = 0; i < osd->line_count; i++)
+    ol_osd_window_update_lyric_pixmap (osd, i);
+  ol_osd_window_update_height (osd);
+  ol_osd_window_update_shape (osd, 0);
+}
+
+int
+ol_osd_window_get_outline_width (OlOsdWindow *osd)
+{
+  ol_assert_ret (osd != NULL, 0);
+  ol_assert_ret (osd->render_context != NULL, 0);
+  return ol_osd_render_get_outline_width (osd->render_context);
 }
 
 void

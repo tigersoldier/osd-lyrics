@@ -1,3 +1,7 @@
+2010-01-21  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: ADD: Outline width property for OSD Window
+
 2010-01-19  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_debug.h (ol_logf): CHANGE: Issue 44, a workaround to print debug messages to stdout to avoid output to .xsession-errors

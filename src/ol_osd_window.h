@@ -243,6 +243,25 @@ void ol_osd_window_set_font_size (OlOsdWindow *osd,
  */
 double ol_osd_window_get_font_size (OlOsdWindow *osd);
 
+
+/** 
+ * @brief Sets the outline width
+ * 
+ * @param osd An OSD window
+ * @param width Outline width, must be positive
+ */
+void ol_osd_window_set_outline_width (OlOsdWindow *osd,
+                                      const int width);
+
+/** 
+ * @brief Gets the outline width for an OSD Window
+ * 
+ * @param osd An OSD Window;
+ * 
+ * @return The outline width for the context
+ */
+int ol_osd_window_get_outline_width (OlOsdWindow *osd);
+
 /** 
  * @brief Sets the color of active lyrics
  * Active lyric is the played part of the lyric
