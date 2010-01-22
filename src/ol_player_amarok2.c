@@ -1,22 +1,17 @@
-#include <stdio.h>
-#include <sys/time.h>
 #include <dbus/dbus-glib.h>
 #include "ol_player_amarok2.h"
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
 #include "ol_player_mpris.h"
+#include "ol_elapse_emulator.h"
+#include "ol_debug.h"
 
 static const char *SERVICE = "org.kde.amarok";
 
-static int first_time = -1;
-static int prev_time = 0;
-struct timeval begin_time;
-
 static OlPlayerMpris *mpris = NULL;
+static OlElapseEmulator *elapse_emulator = NULL;
 
 static OlPlayerMpris* ol_player_amarok2_get_mpris ();
-static int ol_player_amarok2_get_real_ms (int time);
-static int ol_player_amarok2_init_timer (int time);
 
 static gboolean ol_player_amarok2_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_amarok2_get_played_time (int *played_time);
@@ -30,6 +25,18 @@ static gboolean ol_player_amarok2_stop ();
 static gboolean ol_player_amarok2_prev ();
 static gboolean ol_player_amarok2_next ();
 static gboolean ol_player_amarok2_seek (int pos_ms);
+static void ol_player_amarok2_ensure_elapse (int elapsed_time);
+
+static void
+ol_player_amarok2_ensure_elapse (int elapsed_time)
+{
+  if (elapse_emulator == NULL)
+  {
+    elapse_emulator = g_new (OlElapseEmulator, 1);
+    if (elapse_emulator != NULL)
+      ol_elapse_emulator_init (elapse_emulator, elapsed_time, 1000);
+  }
+}
 
 static OlPlayerMpris*
 ol_player_amarok2_get_mpris ()
@@ -39,55 +46,6 @@ ol_player_amarok2_get_mpris ()
     mpris = ol_player_mpris_new (SERVICE);
   }
   return mpris;
-}
-
-static int
-ol_player_amarok2_init_timer (int time)
-{
-  first_time = time;
-  prev_time = time;
-  gettimeofday (&begin_time, NULL);
-}
-
-/** 
- * Return real position in milliseconds
- * Because Amarok2 return position only in seconds, which means the position
- * is rounded to 1000, so we need to simulate a timer to get proper time
- * in milliseconds
- * @param time rounded time in milliseconds
- * 
- * @return 
- */
-static int
-ol_player_amarok2_get_real_ms (int time)
-{
-  if (first_time < 0 || prev_time - time > 1000 || time - prev_time > 1000)
-  {
-    /* reinitialize timer */
-    puts ("init1");
-    printf ("prev:%d, time:%d\n", prev_time, time);
-    ol_player_amarok2_init_timer (time);
-  }
-  else
-  {
-    struct timeval current_time;
-    gettimeofday (&current_time, NULL);
-    int real_time = first_time +
-      (current_time.tv_sec - begin_time.tv_sec) * 1000 +
-      (current_time.tv_usec - begin_time.tv_usec) / 1000;
-    if (real_time - time > 1000 || time - real_time > 1000 )
-    {
-      puts ("init2");
-      printf ("real_time: %d, time: %d\n", real_time, time);
-      ol_player_amarok2_init_timer (time);
-    }
-    else
-    {
-      prev_time = time;
-      time = real_time;
-    }
-  }
-  return time;
 }
 
 static gboolean
@@ -101,9 +59,26 @@ static gboolean
 ol_player_amarok2_get_played_time (int *played_time)
 {
   OlPlayerMpris *mpris = ol_player_amarok2_get_mpris ();
-  if (!ol_player_mpris_get_played_time (mpris, played_time))
+  int amarok_time = 0;
+  if (!ol_player_mpris_get_played_time (mpris, &amarok_time))
     return FALSE;
-  *played_time = ol_player_amarok2_get_real_ms (*played_time);
+  ol_player_amarok2_ensure_elapse (amarok_time);
+  /* FIXME: Due to a bug in Amarok 2.0, the status returned is always set to
+     stopped, so we can't determine the true status of Amarok.
+     Enable the true clause when the fixed version of Amarok 2 is wide spread.
+   */
+  if (0)
+  {
+    enum OlPlayerStatus status = ol_player_amarok2_get_status ();
+    if (status == OL_PLAYER_PLAYING)
+      *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, amarok_time);
+    else
+      *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, amarok_time);
+  }
+  else
+  {
+    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, amarok_time);
+  }
   return TRUE;
 }
 
@@ -180,15 +155,14 @@ ol_player_amarok2_seek (int pos_ms)
 OlPlayerController*
 ol_player_amarok2_get_controller ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   OlPlayerController *controller = g_new0 (OlPlayerController, 1);
   controller->get_music_info = ol_player_amarok2_get_music_info;
   controller->get_activated = ol_player_amarok2_get_activated;
   controller->get_played_time = ol_player_amarok2_get_played_time;
   controller->get_music_length = ol_player_amarok2_get_music_length;
   controller->get_capacity = ol_player_amarok2_get_capacity;
-  controller->get_status = ol_player_get_status;
+  controller->get_status = ol_player_amarok2_get_status;
   controller->play = ol_player_amarok2_play;
   controller->pause = ol_player_amarok2_pause;
   controller->stop = ol_player_amarok2_stop;

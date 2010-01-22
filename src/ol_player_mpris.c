@@ -4,6 +4,7 @@
 #include "ol_player_mpris.h"
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
+#include "ol_debug.h"
 
 enum MprisCaps {
   CAN_GO_NEXT           = 1 << 0,
@@ -198,7 +199,6 @@ ol_player_mpris_get_status (OlPlayerMpris *mpris)
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return OL_PLAYER_ERROR;
-  fprintf (stderr, "%s\n", __FUNCTION__);
   if (dbus_g_proxy_call (mpris->proxy,
                          GET_STATUS_METHOD,
                          NULL,G_TYPE_INVALID,
@@ -211,7 +211,6 @@ ol_player_mpris_get_status (OlPlayerMpris *mpris)
                          &status,
                          G_TYPE_INVALID))
   {
-    fprintf (stderr, "%s succeed\n", __FUNCTION__);
     GValue *value = g_value_array_get_nth (status, 0);
     gint stat = g_value_get_int (value);
     switch (stat)
