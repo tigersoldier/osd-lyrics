@@ -36,7 +36,7 @@
 #include "ol_osd_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
-#include "ol_path_manage.h"
+#include "ol_path_pattern.h"
 #include "ol_app.h"
 #include "ol_debug.h"
 

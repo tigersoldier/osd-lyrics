@@ -1,3 +1,7 @@
+2010-01-23  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_path_pattern.c: Change the file name of the path pattern module from ``Path Manager'' to ``Path Pattern''
+
 2010-01-22  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_amarok2.c (ol_player_amarok2_get_controller): FIX: Issue 49, infinite recursion when getting status of amarok

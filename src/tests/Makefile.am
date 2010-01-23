@@ -46,12 +46,14 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_audacious.c \
 	$(top_srcdir)/src/ol_player_rhythmbox.c \
 	$(top_srcdir)/src/ol_player_mpd.c \
+	$(top_srcdir)/src/ol_player_moc.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
 	$(top_srcdir)/src/ol_player_songbird.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
 	$(top_srcdir)/src/ol_utils.c \
+	$(top_srcdir)/src/ol_utils_cmdline.c \
 	$(top_srcdir)/src/ol_utils_dbus.c \
 	$(top_srcdir)/src/ol_utils_dcop.c \
 	$(top_srcdir)/src/ol_music_info.c 
@@ -126,7 +128,7 @@ ol_lrc_fetch_module_test_LDADD = \
 
 ol_path_test_SOURCES = \
 	 ol_path_test.c \
-	$(top_srcdir)/src/ol_path_manage.c \
+	$(top_srcdir)/src/ol_path_pattern.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_music_info.c
 ol_path_test_LDADD = \

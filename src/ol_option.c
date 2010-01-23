@@ -6,7 +6,7 @@
 #include "ol_config.h"
 #include "ol_osd_render.h"      /* For getting preview for OSD font and color */
 #include "ol_lrc_fetch.h"
-#include "ol_path_manage.h"     /* For getting preview for LRC filename */
+#include "ol_path_pattern.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
 #include "ol_debug.h"
 #include "ol_cell_renderer_button.h"

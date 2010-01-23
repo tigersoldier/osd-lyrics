@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <sys/stat.h>
-#include "ol_path_manage.h"
+#include "ol_path_pattern.h"
 #include "ol_utils.h"
 #include "ol_debug.h"
 

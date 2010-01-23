@@ -58,7 +58,7 @@ osd_lyrics_SOURCES = \
 	ol_keybinder.c \
 	ol_keybindings.c \
 	ol_commands.c \
-	ol_path_manage.c \
+	ol_path_pattern.c \
 	ol_cell_renderer_button.c \
 	ol_marshal.c
 

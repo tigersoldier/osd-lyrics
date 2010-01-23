@@ -1,5 +1,5 @@
-#ifndef _OL_PATH_MANAGE_H_
-#define _OL_PATH_MANAGE_H_
+#ifndef _OL_PATH_PATTERN_H_
+#define _OL_PATH_PATTERN_H_
 
 #include <string.h>
 #include <glib.h>
@@ -69,4 +69,4 @@ int ol_path_expand_path_pattern (const char *pattern,
  */
 gboolean ol_path_is_file (const char *filename);
 
-#endif /* _OL_PATH_MANAGE_H_ */
+#endif /* _OL_PATH_PATTERN_H_ */
