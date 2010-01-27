@@ -9,7 +9,8 @@ check_PROGRAMS = \
 	ol_lrc_fetch_ui_test \
 	ol_lrc_fetch_module_test \
 	ol_path_test \
-	ol_utils_cmdline_test
+	ol_utils_cmdline_test \
+	ol_fork_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -132,6 +133,15 @@ ol_path_test_SOURCES = \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_music_info.c
 ol_path_test_LDADD = \
+	@CURL_LIBS@ \
+	@GTK2_LIBS@ \
+	@DBUS_GLIB_LIBS@ \
+	@GLADE_LIBS@
+
+ol_fork_test_SOURCES = \
+	ol_fork_test.c \
+	$(top_srcdir)/src/ol_fork.c
+ol_fork_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
