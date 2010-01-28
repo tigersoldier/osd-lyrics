@@ -93,5 +93,5 @@ ol_lrc_fetch_get_engine_list (int *count)
 {
   if (count != NULL)
     *count = engine_count;
-  return engine_list;
+  return (const char**) engine_list;
 }

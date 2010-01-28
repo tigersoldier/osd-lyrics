@@ -5,11 +5,16 @@
 #include "ol_fork.h"
 #include "ol_debug.h"
 
+const size_t DEFAULT_BUF_SIZE = 1024;
+
 struct ForkSource
 {
   GSource source;
   GPollFD poll_fd;
   OlForkCallback callback;
+  char *ret_data;
+  size_t ret_size;
+  size_t buf_len;
   void *data;
 };
 
@@ -37,8 +42,12 @@ ol_fork_watch_callback (GPid pid,
   ol_assert (data != NULL);
   struct ForkSource *source = (struct ForkSource*) data;
   if (source->callback != NULL)
-    source->callback (source->poll_fd.fd, source->data);
+    source->callback (source->ret_data,
+                      source->ret_size,
+                      status,
+                      source->data);
   close (source->poll_fd.fd);
+  g_source_unref (source);
 }
 
 static gboolean
@@ -58,8 +67,8 @@ ol_fork_check (GSource *source)
   gint revents = fsource->poll_fd.revents;
   if (revents & (G_IO_NVAL))
   {
-    ol_debug ("G_IO_NVAL received");
     g_source_remove_poll (source, &(fsource->poll_fd));
+    g_source_remove (g_source_get_id (source));
     g_source_unref (source);
     return FALSE;
   }
@@ -80,8 +89,17 @@ static gboolean ol_fork_dispatch (GSource *source,
   gint revents = fsource->poll_fd.revents;
   if (revents & G_IO_IN)
   {
-    if (fsource->callback != NULL)
-      fsource->callback (fsource->poll_fd.fd, fsource->data);
+    fsource->ret_size += read (fsource->poll_fd.fd,
+                               fsource->ret_data + fsource->ret_size,
+                               fsource->buf_len - fsource->ret_size);
+    if (fsource->ret_size < fsource->buf_len)
+    {
+      fsource->ret_data[fsource->ret_size] = 0;
+    }
+    else
+    {
+      /* FIXME: Extend the buffer if overflowed */
+    }
     return TRUE;
   }
   return FALSE;
@@ -89,7 +107,12 @@ static gboolean ol_fork_dispatch (GSource *source,
 
 static void
 ol_fork_finalize (GSource *source)
-{ }
+{
+  ol_assert (source != NULL);
+  struct ForkSource *fsource = (struct ForkSource*) source;
+  if (fsource->ret_data != NULL)
+    g_free (fsource->ret_data);
+}
 
 static struct ForkSource *
 ol_fork_watch_fd (int fd, OlForkCallback callback, void *data)
@@ -110,8 +133,11 @@ ol_fork_watch_fd (int fd, OlForkCallback callback, void *data)
   source->poll_fd.fd = fd;
   source->poll_fd.events = G_IO_IN | G_IO_HUP |
     G_IO_ERR | G_IO_NVAL;
+  source->ret_size = 0;
+  source->buf_len = DEFAULT_BUF_SIZE;
+  source->ret_data = (void *) g_new0 (char, source->buf_len);
   g_source_add_poll ((GSource *) source, &source->poll_fd);
-  /* g_source_attach ((GSource *)source, NULL); */
+  g_source_attach ((GSource *)source, NULL);
   return source;
 }
 
@@ -136,6 +162,7 @@ ol_fork (OlForkCallback callback, void *data)
     close (pipefd[1]);
     struct ForkSource *source = NULL;
     source = ol_fork_watch_fd (pipefd[0], callback, data);
+    g_source_ref (source);
     g_child_watch_add (pid, ol_fork_watch_callback, source);
     return pid;
   }

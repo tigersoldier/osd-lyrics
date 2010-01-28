@@ -17,22 +17,25 @@
 /** 
  * @brief Callback function of child process
  * 
- * @param fd The file descripter of child process's output
- * @param data The user data passed in ol_fork
+ * @param ret_data The data returned by child process
+ * @param ret_size The number of bytes returned by child process
+ * @param status Status information about the child process,
+ *               see waitpid(2) for more information about this field
+ * @param userdata The user data passed in ol_fork
  * 
  */
-typedef void (*OlForkCallback) (int fd, void *data);
+typedef void (*OlForkCallback) (void *ret_data,
+                                size_t ret_size,
+                                int status,
+                                void *userdata);
 
 /** 
  * @brief Fork a child process
- * A pipe will be open for the parent and child process.
- * The parent process holds the read end of the pipe, and
- * gets the file description of the pipe in the callback function.
- * The child process holds the write end of the pipe.
- * The stdout of child process is opend as the write end of the pipe.
- * Once the child process writes something to stdout,
- * the callback will be invoked to receive the output.
- * @param callback Callback function when child process return something
+ * To return data to parent process, child process just need to
+ * write the return data to stdout.
+ * Once the child process exits, the callback function will be
+ * called.
+ * @param callback Callback function
  * @param data Userdata to pass to callback function
  * 
  * @return 0 if it's a child process, or the pid of the forked child process,

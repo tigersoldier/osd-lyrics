@@ -17,16 +17,37 @@ struct _OlMusicInfo
 void ol_music_info_init (OlMusicInfo *music_info);
 void ol_music_info_clear (OlMusicInfo *music_info);
 void ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src);
-/** 
- * @ Free members of music_info. music_info itself will no be freed.
- * 
- * @param music_info 
- */
-void ol_music_info_finalize (OlMusicInfo *music_info);
+
 /** 
  * @ Free music_info, including its members.
  * 
  * @param music_info 
  */
 void ol_music_info_destroy (OlMusicInfo *music_info);
+
+/** 
+ * @brief Converts a music info to a string
+ *
+ * @param music_info A MusicInfo
+ * @param buffer The buffer to store conveted string, or NULL
+ * @param count The length of the buffer
+ * 
+ * @return If buffer is not NULL, returns the number of bytes
+ *         store in it. Otherwise returns the length of the
+ *         serialized string.
+ */
+int ol_music_info_serialize (OlMusicInfo *music_info,
+                             char *buffer,
+                             size_t count);
+
+/** 
+ * @brief Converts a string to music_info
+ * 
+ * @param music_info A MusicInfo
+ * @param data The serialized string from a MusicInfo
+ * 
+ * @return 1 if succeeded, or 0 if failed
+ */
+int ol_music_info_deserialize (OlMusicInfo *music_info,
+                               char *data);
 #endif /* _OL_MUSIC_INFO_H_ */
