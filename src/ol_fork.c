@@ -13,9 +13,14 @@ struct ForkSource
   void *data;
 };
 
-static void ol_fork_watch_fd (int fd,
-                              OlForkCallback callback,
-                              void *data);
+static void ol_fork_watch_callback (GPid pid,
+                                    gint status,
+                                    gpointer data);
+
+
+static struct ForkSource *ol_fork_watch_fd (int fd,
+                                            OlForkCallback callback,
+                                            void *data);
 static gboolean ol_fork_prepare (GSource *source,
                              gint *timeout);
 static gboolean ol_fork_check (GSource *source);
@@ -23,6 +28,18 @@ static gboolean ol_fork_dispatch (GSource *source,
                                   GSourceFunc callback,
                                   gpointer user_data);
 static void ol_fork_finalize (GSource *source);
+
+static void
+ol_fork_watch_callback (GPid pid,
+                        gint status,
+                        gpointer data)
+{
+  ol_assert (data != NULL);
+  struct ForkSource *source = (struct ForkSource*) data;
+  if (source->callback != NULL)
+    source->callback (source->poll_fd.fd, source->data);
+  close (source->poll_fd.fd);
+}
 
 static gboolean
 ol_fork_prepare (GSource *source,
@@ -41,6 +58,7 @@ ol_fork_check (GSource *source)
   gint revents = fsource->poll_fd.revents;
   if (revents & (G_IO_NVAL))
   {
+    ol_debug ("G_IO_NVAL received");
     g_source_remove_poll (source, &(fsource->poll_fd));
     g_source_unref (source);
     return FALSE;
@@ -64,8 +82,6 @@ static gboolean ol_fork_dispatch (GSource *source,
   {
     if (fsource->callback != NULL)
       fsource->callback (fsource->poll_fd.fd, fsource->data);
-    g_source_remove_poll (source, &(fsource->poll_fd));
-    g_source_unref (source);
     return TRUE;
   }
   return FALSE;
@@ -75,7 +91,7 @@ static void
 ol_fork_finalize (GSource *source)
 { }
 
-static void
+static struct ForkSource *
 ol_fork_watch_fd (int fd, OlForkCallback callback, void *data)
 {
   ol_assert (fd > 0);
@@ -95,7 +111,8 @@ ol_fork_watch_fd (int fd, OlForkCallback callback, void *data)
   source->poll_fd.events = G_IO_IN | G_IO_HUP |
     G_IO_ERR | G_IO_NVAL;
   g_source_add_poll ((GSource *) source, &source->poll_fd);
-  g_source_attach ((GSource *)source, NULL);
+  /* g_source_attach ((GSource *)source, NULL); */
+  return source;
 }
 
 pid_t
@@ -117,7 +134,9 @@ ol_fork (OlForkCallback callback, void *data)
   else                          /* Parent */
   {
     close (pipefd[1]);
-    ol_fork_watch_fd (pipefd[0], callback, data);
+    struct ForkSource *source = NULL;
+    source = ol_fork_watch_fd (pipefd[0], callback, data);
+    g_child_watch_add (pid, ol_fork_watch_callback, source);
     return pid;
   }
 }
