@@ -1,3 +1,10 @@
+2010-01-29  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/tests/ol_music_info_test.c: ADD: Unit test for music info.
+
+	* src/ol_music_info.c: ADD: Serialize/deserialize for music info.
+	ADD: Setters/getters for fields of music info
+
 2010-01-28  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_fork.c: ADD: Multi-process utility

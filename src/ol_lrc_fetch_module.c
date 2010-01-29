@@ -1,4 +1,5 @@
 #include "ol_lrc_fetch_module.h"
+#include "ol_fork.h"
 #include "ol_debug.h"
 
 struct DownloadContext
@@ -92,12 +93,11 @@ ol_lrc_fetch_download_func (struct DownloadContext *context)
       context->engine != NULL &&
       context->filepath != NULL)
   {
-    fprintf (stderr, "  gogogo\n");
     if (context->engine->download (context->candidate,
                                    context->filepath,
                                    "UTF-8") >= 0)
     {
-      fprintf (stderr, "download %s success\n", context->filepath);
+      ol_debugf (stderr, "download %s success\n", context->filepath);
       file = g_strdup (context->filepath);
     }
   }
