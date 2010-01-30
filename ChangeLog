@@ -1,3 +1,8 @@
+2010-01-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch.c: ADD: Serialize/deserialize for OlLrcCandidate
+	ADD: Getter/setter for fileds of OlLrcCandidate
+
 2010-01-29  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/tests/ol_music_info_test.c: ADD: Unit test for music info.

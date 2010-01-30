@@ -113,10 +113,10 @@ int ol_music_info_serialize (OlMusicInfo *music_info,
                              size_t count);
 
 /** 
- * @brief Converts a string to music_info
+ * @brief Converts a string to an OlMusicInfo
  * 
  * @param music_info A MusicInfo
- * @param data The serialized string from a MusicInfo
+ * @param data The serialized string from an OlMusicInfo
  * 
  * @return 1 if succeeded, or 0 if failed
  */
