@@ -52,14 +52,14 @@ int ol_lrc_candidate_serialize (OlLrcCandidate *candidate,
 
 /** 
  * @brief Converts a string to an OlLrcCandidate
- * 
+ * The serialized part of the string will be modified.
  * @param candidate An OlLrcCandidate
  * @param data The serialized string from an OlLrcCandidate
  * 
- * @return 1 if succeeded, or 0 if failed
+ * @return Pointer to the remaining data, or NULL if failed
  */
-int ol_lrc_candidate_deserialize (OlLrcCandidate *candidate,
-                                  const char *data);
+char * ol_lrc_candidate_deserialize (OlLrcCandidate *candidate,
+                                     char *data);
 
 /** 
  * @brief fetch the candidate title-singer-url list;
@@ -83,6 +83,8 @@ struct _OlLrcFetchEngine
   Lrc_Search search;
   Lrc_Download download;
 };
+
+const char *ol_lrc_fetch_engine_get_name (OlLrcFetchEngine *engine);
 
 /** 
  * @brief Get LRC Fetch engine with given name.

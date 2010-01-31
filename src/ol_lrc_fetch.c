@@ -207,30 +207,23 @@ ol_lrc_candidate_serialize (OlLrcCandidate *candidate,
   return cnt;
 }
 
-int 
+char * 
 ol_lrc_candidate_deserialize (OlLrcCandidate *candidate,
-                              const char *data)
+                              char *data)
 {
   ol_assert_ret (candidate != NULL, 0);
   ol_assert_ret (data != NULL, 0);
-  int ret = 1;
-  size_t len = strlen (data);
-  char *buffer = malloc (len + 1);
-  strncpy (buffer, data, len + 1);
-  char *title, *artist, *url, *rank;
-  title = artist = url = rank = NULL;
-  title = buffer;
+  char *title, *artist, *url, *rank, *ret;
+  title = artist = url = rank = ret = NULL;
+  title = data;
   artist = ol_split_a_line (title);
   if (artist != NULL)
     url = ol_split_a_line (artist);
   if (url != NULL)
     rank = ol_split_a_line (url);
-  if (artist == NULL || url == NULL || rank == NULL ||
-      ol_split_a_line (rank) == NULL)
-  {
-    ret = 0;
-  }
-  else
+  if (rank != NULL)
+    ret = ol_split_a_line (rank);
+  if (ret != NULL)
   {
     ol_lrc_candidate_set_title (candidate, title);
     ol_lrc_candidate_set_artist (candidate, artist);
@@ -239,6 +232,12 @@ ol_lrc_candidate_deserialize (OlLrcCandidate *candidate,
     sscanf (rank, "%d", &rank_int);
     ol_lrc_candidate_set_rank (candidate, rank_int);
   }
-  free (buffer);
   return ret;
+}
+
+const char *
+ol_lrc_fetch_engine_get_name (OlLrcFetchEngine *engine)
+{
+  ol_assert_ret (engine != NULL, NULL);
+  return engine->name;
 }

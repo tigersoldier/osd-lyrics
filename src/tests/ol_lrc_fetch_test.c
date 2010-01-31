@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 {
   test_candidate_serialize ();
   test_candidate_deserialize ();
-  /* ol_lrc_fetch_init (); */
+  ol_lrc_fetch_init ();
   test_long_url ();
   test_search ();
   test_download ();
