@@ -12,7 +12,11 @@
 
 #ifndef _OL_FORK_H_
 #define _OL_FORK_H_
+#include <stdio.h>
 #include <unistd.h>
+
+extern int ret_fd;
+extern FILE *fret;
 
 /** 
  * @brief Callback function of child process
@@ -32,7 +36,8 @@ typedef void (*OlForkCallback) (void *ret_data,
 /** 
  * @brief Fork a child process
  * To return data to parent process, child process just need to
- * write the return data to stdout.
+ * write the return data to the file descriptor ret_fd, or to the
+ * C file stream fret.
  * Once the child process exits, the callback function will be
  * called.
  * @param callback Callback function

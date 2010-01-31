@@ -6,6 +6,8 @@
 #include "ol_debug.h"
 
 const size_t DEFAULT_BUF_SIZE = 1024;
+int ret_fd = 0;
+FILE *fret = NULL;
 
 struct ForkSource
 {
@@ -154,7 +156,8 @@ ol_fork (OlForkCallback callback, void *data)
   if ((pid = fork ()) == 0)     /* Child process */
   {
     close (pipefd[0]);
-    dup2 (pipefd[1], STDOUT_FILENO);
+    ret_fd = pipefd[1];
+    fret = fdopen (ret_fd, "w");
     return 0;
   }
   else                          /* Parent */

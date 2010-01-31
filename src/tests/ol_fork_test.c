@@ -27,7 +27,7 @@ test_normal ()
   if (ol_fork (callback, msg) == 0)
   {
     sleep (2);
-    printf (msg);
+    fprintf (fret, msg);
     exit (0);
   }
   else
@@ -42,9 +42,9 @@ test_multiple_output ()
   printf ("Forking\n");
   if (ol_fork (callback, NULL) == 0)
   {
-    printf ("Before Sleep\n");
+    fprintf (fret, "Before Sleep\n");
     sleep (2);
-    printf ("After Sleep\n");
+    fprintf (fret, "After Sleep\n");
     exit (0);
   }
   else
