@@ -33,37 +33,10 @@ struct CallerParam {
 
 static void
 internal_run_func (GSourceFunc func,
-                       gpointer data)
+                   gpointer data)
 {
   ol_log_func ();
   func (data);
-}
-
-static gboolean
-ol_lrc_fetch_run_funcs (struct CallerParam *param)
-{
-  ol_log_func ();
-  g_ptr_array_foreach (param->func_array,
-                       (GFunc)internal_run_func,
-                       param->userdata);
-  if (param->data_free_func != NULL && param->userdata != NULL)
-    param->data_free_func (param->userdata);
-  g_free (param);
-  return FALSE;
-}
-
-static void
-ol_lrc_fetch_run_on_ui_thread (GPtrArray *func_array,
-                               gpointer userdata,
-                               FreeFunc data_free_func)
-{
-  ol_log_func ();
-  struct CallerParam *new_params = g_new0 (struct CallerParam, 1);
-  new_params->func_array = func_array;
-  new_params->userdata = userdata;
-  new_params->data_free_func = data_free_func;
-  g_timeout_add (1, (GSourceFunc) ol_lrc_fetch_run_funcs, new_params);
-  ol_debug ("  done\n");
 }
 
 static void
@@ -128,32 +101,45 @@ internal_search_callback (void *ret_data,
   ol_lrc_fetch_result_free (result);
 }
 
-static gpointer
-ol_lrc_fetch_download_func (struct DownloadContext *context)
+static int
+internal_download (OlLrcFetchEngine *engine,
+                   OlLrcCandidate *candidate,
+                   const char *filepath)
 {
   ol_log_func ();
-  ol_assert_ret (context != NULL, NULL);
-  char *file = NULL;
-  if (context->candidate != NULL &&
-      context->engine != NULL &&
-      context->filepath != NULL)
+  ol_assert_ret (engine != NULL, 1);
+  ol_assert_ret (candidate != NULL, 1);
+  ol_assert_ret (filepath != NULL, 1);
+  if (engine->download (candidate,
+                        filepath,
+                        "UTF-8") >= 0)
   {
-    if (context->engine->download (context->candidate,
-                                   context->filepath,
-                                   "UTF-8") >= 0)
-    {
-      ol_debugf ("download %s success\n", context->filepath);
-      file = g_strdup (context->filepath);
-    }
+    ol_debugf ("download %s success\n", filepath);
+    fprintf (fret, "%s", filepath);
+    return 0;
   }
-  ol_debugf ("path: %s\n", file);
-  ol_lrc_fetch_run_on_ui_thread (download_listeners, file, g_free);
-  if (context->candidate != NULL)
-    ol_lrc_candidate_free (context->candidate);
-  if (context->filepath != NULL)
-    g_free (context->filepath);
-  g_free (context);
-  return NULL;
+  else
+  {
+    return 1;
+  }
+}
+
+static void
+internal_download_callback (void *ret_data,
+                            size_t ret_size,
+                            int status,
+                            void *userdata)
+{
+  if (ret_size == 0)
+  {
+    internal_invoke_callback (download_listeners, NULL);
+  }
+  else
+  {
+    char *filepath = (char *)ret_data;
+    (filepath)[ret_size] = '\0';
+    internal_invoke_callback (download_listeners, ret_data);
+  }
 }
 
 void
@@ -199,9 +185,6 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
     internal_search (search_result);
     exit (0);
   }
-  else
-  {
-  }
   return search_id;
 }
 
@@ -215,15 +198,10 @@ ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
   ol_assert (candidate != NULL);
   ol_assert (pathname != NULL);
   ol_debugf ("  pathname: %s\n", pathname);
-  struct DownloadContext *context = g_new (struct DownloadContext, 1);
-  context->engine = engine;
-  context->candidate = ol_lrc_candidate_new ();
-  ol_lrc_candidate_copy (context->candidate, candidate);
-  context->filepath = g_strdup (pathname);
-  g_thread_create ((GThreadFunc) ol_lrc_fetch_download_func,
-                   context,
-                   FALSE,
-                   NULL);
+  if (ol_fork (internal_download_callback, NULL) == 0)
+  {
+    exit (internal_download (engine, candidate, pathname));
+  }
 }
 
 struct OlLrcFetchResult*
