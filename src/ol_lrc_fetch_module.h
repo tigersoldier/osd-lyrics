@@ -13,6 +13,12 @@ struct OlLrcFetchResult
   OlLrcFetchEngine *engine;
 };
 
+struct OlLrcFetchResult* ol_lrc_fetch_result_new ();
+void ol_lrc_fetch_result_free (struct OlLrcFetchResult *result);
+int ol_lrc_fetch_result_serialize (struct OlLrcFetchResult *result,
+                                   char *buffer,
+                                   size_t count);
+
 /** 
  * @brief Adds an callback function runs after search finished.
  * The userdata contains the pointer to a OlLrcFetchResult struct.
