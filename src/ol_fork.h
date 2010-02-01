@@ -41,11 +41,11 @@ typedef void (*OlForkCallback) (void *ret_data,
  * Once the child process exits, the callback function will be
  * called.
  * @param callback Callback function
- * @param data Userdata to pass to callback function
+ * @param userdata Userdata to pass to callback function
  * 
  * @return 0 if it's a child process, or the pid of the forked child process,
  * or -1 if failed withou child process created
  */
-pid_t ol_fork (OlForkCallback callback, void *data);
+pid_t ol_fork (OlForkCallback callback, void *userdata);
 //@}
 #endif /* _OL_FORK_H_ */
