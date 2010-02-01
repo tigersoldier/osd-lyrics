@@ -1,3 +1,19 @@
+2010-01-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch.c: ADD: Serialize/deserialize for OlLrcCandidate
+	ADD: Getter/setter for fileds of OlLrcCandidate
+
+2010-01-29  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/tests/ol_music_info_test.c: ADD: Unit test for music info.
+
+	* src/ol_music_info.c: ADD: Serialize/deserialize for music info.
+	ADD: Setters/getters for fields of music info
+
+2010-01-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_fork.c: ADD: Multi-process utility
+
 2010-01-23  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_path_pattern.c: Change the file name of the path pattern module from ``Path Manager'' to ``Path Pattern''

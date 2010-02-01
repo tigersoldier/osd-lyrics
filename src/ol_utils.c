@@ -215,8 +215,8 @@ ol_split_a_line (char *str)
     return NULL;
 }
 
-char
-*ol_trim_string (char *str)
+char *
+ol_trim_string (char *str)
 {
   if (str == NULL)
     return NULL;

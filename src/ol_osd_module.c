@@ -230,7 +230,7 @@ ol_osd_module_destroy (OlOsdModule *module)
     g_object_unref (module->osd);
     module->osd = NULL;
   }
-  ol_music_info_finalize (&module->music_info);
+  ol_music_info_clear (&module->music_info);
   g_free (module);
 }
 

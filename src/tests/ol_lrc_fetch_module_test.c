@@ -44,10 +44,20 @@ OlLrcFetchEngine engine = {
   dummy_download,
 };
 
+void
+print_candidate (OlLrcCandidate *cand)
+{
+  printf ("title:%s\n", ol_lrc_candidate_get_title (cand));
+}
+
 gboolean
 dummy_search_callback (struct OlLrcFetchResult *result)
 {
-  fprintf (stderr, "Search Callback invoked\n");
+  printf ("Search Callback invoked\n");
+  printf ("count: %d\n", result->count);
+  int i = 0;
+  for (i = 0; i < result->count; i++)
+    print_candidate (result->candidates + i);
   ol_lrc_fetch_begin_download (result->engine, &result->candidates[0], "abc");
   return FALSE;
 }
@@ -56,7 +66,6 @@ gboolean
 dummy_download_callback (char *file)
 {
   fprintf (stderr, "Download Callback invoked, file is %s\n", file);
-  g_free (file);
   return FALSE;
 }
 
@@ -67,8 +76,12 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
   ol_lrc_fetch_module_init ();
   OlMusicInfo info;
+  ol_music_info_init (&info);
   ol_lrc_fetch_add_async_search_callback ((GSourceFunc) dummy_search_callback);
   ol_lrc_fetch_add_async_download_callback ((GSourceFunc) dummy_download_callback);
+  ol_music_info_set_title (&info, "title");
+  ol_music_info_set_artist (&info, "artist");
+  ol_music_info_set_album (&info, "album");
   ol_lrc_fetch_begin_search (&engine, &info);
   gtk_main ();
 }
