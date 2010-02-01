@@ -30,23 +30,32 @@ ol_fork_watch_callback (GPid pid,
 {
   ol_assert (data != NULL);
   struct ForkData *source = (struct ForkData*) data;
-  source->ret_size += read (source->fd,
-                            source->ret_data + source->ret_size,
-                            source->buf_len - source->ret_size);
-  if (source->ret_size < source->buf_len)
+  do
   {
-    source->ret_data[source->ret_size] = 0;
-  }
-  else
-  {
-    /* FIXME: Extend the buffer if overflowed */
-  }
+    source->ret_size += read (source->fd,
+                              source->ret_data + source->ret_size,
+                              source->buf_len - source->ret_size);
+    if (source->ret_size < source->buf_len)
+    {
+      source->ret_data[source->ret_size] = 0;
+      break;
+    }
+    else
+    {
+      source->buf_len *= 2;
+      char *newdata = g_new (char, source->buf_len);
+      memcpy (newdata, source->ret_data, source->ret_size);
+      g_free (source->ret_data);
+      source->ret_data = newdata;
+    }
+  } while (1);
   
   if (source->callback != NULL)
     source->callback (source->ret_data,
                       source->ret_size,
                       status,
                       source->data);
+  g_free (source->ret_data);
   close (source->fd);
   g_free (source);
 }
