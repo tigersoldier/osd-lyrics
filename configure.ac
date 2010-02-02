@@ -26,8 +26,8 @@ AC_CONFIG_FILES([ po/Makefile.in
 #define paths
 OL_ICONDIR="$datadir/$PACKAGE/icons"
 AC_SUBST(OL_ICONDIR)
-OL_GLADEDIR="$datadir/$PACKAGE"
-AC_SUBST(OL_GLADEDIR)
+OL_GUIDIR="$datadir/$PACKAGE"
+AC_SUBST(OL_GUIDIR)
 
 # gprof support
 AC_ARG_WITH(gprof-support,
@@ -76,10 +76,9 @@ AS_IF([test "x$enable_amarok1" != xno],
   [AC_DEFINE([ENABLE_AMAROK1], [1], [Define if compile to support Amarok 1.4])])
 
 # Checks for libraries.
-PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.8.0, gthread-2.0])
+PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.12.0, gthread-2.0, gmodule-export-2.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
-PKG_CHECK_MODULES([GLADE], [libglade-2.0, gmodule-export-2.0])
 MPD_CFLAGS=
 MPD_LIBS=
 AS_IF([test "x$enable_mpd" != "xno"],

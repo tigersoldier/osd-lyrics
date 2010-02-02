@@ -1,9 +1,9 @@
 trayicondir = ${datadir}/icons/hicolor/64x64/apps
 trayicon_DATA = \
 	osd-lyrics-trayicon.png 
-gladedir = @OL_GLADEDIR@
-glade_DATA = \
-	dialogs.glade
+guidir = @OL_GUIDIR@
+gui_DATA = \
+	dialogs.gtk
 menudir = ${datadir}/applications
 menu_DATA = osd-lyrics.desktop
 icondir = ${datadir}/icons/hicolor/64x64/apps

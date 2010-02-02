@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "ol_lrc_fetch_ui.h"
 #include "ol_lrc_fetch.h"
-#include "ol_glade.h"
+#include "ol_gui.h"
 #include "ol_intl.h"
 #include "ol_lrc_fetch_module.h"
 
@@ -81,7 +81,7 @@ ol_lrc_fetch_ui_init ()
   fprintf (stderr, "%s", __FUNCTION__);
   if (window == NULL)
   {
-    window = ol_glade_get_widget ("downloaddialog");
+    window = ol_gui_get_widget ("downloaddialog");
     if (window == NULL)
       return FALSE;
     g_signal_connect (G_OBJECT (window),
@@ -98,7 +98,7 @@ ol_lrc_fetch_ui_init ()
   }
   if (list == NULL)
   {
-    list = GTK_TREE_VIEW (ol_glade_get_widget ("candidate-list"));
+    list = GTK_TREE_VIEW (ol_gui_get_widget ("candidate-list"));
     if (list == NULL)
       return FALSE;
     GtkCellRenderer *renderer;
@@ -126,7 +126,7 @@ ol_lrc_fetch_ui_init ()
   }
   if (download_button == NULL)
   {
-    download_button = GTK_BUTTON (ol_glade_get_widget ("lrc-download"));
+    download_button = GTK_BUTTON (ol_gui_get_widget ("lrc-download"));
   }
   return TRUE;
 }

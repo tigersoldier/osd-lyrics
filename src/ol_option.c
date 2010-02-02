@@ -2,7 +2,7 @@
 #include <gtk/gtk.h>
 #include "ol_option.h"
 #include "ol_about.h"
-#include "ol_glade.h"
+#include "ol_gui.h"
 #include "ol_config.h"
 #include "ol_osd_render.h"      /* For getting preview for OSD font and color */
 #include "ol_lrc_fetch.h"
@@ -995,34 +995,34 @@ ol_option_show ()
   static GtkWidget *window = NULL;
   if (window == NULL)
   {
-    window = ol_glade_get_widget ("optiondialog");
+    window = ol_gui_get_widget ("optiondialog");
     g_return_if_fail (window != NULL);
     g_signal_connect (window, "delete-event",
                       G_CALLBACK (gtk_widget_hide_on_delete),
                       NULL);
-    options.ok = ol_glade_get_widget ("optionok");
-    options.cancel = ol_glade_get_widget ("optioncancel");
-    options.font = ol_glade_get_widget ("osd-font");
-    options.outline_width = ol_glade_get_widget ("outline-width");
-    options.width = ol_glade_get_widget ("osd-width");
-    options.lrc_align[0] = ol_glade_get_widget ("lrc-align-0");
-    options.lrc_align[1] = ol_glade_get_widget ("lrc-align-1");
-    options.active_lrc_color[0] = ol_glade_get_widget ("active-lrc-color-0");
-    options.active_lrc_color[1] = ol_glade_get_widget ("active-lrc-color-1");
-    options.active_lrc_color[2] = ol_glade_get_widget ("active-lrc-color-2");
-    options.inactive_lrc_color[0] = ol_glade_get_widget ("inactive-lrc-color-0");
-    options.inactive_lrc_color[1] = ol_glade_get_widget ("inactive-lrc-color-1");
-    options.inactive_lrc_color[2] = ol_glade_get_widget ("inactive-lrc-color-2");
-    options.osd_preview = ol_glade_get_widget ("osd-preview");
-    options.line_count[0] = ol_glade_get_widget ("line-count-1");
-    options.line_count[1] = ol_glade_get_widget ("line-count-2");
-    options.download_engine = ol_glade_get_widget ("download-engine");
-    options.osd_translucent = ol_glade_get_widget ("translucent-on-mouse-over");
-    options.lrc_path = ol_glade_get_widget ("lrc-path");
-    options.lrc_path_text = ol_glade_get_widget ("lrc-path-text");
-    options.lrc_filename = ol_glade_get_widget ("lrc-filename");
-    options.lrc_filename_text = ol_glade_get_widget ("lrc-filename-text");
-    options.lrc_filename_sample = ol_glade_get_widget ("lrc-filename-sample");
+    options.ok = ol_gui_get_widget ("optionok");
+    options.cancel = ol_gui_get_widget ("optioncancel");
+    options.font = ol_gui_get_widget ("osd-font");
+    options.outline_width = ol_gui_get_widget ("outline-width");
+    options.width = ol_gui_get_widget ("osd-width");
+    options.lrc_align[0] = ol_gui_get_widget ("lrc-align-0");
+    options.lrc_align[1] = ol_gui_get_widget ("lrc-align-1");
+    options.active_lrc_color[0] = ol_gui_get_widget ("active-lrc-color-0");
+    options.active_lrc_color[1] = ol_gui_get_widget ("active-lrc-color-1");
+    options.active_lrc_color[2] = ol_gui_get_widget ("active-lrc-color-2");
+    options.inactive_lrc_color[0] = ol_gui_get_widget ("inactive-lrc-color-0");
+    options.inactive_lrc_color[1] = ol_gui_get_widget ("inactive-lrc-color-1");
+    options.inactive_lrc_color[2] = ol_gui_get_widget ("inactive-lrc-color-2");
+    options.osd_preview = ol_gui_get_widget ("osd-preview");
+    options.line_count[0] = ol_gui_get_widget ("line-count-1");
+    options.line_count[1] = ol_gui_get_widget ("line-count-2");
+    options.download_engine = ol_gui_get_widget ("download-engine");
+    options.osd_translucent = ol_gui_get_widget ("translucent-on-mouse-over");
+    options.lrc_path = ol_gui_get_widget ("lrc-path");
+    options.lrc_path_text = ol_gui_get_widget ("lrc-path-text");
+    options.lrc_filename = ol_gui_get_widget ("lrc-filename");
+    options.lrc_filename_text = ol_gui_get_widget ("lrc-filename-text");
+    options.lrc_filename_sample = ol_gui_get_widget ("lrc-filename-sample");
     /* Init download engine combobox */
     if (options.download_engine != NULL)
     {
@@ -1038,8 +1038,8 @@ ol_option_show ()
     
     lrc_path_widgets.entry = options.lrc_path_text;
     lrc_path_widgets.list = options.lrc_path;
-    lrc_path_widgets.add_button = ol_glade_get_widget ("add-lrc-path");
-    lrc_path_widgets.extra_button = ol_glade_get_widget ("lrc-path-browse");
+    lrc_path_widgets.add_button = ol_gui_get_widget ("add-lrc-path");
+    lrc_path_widgets.extra_button = ol_gui_get_widget ("lrc-path-browse");
     struct ListExtraButton path_buttons[] = {
       /* {GTK_STOCK_DIRECTORY, list_browse_clicked}, */
       {NULL, NULL},
@@ -1048,8 +1048,8 @@ ol_option_show ()
     
     lrc_filename_widgets.entry = options.lrc_filename_text;
     lrc_filename_widgets.list = options.lrc_filename;
-    lrc_filename_widgets.add_button = ol_glade_get_widget ("add-lrc-filename");
-    lrc_filename_widgets.extra_button = ol_glade_get_widget ("lrc-filename-pattern");
+    lrc_filename_widgets.add_button = ol_gui_get_widget ("add-lrc-filename");
+    lrc_filename_widgets.extra_button = ol_gui_get_widget ("lrc-filename-pattern");
     struct ListExtraButton file_buttons[] = {
       /* {GTK_STOCK_INFO, list_pattern_clicked}, */
       {NULL, NULL},
@@ -1068,10 +1068,10 @@ ol_option_show ()
   gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
                                          TRUE);
 #endif
-    options.filename_menu = ol_glade_get_widget ("filename-pattern-popup");
+    options.filename_menu = ol_gui_get_widget ("filename-pattern-popup");
     /* display the about button at the left edge */
-    gtk_button_box_set_child_secondary (GTK_BUTTON_BOX (ol_glade_get_widget ("dialog-action_area2")),
-                                        ol_glade_get_widget ("option-aboug"),
+    gtk_button_box_set_child_secondary (GTK_BUTTON_BOX (ol_gui_get_widget ("dialog-action_area2")),
+                                        ol_gui_get_widget ("option-aboug"),
                                         TRUE);
   }
   ol_option_update_widget (&options);

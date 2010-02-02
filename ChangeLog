@@ -1,3 +1,7 @@
+2010-02-02  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_gui.c: CHANGE: Use GtkBuilder instead of Glade
+
 2010-01-30  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch.c: ADD: Serialize/deserialize for OlLrcCandidate

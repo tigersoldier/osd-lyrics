@@ -1,9 +1,8 @@
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 #include "config.h"
 #include "ol_intl.h"
 #include "ol_about.h"
-#include "ol_glade.h"
+#include "ol_gui.h"
 
 void ol_about_close_clicked (GtkWidget *widget);
 void ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data);
@@ -37,7 +36,7 @@ ol_about_show ()
   static GtkWidget *window = NULL;
   if (window == NULL)
   {
-    window = ol_glade_get_widget ("aboutdialog");
+    window = ol_gui_get_widget ("aboutdialog");
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (window), PACKAGE_VERSION);
     g_signal_connect (window, "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
     GdkPixbuf *logo = gdk_pixbuf_new_from_file (ICONDIR "/osd-lyrics.png", NULL);

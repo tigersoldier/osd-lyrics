@@ -16,7 +16,7 @@
 #include "ol_keybindings.h"
 #include "ol_commands.h"
 #include "ol_app.h"
-#include "ol_glade.h"
+#include "ol_gui.h"
 #include "ol_debug.h"
 
 static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
@@ -174,9 +174,9 @@ ol_menu_init ()
   GtkAccelGroup *accel = ol_keybinding_get_accel_group ();
   GtkWidget *item;
   OlConfig *config = ol_config_get_instance ();
-  popup_menu = ol_glade_get_widget ("pop-menu");
+  popup_menu = ol_gui_get_widget ("pop-menu");
   gtk_menu_set_accel_group (GTK_MENU (popup_menu), accel);
-  menu.lock = ol_glade_get_widget ("menu-lock");
+  menu.lock = ol_gui_get_widget ("menu-lock");
   if (menu.lock)
   {
     gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu.lock),
@@ -184,7 +184,7 @@ ol_menu_init ()
   }
   ol_config_changed (config, "OSD", "locked", NULL);
 
-  menu.hide = ol_glade_get_widget ("menu-hide");
+  menu.hide = ol_gui_get_widget ("menu-hide");
   if (menu.hide)
   {
     gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu.hide),
@@ -192,15 +192,15 @@ ol_menu_init ()
   }
   ol_config_changed (config, "General", "visible", NULL);
 
-  menu.preference = ol_glade_get_widget ("menu-prefernce");
-  menu.about = ol_glade_get_widget ("menu-about");
-  menu.quit = ol_glade_get_widget ("menu-quit");
+  menu.preference = ol_gui_get_widget ("menu-prefernce");
+  menu.about = ol_gui_get_widget ("menu-about");
+  menu.quit = ol_gui_get_widget ("menu-quit");
 
-  menu.play = ol_glade_get_widget ("menu-play");
-  menu.pause = ol_glade_get_widget ("menu-pause");
-  menu.stop = ol_glade_get_widget ("menu-stop");
-  menu.prev = ol_glade_get_widget ("menu-prev");
-  menu.next = ol_glade_get_widget ("menu-next");
+  menu.play = ol_gui_get_widget ("menu-play");
+  menu.pause = ol_gui_get_widget ("menu-pause");
+  menu.stop = ol_gui_get_widget ("menu-stop");
+  menu.prev = ol_gui_get_widget ("menu-prev");
+  menu.next = ol_gui_get_widget ("menu-next");
   
   g_signal_connect (config,
                     "changed",

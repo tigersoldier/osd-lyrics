@@ -7,18 +7,17 @@ INCLUDES = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@CURL_CFLAGS@ \
-	@GLADE_CFLAGS@ \
 	@MPD_CFLAGS@ \
 	@XMMS2_CFLAGS@
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGLADEDIR='"$(OL_GLADEDIR)"' 
+	-DGUIDIR='"$(OL_GUIDIR)"' 
 
 osd_lyrics_SOURCES = \
 	ol_main.c \
 	ol_config.c \
-	ol_glade.c \
+	ol_gui.c \
 	ol_about.c \
 	ol_option.c \
 	ol_osd_window.c \
@@ -69,7 +68,6 @@ osd_lyrics_LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
 	@CURL_LIBS@ \
-	@GLADE_LIBS@ \
 	@MPD_LIBS@ \
 	@XMMS2_LIBS@
 osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/

@@ -15,14 +15,13 @@ check_PROGRAMS = \
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
-	@GLADE_CFLAGS@ \
 	@MPD_CFLAGS@ \
 	@XMMS2_CFLAGS@ \
 	-I$(top_srcdir)/src
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGLADEDIR='"$(OL_GLADEDIR)"'
+	-DGUIDIR='"$(OL_GUIDIR)"'
 # Tests
 ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c
@@ -106,11 +105,10 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
-	$(top_srcdir)/src/ol_glade.c
+	$(top_srcdir)/src/ol_gui.c
 ol_lrc_fetch_ui_test_LDADD = \
 	@CURL_LIBS@ \
-	@GTK2_LIBS@ \
-	@GLADE_LIBS@
+	@GTK2_LIBS@
 
 ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
@@ -122,13 +120,13 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_fork.c \
-	$(top_srcdir)/src/ol_glade.c 
+	$(top_srcdir)/src/ol_gui.c 
 
 ol_lrc_fetch_module_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
-	@GLADE_LIBS@
+	@GUI_LIBS@
 
 ol_path_test_SOURCES = \
 	 ol_path_test.c \
@@ -139,7 +137,7 @@ ol_path_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
-	@GLADE_LIBS@
+	@GUI_LIBS@
 
 ol_fork_test_SOURCES = \
 	ol_fork_test.c \
@@ -148,7 +146,7 @@ ol_fork_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
-	@GLADE_LIBS@
+	@GUI_LIBS@
 
 ol_music_info_test_SOURCES = \
 	ol_music_info_test.c \
@@ -158,4 +156,4 @@ ol_music_info_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
-	@GLADE_LIBS@
+	@GUI_LIBS@
