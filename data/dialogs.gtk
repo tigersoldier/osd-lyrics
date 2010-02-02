@@ -43,13 +43,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
-      <!-- column-name item text -->
+      <!-- column-name item -->
       <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="liststore2">
     <columns>
-      <!-- column-name item text -->
+      <!-- column-name item -->
       <column type="gchararray"/>
     </columns>
     <data>
@@ -1079,7 +1079,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
         <property name="label" translatable="yes">_Download lyric</property>
         <property name="visible">True</property>
         <property name="use_underline">True</property>
-        <property name="image">image1</property>
+        <property name="image">download-image</property>
         <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_download"/>
       </object>
@@ -1291,9 +1291,10 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
   </object>
-  <object class="GtkImage" id="image1">
+  <object class="GtkImage" id="download-image">
     <property name="visible">True</property>
     <property name="stock">gtk-go-down</property>
+    <property name="icon-size">1</property>
   </object>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">1</property>
