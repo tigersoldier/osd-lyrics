@@ -61,7 +61,8 @@ osd_lyrics_SOURCES = \
 	ol_path_pattern.c \
 	ol_cell_renderer_button.c \
 	ol_fork.c \
-	ol_marshal.c
+	ol_marshal.c \
+	ol_stock.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \

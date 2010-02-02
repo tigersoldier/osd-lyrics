@@ -37,6 +37,7 @@
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_path_pattern.h"
+#include "ol_stock.h"
 #include "ol_app.h"
 #include "ol_debug.h"
 
@@ -343,6 +344,7 @@ void initialize (int argc, char **argv)
   gtk_init (&argc, &argv);
   ol_player_init ();
   module = ol_osd_module_new ();
+  ol_stock_init ();
   ol_trayicon_inital ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();

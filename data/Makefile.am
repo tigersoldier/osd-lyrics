@@ -1,6 +1,6 @@
-trayicondir = @OL_ICONDIR@
+trayicondir = ${datadir}/icons/hicolor/64x64/apps
 trayicon_DATA = \
-	trayicon.png 
+	osd-lyrics-trayicon.png 
 gladedir = @OL_GLADEDIR@
 glade_DATA = \
 	dialogs.glade

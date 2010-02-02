@@ -1,8 +1,7 @@
 #include "ol_trayicon.h"
 #include "ol_intl.h"
 #include "ol_menu.h"
-
-const char TRAYICON_FILE[] = ICONDIR "/trayicon.png";
+#include "ol_stock.h"
 
 static GtkStatusIcon *status_icon = NULL;
 
@@ -33,7 +32,7 @@ void ol_trayicon_inital ()
 {
   if (status_icon == NULL)
   {
-    status_icon = gtk_status_icon_new_from_file (TRAYICON_FILE);
+    status_icon = gtk_status_icon_new_from_stock (OL_STOCK_TRAYICON);
     gtk_status_icon_set_visible (status_icon, TRUE);
     gtk_status_icon_set_tooltip (status_icon, _("OSD Lyrics"));
 
