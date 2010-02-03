@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.2.20100201\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-02-03 00:11+0800\n"
+"POT-Creation-Date: 2010-02-03 21:30+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,23 +16,23 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ol_main.c:91
+#: src/ol_main.c:92
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:129
+#: src/ol_main.c:131
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:140
+#: src/ol_main.c:142
 msgid "Lyrics not found"
 msgstr ""
 
-#: src/ol_main.c:169
+#: src/ol_main.c:158
 msgid "Searching lyrics"
 msgstr ""
 
-#: src/ol_main.c:310
+#: src/ol_main.c:299
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
@@ -49,11 +49,11 @@ msgstr ""
 msgid "Sogou"
 msgstr ""
 
-#: src/ol_lrc_fetch_ui.c:107
+#: src/ol_lrc_fetch_ui.c:122
 msgid "Title"
 msgstr ""
 
-#: src/ol_lrc_fetch_ui.c:112
+#: src/ol_lrc_fetch_ui.c:127
 msgid "Artist"
 msgstr ""
 
@@ -206,7 +206,7 @@ msgid ""
 "download the first one without prompting the user."
 msgstr ""
 
-#: data/dialogs.glade:990 data/dialogs.glade:1218
+#: data/dialogs.glade:990 data/dialogs.glade:1232
 msgid "_Download"
 msgstr ""
 
@@ -234,42 +234,46 @@ msgstr ""
 msgid "Choose LRC file to download"
 msgstr ""
 
-#: data/dialogs.glade:1265
+#: data/dialogs.glade:1214
+msgid "D_on't ask me again"
+msgstr ""
+
+#: data/dialogs.glade:1279
 msgid "The title of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1266
+#: data/dialogs.glade:1280
 msgid "%t - Title"
 msgstr ""
 
-#: data/dialogs.glade:1274
+#: data/dialogs.glade:1288
 msgid "The artist of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1275
+#: data/dialogs.glade:1289
 msgid "%p - Artist"
 msgstr ""
 
-#: data/dialogs.glade:1283
+#: data/dialogs.glade:1297
 msgid "The title of album of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1284
+#: data/dialogs.glade:1298
 msgid "%a - Album"
 msgstr ""
 
-#: data/dialogs.glade:1292
+#: data/dialogs.glade:1306
 msgid "The number of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1293
+#: data/dialogs.glade:1307
 msgid "%n - Track number"
 msgstr ""
 
-#: data/dialogs.glade:1301
+#: data/dialogs.glade:1315
 msgid "The filename of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1302
+#: data/dialogs.glade:1316
 msgid "%f - Filename"
 msgstr ""

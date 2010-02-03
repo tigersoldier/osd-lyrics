@@ -1,5 +1,7 @@
 2010-02-03  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_lrc_fetch_ui.c: ADD: Options that download the first candidate without prompting the user
+
 	* src/ol_lrc_fetch_module.h (ol_lrc_fetch_begin_search::callback): CHANGE: The interface of searching lyrics is changed
 
 2010-02-02  Tiger Soldier  <tigersoldi@gmail.com>

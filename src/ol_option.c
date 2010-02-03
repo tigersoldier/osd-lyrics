@@ -16,6 +16,18 @@
 static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
 
+struct CheckButtonOptions
+{
+  const char *widget_name;
+  const char *config_name;
+  const char *config_group;
+};
+
+static struct CheckButtonOptions check_button_options[] = {
+  {"download-first-lyric", "download-first-lyric", "Download"},
+  {"translucent-on-mouse-over", "translucent-on-mouse-over", "OSD"},
+};
+
 static struct _OptionWidgets
 {
   GtkWidget *ok;
@@ -29,7 +41,6 @@ static struct _OptionWidgets
   GtkWidget *osd_preview;
   GtkWidget *line_count[2];
   GtkWidget *download_engine;
-  GtkWidget *osd_translucent;
   GtkWidget *lrc_path;
   GtkWidget *lrc_path_text;
   GtkWidget *lrc_filename;
@@ -124,6 +135,8 @@ static void save_download ();
 static void load_download ();
 static void save_general ();
 static void load_general ();
+static void load_check_button_options ();
+static void save_check_button_options ();
 static void init_list (struct ListExtraWidgets *widgets,
                        struct ListExtraButton *buttons);
 
@@ -422,6 +435,7 @@ ol_option_update_widget (OptionWidgets *widgets)
   load_osd ();
   load_download ();
   load_general ();
+  load_check_button_options ();
 }
 
 static void
@@ -499,11 +513,46 @@ load_osd ()
     GtkToggleButton *line_count_widget = GTK_TOGGLE_BUTTON (options.line_count[line_count]);
     gtk_toggle_button_set_active (line_count_widget, TRUE);
   }
-  /* Translucent on mouse over */
-  if (options.osd_translucent != NULL)
+}
+
+static void
+load_check_button_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (check_button_options); i++)
   {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.osd_translucent),
-                                  ol_config_get_bool (config, "OSD", "translucent-on-mouse-over"));
+    GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (check_button_options[i].widget_name)); 
+    if (check_button_options != NULL)
+    {
+      gtk_toggle_button_set_active (check_button, 
+                                    ol_config_get_bool (config,
+                                                        check_button_options[i].config_group,
+                                                        check_button_options[i].config_name));
+
+    }
+  }
+}
+
+static void
+save_check_button_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (check_button_options); i++)
+  {
+    GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (check_button_options[i].widget_name)); 
+    if (check_button_options != NULL)
+    {
+      ol_config_set_bool (config, 
+                          check_button_options[i].config_group,
+                          check_button_options[i].config_name,
+                          gtk_toggle_button_get_active (check_button));
+    }
   }
 }
 
@@ -600,12 +649,6 @@ save_osd ()
                            "line-count", i + 1);
       }
     }
-  }
-  /* OSD translucent on mouse move*/
-  if (options.osd_translucent != NULL)
-  {
-    ol_config_set_bool (config, "OSD", "translucent-on-mouse-over",
-                        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.osd_translucent)));
   }
 }
 
@@ -777,6 +820,7 @@ ol_option_ok_clicked (GtkWidget *widget)
   save_osd ();
   save_download ();
   save_general ();
+  save_check_button_options ();
   /* Close dialog */
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -1017,7 +1061,6 @@ ol_option_show ()
     options.line_count[0] = ol_gui_get_widget ("line-count-1");
     options.line_count[1] = ol_gui_get_widget ("line-count-2");
     options.download_engine = ol_gui_get_widget ("download-engine");
-    options.osd_translucent = ol_gui_get_widget ("translucent-on-mouse-over");
     options.lrc_path = ol_gui_get_widget ("lrc-path");
     options.lrc_path_text = ol_gui_get_widget ("lrc-path-text");
     options.lrc_filename = ol_gui_get_widget ("lrc-filename");

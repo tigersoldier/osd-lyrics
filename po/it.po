@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-02-03 00:11+0800\n"
+"POT-Creation-Date: 2010-02-03 21:30+0800\n"
 "PO-Revision-Date: 2009-12-23 22:28+0000\n"
 "Last-Translator: morphine <maledettopc@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-01-04 14:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_main.c:91
+#: src/ol_main.c:92
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:129
+#: src/ol_main.c:131
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:140
+#: src/ol_main.c:142
 msgid "Lyrics not found"
 msgstr "Testi non trovato"
 
-#: src/ol_main.c:169
+#: src/ol_main.c:158
 msgid "Searching lyrics"
 msgstr "Ricerca testi"
 
-#: src/ol_main.c:310
+#: src/ol_main.c:299
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Nessun lettore supportato sta andando, uscita\n"
@@ -50,11 +50,11 @@ msgstr "Qianqian"
 msgid "Sogou"
 msgstr "Sogou"
 
-#: src/ol_lrc_fetch_ui.c:107
+#: src/ol_lrc_fetch_ui.c:122
 msgid "Title"
 msgstr "Titolo"
 
-#: src/ol_lrc_fetch_ui.c:112
+#: src/ol_lrc_fetch_ui.c:127
 msgid "Artist"
 msgstr "Artista"
 
@@ -221,7 +221,7 @@ msgid ""
 "download the first one without prompting the user."
 msgstr ""
 
-#: data/dialogs.glade:990 data/dialogs.glade:1218
+#: data/dialogs.glade:990 data/dialogs.glade:1232
 msgid "_Download"
 msgstr "Scarica"
 
@@ -251,45 +251,49 @@ msgstr "Scarica"
 msgid "Choose LRC file to download"
 msgstr "Scegli il testo da scaricare"
 
-#: data/dialogs.glade:1265
+#: data/dialogs.glade:1214
+msgid "D_on't ask me again"
+msgstr ""
+
+#: data/dialogs.glade:1279
 msgid "The title of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1266
+#: data/dialogs.glade:1280
 #, fuzzy
 msgid "%t - Title"
 msgstr "Titolo"
 
-#: data/dialogs.glade:1274
+#: data/dialogs.glade:1288
 msgid "The artist of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1275
+#: data/dialogs.glade:1289
 #, fuzzy
 msgid "%p - Artist"
 msgstr "Artista"
 
-#: data/dialogs.glade:1283
+#: data/dialogs.glade:1297
 msgid "The title of album of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1284
+#: data/dialogs.glade:1298
 msgid "%a - Album"
 msgstr ""
 
-#: data/dialogs.glade:1292
+#: data/dialogs.glade:1306
 msgid "The number of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1293
+#: data/dialogs.glade:1307
 msgid "%n - Track number"
 msgstr ""
 
-#: data/dialogs.glade:1301
+#: data/dialogs.glade:1315
 msgid "The filename of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1302
+#: data/dialogs.glade:1316
 msgid "%f - Filename"
 msgstr ""
 

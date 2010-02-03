@@ -2,6 +2,7 @@
 #include "ol_lrc_fetch_ui.h"
 #include "ol_lrc_fetch.h"
 #include "ol_gui.h"
+#include "ol_config.h"
 #include "ol_intl.h"
 #include "ol_lrc_fetch_module.h"
 
@@ -19,7 +20,9 @@ enum {
   COLUMN_COUNT,
 };
 static void ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data);
-static gboolean ol_lrc_fetch_ui_init ();
+static gboolean internal_init ();
+static void internal_set_list (const OlLrcCandidate *candidates,
+                               int count);
 gboolean ol_lrc_fetch_cancel (GtkWidget *widget, gpointer data);
 
 gboolean
@@ -63,6 +66,18 @@ ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
     fprintf (stderr, "  download pressed\n");
     ol_lrc_fetch_begin_download (engine, &candidate, filepath);
   }
+  OlConfig *config = ol_config_get_instance ();
+  GtkToggleButton *prompt_btn = GTK_TOGGLE_BUTTON (ol_gui_get_widget ("choose-do-not-prompt"));
+  if (prompt_btn != NULL && config != NULL)
+  {
+    if (gtk_toggle_button_get_active (prompt_btn))
+    {
+      ol_config_set_bool (config, 
+                          "Download", 
+                          "download-first-lyric", 
+                          TRUE);
+    }
+  }
   gtk_widget_hide (window);
 }
 
@@ -76,7 +91,7 @@ ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data)
 }
 
 static gboolean
-ol_lrc_fetch_ui_init ()
+internal_init ()
 {
   fprintf (stderr, "%s", __FUNCTION__);
   if (window == NULL)
@@ -131,24 +146,10 @@ ol_lrc_fetch_ui_init ()
   return TRUE;
 }
 
-void
-ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
-                      const OlLrcCandidate *candidates,
-                      int count,
-                      const char *filename)
+static void
+internal_set_list (const OlLrcCandidate *candidates,
+                   int count)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
-  if (window == NULL && !ol_lrc_fetch_ui_init ())
-    return;
-  if (lrcengine == NULL || candidates == NULL || count <= 0 || filename == NULL)
-  {
-    gtk_widget_hide (window);
-    return;
-  }
-  if (filepath != NULL)
-    g_free (filepath);
-  filepath = g_strdup (filename);
-  engine = lrcengine;
   GtkTreeIter iter;
   int i;
   gtk_tree_store_clear (store);
@@ -166,7 +167,32 @@ ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
       gtk_tree_selection_select_iter (gtk_tree_view_get_selection (list),
                                       &iter);
   }
-  if (count == 1)
+}
+
+void
+ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
+                      const OlLrcCandidate *candidates,
+                      int count,
+                      const char *filename)
+{
+  fprintf (stderr, "%s\n", __FUNCTION__);
+  if (window == NULL && !internal_init ())
+    return;
+  if (lrcengine == NULL || candidates == NULL || count <= 0 || filename == NULL)
+  {
+    gtk_widget_hide (window);
+    return;
+  }
+  if (filepath != NULL)
+    g_free (filepath);
+  filepath = g_strdup (filename);
+  engine = lrcengine;
+  internal_set_list (candidates, count);
+  gboolean prompt = TRUE;
+  OlConfig *config = ol_config_get_instance ();
+  if (config != NULL)
+    prompt = ol_config_get_bool (config, "Download", "download-first-lyric");
+  if (prompt || count == 1)
     ol_lrc_fetch_ui_download (GTK_WIDGET (download_button), NULL);
   else
     gtk_widget_show (window);

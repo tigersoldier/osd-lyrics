@@ -1209,6 +1209,21 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
             <property name="position">1</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkCheckButton" id="choose-do-not-prompt">
+            <property name="label" translatable="yes">D_on't ask me again</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="tooltip_text" translatable="yes">If there are more than one lrc files matched with the search condition, download the first one without prompting the user.</property>
+            <property name="use_underline">True</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area3">
             <property name="visible">True</property>

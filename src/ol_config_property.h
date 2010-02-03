@@ -37,6 +37,7 @@ enum {
   PROP_MPD_HOSTNAME,
   PROP_MPD_PORT,
 #endif
+  PROP_DOWNLOAD_FIRST_LYRIC,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -171,6 +172,10 @@ static const OlConfigBoolValue config_bool[] = {
   {PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER, "translucent-on-mouse-over", "OSD",
    "Translucent on mouse over",
    "When the pointer is on the lyrics, make them semi-transparent",
+   FALSE},
+  {PROP_DOWNLOAD_FIRST_LYRIC, "download-first-lyric", "Download",
+   "Download the first lyric candidate", 
+   "If there are more than one lyrics matched, download the first one automately",
    FALSE},
 };
 
