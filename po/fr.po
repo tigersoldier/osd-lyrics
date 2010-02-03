@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-01-21 23:41+0800\n"
+"POT-Creation-Date: 2010-02-03 00:11+0800\n"
 "PO-Revision-Date: 2009-12-27 13:53+0000\n"
 "Last-Translator: François Blondel <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -17,28 +17,28 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-01-04 14:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_main.c:90
+#: src/ol_main.c:91
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:128
+#: src/ol_main.c:129
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:139
+#: src/ol_main.c:140
 msgid "Lyrics not found"
 msgstr "Paroles introuvables"
 
-#: src/ol_main.c:168
+#: src/ol_main.c:169
 msgid "Searching lyrics"
 msgstr "Recherche des paroles en cours"
 
-#: src/ol_main.c:309
+#: src/ol_main.c:310
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Aucun lecteur pris en charge n'est en cours d'exécution, arrêt.\n"
 
-#: src/ol_trayicon.c:38
+#: src/ol_trayicon.c:37
 msgid "OSD Lyrics"
 msgstr "Paroles OSD"
 
@@ -86,104 +86,100 @@ msgstr ""
 "  Jeremy Moiny https://launchpad.net/~joliegrenouille2\n"
 "  Pierre Slamich https://launchpad.net/~pierre-slamich"
 
-#: data/dialogs.glade:46
+#: data/dialogs.glade:63
 msgid "Preferences"
 msgstr "Préférences"
 
-#: data/dialogs.glade:72
+#: data/dialogs.glade:89
 msgid "_Font:"
 msgstr "_Police :"
 
-#: data/dialogs.glade:98
+#: data/dialogs.glade:115
 msgid "_Width:"
 msgstr "Lar_geur :"
 
-#: data/dialogs.glade:127
+#: data/dialogs.glade:144
 msgid "Lyric lines:"
 msgstr "lignes de paroles"
 
-#: data/dialogs.glade:141
+#: data/dialogs.glade:158
 msgid "Si_ngle line"
 msgstr "Simple lig_ne"
 
-#: data/dialogs.glade:155
+#: data/dialogs.glade:172
 msgid "_Double lines"
 msgstr "_Double lignes"
 
-#: data/dialogs.glade:180
+#: data/dialogs.glade:197
 msgid "Out_line:"
 msgstr ""
 
-#: data/dialogs.glade:213
+#: data/dialogs.glade:230
 msgid "T_ranslucent on mouse over"
 msgstr "T_ransparent au passage de la souris"
 
-#: data/dialogs.glade:245
+#: data/dialogs.glade:262
 msgid "F_irst line:"
 msgstr "Prem_ière ligne"
 
-#: data/dialogs.glade:271
+#: data/dialogs.glade:288
 msgid "_Second line:"
 msgstr "Deu_xième ligne"
 
-#: data/dialogs.glade:303
+#: data/dialogs.glade:320
 msgid "<b>Lyric _Alignment</b>"
 msgstr "<b>_Alignement des paroles</b>"
 
-#: data/dialogs.glade:339
+#: data/dialogs.glade:353
 msgid "Color _Theme:"
 msgstr "_Thème de couleur"
 
-#: data/dialogs.glade:353
-msgid "Customize"
-msgstr "Personnaliser"
-
-#: data/dialogs.glade:361
+#: data/dialogs.glade:381
 msgid "C_ustomize colors"
 msgstr "Personnaliser les co_uleurs"
 
-#: data/dialogs.glade:390
+#: data/dialogs.glade:410
 msgid "Acti_ve lyrics:"
 msgstr "Paroles acti_ves"
 
-#: data/dialogs.glade:410 data/dialogs.glade:480
+#: data/dialogs.glade:430 data/dialogs.glade:500
 msgid "top"
 msgstr "haut"
 
-#: data/dialogs.glade:420 data/dialogs.glade:507
+#: data/dialogs.glade:440 data/dialogs.glade:527
 msgid "middle"
 msgstr "milieu"
 
-#: data/dialogs.glade:444 data/dialogs.glade:534
+#: data/dialogs.glade:464 data/dialogs.glade:554
 msgid "bottom"
 msgstr "bas"
 
-#: data/dialogs.glade:469
+#: data/dialogs.glade:489
 msgid "Inactiv_e lyrics:"
 msgstr "Paroles inactiv_e :"
 
-#: data/dialogs.glade:570
+#: data/dialogs.glade:590
 msgid "<b>Lyric _Color</b>"
 msgstr "<b>_Couleur des paroles</b>"
 
-#: data/dialogs.glade:607
+#: data/dialogs.glade:624
 msgid "<b>Preview</b>"
 msgstr "<b>Aperçu</b>"
 
-#: data/dialogs.glade:624
+#: data/dialogs.glade:638
 msgid "_OSD"
 msgstr "_OSD"
 
-#: data/dialogs.glade:737
+#: data/dialogs.glade:750
 msgid "A single \"%\" means the directory where the playing music is."
 msgstr ""
 "Un signe « % » indique le répertoire dans lequel se trouve la musique lue."
 
-#: data/dialogs.glade:751
+#: data/dialogs.glade:764
 msgid "<b>_Path</b>"
 msgstr "<b>_Chemin</b>"
 
-#: data/dialogs.glade:803
+#: data/dialogs.glade:813
 msgid ""
 "  %t - Title\n"
 "  %p - Artist\n"
@@ -197,82 +193,104 @@ msgstr ""
 "  %n - Numéro de piste\n"
 "  %f - Nom du fichier (sans extension)"
 
-#: data/dialogs.glade:882
+#: data/dialogs.glade:892
 msgid "<b>_Filename</b>"
 msgstr "<b>Nom de _fichier</b>"
 
-#: data/dialogs.glade:904
+#: data/dialogs.glade:911
 msgid "_Lyric Location"
 msgstr "Emplacement des paro_les"
 
-#: data/dialogs.glade:925
+#: data/dialogs.glade:929 data/dialogs.glade:944
+#, fuzzy
+msgid "Choose witch site you want to download from."
+msgstr "Choisissez le fichier LRC à télécharger"
+
+#: data/dialogs.glade:932
 msgid "Download _engine:"
 msgstr "Mot_eur de téléchargement :"
 
-#: data/dialogs.glade:964 data/dialogs.glade:1186
+#: data/dialogs.glade:966
+msgid "Do_wnload the first candidate"
+msgstr ""
+
+#: data/dialogs.glade:970
+msgid ""
+"If there are more than one lrc files matched with the search condition, "
+"download the first one without prompting the user."
+msgstr ""
+
+#: data/dialogs.glade:990 data/dialogs.glade:1218
 msgid "_Download"
 msgstr "_Téléchargement"
 
-#: data/dialogs.glade:1046
+#: data/dialogs.glade:1076
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Si bloqué, impossible de déplacer la fenètre OSD avec la souris"
 
-#: data/dialogs.glade:1047
-msgid "_Lock"
-msgstr "Verroui_ller"
+#: data/dialogs.glade:1077
+#, fuzzy
+msgid "_Lock Position"
+msgstr "Emplacement des paro_les"
 
-#: data/dialogs.glade:1055
+#: data/dialogs.glade:1085
 msgid "Hide the OSD Window"
 msgstr "Cacher la fenètre OSD"
 
-#: data/dialogs.glade:1056
+#: data/dialogs.glade:1086
 msgid "_Hide"
 msgstr "Cac_her"
 
-#: data/dialogs.glade:1063
+#: data/dialogs.glade:1093
 msgid "_Download lyric"
 msgstr "_Télécharger les paroles"
 
-#: data/dialogs.glade:1154
+#: data/dialogs.glade:1186
 msgid "Choose LRC file to download"
 msgstr "Choisissez le fichier LRC à télécharger"
 
-#: data/dialogs.glade:1229
+#: data/dialogs.glade:1265
 msgid "The title of the current track"
 msgstr "Le titre de la piste en cours"
 
-#: data/dialogs.glade:1230
+#: data/dialogs.glade:1266
 msgid "%t - Title"
 msgstr "%t - Titre"
 
-#: data/dialogs.glade:1238
+#: data/dialogs.glade:1274
 msgid "The artist of the current track"
 msgstr "L'artiste de la piste en cours"
 
-#: data/dialogs.glade:1239
+#: data/dialogs.glade:1275
 msgid "%p - Artist"
 msgstr "%p - Artiste"
 
-#: data/dialogs.glade:1247
+#: data/dialogs.glade:1283
 msgid "The title of album of the current track"
 msgstr "Le titre de l'album de la piste en cours"
 
-#: data/dialogs.glade:1248
+#: data/dialogs.glade:1284
 msgid "%a - Album"
 msgstr "%a - Album"
 
-#: data/dialogs.glade:1256
+#: data/dialogs.glade:1292
 msgid "The number of the current track"
 msgstr "Le numéro de la piste en cours"
 
-#: data/dialogs.glade:1257
+#: data/dialogs.glade:1293
 msgid "%n - Track number"
 msgstr "%n - Numéro de piste"
 
-#: data/dialogs.glade:1265
+#: data/dialogs.glade:1301
 msgid "The filename of the current track"
 msgstr "Le nom de fichier du morceau en cours"
 
-#: data/dialogs.glade:1266
+#: data/dialogs.glade:1302
 msgid "%f - Filename"
 msgstr "%f - Nom du fichier"
+
+#~ msgid "Customize"
+#~ msgstr "Personnaliser"
+
+#~ msgid "_Lock"
+#~ msgstr "Verroui_ller"

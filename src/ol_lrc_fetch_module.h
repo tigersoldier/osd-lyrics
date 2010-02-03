@@ -13,6 +13,9 @@ struct OlLrcFetchResult
   OlLrcFetchEngine *engine;
 };
 
+typedef void (*OlLrcSearchCallback) (struct OlLrcFetchResult *result,
+                                     void *userdata);
+
 struct OlLrcFetchResult* ol_lrc_fetch_result_new ();
 void ol_lrc_fetch_result_free (struct OlLrcFetchResult *result);
 int ol_lrc_fetch_result_serialize (struct OlLrcFetchResult *result,
@@ -42,11 +45,15 @@ void ol_lrc_fetch_add_async_download_callback (GSourceFunc callbackFunc);
 /** 
  * @brief Begin searching lyrics. Once finished, search callbacks will be invoked.
  * 
- * @param music_info 
- * @param pathname
+ * @param engine The engine to use for searching
+ * @param music_info The music info for searching
+ * @param callback The callback function for searching done
  * @return a unique id identifies the search result
  */
-int ol_lrc_fetch_begin_search (OlLrcFetchEngine *engine, OlMusicInfo *music_info);
+int ol_lrc_fetch_begin_search (OlLrcFetchEngine *engine, 
+                               OlMusicInfo *music_info, 
+                               OlLrcSearchCallback callback,
+                               void *userdata);
 
 /** 
  * @brief Begin downloading lyrics. Once finished, download callbacks will be invoked.

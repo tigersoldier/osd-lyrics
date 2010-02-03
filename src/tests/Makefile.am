@@ -125,8 +125,7 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 ol_lrc_fetch_module_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@ \
-	@GUI_LIBS@
+	@DBUS_GLIB_LIBS@
 
 ol_path_test_SOURCES = \
 	 ol_path_test.c \
@@ -136,8 +135,7 @@ ol_path_test_SOURCES = \
 ol_path_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@ \
-	@GUI_LIBS@
+	@DBUS_GLIB_LIBS@
 
 ol_fork_test_SOURCES = \
 	ol_fork_test.c \
@@ -145,8 +143,7 @@ ol_fork_test_SOURCES = \
 ol_fork_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@ \
-	@GUI_LIBS@
+	@DBUS_GLIB_LIBS@
 
 ol_music_info_test_SOURCES = \
 	ol_music_info_test.c \
@@ -155,5 +152,4 @@ ol_music_info_test_SOURCES = \
 ol_music_info_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@ \
-	@GUI_LIBS@
+	@DBUS_GLIB_LIBS@

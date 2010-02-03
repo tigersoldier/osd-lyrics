@@ -5,13 +5,6 @@
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-struct DownloadContext
-{
-  char *filepath;
-  OlLrcCandidate *candidate;
-  OlLrcFetchEngine *engine;
-};
-
 static GThread *search_thread = NULL;
 static GCond *search_cond = NULL;
 static GMutex *search_mutex = NULL;
@@ -20,16 +13,22 @@ static int search_id = 0;
 static GPtrArray *search_listeners;
 static GPtrArray *download_listeners;
 
-static void internal_search (struct OlLrcFetchResult *search_result);
-static gpointer ol_lrc_fetch_download_func (struct DownloadContext *context);
-
-typedef void (*FreeFunc)(gpointer userdata);
-
-struct CallerParam {
-  GPtrArray *func_array;
-  gpointer userdata;
-  FreeFunc data_free_func;
+struct SearchData 
+{
+  struct OlLrcFetchResult *result;
+  OlLrcSearchCallback callback;
+  void *userdata;
 };
+
+static void internal_search (struct OlLrcFetchResult *search_result);
+static void internal_run_func (GSourceFunc func,
+                               gpointer data);
+static void internal_invoke_callback (GPtrArray *func_array,
+                                      gpointer userdata);
+static void internal_search_callback (void *ret_data,
+                                      size_t ret_size,
+                                      int status,
+                                      void *userdata);
 
 static void
 internal_run_func (GSourceFunc func,
@@ -81,7 +80,8 @@ internal_search_callback (void *ret_data,
 {
   ol_assert (ret_data != NULL);
   ol_assert (userdata != NULL);
-  struct OlLrcFetchResult *result = (struct OlLrcFetchResult *) userdata;
+  struct SearchData *data = (struct SearchData *) userdata;
+  struct OlLrcFetchResult *result = data->result;
   char *current = (char *) ret_data;
   char *count_str = ret_data;
   current = ol_split_a_line (current);
@@ -97,6 +97,8 @@ internal_search_callback (void *ret_data,
     current = ol_split_a_line (current);
     ol_assert (current != NULL);
   }
+  if (data->callback)
+    data->callback (result, data->userdata);
   internal_invoke_callback (search_listeners, result);
   ol_lrc_fetch_result_free (result);
 }
@@ -163,7 +165,10 @@ ol_lrc_fetch_module_init ()
 }
 
 int
-ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
+ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, 
+                           OlMusicInfo *_music_info,
+                           OlLrcSearchCallback callback,
+                           void *userdata)
 {
   ol_log_func ();
   ol_assert_ret (_engine != NULL, -1);
@@ -179,8 +184,12 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine, OlMusicInfo *_music_info)
   search_result->engine = _engine;
   ol_music_info_copy (&search_result->info, _music_info);
   search_result->id = search_id++;
+  struct SearchData *data = g_new (struct SearchData, 1);
+  data->result = search_result;
+  data->callback = callback;
+  data->userdata = userdata;
   if (ol_fork (internal_search_callback,
-               search_result) == 0)
+               data) == 0)
   {
     internal_search (search_result);
     exit (0);

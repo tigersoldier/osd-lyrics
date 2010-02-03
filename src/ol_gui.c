@@ -2,7 +2,7 @@
 #include "ol_intl.h"
 #include "ol_debug.h"
 
-const char *BUILDER_FILE = GUIDIR "/dialogs.gtk";
+const char *BUILDER_FILE = GUIDIR "/dialogs.glade";
 static GtkBuilder *builder = NULL;
 
 static void internal_init ();

@@ -66,7 +66,8 @@ static void on_music_changed ();
  * @param signal 
  */
 /* static void child_handler (int sig); */
-static gboolean on_search_done (struct OlLrcFetchResult *result);
+static void on_search_done (struct OlLrcFetchResult *result,
+                            void *userdata);
 static gboolean on_downloaded (char *filepath);
 
 /** 
@@ -114,12 +115,13 @@ on_search_done_func (gchar *filename, gpointer data)
   return TRUE;
 }
 
-static gboolean
-on_search_done (struct OlLrcFetchResult *result)
+static void
+on_search_done (struct OlLrcFetchResult *result,
+                void *userdata)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
-  g_return_val_if_fail (result != NULL, FALSE);
-  g_return_val_if_fail (result->engine != NULL, FALSE);
+  ol_log_func ();
+  ol_assert (result != NULL);
+  ol_assert (result->engine != NULL);
   if (result->count > 0 && result->candidates != 0)
   {
     if (!for_each_lrc_pattern (&result->info,
@@ -139,23 +141,7 @@ on_search_done (struct OlLrcFetchResult *result)
     if (module != NULL)
       ol_osd_module_search_fail_message (module, _("Lyrics not found"));
   }
-  return FALSE;
 }
-
-/* static void */
-/* child_handler (int sig) */
-/* { */
-/*   int status; */
-/*   if (wait (&status) < 0) */
-/*   { */
-/*     fprintf (stderr, "wait error\n"); */
-/*     return; */
-/*   } */
-/*   if (status == 0) */
-/*   { */
-/*     check_lyric_file (); */
-/*   } */
-/* } */
 
 gboolean
 ol_app_download_lyric (OlMusicInfo *music_info)
@@ -164,7 +150,10 @@ ol_app_download_lyric (OlMusicInfo *music_info)
   char *name = ol_config_get_string (config, "Download", "download-engine");
   fprintf (stderr, "Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
-  ol_lrc_fetch_begin_search (engine, music_info);
+  ol_lrc_fetch_begin_search (engine, 
+                             music_info, 
+                             on_search_done,
+                             NULL);
   if (module != NULL)
     ol_osd_module_search_message (module, _("Searching lyrics"));
 }
@@ -348,7 +337,6 @@ void initialize (int argc, char **argv)
   ol_trayicon_inital ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
-  ol_lrc_fetch_add_async_search_callback ((GSourceFunc) on_search_done);
   ol_lrc_fetch_add_async_download_callback ((GSourceFunc) on_downloaded);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
 }

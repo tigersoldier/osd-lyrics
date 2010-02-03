@@ -3,7 +3,7 @@ trayicon_DATA = \
 	osd-lyrics-trayicon.png 
 guidir = @OL_GUIDIR@
 gui_DATA = \
-	dialogs.gtk
+	dialogs.glade
 menudir = ${datadir}/applications
 menu_DATA = osd-lyrics.desktop
 icondir = ${datadir}/icons/hicolor/64x64/apps
