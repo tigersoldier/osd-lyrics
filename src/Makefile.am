@@ -53,6 +53,7 @@ osd_lyrics_SOURCES = \
 	ol_lrc_fetch_qianqian.c \
 	ol_lrc_fetch_utils.c \
 	ol_lrc_candidate_list.c \
+	ol_lrc_engine_list.c \
 	ol_music_info.c \
 	ol_color.c \
 	ol_eggaccelerators.c \

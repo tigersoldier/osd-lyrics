@@ -5,6 +5,7 @@
 #include "ol_lyric_manage.h"
 #include "ol_config.h"
 #include "ol_lrc_candidate_list.h"
+#include "ol_lrc_engine_list.h"
 #include "ol_intl.h"
 #include "ol_debug.h"
 
@@ -21,6 +22,7 @@ struct
   GtkTreeView *list;
   GtkLabel *msg;
   GtkWidget *download;
+  GtkWidget *engine;
 } widgets = {0};
 
 static OlLrcFetchEngine *engine = NULL;
@@ -92,16 +94,14 @@ ol_search_dialog_search_click (GtkWidget *widget,
   if (widgets.artist != NULL)
     ol_music_info_set_artist (info,
                               gtk_entry_get_text (widgets.artist));
-  OlConfig *config = ol_config_get_instance ();
-  char *name = ol_config_get_string (config, "Download", "download-engine");
-  ol_debugf ("Download engine: %s\n", name);
-  engine = ol_lrc_fetch_get_engine (name);
+  engine = ol_lrc_engine_list_get_engine (widgets.engine);
   if (widgets.msg != NULL)
   {
-    char *msg = g_strdup_printf (_(MSG_SEARCHING), _(name));
+    char *msg = g_strdup_printf (_(MSG_SEARCHING), 
+                                 _(ol_lrc_fetch_engine_get_name (engine)));
     gtk_label_set_text (widgets.msg, msg);
   }
-  gtk_widget_set_sensitive (widgets.list,
+  gtk_widget_set_sensitive (GTK_WIDGET (widgets.list),
                             FALSE);
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
@@ -119,7 +119,7 @@ internal_search_callback (struct OlLrcFetchResult *result,
   ol_assert (result != NULL);
   if (search_id != result->id)
     return;
-  gtk_widget_set_sensitive (widgets.list,
+  gtk_widget_set_sensitive (GTK_WIDGET (widgets.list),
                             TRUE);
   ol_lrc_candidate_list_set_list (widgets.list,
                                   result->candidates,
@@ -160,7 +160,10 @@ internal_init ()
     widgets.list = GTK_TREE_VIEW (ol_gui_get_widget ("search-candidates-list"));
     widgets.msg = GTK_LABEL (ol_gui_get_widget ("search-msg"));
     widgets.download = ol_gui_get_widget ("search-download");
-    ol_lrc_candidate_list_init (widgets.list, internal_select_changed);
+    ol_lrc_candidate_list_init (widgets.list, 
+                                G_CALLBACK (internal_select_changed));
+    widgets.engine = ol_gui_get_widget ("search-engine");
+    ol_lrc_engine_list_init (widgets.engine);
   }
   return widgets.window != NULL;
 }
@@ -181,5 +184,13 @@ ol_search_dialog_show ()
                       ol_music_info_get_artist (&music_info));
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
+  OlConfig *config = ol_config_get_instance ();
+  char *engine = ol_config_get_string (config, 
+                                       "Download",
+                                       "download-engine");
+  ol_lrc_engine_list_set_name (widgets.engine,
+                               engine);
+  g_free (engine);
+
   gtk_widget_show (widgets.window);
 }

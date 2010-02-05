@@ -10,6 +10,7 @@
 #include "ol_intl.h"
 #include "ol_debug.h"
 #include "ol_cell_renderer_button.h"
+#include "ol_lrc_engine_list.h"
 
 #define BUFFER_SIZE 1024
 
@@ -657,15 +658,17 @@ save_download ()
 {
   OlConfig *config = ol_config_get_instance ();
   /* Download Engine */
-  if (options.download_engine != NULL)
+  const char *engine = ol_lrc_engine_list_get_name (options.download_engine);
+  if (engine != NULL)
   {
-    int index = gtk_combo_box_get_active (GTK_COMBO_BOX (options.download_engine));
-    int count = 0;
-    const char **engine_list = ol_lrc_fetch_get_engine_list (&count);
-    if (engine_list != NULL && index < count)
-    {
-      ol_config_set_string (config, "Download", "download-engine", engine_list[index]);
-    }
+    ol_config_set_string (config, 
+                          "Download", 
+                          "download-engine", 
+                          engine);
+  }
+  else
+  {
+    ol_error ("Failed to get the name of engine");
   }
 }
 
@@ -674,32 +677,12 @@ load_download ()
 {
   OlConfig *config = ol_config_get_instance ();
   /* Download engine */
-  if (options.download_engine != NULL)
-  {
-    char *download_engine = ol_config_get_string (config, "Download", "download-engine");
-    GtkTreeModel *tree = gtk_combo_box_get_model (GTK_COMBO_BOX (options.download_engine));
-    GtkTreeIter iter;
-    gboolean valid = gtk_tree_model_get_iter_first (tree, &iter);
-    while (valid)
-    {
-      char *engine_name;
-      gtk_tree_model_get (tree, &iter,
-                          0, &engine_name,
-                          -1);
-      if (ol_stricmp (engine_name,
-                      _(download_engine),
-                      strlen (engine_name)) == 0)
-      {
-        gtk_combo_box_set_active_iter (GTK_COMBO_BOX (options.download_engine),
-                                       &iter);
-        g_free (engine_name);
-        break;
-      }
-      g_free (engine_name);
-      valid = gtk_tree_model_iter_next (tree, &iter);
-    }
-    g_free (download_engine);
-  }
+  char *download_engine = ol_config_get_string (config, 
+                                                "Download",
+                                                "download-engine");
+  ol_lrc_engine_list_set_name (options.download_engine,
+                               download_engine);
+  g_free (download_engine);
 }
 
 static char **
@@ -1067,18 +1050,7 @@ ol_option_show ()
     options.lrc_filename_text = ol_gui_get_widget ("lrc-filename-text");
     options.lrc_filename_sample = ol_gui_get_widget ("lrc-filename-sample");
     /* Init download engine combobox */
-    if (options.download_engine != NULL)
-    {
-      int i, nengine;
-      char **download_engine = (char **)ol_lrc_fetch_get_engine_list (&nengine);
-      for (i = 0; i < nengine; i++)
-      {
-        printf ("append: %s\n", download_engine[i]);
-        gtk_combo_box_append_text (GTK_COMBO_BOX (options.download_engine),
-                                   _(download_engine[i]));
-      }
-    }
-    
+    ol_lrc_engine_list_init (options.download_engine);
     lrc_path_widgets.entry = options.lrc_path_text;
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_gui_get_widget ("add-lrc-path");

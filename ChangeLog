@@ -1,5 +1,9 @@
 2010-02-05  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_search_dialog.c: ADD: Select lrc fetch engine in search dialog.
+
+	* src/ol_lrc_engine_list.c: REFACTORY: Extract from ol_option.c
+
 	* src/ol_search_dialog.c: ADD: Lyric search dialog to enable changing the search conditions.
 
 	* src/ol_lrc_fetch_module.c (ol_lrc_fetch_begin_search): FIX: The search ID in callback is not the one returned.

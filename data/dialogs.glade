@@ -58,6 +58,12 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="liststore3">
+    <columns>
+      <!-- column-name item -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkDialog" id="optiondialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences</property>
@@ -1363,7 +1369,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
         <child>
           <object class="GtkTable" id="table4">
             <property name="visible">True</property>
-            <property name="n_rows">2</property>
+            <property name="n_rows">3</property>
             <property name="n_columns">3</property>
             <child>
               <object class="GtkLabel" id="search-title-label">
@@ -1430,8 +1436,39 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               <packing>
                 <property name="left_attach">2</property>
                 <property name="right_attach">3</property>
-                <property name="bottom_attach">2</property>
+                <property name="bottom_attach">3</property>
                 <property name="x_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label21">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="xpad">5</property>
+                <property name="label" translatable="yes" comments="From witch web site to search and download lyrics">_From:</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="search-engine">
+                <property name="visible">True</property>
+                <property name="model">liststore3</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
               </packing>
             </child>
           </object>
