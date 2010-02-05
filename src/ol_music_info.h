@@ -14,6 +14,8 @@ struct _OlMusicInfo
   char *uri;                   /* URI of the music */
 };
 
+OlMusicInfo *ol_music_info_new ();
+
 /** 
  * @brief Initialize an OlMusicInfo
  * All the fields of music_info will set to empty without memory free

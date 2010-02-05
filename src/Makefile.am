@@ -43,6 +43,7 @@ osd_lyrics_SOURCES = \
 	ol_utils_cmdline.c \
 	ol_lrc_parser.c \
 	ol_lrc_utility.c \
+	ol_search_dialog.c \
 	ol_trayicon.c \
 	ol_menu.c \
 	ol_lrc_fetch.c \
@@ -51,6 +52,7 @@ osd_lyrics_SOURCES = \
 	ol_lrc_fetch_sogou.c \
 	ol_lrc_fetch_qianqian.c \
 	ol_lrc_fetch_utils.c \
+	ol_lrc_candidate_list.c \
 	ol_music_info.c \
 	ol_color.c \
 	ol_eggaccelerators.c \
@@ -58,6 +60,7 @@ osd_lyrics_SOURCES = \
 	ol_keybindings.c \
 	ol_commands.c \
 	ol_path_pattern.c \
+	ol_lyric_manage.c \
 	ol_cell_renderer_button.c \
 	ol_fork.c \
 	ol_marshal.c \

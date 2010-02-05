@@ -17,6 +17,7 @@
 #include "ol_commands.h"
 #include "ol_app.h"
 #include "ol_gui.h"
+#include "ol_search_dialog.h"
 #include "ol_debug.h"
 
 static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
@@ -62,7 +63,8 @@ ol_menu_download (GtkWidget *widget, gpointer data)
   if (ol_app_get_controller () != NULL)
   {
     OlMusicInfo *info = ol_app_get_current_music ();
-    ol_app_download_lyric (info);
+    ol_search_dialog_show ();
+    /* ol_app_download_lyric (info); */
   }
 }
 

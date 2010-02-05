@@ -36,13 +36,12 @@
 #include "ol_osd_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
-#include "ol_path_pattern.h"
+#include "ol_lyric_manage.h"
 #include "ol_stock.h"
 #include "ol_app.h"
 #include "ol_debug.h"
 
 #define REFRESH_INTERVAL 100
-#define MAX_PATH_LEN 1024
 
 static guint refresh_source = 0;
 static OlPlayerController *controller = NULL;
@@ -66,25 +65,12 @@ static void on_music_changed ();
  * @param signal 
  */
 /* static void child_handler (int sig); */
-static void on_search_done (struct OlLrcFetchResult *result,
+static void internal_search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
-static gboolean on_downloaded (char *filepath);
-
-/** 
- * @brief Invoke the given function on each lrc filename which fits the patterns and music info
- * 
- * @param info The music
- * @param func The function to invoke. If it returns FALSE, the iteration stops
- * @param data 
- * 
- * @return TRUE if the func returns TRUE.
- */
-static gboolean for_each_lrc_pattern (OlMusicInfo *info,
-                                      gboolean (*func)(char *filename, gpointer data),
-                                      gpointer data);
+static gboolean internal_download_callback (char *filepath);
 
 static gboolean
-on_downloaded (char *filepath)
+internal_download_callback (char *filepath)
 {
   if (filepath != NULL)
     check_lyric_file ();
@@ -93,30 +79,8 @@ on_downloaded (char *filepath)
   return FALSE;
 }
 
-static gboolean
-on_search_done_func (gchar *filename, gpointer data)
-{
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, filename);
-  if (filename == NULL || data == NULL)
-    return FALSE;
-  gchar * dirname = g_path_get_dirname (filename);
-  if (dirname == NULL)
-    return FALSE;
-  if (g_mkdir_with_parents (dirname, S_IRUSR | S_IWUSR | S_IXUSR |
-                             S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
-  {
-    ol_debugf ("  make directory '%s' failed\n", dirname);
-    g_free (dirname);
-    return FALSE;
-  }
-  g_free (dirname);
-  struct OlLrcFetchResult *result = (struct OlLrcFetchResult*) data;
-  ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count, filename);
-  return TRUE;
-}
-
 static void
-on_search_done (struct OlLrcFetchResult *result,
+internal_search_callback (struct OlLrcFetchResult *result,
                 void *userdata)
 {
   ol_log_func ();
@@ -124,9 +88,8 @@ on_search_done (struct OlLrcFetchResult *result,
   ol_assert (result->engine != NULL);
   if (result->count > 0 && result->candidates != 0)
   {
-    if (!for_each_lrc_pattern (&result->info,
-                               on_search_done_func,
-                               (gpointer) result))
+    char *filename = ol_lyric_download_path (&result->info);
+    if (filename == NULL)
     {
       ol_osd_module_download_fail_message (module, _("Cannot create the lyric directory"));
     }
@@ -134,6 +97,8 @@ on_search_done (struct OlLrcFetchResult *result,
     {
       if (module != NULL)
         ol_osd_module_clear_message (module);
+      ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count, filename);
+      g_free (filename);
     }
   }
   else
@@ -152,78 +117,29 @@ ol_app_download_lyric (OlMusicInfo *music_info)
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
   ol_lrc_fetch_begin_search (engine, 
                              music_info, 
-                             on_search_done,
+                             internal_search_callback,
                              NULL);
   if (module != NULL)
     ol_osd_module_search_message (module, _("Searching lyrics"));
-}
-
-static gboolean
-for_each_lrc_pattern (OlMusicInfo *info,
-                      gboolean (*func)(char *filename, gpointer data),
-                      gpointer data)
-{
-  ol_log_func ();
-  OlConfig *config = ol_config_get_instance ();
-  int pathlen, namelen;
-  char **path_list = ol_config_get_str_list (config, "General", "lrc-path", &pathlen);
-  char **name_list = ol_config_get_str_list (config, "General", "lrc-filename", &namelen);
-  if (path_list == NULL || name_list == NULL)
-    return FALSE;
-  if (path_list == NULL || name_list == NULL ||
-      info == NULL || func == NULL)
-    return FALSE;
-  ol_debugf ("  uri: %s\n", info->uri);
-  gchar file_name[MAX_PATH_LEN] = "";
-  int i, j;
-  for (i = 0; path_list[i]; i++)
-    for (j = 0; name_list[j]; j++)
-    {
-      ol_debugf ("  path:%s, name:%s\n", path_list[i], name_list[j]);
-      if ((ol_path_get_lrc_pathname (path_list[i],
-                                     name_list[j],
-                                     info,
-                                     file_name,
-                                     MAX_PATH_LEN)) != -1)
-      {
-        ol_debugf ("  %s\n", file_name);
-        if (func (file_name, data))
-        {
-          g_strfreev (path_list);
-          g_strfreev (name_list);
-          return TRUE;
-        }
-      } /* if */
-    } /* for j */
-  g_strfreev (path_list);
-  g_strfreev (name_list);
-  return FALSE;
-}
-
-gboolean
-check_lyric_file_func (char *filename, gpointer data)
-{
-  ol_log_func ();
-  ol_debugf ("  filename:%s\n", filename);
-  if (!ol_path_is_file (filename))
-  {
-    return FALSE;
-  }
-  if (lrc_file != NULL)
-    free (lrc_file);
-  lrc_file = ol_lrc_parser_get_lyric_info (filename);
-  ol_osd_module_set_lrc (module, lrc_file);
-  return TRUE;
 }
 
 gboolean
 check_lyric_file ()
 {
   gboolean ret = TRUE;
-  if (!for_each_lrc_pattern (&music_info,
-                             check_lyric_file_func,
-                             NULL))
+  char *filename = ol_lyric_find (&music_info);
+  if (filename != NULL)
+  {
+    if (lrc_file != NULL)
+      free (lrc_file);
+    lrc_file = ol_lrc_parser_get_lyric_info (filename);
+    ol_osd_module_set_lrc (module, lrc_file);
+    ret = TRUE;
+  }
+  else
+  {
     ret = FALSE;
+  }
   return ret;
 }
 
@@ -337,7 +253,7 @@ void initialize (int argc, char **argv)
   ol_trayicon_inital ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
-  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) on_downloaded);
+  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) internal_download_callback);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
 }
 

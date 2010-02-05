@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-02-03 21:30+0800\n"
+"POT-Creation-Date: 2010-02-05 01:27+0800\n"
 "PO-Revision-Date: 2009-11-30 17:37+0000\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-01-04 14:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_main.c:92
+#: src/ol_main.c:78
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:131
+#: src/ol_main.c:94
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:142
+#: src/ol_main.c:107
 msgid "Lyrics not found"
 msgstr ""
 
-#: src/ol_main.c:158
+#: src/ol_main.c:123
 msgid "Searching lyrics"
 msgstr ""
 
-#: src/ol_main.c:299
+#: src/ol_main.c:215
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
@@ -50,13 +50,27 @@ msgstr "Qianqian"
 msgid "Sogou"
 msgstr "Sogou"
 
-#: src/ol_lrc_fetch_ui.c:122
+#: src/ol_lrc_candidate_list.c:25
 msgid "Title"
 msgstr "Название"
 
-#: src/ol_lrc_fetch_ui.c:127
+#: src/ol_lrc_candidate_list.c:30
 msgid "Artist"
 msgstr "Исполнитель"
+
+#: src/ol_search_dialog.c:11
+#, c-format
+msgid "Searching lyrics from %s..."
+msgstr ""
+
+#: src/ol_search_dialog.c:12
+msgid "Ooops, no lyric found :("
+msgstr ""
+
+#: src/ol_search_dialog.c:13
+#, c-format
+msgid "%d lyrics found :)"
+msgstr ""
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
@@ -216,13 +230,13 @@ msgstr "Система для поиска текстов:"
 msgid "Do_wnload the first candidate"
 msgstr ""
 
-#: data/dialogs.glade:970
+#: data/dialogs.glade:970 data/dialogs.glade:1218
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
 msgstr ""
 
-#: data/dialogs.glade:990 data/dialogs.glade:1232
+#: data/dialogs.glade:990 data/dialogs.glade:1233 data/dialogs.glade:1495
 msgid "_Download"
 msgstr "_Скачать"
 
@@ -245,8 +259,8 @@ msgstr "_Скрыть"
 
 #: data/dialogs.glade:1093
 #, fuzzy
-msgid "_Download lyric"
-msgstr "_Скачать"
+msgid "_Search lyric"
+msgstr "OSD Lyrics"
 
 #: data/dialogs.glade:1186
 msgid "Choose LRC file to download"
@@ -256,47 +270,70 @@ msgstr "Выберите LRC-файл для загрузки"
 msgid "D_on't ask me again"
 msgstr ""
 
-#: data/dialogs.glade:1279
+#: data/dialogs.glade:1280
 msgid "The title of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1280
+#: data/dialogs.glade:1281
 #, fuzzy
 msgid "%t - Title"
 msgstr "Название"
 
-#: data/dialogs.glade:1288
+#: data/dialogs.glade:1289
 msgid "The artist of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1289
+#: data/dialogs.glade:1290
 #, fuzzy
 msgid "%p - Artist"
 msgstr "Исполнитель"
 
-#: data/dialogs.glade:1297
+#: data/dialogs.glade:1298
 msgid "The title of album of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1298
+#: data/dialogs.glade:1299
 msgid "%a - Album"
 msgstr ""
 
-#: data/dialogs.glade:1306
+#: data/dialogs.glade:1307
 msgid "The number of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1307
+#: data/dialogs.glade:1308
 msgid "%n - Track number"
 msgstr ""
 
-#: data/dialogs.glade:1315
+#: data/dialogs.glade:1316
 msgid "The filename of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1316
+#: data/dialogs.glade:1317
 msgid "%f - Filename"
 msgstr ""
+
+#: data/dialogs.glade:1355
+#, fuzzy
+msgid "Search lyrics"
+msgstr "OSD Lyrics"
+
+#: data/dialogs.glade:1373
+#, fuzzy
+msgid "_Title:"
+msgstr "Название"
+
+#: data/dialogs.glade:1386
+#, fuzzy
+msgid "_Artist:"
+msgstr "Исполнитель"
+
+#: data/dialogs.glade:1422
+msgid "_Search"
+msgstr ""
+
+#, fuzzy
+#~ msgid "_Download lyric"
+#~ msgstr "_Скачать"
 
 #~ msgid "Customize"
 #~ msgstr "Личные предпочтения"

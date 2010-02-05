@@ -49,7 +49,7 @@ LrcInfo *ol_lrc_parser_get_lyric_by_id(LrcQueue *list,int lyric_id)
   return NULL;
 }
 
-char *ol_lrc_parser_load_lyric_source(char *lyric_source)
+char *ol_lrc_parser_load_lyric_source(const char *lyric_source)
 {
   ol_debugf ("%s:%s\n", __FUNCTION__, lyric_source);
   FILE *fp;
@@ -240,7 +240,7 @@ static int ol_lrc_parser_get_line_end_offset (char *str)
   return offset;
 }
 
-LrcQueue* ol_lrc_parser_get_lyric_info(char *lyric_source)
+LrcQueue* ol_lrc_parser_get_lyric_info(const char *lyric_source)
 {
   ol_log_func ();
   char *lyric_file = ol_lrc_parser_load_lyric_source(lyric_source);

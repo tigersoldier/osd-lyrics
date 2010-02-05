@@ -1,3 +1,17 @@
+2010-02-05  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_search_dialog.c: ADD: Lyric search dialog to enable changing the search conditions.
+
+	* src/ol_lrc_fetch_module.c (ol_lrc_fetch_begin_search): FIX: The search ID in callback is not the one returned.
+
+2010-02-04  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_candidate_list.c: Extract from ol_lrc_fetch_ui.c
+
+	* src/ol_lyric_manage.c: ADD: Lyric manage module
+
+	* src/ol_path_pattern.c (ol_path_pattern_for_each): REFACTORY: Extract from ol_main.c
+
 2010-02-03  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch_ui.c: ADD: Options that download the first candidate without prompting the user

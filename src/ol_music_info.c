@@ -28,10 +28,18 @@ internal_set_string (char **string,
     *string = g_strdup (val);
 }
 
+OlMusicInfo *
+ol_music_info_new ()
+{
+  OlMusicInfo *info = g_new (OlMusicInfo, 1);
+  ol_music_info_init (info);
+  return info;
+}
+
 void
 ol_music_info_init (OlMusicInfo *info)
 {
-  g_return_if_fail (info != NULL);
+  ol_assert (info != NULL);
   info->artist = NULL;
   info->title = NULL;
   info->album = NULL;

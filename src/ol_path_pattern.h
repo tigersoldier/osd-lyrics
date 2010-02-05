@@ -69,4 +69,25 @@ int ol_path_expand_path_pattern (const char *pattern,
  */
 gboolean ol_path_is_file (const char *filename);
 
+typedef gboolean (*OlPathFunc) (const char *filename,
+                                gpointer userdata);
+
+/** 
+ * @brief Invoke the given function on each lrc filename which fits the patterns and music info
+ * 
+ * @param path_patterns Array of path patterns, should be end with NULL
+ * @param name_patterns Array of filename patterns, should be end with NULL
+ * @param info The music
+ * @param func The function to invoke. If it returns FALSE, the iteration stops
+ * @param data 
+ * 
+ * @return TRUE if the func returns TRUE.
+ */
+gboolean ol_path_pattern_for_each (char **path_patterns,
+                                   char **name_patterns,
+                                   OlMusicInfo *info,
+                                   OlPathFunc func,
+                                   gpointer data);
+
+
 #endif /* _OL_PATH_PATTERN_H_ */

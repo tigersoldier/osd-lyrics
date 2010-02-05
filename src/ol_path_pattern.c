@@ -6,6 +6,7 @@
 #include "ol_debug.h"
 
 #define BUFFER_SIZE 1024
+#define MAX_PATH_LEN 1024
 
 /** 
  * @brief duplicates the string and replace all invalid characters to `_' 
@@ -278,5 +279,41 @@ ol_path_is_file (const char *filename)
   struct stat buf;
   ol_debugf ("  stat:%d mode:%d\n", stat (filename, &buf), (int)buf.st_mode);
   return stat (filename, &buf) == 0 && S_ISREG (buf.st_mode);
+}
+
+gboolean
+ol_path_pattern_for_each (char **path_patterns,
+                          char **name_patterns,
+                          OlMusicInfo *info,
+                          OlPathFunc func,
+                          gpointer data)
+{
+  ol_log_func ();
+  ol_assert_ret (path_patterns != NULL, FALSE);
+  ol_assert_ret (name_patterns != NULL, FALSE);
+  ol_assert_ret (info != NULL, FALSE);
+  ol_assert_ret (func != NULL, FALSE);
+  char file_name[MAX_PATH_LEN] = "";
+  int i, j;
+  for (i = 0; path_patterns[i]; i++)
+    for (j = 0; path_patterns[j]; j++)
+    {
+      ol_debugf ("  path:%s, name:%s\n", 
+                 path_patterns[i], 
+                 name_patterns[j]);
+      if ((ol_path_get_lrc_pathname (path_patterns[i],
+                                     name_patterns[j],
+                                     info,
+                                     file_name,
+                                     MAX_PATH_LEN)) != -1)
+      {
+        ol_debugf ("  %s\n", file_name);
+        if (func (file_name, data))
+        {
+          return TRUE;
+        }
+      } /* if */
+    } /* for j */
+  return FALSE;
 }
 

@@ -2,8 +2,11 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include "ol_lrc_fetch_module.h"
+#include "ol_test_util.h"
 
 #define CANDIDATE_COUNT 2
+
+int search_id = 0;
 
 static OlLrcCandidate*
 dummy_search (const OlMusicInfo *music_info,
@@ -57,6 +60,7 @@ dummy_search_callback (struct OlLrcFetchResult *result,
   printf ("Search Callback invoked\n");
   printf ("count: %d\n", result->count);
   printf ("userdata: %s\n", (char *) data);
+  ol_test_expect (search_id == result->id);
   int i = 0;
   for (i = 0; i < result->count; i++)
     print_candidate (result->candidates + i);
@@ -82,6 +86,6 @@ main (int argc, char **argv)
   ol_music_info_set_title (&info, "title");
   ol_music_info_set_artist (&info, "artist");
   ol_music_info_set_album (&info, "album");
-  ol_lrc_fetch_begin_search (&engine, &info, dummy_search_callback, "Callback User data");
+  search_id = ol_lrc_fetch_begin_search (&engine, &info, dummy_search_callback, "Callback User data");
   gtk_main ();
 }

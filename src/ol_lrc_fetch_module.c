@@ -183,7 +183,8 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine,
   struct OlLrcFetchResult *search_result = ol_lrc_fetch_result_new ();
   search_result->engine = _engine;
   ol_music_info_copy (&search_result->info, _music_info);
-  search_result->id = search_id++;
+  search_id++;
+  search_result->id = search_id;
   struct SearchData *data = g_new (struct SearchData, 1);
   data->result = search_result;
   data->callback = callback;
