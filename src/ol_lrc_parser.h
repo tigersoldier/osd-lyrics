@@ -9,26 +9,27 @@
 #define MAX_LINE 512
 #define MAX_LINE_LEN 255
 typedef struct _LrcInfo {
-	int lyric_time;
-	char lyric_text[MAX_LINE_LEN];
-    int lyric_id;
-	struct _LrcInfo *prev;
-	struct _LrcInfo *next;
+  int lyric_time;
+  char lyric_text[MAX_LINE_LEN];
+  int lyric_id;
+  struct _LrcInfo *prev;
+  struct _LrcInfo *next;
 } LrcInfo;
 
 typedef struct {
-	LrcInfo list[MAX_LINE];
-	int length;
-	int first;
-	int last;
-        int offset;
+  LrcInfo list[MAX_LINE];
+  int length;
+  int first;
+  int last;
+  int offset;
+  char *filename;
 } LrcQueue;
 /** 
  * Loads an Lrc file and returns its content
  * 
  * @param lyric_sourse A local file name
  * 
- * @return The content of the file, must use free() to destroy it
+ * @return The content of the file, must use ol_lrc_parser_free () to destroy it
  */
 
 LrcQueue* ol_lrc_parser_get_lyric_info(const char *lyric_source);
@@ -118,5 +119,24 @@ int ol_lrc_parser_get_lyric_offset(LrcQueue *list);
  * @param offset The offset of which should be ajusted 
  * @param lyric_source The Lrc filepath
  */
-void ol_lrc_parser_set_lyric_file_offset (char *lyric_source,int offset);
+void ol_lrc_parser_set_lyric_file_offset (const char *lyric_source,
+                                          int offset);
 #endif
+
+/** 
+ * @brief Frees an LrcQueue
+ * 
+ * @param list 
+ */
+void ol_lrc_parser_free (LrcQueue *list);
+
+/** 
+ * @brief Gets the filename for an LrcQueue
+ * 
+ * @param list 
+ * 
+ * @return The filename, or NULL if failed
+ *         The returned filename is owned by LrcQueue, so you
+ *         must neigther modify nor free it manually 
+ */
+const char *ol_lrc_parser_get_filename (LrcQueue *list);

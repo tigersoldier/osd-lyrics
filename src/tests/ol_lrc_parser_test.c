@@ -29,11 +29,21 @@ void lack_of_right_bracket ()
   LrcQueue *lrc = ol_lrc_parser_get_lyric_info ("lyric4.lrc");
 }
 
+void
+test_offset ()
+{
+  char *NO_OFFSET = "lyric_without_offset.lrc";
+  char *WITH_OFFSET = "lyric_with_offset.lrc";
+  ol_lrc_parser_set_lyric_file_offset (NO_OFFSET, 100);
+  ol_lrc_parser_set_lyric_file_offset (WITH_OFFSET, -100);
+}
+
 int main()
 {
-  test ();
-  offset_without_right_bracket ();
-  lack_of_right_bracket ();
+  /* test (); */
+  /* offset_without_right_bracket (); */
+  /* lack_of_right_bracket (); */
+  test_offset ();
   /* char test[100]= "mytest.lrc"; */
   /* ol_lrc_parser_set_lyric_file_offset (test, 102); */
   /* LrcQueue *list; */
