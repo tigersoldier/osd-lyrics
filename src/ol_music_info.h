@@ -1,5 +1,6 @@
 #ifndef _OL_MUSIC_INFO_H_
 #define _OL_MUSIC_INFO_H_
+#include <stdlib.h>
 
 /**
  * defines a music's infomation structure

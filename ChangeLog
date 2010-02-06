@@ -1,5 +1,7 @@
 2010-02-06  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_trayicon.c: CHANGE: Display infomation of the playing song in tooltip of tray icon
+
 	* src/ol_menu.c: ADD: Adjust lyric delay
 
 	* src/ol_lrc_parser.c (ol_lrc_parser_set_lyric_file_offset): FIX: Bug of setting offset of lyric file
