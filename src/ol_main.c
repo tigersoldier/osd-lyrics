@@ -58,7 +58,8 @@ static int fetch_id = 0;
 static void initialize (int argc, char **argv);
 static gint refresh_music_info (gpointer data);
 static void check_music_change (int time);
-static void on_music_changed ();
+static void on_music_changed (void);
+static check_lyric_file (void);
 /** 
  * @brief Handles SIG_CHILD for download child process
  * 
@@ -123,7 +124,13 @@ ol_app_download_lyric (OlMusicInfo *music_info)
     ol_osd_module_search_message (module, _("Searching lyrics"));
 }
 
-gboolean
+LrcQueue *
+ol_app_get_current_lyric ()
+{
+  return lrc_file;
+}
+
+static gboolean
 check_lyric_file ()
 {
   gboolean ret = TRUE;
@@ -131,7 +138,7 @@ check_lyric_file ()
   if (filename != NULL)
   {
     if (lrc_file != NULL)
-      free (lrc_file);
+      ol_lrc_parser_free (lrc_file);
     lrc_file = ol_lrc_parser_get_lyric_info (filename);
     ol_osd_module_set_lrc (module, lrc_file);
     ret = TRUE;

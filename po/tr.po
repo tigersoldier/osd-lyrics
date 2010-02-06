@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-02-05 01:27+0800\n"
+"POT-Creation-Date: 2010-02-06 18:59+0800\n"
 "PO-Revision-Date: 2009-12-30 10:02+0000\n"
 "Last-Translator: zeugma <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-01-04 14:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_main.c:78
+#: src/ol_main.c:79
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:94
+#: src/ol_main.c:95
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:107
+#: src/ol_main.c:108
 msgid "Lyrics not found"
 msgstr "Şarkı sözleri bulunamadı"
 
-#: src/ol_main.c:123
+#: src/ol_main.c:124
 msgid "Searching lyrics"
 msgstr ""
 
-#: src/ol_main.c:215
+#: src/ol_main.c:222
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
@@ -58,16 +58,16 @@ msgstr "Başlık"
 msgid "Artist"
 msgstr "Sanatçı"
 
-#: src/ol_search_dialog.c:11
+#: src/ol_search_dialog.c:12
 #, c-format
 msgid "Searching lyrics from %s..."
 msgstr ""
 
-#: src/ol_search_dialog.c:12
+#: src/ol_search_dialog.c:13
 msgid "Ooops, no lyric found :("
 msgstr ""
 
-#: src/ol_search_dialog.c:13
+#: src/ol_search_dialog.c:14
 #, fuzzy, c-format
 msgid "%d lyrics found :)"
 msgstr "Şarkı sözleri bulunamadı"
@@ -96,100 +96,100 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  zeugma https://launchpad.net/~sunder67"
 
-#: data/dialogs.glade:63
+#: data/dialogs.glade:69
 msgid "Preferences"
 msgstr "Tercihler"
 
-#: data/dialogs.glade:89
+#: data/dialogs.glade:95
 msgid "_Font:"
 msgstr "_Yazı tipi:"
 
-#: data/dialogs.glade:115
+#: data/dialogs.glade:121
 msgid "_Width:"
 msgstr "_Genişlik:"
 
-#: data/dialogs.glade:144
+#: data/dialogs.glade:150
 msgid "Lyric lines:"
 msgstr ""
 
-#: data/dialogs.glade:158
+#: data/dialogs.glade:164
 msgid "Si_ngle line"
 msgstr ""
 
-#: data/dialogs.glade:172
+#: data/dialogs.glade:178
 msgid "_Double lines"
 msgstr ""
 
-#: data/dialogs.glade:197
+#: data/dialogs.glade:203
 msgid "Out_line:"
 msgstr ""
 
-#: data/dialogs.glade:230
+#: data/dialogs.glade:236
 msgid "T_ranslucent on mouse over"
 msgstr ""
 
-#: data/dialogs.glade:262
+#: data/dialogs.glade:268
 msgid "F_irst line:"
 msgstr ""
 
-#: data/dialogs.glade:288
+#: data/dialogs.glade:294
 msgid "_Second line:"
 msgstr ""
 
-#: data/dialogs.glade:320
+#: data/dialogs.glade:326
 msgid "<b>Lyric _Alignment</b>"
 msgstr ""
 
-#: data/dialogs.glade:353
+#: data/dialogs.glade:359
 msgid "Color _Theme:"
 msgstr ""
 
-#: data/dialogs.glade:381
+#: data/dialogs.glade:387
 msgid "C_ustomize colors"
 msgstr ""
 
-#: data/dialogs.glade:410
+#: data/dialogs.glade:416
 msgid "Acti_ve lyrics:"
 msgstr ""
 
-#: data/dialogs.glade:430 data/dialogs.glade:500
+#: data/dialogs.glade:436 data/dialogs.glade:506
 msgid "top"
 msgstr ""
 
-#: data/dialogs.glade:440 data/dialogs.glade:527
+#: data/dialogs.glade:446 data/dialogs.glade:533
 msgid "middle"
 msgstr "orta"
 
-#: data/dialogs.glade:464 data/dialogs.glade:554
+#: data/dialogs.glade:470 data/dialogs.glade:560
 msgid "bottom"
 msgstr ""
 
-#: data/dialogs.glade:489
+#: data/dialogs.glade:495
 msgid "Inactiv_e lyrics:"
 msgstr ""
 
-#: data/dialogs.glade:590
+#: data/dialogs.glade:596
 msgid "<b>Lyric _Color</b>"
 msgstr ""
 
-#: data/dialogs.glade:624
+#: data/dialogs.glade:630
 msgid "<b>Preview</b>"
 msgstr "<b>Önizleme</b>"
 
-#: data/dialogs.glade:638
+#: data/dialogs.glade:644
 msgid "_OSD"
 msgstr ""
 
-#: data/dialogs.glade:750
+#: data/dialogs.glade:756
 msgid "A single \"%\" means the directory where the playing music is."
 msgstr ""
 
-#: data/dialogs.glade:764
+#: data/dialogs.glade:770
 #, fuzzy
 msgid "<b>_Path</b>"
 msgstr "<b>Önizleme</b>"
 
-#: data/dialogs.glade:813
+#: data/dialogs.glade:819
 msgid ""
 "  %t - Title\n"
 "  %p - Artist\n"
@@ -198,122 +198,147 @@ msgid ""
 "  %f - File name (without extension)"
 msgstr ""
 
-#: data/dialogs.glade:892
+#: data/dialogs.glade:898
 #, fuzzy
 msgid "<b>_Filename</b>"
 msgstr "<b>Önizleme</b>"
 
-#: data/dialogs.glade:911
+#: data/dialogs.glade:917
 #, fuzzy
 msgid "_Lyric Location"
 msgstr "Şarkı sözleri bulunamadı"
 
-#: data/dialogs.glade:929 data/dialogs.glade:944
+#: data/dialogs.glade:935 data/dialogs.glade:950
 msgid "Choose witch site you want to download from."
 msgstr ""
 
-#: data/dialogs.glade:932
+#: data/dialogs.glade:938
 msgid "Download _engine:"
 msgstr ""
 
-#: data/dialogs.glade:966
+#: data/dialogs.glade:972
 msgid "Do_wnload the first candidate"
 msgstr ""
 
-#: data/dialogs.glade:970 data/dialogs.glade:1218
+#: data/dialogs.glade:976 data/dialogs.glade:1254
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
 msgstr ""
 
-#: data/dialogs.glade:990 data/dialogs.glade:1233 data/dialogs.glade:1495
+#: data/dialogs.glade:996 data/dialogs.glade:1269 data/dialogs.glade:1562
 msgid "_Download"
 msgstr ""
 
-#: data/dialogs.glade:1076
+#: data/dialogs.glade:1082
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 
-#: data/dialogs.glade:1077
+#: data/dialogs.glade:1083
 msgid "_Lock Position"
 msgstr ""
 
-#: data/dialogs.glade:1085
+#: data/dialogs.glade:1091
 msgid "Hide the OSD Window"
 msgstr ""
 
-#: data/dialogs.glade:1086
+#: data/dialogs.glade:1092
 msgid "_Hide"
 msgstr ""
 
-#: data/dialogs.glade:1093
+#: data/dialogs.glade:1099
 msgid "_Search lyric"
 msgstr ""
 
-#: data/dialogs.glade:1186
+#: data/dialogs.glade:1115
+msgid "Adjust lyrics delay by -0.2 s"
+msgstr ""
+
+#: data/dialogs.glade:1116
+msgid "Lyric delay -"
+msgstr ""
+
+#: data/dialogs.glade:1124
+msgid "Adjust lyric delay by +0.2 s"
+msgstr ""
+
+#: data/dialogs.glade:1125
+msgid "Lyric delay +"
+msgstr ""
+
+#: data/dialogs.glade:1133
+msgid "_Player control"
+msgstr ""
+
+#: data/dialogs.glade:1222
 msgid "Choose LRC file to download"
 msgstr ""
 
-#: data/dialogs.glade:1214
+#: data/dialogs.glade:1250
 msgid "D_on't ask me again"
 msgstr ""
 
-#: data/dialogs.glade:1280
+#: data/dialogs.glade:1316
 msgid "The title of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1281
+#: data/dialogs.glade:1317
 #, fuzzy
 msgid "%t - Title"
 msgstr "Başlık"
 
-#: data/dialogs.glade:1289
+#: data/dialogs.glade:1325
 msgid "The artist of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1290
+#: data/dialogs.glade:1326
 #, fuzzy
 msgid "%p - Artist"
 msgstr "Sanatçı"
 
-#: data/dialogs.glade:1298
+#: data/dialogs.glade:1334
 msgid "The title of album of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1299
+#: data/dialogs.glade:1335
 msgid "%a - Album"
 msgstr ""
 
-#: data/dialogs.glade:1307
+#: data/dialogs.glade:1343
 msgid "The number of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1308
+#: data/dialogs.glade:1344
 msgid "%n - Track number"
 msgstr ""
 
-#: data/dialogs.glade:1316
+#: data/dialogs.glade:1352
 msgid "The filename of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1317
+#: data/dialogs.glade:1353
 msgid "%f - Filename"
 msgstr ""
 
-#: data/dialogs.glade:1355
+#: data/dialogs.glade:1391
 msgid "Search lyrics"
 msgstr ""
 
-#: data/dialogs.glade:1373
+#: data/dialogs.glade:1409
 #, fuzzy
 msgid "_Title:"
 msgstr "Başlık"
 
-#: data/dialogs.glade:1386
+#: data/dialogs.glade:1422
 #, fuzzy
 msgid "_Artist:"
 msgstr "Sanatçı"
 
-#: data/dialogs.glade:1422
+#: data/dialogs.glade:1458
 msgid "_Search"
 msgstr ""
+
+#: data/dialogs.glade:1478
+#, fuzzy
+msgid "_From:"
+msgstr "_Yazı tipi:"

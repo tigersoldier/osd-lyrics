@@ -1110,53 +1110,83 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-play">
-        <property name="label">gtk-media-play</property>
+      <object class="GtkMenuItem" id="menu-advance-lrc">
         <property name="visible">True</property>
+        <property name="tooltip_text" translatable="yes">Adjust lyrics delay by -0.2 s</property>
+        <property name="label" translatable="yes">Lyric delay -</property>
         <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <property name="accel_group">accelgroup1</property>
-        <signal name="activate" handler="ol_menu_play"/>
+        <signal name="activate" handler="ol_menu_advance_lrc"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-pause">
-        <property name="label">gtk-media-pause</property>
+      <object class="GtkMenuItem" id="menu-delay-lrc">
         <property name="visible">True</property>
+        <property name="tooltip_text" translatable="yes">Adjust lyric delay by +0.2 s</property>
+        <property name="label" translatable="yes">Lyric delay +</property>
         <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <property name="accel_group">accelgroup1</property>
-        <signal name="activate" handler="ol_menu_pause"/>
+        <signal name="activate" handler="ol_menu_delay_lrc"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-stop">
-        <property name="label">gtk-media-stop</property>
+      <object class="GtkMenuItem" id="menuitem2">
         <property name="visible">True</property>
+        <property name="label" translatable="yes">_Player control</property>
         <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <property name="accel_group">accelgroup1</property>
-        <signal name="activate" handler="ol_menu_stop"/>
-      </object>
-    </child>
-    <child>
-      <object class="GtkImageMenuItem" id="menu-prev">
-        <property name="label">gtk-media-previous</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <property name="accel_group">accelgroup1</property>
-        <signal name="activate" handler="ol_menu_prev"/>
-      </object>
-    </child>
-    <child>
-      <object class="GtkImageMenuItem" id="menu-next">
-        <property name="label">gtk-media-next</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <property name="accel_group">accelgroup1</property>
-        <signal name="activate" handler="ol_menu_next"/>
+        <child type="submenu">
+          <object class="GtkMenu" id="menu1">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkImageMenuItem" id="menu-play">
+                <property name="label">gtk-media-play</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+                <property name="accel_group">accelgroup1</property>
+                <signal name="activate" handler="ol_menu_play"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="menu-pause">
+                <property name="label">gtk-media-pause</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+                <property name="accel_group">accelgroup1</property>
+                <signal name="activate" handler="ol_menu_pause"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="menu-stop">
+                <property name="label">gtk-media-stop</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+                <property name="accel_group">accelgroup1</property>
+                <signal name="activate" handler="ol_menu_stop"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="menu-prev">
+                <property name="label">gtk-media-previous</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+                <property name="accel_group">accelgroup1</property>
+                <signal name="activate" handler="ol_menu_prev"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="menu-next">
+                <property name="label">gtk-media-next</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+                <property name="accel_group">accelgroup1</property>
+                <signal name="activate" handler="ol_menu_next"/>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
     <child>

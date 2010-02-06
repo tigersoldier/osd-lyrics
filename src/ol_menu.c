@@ -18,6 +18,7 @@
 #include "ol_app.h"
 #include "ol_gui.h"
 #include "ol_search_dialog.h"
+#include "ol_lrc_parser.h"
 #include "ol_debug.h"
 
 static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
@@ -56,6 +57,36 @@ void ol_menu_stop (GtkWidget *widget, gpointer data);
 void ol_menu_prev (GtkWidget *widget, gpointer data);
 void ol_menu_next (GtkWidget *widget, gpointer data);
 void ol_menu_download (GtkWidget *widget, gpointer data);
+void ol_menu_advance_lrc (GtkWidget *widget, gpointer data);
+void ol_menu_delay_lrc (GtkWidget *widget, gpointer data);
+static void internal_adjust_lyric_offset (int offset_ms);
+
+static void
+internal_adjust_lyric_offset (int offset_ms)
+{
+  LrcQueue *lrc = ol_app_get_current_lyric ();
+  if (lrc == NULL)
+    return;
+  int old_offset = ol_lrc_parser_get_lyric_offset (lrc);
+  ol_lrc_parser_set_lyric_offset (lrc, old_offset + offset_ms);
+  const char *file = ol_lrc_parser_get_filename (lrc);
+  ol_debugf ("filename: %s\n", file);
+  if (file != NULL)
+    ol_lrc_parser_set_lyric_file_offset (file,
+                                         old_offset + offset_ms);
+}
+
+void
+ol_menu_advance_lrc (GtkWidget *widget, gpointer data)
+{
+  internal_adjust_lyric_offset (-200);
+}
+
+void
+ol_menu_delay_lrc (GtkWidget *widget, gpointer data)
+{
+  internal_adjust_lyric_offset (200);
+}
 
 void
 ol_menu_download (GtkWidget *widget, gpointer data)
