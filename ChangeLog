@@ -1,5 +1,7 @@
 2010-02-08  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_player_amarok1.c: FIX: issue 53, compile fail on amarok1
+
 	* src/ol_notify.c: ADD: Notification of music info
 
 	* src/ol_main.c: ADD: Launch prefered player if not available player is running

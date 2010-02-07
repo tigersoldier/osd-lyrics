@@ -4,6 +4,7 @@
 #include <glib.h>
 #include "ol_player_amarok1.h"
 #include "ol_utils_dcop.h"
+#include "ol_debug.h"
 
 static const char TITLE_CMD[] = "title";
 static const char ARTIST_CMD[] = "artist";
@@ -98,6 +99,12 @@ ol_player_amarok1_get_music_info (OlMusicInfo *info)
     return FALSE;
   if (!ol_player_amarok1_get_uint (TRACK_CMD, &info->track_number))
     return FALSE;
+  ol_debugf ("  title: %s\n"
+             "  artist: %s\n"
+             "  album: %s\n",
+             ol_music_info_get_title (info),
+             ol_music_info_get_artist (info),
+             ol_music_info_get_album (info));
   return TRUE;
 }
 
@@ -142,7 +149,7 @@ ol_player_amarok1_get_controller ()
   printf ("%s\n",
           __FUNCTION__);
   OlPlayerController *controller = ol_player_new ("Amarok 1.4");
-  ol_player_set_cmd ("amarok");
+  ol_player_set_cmd (controller, "amarok");
   controller->get_music_info = ol_player_amarok1_get_music_info;
   controller->get_activated = ol_player_amarok1_get_activated;
   controller->get_played_time = ol_player_amarok1_get_played_time;
