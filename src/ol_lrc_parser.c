@@ -383,9 +383,9 @@ void ol_lrc_parser_set_lyric_file_offset (const char *lyric_source,
 
   strncpy (after_offset_lyric, &lyric_file[after_offset], after_length);
   after_offset_lyric[after_length] = '\0';
-  ol_debugf ("after_offset:%d\n", after_offset);
-  ol_debugf ("after_offset_lyric:%s\n", after_offset_lyric);
-  ol_debugf ("after_length:%d\n", strlen(after_offset_lyric));
+  /* ol_debugf ("after_offset:%d\n", after_offset); */
+  /* ol_debugf ("after_offset_lyric:%s\n", after_offset_lyric); */
+  /* ol_debugf ("after_length:%d\n", strlen(after_offset_lyric)); */
 
   snprintf(offset_lyric, offset_length+1, OFFSET_FORMAT, offset);
   /* ol_debugf ("offset_lyric:%s\n", offset_lyric); */
@@ -403,7 +403,7 @@ void ol_lrc_parser_set_lyric_file_offset (const char *lyric_source,
   FILE *fp;
   if((fp=fopen(lyric_source,"w"))==NULL)
   {
-    printf("cannot open file!\n");
+    ol_error ("cannot open file!");
   }
   else
   {

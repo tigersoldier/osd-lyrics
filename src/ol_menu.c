@@ -68,12 +68,13 @@ internal_adjust_lyric_offset (int offset_ms)
   if (lrc == NULL)
     return;
   int old_offset = ol_lrc_parser_get_lyric_offset (lrc);
-  ol_lrc_parser_set_lyric_offset (lrc, old_offset + offset_ms);
+  int new_offset = old_offset - offset_ms;
+  ol_lrc_parser_set_lyric_offset (lrc, new_offset);
   const char *file = ol_lrc_parser_get_filename (lrc);
   ol_debugf ("filename: %s\n", file);
   if (file != NULL)
     ol_lrc_parser_set_lyric_file_offset (file,
-                                         old_offset + offset_ms);
+                                         new_offset);
 }
 
 void

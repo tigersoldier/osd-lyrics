@@ -1,5 +1,7 @@
 2010-02-07  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_menu.c (internal_adjust_lyric_offset): Change the effect of advance and delay lyric
+
 	* src/ol_player_quodlibet.c: ADD: Quod libet support
 
 2010-02-06  Tiger Soldier  <tigersoldi@gmail.com>
