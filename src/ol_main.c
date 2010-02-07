@@ -39,6 +39,7 @@
 #include "ol_lyric_manage.h"
 #include "ol_stock.h"
 #include "ol_app.h"
+#include "ol_notify.h"
 #include "ol_debug.h"
 
 #define REFRESH_INTERVAL 100
@@ -163,6 +164,9 @@ on_music_changed ()
   ol_osd_module_set_lrc (module, NULL);
   if (!check_lyric_file ())
     ol_app_download_lyric (&music_info);
+  OlConfig *config = ol_config_get_instance ();
+  if (ol_config_get_bool (config, "General", "notify-music"))
+    ol_notify_music_change (&music_info);
 }
 
 static void
@@ -279,6 +283,7 @@ void initialize (int argc, char **argv)
   module = ol_osd_module_new ();
   ol_stock_init ();
   ol_trayicon_inital ();
+  ol_notify_init ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
   ol_lrc_fetch_add_async_download_callback ((GSourceFunc) internal_download_callback);
@@ -303,6 +308,7 @@ main (int argc, char **argv)
   initialize (argc, argv);
   gtk_main ();
   ol_player_unload ();
+  ol_notify_unload ();
   ol_osd_module_destroy (module);
   module = NULL;
   ol_trayicon_free ();

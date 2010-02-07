@@ -8,7 +8,8 @@ INCLUDES = \
 	@DBUS_GLIB_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	@MPD_CFLAGS@ \
-	@XMMS2_CFLAGS@
+	@XMMS2_CFLAGS@ \
+	@NOTIFY_CFLAGS@
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
@@ -66,7 +67,8 @@ osd_lyrics_SOURCES = \
 	ol_cell_renderer_button.c \
 	ol_fork.c \
 	ol_marshal.c \
-	ol_stock.c
+	ol_stock.c \
+	ol_notify.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 osd_lyrics_LDADD = \
@@ -74,7 +76,8 @@ osd_lyrics_LDADD = \
 	@DBUS_GLIB_LIBS@ \
 	@CURL_LIBS@ \
 	@MPD_LIBS@ \
-	@XMMS2_LIBS@
+	@XMMS2_LIBS@ \
+	@NOTIFY_LIBS@
 osd_lyrics_LDFLAGS = -L$(top_srcdir)/src/
 
 # Librarys

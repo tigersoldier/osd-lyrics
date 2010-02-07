@@ -29,6 +29,7 @@ struct CheckButtonOptions
 static struct CheckButtonOptions check_button_options[] = {
   {"download-first-lyric", "download-first-lyric", "Download"},
   {"translucent-on-mouse-over", "translucent-on-mouse-over", "OSD"},
+  {"notify-music", "notify-music", "General"},
 };
 
 static struct _OptionWidgets

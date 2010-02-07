@@ -1,5 +1,7 @@
 2010-02-08  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_notify.c: ADD: Notification of music info
+
 	* src/ol_main.c: ADD: Launch prefered player if not available player is running
 
 2010-02-07  Tiger Soldier  <tigersoldi@gmail.com>

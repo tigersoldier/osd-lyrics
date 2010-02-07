@@ -10,10 +10,10 @@ static GtkStatusIcon *status_icon = NULL;
 
 static const char *UNKNOWN_TITLE = N_("Unknown title");
 static const char *UNKNOWN_ARTIST = N_("Unknown artist");
-static const char *INFO_FORMAT = N_("<big><b>%s</b></big>\n"
-                                    "  %s");
-static const char *INFO_FORMAT_ALBUM = N_("<big><b>%s</b></big>\n"
-                                          "  %s - <i>%s</i>");
+static const char *INFO_FORMAT = "<big><b>%s</b></big>\n"
+                                 "  %s";
+static const char *INFO_FORMAT_ALBUM = "<big><b>%s</b></big>\n"
+                                       "  %s - <i>%s</i>";
 
 static void
 activate (GtkStatusIcon* status_icon,

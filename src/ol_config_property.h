@@ -39,6 +39,7 @@ enum {
 #endif
   PROP_DOWNLOAD_FIRST_LYRIC,
   PROP_STARTUP_PLAYER,
+  PROP_NOTIFY_MUSIC,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -178,6 +179,9 @@ static const OlConfigBoolValue config_bool[] = {
    "Download the first lyric candidate", 
    "If there are more than one lyrics matched, download the first one automately",
    FALSE},
+  {PROP_NOTIFY_MUSIC, "notify-music", "General",
+   "Notify Music", "Display music notification",
+   TRUE},
 };
 
 static const OlConfigIntValue config_int[] = {
