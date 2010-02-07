@@ -270,7 +270,8 @@ OlPlayerController*
 ol_player_moc_get_controller ()
 {
   ol_log_func ();
-  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
+  OlPlayerController *controller = ol_player_new ("MOC");
+  ol_player_set_cmd (controller, "mocp -S");
   controller->get_music_info = ol_player_moc_get_music_info;
   controller->get_activated = ol_player_moc_get_activated;
   controller->get_played_time = ol_player_moc_get_played_time;

@@ -11,6 +11,8 @@
 #include "ol_debug.h"
 #include "ol_cell_renderer_button.h"
 #include "ol_lrc_engine_list.h"
+#include "ol_player.h"
+#include "ol_utils.h"
 
 #define BUFFER_SIZE 1024
 
@@ -49,6 +51,8 @@ static struct _OptionWidgets
   GtkWidget *lrc_filename_sample;
   GtkWidget *path_chooser;
   GtkWidget *filename_menu;
+  GtkWidget *startup_player;
+  GtkWidget *startup_player_cb;
 } options;
 
 static struct ListExtraWidgets
@@ -92,6 +96,8 @@ void ol_option_menu_number_activate (GtkMenuItem *menuitem,
                                     gpointer user_data);
 void ol_option_menu_filename_activate (GtkMenuItem *menuitem,
                                     gpointer user_data);
+void ol_option_startup_player_changed (GtkComboBox *cb,
+                                       gpointer user_data);
 static void ol_option_list_add_clicked (GtkButton *button,
                                         struct ListExtraWidgets *widgets);
 static void ol_option_list_remove_clicked (GtkButton *button,
@@ -118,6 +124,7 @@ static void list_browse_clicked (GtkCellRenderer *cell,
 static void list_pattern_clicked (GtkCellRenderer *cell,
                                   gchar *path,
                                   GtkTreeView *view);
+static void init_startup_player (GtkWidget *widget);
 
 /** 
  * @brief Get font family and font size from a GtkFontButton
@@ -140,6 +147,27 @@ static void load_check_button_options ();
 static void save_check_button_options ();
 static void init_list (struct ListExtraWidgets *widgets,
                        struct ListExtraButton *buttons);
+
+void
+ol_option_startup_player_changed (GtkComboBox *cb,
+                                  gpointer user_data)
+{
+  if (options.startup_player == NULL)
+    return;
+  GtkEntry *entry = GTK_ENTRY (options.startup_player);
+  int index = gtk_combo_box_get_active (cb);
+  if (index == 0)
+  {
+    gtk_entry_set_text (entry, "");
+  }
+  else
+  {
+    OlPlayerController ** players = ol_player_get_controllers ();
+    if (players[index - 1] != NULL)
+      gtk_entry_set_text (entry,
+                          ol_player_get_cmd (players[index - 1]));
+  }
+}
 
 void
 ol_option_about_clicked (GtkWidget *widget, gpointer data)
@@ -741,6 +769,14 @@ save_general ()
       g_strfreev (list);
     }
   }
+  /* Startup player */
+  if (options.startup_player != NULL)
+  {
+    ol_config_set_string (config,
+                          "General",
+                          "startup-player",
+                          gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
+  }
 }
 
 static void
@@ -768,6 +804,7 @@ static void
 load_general ()
 {
   OlConfig *config = ol_config_get_instance ();
+  int i;
   if (options.lrc_path != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
@@ -794,6 +831,45 @@ load_general ()
       g_strfreev (list);
     }
   }
+  /* Startup player */
+  char *player_cmd = ol_config_get_string (config,
+                                           "General",
+                                           "startup-player");
+   gboolean startup_custom = TRUE;
+   if (options.startup_player_cb != NULL)
+   {
+     GtkComboBox *cb = GTK_COMBO_BOX (options.startup_player_cb);
+     if (ol_is_string_empty (player_cmd))
+     {
+       gtk_combo_box_set_active (cb, 0);
+       startup_custom = FALSE;
+     }
+     else
+     {
+       OlPlayerController **players = ol_player_get_controllers ();
+       for (i = 0; players[i] != NULL; i++)
+       {
+         if (strcmp (player_cmd, ol_player_get_cmd (players[i])) == 0)
+         {
+           gtk_combo_box_set_active (cb, i + 1);
+          startup_custom = FALSE;
+          break;
+        }
+      }
+    }
+    if (startup_custom)
+    {
+      gtk_combo_box_set_active (cb, i + 1);
+    }
+  }
+  if (options.startup_player != NULL)
+  {
+    gtk_widget_set_sensitive (options.startup_player,
+                              startup_custom);
+    gtk_entry_set_text (GTK_ENTRY (options.startup_player),
+                        player_cmd);
+  }
+  g_free (player_cmd);
 }
 
 void
@@ -1016,6 +1092,23 @@ ol_option_menu_filename_activate (GtkMenuItem *menuitem,
   insert_to_filename ("%f");
 }
 
+static void
+init_startup_player (GtkWidget *widget)
+{
+  GtkComboBox *cb = GTK_COMBO_BOX (widget);
+  if (cb == NULL)
+    return;
+  gtk_combo_box_append_text (cb, _("None"));
+  OlPlayerController **players = ol_player_get_controllers ();
+  int i = 0;
+  for (i = 0; players[i] != NULL; i++)
+  {
+    gtk_combo_box_append_text (cb,
+                               ol_player_get_name (players[i]));
+  }
+  gtk_combo_box_append_text (cb, _("Customize"));
+}
+
 void
 ol_option_show ()
 {
@@ -1049,6 +1142,9 @@ ol_option_show ()
     options.lrc_filename = ol_gui_get_widget ("lrc-filename");
     options.lrc_filename_text = ol_gui_get_widget ("lrc-filename-text");
     options.lrc_filename_sample = ol_gui_get_widget ("lrc-filename-sample");
+    options.startup_player = ol_gui_get_widget ("startup-player");
+    options.startup_player_cb = ol_gui_get_widget ("startup-player-cb");
+    init_startup_player (options.startup_player_cb);
     /* Init download engine combobox */
     ol_lrc_engine_list_init (options.download_engine);
     lrc_path_widgets.entry = options.lrc_path_text;

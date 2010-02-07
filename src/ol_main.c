@@ -43,6 +43,7 @@
 
 #define REFRESH_INTERVAL 100
 
+static gboolean first_run = TRUE;
 static guint refresh_source = 0;
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
@@ -219,10 +220,30 @@ refresh_music_info (gpointer data)
     controller = ol_player_get_active_player ();
     if (controller == NULL)
     {
-      printf (_("No supported player is running, exit.\n"));
-      gtk_main_quit ();
+      gboolean ignore = FALSE;
+      if (first_run)
+      {
+        OlConfig *config = ol_config_get_instance ();
+        char *player_cmd = ol_config_get_string (config,
+                                                 "General",
+                                                 "startup-player");
+        if (!ol_is_string_empty (player_cmd))
+        {
+          ignore = TRUE;
+          ol_debugf ("Running %s\n", player_cmd);
+          g_spawn_command_line_async (player_cmd, NULL);
+          sleep (5);
+        }
+        g_free (player_cmd);
+      }
+      if (!ignore)
+      {
+        printf (_("No supported player is running, exit.\n"));
+        gtk_main_quit ();
+      }
     }
   }
+  first_run = FALSE;
   guint time = 0;
   if (controller && !ol_player_get_played_time (controller, &time))
   {
@@ -281,7 +302,7 @@ main (int argc, char **argv)
 {
   initialize (argc, argv);
   gtk_main ();
-  ol_player_free ();
+  ol_player_unload ();
   ol_osd_module_destroy (module);
   module = NULL;
   ol_trayicon_free ();

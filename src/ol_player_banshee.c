@@ -309,7 +309,8 @@ ol_player_banshee_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
+  OlPlayerController *controller = ol_player_new ("Banshee");
+  ol_player_set_cmd (controller, "banshee");
   controller->get_music_info = ol_player_banshee_get_music_info;
   controller->get_activated = ol_player_banshee_get_activated;
   controller->get_played_time = ol_player_banshee_get_played_time;

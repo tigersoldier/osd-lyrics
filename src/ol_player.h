@@ -27,6 +27,8 @@ enum OlPlayerCapacity {
 
 typedef struct
 {
+  const char * name;
+  const char * cmdline;
   gboolean (*get_music_info) (OlMusicInfo *info);
   gboolean (*get_activated) ();
   gboolean (*get_played_time) (int *played_time);
@@ -43,12 +45,75 @@ typedef struct
 } OlPlayerController;
 
 /** 
- * @brief Registers a player controller
- * A player controller should be registered so that we can get information from this player.
- * @param controller The player controller to be registered
- * @param name The name of the player
+ * @brief Gets all registered players
+ * 
+ * @return Array of players, end with NULL. You should free it with g_free.
  */
-void ol_player_register_controller (OlPlayerController *controller, const gchar *name);
+OlPlayerController **ol_player_get_controllers ();
+
+/** 
+ * Create a new player controller with given name
+ *
+ * You can use ol_player_register_controller to register the created
+ * controller into the system
+ * 
+ * @param name The name of controller, must not be NULL.
+ *             The controller will take ownership of the string.
+ * 
+ * @return The new controller, or NULL if failed. The created
+ *         controller should be freed with ol_player_free
+ */
+OlPlayerController *ol_player_new (const char *name);
+
+/** 
+ * @brief Free the player_controller
+ *
+ * If you have set the cmd of the player, you need to set cmd as NULL,
+ * and free the returned string manually.
+ * 
+ * @param player 
+ */
+void ol_player_free (OlPlayerController *player);
+
+
+/** 
+ * @brief Gets the name of player
+ * 
+ * @param player 
+ * 
+ * @return The returned string is owned by player and should not be freed.
+ */
+const char *ol_player_get_name (OlPlayerController *player);
+
+/** 
+ * @brief Sets the command to launch the player.
+ * 
+ * @param player 
+ * @param cmd The launch command. The controller will take ownership
+ *            of it.
+ * @return The old command string of player.
+ */
+const char *ol_player_set_cmd (OlPlayerController *player,
+                                          const char *cmd);
+
+/** 
+ * @brief Gets the command to launch the player
+ * 
+ * @param player 
+ * 
+ * @return The returned string is owned by the player and should not
+ *         be freed
+ */
+const char *ol_player_get_cmd (OlPlayerController *player);
+
+/** 
+ * @brief Registers a player controller
+ *
+ * A player controller should be registered so that we can get
+ * information from this player.
+ * @param controller The player controller to be registered
+ */
+void ol_player_register_controller (OlPlayerController *controller);
 
 /** 
  * @brief Gets the controller of the player available
@@ -67,7 +132,7 @@ void ol_player_init ();
  * @brief Frees all the player controllers
  * This should be called after the the program exits
  */
-void ol_player_free ();
+void ol_player_unload ();
 
 /** 
  * @brief Gets the infomation of the current music

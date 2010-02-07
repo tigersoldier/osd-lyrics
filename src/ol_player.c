@@ -30,34 +30,47 @@ ol_player_init ()
   {
     controllers = g_array_new (FALSE, TRUE, sizeof (OlPlayerController*));
 #ifdef ENABLE_AMAROK1
-    ol_player_register_controller (ol_player_amarok1_get_controller (), "AmarOK 1.4");
+    ol_player_register_controller (ol_player_amarok1_get_controller ());
 #endif
-    ol_player_register_controller (ol_player_amarok2_get_controller (), "AmarOK 2.x");
-    ol_player_register_controller (ol_player_banshee_get_controller (), "Banshee");
-    ol_player_register_controller (ol_player_exaile02_get_controller (), "Exaile 0.2");
-    ol_player_register_controller (ol_player_exaile03_get_controller (), "Exaile 0.3");
-    ol_player_register_controller (ol_player_audacious_get_controller (), "Audacious");
-    ol_player_register_controller (ol_player_songbird_get_controller (), "Songbird"); 
+    ol_player_register_controller (ol_player_amarok2_get_controller ());
+    ol_player_register_controller (ol_player_banshee_get_controller ());
+    ol_player_register_controller (ol_player_exaile02_get_controller ());
+    ol_player_register_controller (ol_player_exaile03_get_controller ());
+    ol_player_register_controller (ol_player_audacious_get_controller ());
+    ol_player_register_controller (ol_player_songbird_get_controller ()); 
 #ifdef ENABLE_XMMS2
-    ol_player_register_controller (ol_player_xmms2_get_controller (), "XMMS2");
+    ol_player_register_controller (ol_player_xmms2_get_controller ());
 #endif  /* ENABLE_XMMS2 */
-    ol_player_register_controller (ol_player_rhythmbox_get_controller (), "Rhythmbox");
+    ol_player_register_controller (ol_player_rhythmbox_get_controller ());
 #ifdef ENABLE_MPD
-    ol_player_register_controller (ol_player_mpd_get_controller (), "MPD");
+    ol_player_register_controller (ol_player_mpd_get_controller ());
 #endif  /* ENABLE_MPD */
-    ol_player_register_controller (ol_player_moc_get_controller (), "MOC");
-    ol_player_register_controller (ol_player_quodlibet_get_controller (), "Quod Libet");
-  }  
+    ol_player_register_controller (ol_player_moc_get_controller ());
+    ol_player_register_controller (ol_player_quodlibet_get_controller ());
+  }
 }
 
 void
-ol_player_free ()
+ol_player_unload ()
 {
   if (controllers != NULL)
   {
     g_array_free (controllers, TRUE);
     controllers = NULL;
   }
+}
+
+OlPlayerController **
+ol_player_get_controllers ()
+{
+  OlPlayerController **players = g_new0 (OlPlayerController *,
+                                         controllers->len + 1);
+  int i;
+  for (i = 0; i < controllers->len; i++)
+  {
+    players[i] = g_array_index (controllers, OlPlayerController*, i);
+  }
+  return players;
 }
 
 OlPlayerController*
@@ -83,10 +96,10 @@ ol_player_get_active_player ()
 }
 
 void
-ol_player_register_controller (OlPlayerController *controller, const gchar *name)
+ol_player_register_controller (OlPlayerController *controller)
 {
-  if (controllers == NULL)
-    return;
+  ol_assert (controller != NULL);
+  ol_assert (ol_player_get_name (controller) != NULL);
   /* controller->get_activated (); */
   g_array_append_val (controllers, controller);
 }
@@ -225,4 +238,46 @@ ol_player_play_pause (OlPlayerController *player)
   default:
     return FALSE;
   }
+}
+
+OlPlayerController *
+ol_player_new (const char *name)
+{
+  ol_assert_ret (name != NULL, NULL);
+  OlPlayerController *player = g_new0 (OlPlayerController, 1);
+  player->name = name;
+  return player;
+}
+
+void
+ol_player_free (OlPlayerController *player)
+{
+  ol_assert (player != NULL);
+  if (player->cmdline != NULL)
+    ol_error ("cmdline is not NULL, this may cause memory leak");
+  g_free (player);
+}
+
+const char *
+ol_player_set_cmd (OlPlayerController *player,
+                              const char *cmd)
+{
+  ol_assert_ret (player != NULL, NULL);
+  const char *old_cmd = player->cmdline;
+  player->cmdline = cmd;
+  return old_cmd;
+}
+
+const char *
+ol_player_get_cmd (OlPlayerController *player)
+{
+  ol_assert_ret (player != NULL, NULL);
+  return player->cmdline;
+}
+
+const char *
+ol_player_get_name (OlPlayerController *player)
+{
+  ol_assert_ret (player != NULL, NULL);
+  return player->name;
 }

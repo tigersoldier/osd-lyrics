@@ -1,6 +1,12 @@
+2010-02-08  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: ADD: Launch prefered player if not available player is running
+
 2010-02-07  Tiger Soldier  <tigersoldi@gmail.com>
 
-	* src/ol_menu.c (internal_adjust_lyric_offset): Change the effect of advance and delay lyric
+	* src/ol_search_dialog.c (ol_search_dialog_download_click): CHANGE: Do not hide search dialog after download clicked
+
+	* src/ol_menu.c (internal_adjust_lyric_offset): CHANGE: Exchange the effect of advance and delay lyric
 
 	* src/ol_player_quodlibet.c: ADD: Quod libet support
 

@@ -64,7 +64,6 @@ ol_search_dialog_download_click (GtkWidget *widget,
     g_free (filename);
   }
   ol_lrc_candidate_free (candidate);
-  gtk_widget_hide (widgets.window);
 }
 
 gboolean

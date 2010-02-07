@@ -374,7 +374,8 @@ ol_player_rhythmbox_get_controller ()
 {
   ol_log_func ();
   ol_elapse_emulator_init (&elapse, 0, 1000);
-  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
+  OlPlayerController *controller = ol_player_new ("Rhythmbox");
+  ol_player_set_cmd (controller, "rhythmbox");
   controller->get_music_info = ol_player_rhythmbox_get_music_info;
   controller->get_activated = ol_player_rhythmbox_get_activated;
   controller->get_played_time = ol_player_rhythmbox_get_played_time;

@@ -64,6 +64,12 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="liststore4">
+    <columns>
+      <!-- column-name item -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkDialog" id="optiondialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences</property>
@@ -78,6 +84,99 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
           <object class="GtkNotebook" id="notebook1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <child>
+              <object class="GtkVBox" id="vbox5">
+                <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkHBox" id="hbox9">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label24">
+                        <property name="visible">True</property>
+                        <property name="tooltip_text" translatable="yes">If no player detected, launch the given player</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Auto la_unch player:</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">startup-player-cb</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="startup-player-cb">
+                        <property name="visible">True</property>
+                        <property name="tooltip_text" translatable="yes">If no player detected, launch the given player</property>
+                        <property name="model">liststore4</property>
+                        <signal name="changed" handler="ol_option_startup_player_changed"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox10">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label25">
+                        <property name="visible">True</property>
+                        <property name="tooltip_text" translatable="yes">The command of player to launch</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Pla_yer command:</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">startup-player</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="startup-player">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="tooltip_text" translatable="yes">The command of player to launch</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label23">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_General</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
             <child>
               <object class="GtkVBox" id="vbox1">
                 <property name="visible">True</property>
@@ -637,6 +736,9 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </packing>
                 </child>
               </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
             </child>
             <child type="tab">
               <object class="GtkLabel" id="label1">
@@ -645,6 +747,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
+                <property name="position">1</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -908,7 +1011,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 </child>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child type="tab">
@@ -918,7 +1021,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="position">2</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -987,7 +1090,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 </child>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child type="tab">
@@ -997,7 +1100,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -1110,21 +1213,21 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkMenuItem" id="menu-advance-lrc">
+      <object class="GtkImageMenuItem" id="menu-advance-lrc">
+        <property name="label" translatable="yes">Lyric delay -</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Adjust lyrics delay by -0.2 s</property>
-        <property name="label" translatable="yes">Lyric delay -</property>
-        <property name="use_underline">True</property>
-        <signal name="activate" handler="ol_menu_advance_lrc"/>
+        <property name="image">image1</property>
+        <property name="use_stock">False</property>
       </object>
     </child>
     <child>
-      <object class="GtkMenuItem" id="menu-delay-lrc">
+      <object class="GtkImageMenuItem" id="menu-delay-lrc">
+        <property name="label" translatable="yes">Lyric delay +</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Adjust lyric delay by +0.2 s</property>
-        <property name="label" translatable="yes">Lyric delay +</property>
-        <property name="use_underline">True</property>
-        <signal name="activate" handler="ol_menu_delay_lrc"/>
+        <property name="image">image6</property>
+        <property name="use_stock">False</property>
       </object>
     </child>
     <child>
@@ -1592,5 +1695,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   <object class="GtkImage" id="search-image">
     <property name="visible">True</property>
     <property name="stock">gtk-find</property>
+  </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="icon_name">stock_left</property>
+  </object>
+  <object class="GtkImage" id="image6">
+    <property name="visible">True</property>
+    <property name="icon_name">stock_right</property>
   </object>
 </interface>

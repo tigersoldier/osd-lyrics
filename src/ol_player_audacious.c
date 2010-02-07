@@ -132,7 +132,8 @@ ol_player_audacious_get_controller ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = g_new0 (OlPlayerController, 1);
+  OlPlayerController *controller = ol_player_new ("Audacious");
+  ol_player_set_cmd (controller, "audacious2");
   controller->get_music_info = ol_player_audacious_get_music_info;
   controller->get_activated = ol_player_audacious_get_activated;
   controller->get_played_time = ol_player_audacious_get_played_time;
