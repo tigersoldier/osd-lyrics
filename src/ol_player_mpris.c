@@ -179,7 +179,6 @@ ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
       return FALSE;
     }
     g_signal_connect (mpris->proxy, "destroy", G_CALLBACK (ol_player_mpris_proxy_free), (gpointer) mpris);
-    printf ("MPRIS address: %0x\n", (int)mpris);
   }
   return TRUE;
 }

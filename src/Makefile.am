@@ -31,6 +31,7 @@ osd_lyrics_SOURCES = \
 	ol_player_amarok2.c \
 	ol_player_mpris.c \
 	ol_player_audacious.c \
+	ol_player_quodlibet.c \
 	ol_player_songbird.c \
 	ol_player_xmms2.c \
 	ol_player_rhythmbox.c \

@@ -1,3 +1,7 @@
+2010-02-07  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_quodlibet.c: ADD: Quod libet support
+
 2010-02-06  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_trayicon.c: CHANGE: Display infomation of the playing song in tooltip of tray icon

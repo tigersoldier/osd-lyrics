@@ -19,6 +19,7 @@
 #include "ol_player_mpd.h"
 #endif  /* ENABLE_MPD */
 #include "ol_player_moc.h"
+#include "ol_player_quodlibet.h"
 
 static GArray *controllers = NULL;
 
@@ -45,6 +46,7 @@ ol_player_init ()
     ol_player_register_controller (ol_player_mpd_get_controller (), "MPD");
 #endif  /* ENABLE_MPD */
     ol_player_register_controller (ol_player_moc_get_controller (), "MOC");
+    ol_player_register_controller (ol_player_quodlibet_get_controller (), "Quod Libet");
   }  
 }
 
