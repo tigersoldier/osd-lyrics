@@ -1675,8 +1675,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="lrc-cancel1">
-                <property name="label">gtk-cancel</property>
+              <object class="GtkButton" id="search-close">
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -1700,7 +1700,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     </child>
     <action-widgets>
       <action-widget response="0">search-download</action-widget>
-      <action-widget response="0">lrc-cancel1</action-widget>
+      <action-widget response="0">search-close</action-widget>
     </action-widgets>
   </object>
   <object class="GtkImage" id="search-image">
