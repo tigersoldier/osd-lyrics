@@ -49,6 +49,7 @@ struct _OlOsdWindow
   GtkWidget widget;
   GdkWindow *event_window;
   GdkWindow *bg_window;
+  GdkPixbuf *bg_pixbuf;
   GdkScreen *screen;
   gchar *lyrics[OL_OSD_WINDOW_MAX_LINE_COUNT];
   double line_alignment[OL_OSD_WINDOW_MAX_LINE_COUNT];
@@ -63,6 +64,7 @@ struct _OlOsdWindow
   OlOsdRenderContext *render_context;
   guint line_count;
   gboolean translucent_on_mouse_over;
+  
 };
 
 struct _OlOsdWindowClass
@@ -319,4 +321,18 @@ void ol_osd_window_set_translucent_on_mouse_over (OlOsdWindow *osd,
  * @return whether the osd will be translucent
  */
 gboolean ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd);
+
+/** 
+ * @brief Sets the background of the OSD window
+ *
+ * The background will display when the OSD Window is unlocked and
+ * with user's mouse on it.
+ *
+ * @param osd 
+ * @param bg The new background. The OSD window won't increase its ref
+ *           count, but unref the old one. So if you want to keep the
+ *           copy of the pixbuf, you need to ref it manually.
+ * 
+ */
+void ol_osd_window_set_bg (OlOsdWindow *osd, GdkPixbuf *bg);
 #endif // __OSD_WINDOW_H__

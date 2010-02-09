@@ -92,6 +92,7 @@ static void ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *alloc
 static void ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static void ol_osd_window_show (GtkWidget *widget);
 static gboolean ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event);
+static gboolean ol_osd_window_bg_expose (GtkWidget *widget, GdkEventExpose *event);
 static gboolean ol_osd_window_enter_notify (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event);
@@ -113,6 +114,7 @@ static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
 static void ol_osd_window_paint (OlOsdWindow *osd);
 static void ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd);
 static void ol_osd_window_update_shape (OlOsdWindow *osd, int line);
+static void ol_osd_window_update_background (OlOsdWindow *osd);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric);
@@ -122,6 +124,104 @@ static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_height (OlOsdWindow *osd);
 
 static GtkWidgetClass *parent_class = NULL;
+
+static void _paint_rect (cairo_t *cr, GdkPixbuf *source,
+                         double src_x, double src_y,
+                         double src_w, double src_h,
+                         double des_x, double des_y,
+                         double dex_w, double des_h);
+
+static void
+_paint_rect (cairo_t *cr, GdkPixbuf *source,
+             double src_x, double src_y,
+             double src_w, double src_h,
+             double des_x, double des_y,
+             double des_w, double des_h)
+{
+  ol_assert (cr != NULL);
+  ol_assert (source != NULL);
+  ol_debugf ("source: (%.0lf, %.0lf, %.0lf, %.0lf)\n",
+             src_x, src_y, src_w, src_h);
+  ol_debugf ("dest: (%.0lf, %.0lf, %.0lf, %.0lf)\n",
+             des_x, des_y, des_w, des_h);
+  
+  cairo_save (cr);
+  double sw = des_w / src_w;
+  double sh = des_h / src_h;
+  cairo_translate (cr, des_x, des_y);
+  cairo_rectangle (cr, 0, 0,
+                   des_w, des_h);
+  cairo_scale (cr, sw, sh);
+  cairo_clip (cr);
+  gdk_cairo_set_source_pixbuf (cr,
+                               source,
+                               -src_x,
+                               -src_y);
+  cairo_paint (cr);
+  cairo_restore (cr);
+}
+
+static gboolean
+ol_osd_window_bg_expose (GtkWidget *widget, GdkEventExpose *event)
+{
+  ol_log_func ();
+  ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
+  OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  ol_debugf ("pixbuf: %p\n", osd->bg_pixbuf);
+  if (osd->bg_pixbuf != NULL)
+  {
+    ol_debug ("Drawing pixbuf");
+    cairo_t *cr;
+    cr = gdk_cairo_create (event->window);
+    if (priv->composited)
+    {
+      ol_osd_window_clear_cairo (cr);
+    }
+    double border_width = 5.0;
+    int w, h, sw, sh;
+    gdk_drawable_get_size (event->window, &w, &h);
+    sw = gdk_pixbuf_get_width (osd->bg_pixbuf);
+    sh = gdk_pixbuf_get_height (osd->bg_pixbuf);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 0, 0, border_width, border_width,
+                 0, 0, border_width, border_width);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 0, sh - border_width, border_width, border_width,
+                 0, h - border_width, border_width, border_width);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 sw - border_width, 0, border_width, border_width,
+                 w - border_width, 0, border_width, border_width);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 sw - border_width, sh - border_width,
+                 border_width, border_width,
+                 w - border_width, h - border_width,
+                 border_width, border_width);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 0, border_width, border_width, sh - border_width * 2,
+                 0, border_width, border_width, h - border_width * 2);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 sw - border_width, border_width,
+                 border_width, sh - border_width * 2,
+                 w - border_width, border_width,
+                 border_width, h - border_width * 2);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 border_width, 0, sw - border_width * 2, border_width,
+                 border_width, 0, w - border_width * 2, border_width);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 border_width, sh - border_width,
+                 sw - border_width * 2, border_width,
+                 border_width, h - border_width,
+                 w - border_width * 2, border_width);
+    _paint_rect (cr, osd->bg_pixbuf,
+                 border_width, border_width,
+                 sw - border_width * 2, sh - border_width * 2,
+                 border_width, border_width,
+                 w - border_width * 2, h - border_width * 2);
+    
+    cairo_destroy (cr); 
+  }
+}
 
 static void
 ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
@@ -222,7 +322,12 @@ static gboolean
 ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
-  ol_osd_window_paint (OL_OSD_WINDOW (widget));
+  ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
+  OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  if (event->window == osd->bg_window )
+    ol_osd_window_bg_expose (widget, event);
+  else
+    ol_osd_window_paint (OL_OSD_WINDOW (widget));
   return FALSE;
 }
 
@@ -375,8 +480,8 @@ ol_osd_window_realize (GtkWidget *widget)
   /* create background window */
   osd->bg_window = gdk_window_new (parent_window, &attr, attr_mask);
   gtk_style_set_background (widget->style, osd->bg_window, GTK_STATE_NORMAL);
-  gdk_window_set_opacity (osd->bg_window, 0.5);
   gdk_window_set_user_data (osd->bg_window, osd);
+  ol_osd_window_update_background (osd);
 
   /* create event window */
   attr.wclass = GDK_INPUT_ONLY;
@@ -1024,8 +1129,6 @@ ol_osd_window_paint (OlOsdWindow *osd)
   g_return_if_fail (GTK_WIDGET_REALIZED (widget));
   if (!GTK_WIDGET_VISIBLE (widget))
     return;
-  gint w, h;
-  gdk_drawable_get_size (widget->window, &w, &h);
   cairo_t *cr;
   cr = gdk_cairo_create (widget->window);
   if (priv->composited)
@@ -1206,6 +1309,7 @@ ol_osd_window_init (OlOsdWindow *self)
   self->screen = NULL;
   self->event_window = NULL;
   self->current_line = 0;
+  self->bg_pixbuf = NULL;
   int i;
   for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
   {
@@ -1409,4 +1513,32 @@ ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd)
 {
   g_return_val_if_fail (OL_IS_OSD_WINDOW (osd), FALSE);
   return osd->translucent_on_mouse_over;
+}
+
+void
+ol_osd_window_set_bg (OlOsdWindow *osd, GdkPixbuf *bg)
+{
+  ol_log_func ();
+  ol_debugf ("bg: %p\n", bg);
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  if (bg != NULL)
+    g_object_ref (bg);
+  if (osd->bg_pixbuf != NULL)
+    g_object_unref (osd->bg_pixbuf);
+  osd->bg_pixbuf = bg;
+  ol_osd_window_update_background (osd);
+}
+
+static void
+ol_osd_window_update_background (OlOsdWindow *osd)
+{
+  ol_log_func ();
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  if (osd->bg_window != NULL)
+  {
+    if (osd->bg_pixbuf == NULL)
+      gdk_window_set_opacity (osd->bg_window, 0.5);
+    else
+      gdk_window_set_opacity (osd->bg_window, 1.0);
+  }
 }

@@ -1,3 +1,7 @@
+2010-02-09  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_module.c: Add: Background support for OSD Window
+
 2010-02-08  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_amarok1.c: FIX: issue 53, compile fail on amarok1

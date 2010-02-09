@@ -1,4 +1,5 @@
 #include "ol_osd_module.h"
+#include "ol_stock.h"
 #include "ol_debug.h"
 
 const int MESSAGE_DURATION_MS = 3000;
@@ -179,6 +180,13 @@ ol_osd_module_init_osd (OlOsdModule *module)
   module->osd = OL_OSD_WINDOW (g_object_ref_sink (ol_osd_window_new ()));
   if (module->osd == NULL)
     return;
+  GtkIconTheme *icontheme = gtk_icon_theme_get_default ();
+  GdkPixbuf *bg = gtk_icon_theme_load_icon (icontheme,
+                                            OL_STOCK_OSD_BG,
+                                            32,
+                                            0,
+                                            NULL);
+  ol_osd_window_set_bg (module->osd, bg);
   /* ol_osd_window_resize (osd, 1024, 100); */
   /* gtk_widget_show (GTK_WIDGET (module->osd)); */
   module->display = FALSE;

@@ -279,9 +279,9 @@ void initialize (int argc, char **argv)
   ol_logf (OL_INFO, "main\n");
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
+  ol_stock_init ();
   ol_player_init ();
   module = ol_osd_module_new ();
-  ol_stock_init ();
   ol_trayicon_inital ();
   ol_notify_init ();
   ol_keybinding_init ();
