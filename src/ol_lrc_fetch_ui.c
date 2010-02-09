@@ -23,7 +23,7 @@ gboolean ol_lrc_fetch_cancel (GtkWidget *widget, gpointer data);
 gboolean
 ol_lrc_fetch_ui_cancel (GtkWidget *widget, gpointer data)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   if (window != NULL)
     gtk_widget_hide (window);
 }
@@ -56,7 +56,7 @@ ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
 static void
 ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   if (download_button != NULL)
     gtk_widget_set_sensitive (GTK_WIDGET (download_button),
                               gtk_tree_selection_get_selected (selection, NULL, NULL));
@@ -65,7 +65,7 @@ ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data)
 static gboolean
 internal_init ()
 {
-  fprintf (stderr, "%s", __FUNCTION__);
+  ol_log_func ();
   if (window == NULL)
   {
     window = ol_gui_get_widget ("downloaddialog");
@@ -101,7 +101,7 @@ ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
                       int count,
                       const char *filename)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   if (window == NULL && !internal_init ())
     return;
   if (lrcengine == NULL || candidates == NULL || count <= 0 || filename == NULL)

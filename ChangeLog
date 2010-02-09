@@ -1,5 +1,8 @@
 2010-02-09  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_window.c (ol_osd_window_unmap): FIX: OSD Window unset mapped flag twice.
+	(ol_osd_window_destroy): FIX: Memory leak when destroy OSD Window
+
 	* src/ol_debug.h (ol_logf): CHANGE: Change the log output format
 
 	* src/ol_osd_module.c: Add: Background support for OSD Window

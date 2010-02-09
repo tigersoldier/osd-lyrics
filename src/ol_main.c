@@ -84,7 +84,7 @@ internal_download_callback (char *filepath)
 
 static void
 internal_search_callback (struct OlLrcFetchResult *result,
-                void *userdata)
+                          void *userdata)
 {
   ol_log_func ();
   ol_assert (result != NULL);

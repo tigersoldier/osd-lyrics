@@ -430,4 +430,5 @@ ol_osd_module_clear_message (OlOsdModule *module)
     g_source_remove (module->message_source);
     hide_message (module);
   }
+  ol_debug ("  clear message done");
 }

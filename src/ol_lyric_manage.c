@@ -78,6 +78,7 @@ internal_check_path_exist (const char *filename, gpointer data)
 char *
 ol_lyric_find (OlMusicInfo *info)
 {
+  ol_log_func ();
   char *filename = NULL;
   internal_for_each (info, 
                      internal_check_lyric_file, 
@@ -88,6 +89,7 @@ ol_lyric_find (OlMusicInfo *info)
 char *
 ol_lyric_download_path (OlMusicInfo *info)
 {
+  ol_log_func ();
   char *filename = NULL;
   internal_for_each (info, 
                      internal_check_path_exist, 

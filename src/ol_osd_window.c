@@ -627,20 +627,22 @@ ol_osd_window_unmap (GtkWidget *widget)
   ol_log_func ();
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  ol_debug ("  hiding windows");
   if (GTK_WIDGET_MAPPED (widget))
   {
     gdk_window_hide (widget->window);
     gdk_window_hide (osd->event_window);
     gdk_window_hide (osd->bg_window);
-    GTK_WIDGET_CLASS (parent_class)->unmap (widget);
+    GTK_WIDGET_UNSET_FLAGS (widget, GTK_MAPPED);
   }
   priv->visible = FALSE;
+  ol_debug (" remove timer");
   if (priv->mouse_timer_id != 0)
   {
     g_source_remove (priv->mouse_timer_id);
     priv->mouse_timer_id = 0;
   }
-  GTK_WIDGET_UNSET_FLAGS (widget, GTK_MAPPED);
+  ol_debug ("  unmap done");
 }
 
 void
@@ -1386,6 +1388,8 @@ ol_osd_window_destroy (GtkObject *object)
     ol_osd_render_context_destroy (osd->render_context);
     osd->render_context = NULL;
   }
+  if (osd->bg_pixbuf != NULL)
+    g_object_unref (osd->bg_pixbuf);
   GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }
 

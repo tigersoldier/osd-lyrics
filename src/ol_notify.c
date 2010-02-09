@@ -10,18 +10,43 @@ static const char *INFO_FORMAT = "%s";
 static const char *INFO_FORMAT_ALBUM = "%s\n<i>%s</i>";
 static const int DEFAULT_TIMEOUT = -1;
 
-NotifyNotification *notify = NULL;
+static gboolean inited = FALSE;
+static NotifyNotification *notify = NULL;
+
+static gboolean _init ();
+static NotifyNotification *_get_notify (const char *summary,
+                                        const char *body,
+                                        const char *icon,
+                                        GtkWidget *attach);
+
+static NotifyNotification *
+_get_notify (const char *summary,
+             const char *body,
+             const char *icon,
+             GtkWidget *attach)
+{
+  if (notify == NULL)
+  {
+    notify = notify_notification_new (summary,
+                                      body,
+                                      icon,
+                                      attach);
+  }
+  else
+  {
+    notify_notification_update (notify,
+                                summary,
+                                body,
+                                icon);
+  }
+}
 
 static gboolean
-internal_init ()
+_init ()
 {
-  if (notify == NULL && notify_init (PACKAGE_NAME))
-  {
-    notify = notify_notification_new ("",    /* summary */
-                                      NULL,  /* body */
-                                      NULL,  /* icon */
-                                      NULL); /* attach */
-  }
+  if (!notify_is_initted())
+    notify_init (PACKAGE_NAME);
+  
   if (notify == NULL)
     ol_error ("Notify init failed");
   return notify != NULL;
@@ -30,12 +55,14 @@ internal_init ()
 void
 ol_notify_init ()
 {
-  internal_init ();
+  _init ();
 }
 
 void
 ol_notify_unload ()
 {
+  if (notify != NULL)
+    g_object_unref (notify);
   notify_uninit ();
 }
 
@@ -43,7 +70,7 @@ void
 ol_notify_music_change (OlMusicInfo *info)
 {
   ol_assert (info != NULL);
-  if (!internal_init ())
+  if (!_init ())
   {
     return;
   }
@@ -68,8 +95,8 @@ ol_notify_music_change (OlMusicInfo *info)
                             artist,
                             album);
   }
-  notify_notification_update (notify, title, body, NULL);
-  notify_notification_set_timeout (notify,
+  NotifyNotification *music_notify = _get_notify (title, body, NULL, NULL);
+  notify_notification_set_timeout (music_notify,
                                    DEFAULT_TIMEOUT);
   notify_notification_show (notify, NULL);
   g_free (body);
