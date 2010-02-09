@@ -9,12 +9,13 @@ enum OlDebugLevel {
   OL_INFO = 2,
 };
 
-#define ol_logf(level, ...)           ( fprintf (stdout, __VA_ARGS__))
-#define ol_log_func()                 ( ol_logf (OL_DEBUG, "%s\n", __FUNCTION__))
-#define ol_debugf(...)                ( ol_logf (OL_DEBUG, __VA_ARGS__))
-#define ol_debug(...)                 ( ol_logf (OL_DEBUG, "%s\n", __VA_ARGS__))
-#define ol_errorf(...)                ( ol_logf (OL_ERROR, __VA_ARGS__))
-#define ol_error(...)                 ( ol_logf (OL_ERROR, "%s\n", __VA_ARGS__))
+#define ol_logf(level, ...)           fprintf (stdout, "%s[%d]:", __FILE__, __LINE__); \
+  fprintf (stdout, __VA_ARGS__)
+#define ol_log_func()                 ol_logf (OL_DEBUG, "%s\n", __FUNCTION__)
+#define ol_debugf(...)                ol_logf (OL_DEBUG, __VA_ARGS__)
+#define ol_debug(...)                 ol_logf (OL_DEBUG, "%s\n", __VA_ARGS__)
+#define ol_errorf(...)                ol_logf (OL_ERROR, __VA_ARGS__)
+#define ol_error(...)                 ol_logf (OL_ERROR, "%s\n", __VA_ARGS__)
 #define ol_assert(assertion)          if (!(assertion)) {      \
     ol_logf (OL_ERROR, "assert %s failed\n", #assertion);   \
     return;                                                 \

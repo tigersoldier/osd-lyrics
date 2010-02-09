@@ -1,5 +1,7 @@
 2010-02-09  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_debug.h (ol_logf): CHANGE: Change the log output format
+
 	* src/ol_osd_module.c: Add: Background support for OSD Window
 
 2010-02-08  Tiger Soldier  <tigersoldi@gmail.com>
