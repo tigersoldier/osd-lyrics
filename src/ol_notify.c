@@ -39,6 +39,7 @@ _get_notify (const char *summary,
                                 body,
                                 icon);
   }
+  return notify;
 }
 
 static gboolean
@@ -46,10 +47,7 @@ _init ()
 {
   if (!notify_is_initted())
     notify_init (PACKAGE_NAME);
-  
-  if (notify == NULL)
-    ol_error ("Notify init failed");
-  return notify != NULL;
+  return TRUE;
 }
 
 void
@@ -98,6 +96,6 @@ ol_notify_music_change (OlMusicInfo *info)
   NotifyNotification *music_notify = _get_notify (title, body, NULL, NULL);
   notify_notification_set_timeout (music_notify,
                                    DEFAULT_TIMEOUT);
-  notify_notification_show (notify, NULL);
+  notify_notification_show (music_notify, NULL);
   g_free (body);
 }

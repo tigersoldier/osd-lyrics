@@ -1,3 +1,7 @@
+2010-02-11  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_notify.c : Fix: Notification doesn't display
+
 2010-02-09  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c (ol_osd_window_unmap): FIX: OSD Window unset mapped flag twice.
