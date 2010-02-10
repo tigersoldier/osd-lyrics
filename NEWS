@@ -1,3 +1,25 @@
+Version 0.3.20100211: 2010-02-11
+Changes since 0.2.20100201
+ * Choose which lyric to download if there are more than one candidates
+ * Search lyrics manually
+ * Adjust lyric delay
+ * Support Quod Libet
+ * Display track infomation on tooltip of the trayicon
+ * Show notification of track infomation on track change
+ * Launch prefered player if no supported player is running
+ - A more graceful background on OSD Window
+ - Use themeable icons
+ * FIX: Crashes when hiding OSD Window under some distribution
+Changes since 0.2:
+ * Download lyrics in background
+ * Display download progress in OSD Window
+ * Support XMMS2, MPD, MOC, Exaile, Songbird, 
+ * Playback control
+ * Patterns to match lyrics, enable users to assign local lyrics of the same filename
+ - Text outline width setting
+ * FIX: Bugs that cannot download lyrics when artist infomation is missing in some players.
+ * Some minor bugs fixed
+
 Version 0.2: 2009-08-27
  * Supports downloading lyrics from www.qianqian.com
  * Supports Rhythmbox

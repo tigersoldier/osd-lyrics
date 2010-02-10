@@ -3,10 +3,11 @@
 PACKAGE=osd-lyrics
 PACKAGE_NAME="OSD Lyrics"
 MAJOR_VER=0
-MINOR_VER=2
-BUILD=20100201
+MINOR_VER=3
+BUILD=20100211
+AC_SUBST(BUILD)
 
-AC_INIT([osd-lyrics], [0.2.20100201], [http://code.google.com/p/osd-lyrics/issues/list])
+AC_INIT([osd-lyrics], [0.3.20100211], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
