@@ -21,7 +21,7 @@ static const char get_artist[] = "artist";
 static const char get_album[] = "album";
 static const char get_uri[] = "__loc";
 /* static const char get_cover_path[] = "get_cover_path"; */
-static const char get_status[] = "status";
+static const char get_state[] = "GetState";
 static const char duration[] = "__length";
 static const char current_position[] = "CurrentPosition";
 static const char get_track_attr[] = "GetTrackAttr";
@@ -46,6 +46,19 @@ static gboolean ol_player_exaile03_pause ();
 static gboolean ol_player_exaile03_stop ();
 static gboolean ol_player_exaile03_prev ();
 static gboolean ol_player_exaile03_next ();
+static enum OlPlayerStatus ol_player_exaile03_parse_status (const char *status);
+
+static enum OlPlayerStatus
+ol_player_exaile03_parse_status (const char *status)
+{
+  if (strcmp (status, "playing") == 0)
+    return OL_PLAYER_PLAYING;
+  else if (strcmp (status, "paused") == 0)
+    return OL_PLAYER_PAUSED;
+  else if (strcmp (status, "stopped") == 0)
+    return OL_PLAYER_STOPPED;
+  return OL_PLAYER_UNKNOWN;
+}
 
 static enum OlPlayerStatus
 ol_player_exaile03_get_status ()
@@ -55,22 +68,26 @@ ol_player_exaile03_get_status ()
       return OL_PLAYER_ERROR;
   char *buf = NULL;
   enum OlPlayerStatus ret = OL_PLAYER_UNKNOWN;
-  ol_dbus_get_string (proxy, query, &buf);
-  char status[30];
-  if (buf != NULL)
+  if (ol_dbus_get_string (proxy, get_state, &buf)) /* Exaile 0.3.1 or later*/
   {
-    if (strcmp (buf, "Not playing.") == 0)
-      ret = OL_PLAYER_STOPPED;
-    else if (strstr (buf, "status:") != NULL)
-    {
-      sscanf (buf, "status: %[^,],", status);
-      /* fprintf (stderr, "status: %s\n", status); */
-      if (strcmp (status, "playing") == 0)
-        ret = OL_PLAYER_PLAYING;
-      else if (strcmp (status, "paused") == 0)
-        ret = OL_PLAYER_PAUSED;
-    }
+    ret = ol_player_exaile03_parse_status (buf);
     g_free (buf);
+  }
+  else                          /* Exaile 0.3.0*/
+  {
+    ol_dbus_get_string (proxy, query, &buf);
+    char status[30];
+    if (buf != NULL)
+    {
+      if (strcmp (buf, "Not playing.") == 0)
+        ret = OL_PLAYER_STOPPED;
+      else if (strstr (buf, "status:") != NULL)
+      {
+        sscanf (buf, "status: %[^,],", status);
+        /* fprintf (stderr, "status: %s\n", status); */
+      }
+      g_free (buf);
+    }
   }
   return ret;
 }
