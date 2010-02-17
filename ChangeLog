@@ -1,5 +1,7 @@
 2010-02-17  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_player_exaile03.c : FIX: issue 62, cannot get status in exaile 0.3.0 due to forget to parse status string
+
 	* src/ol_path_pattern.c (ol_path_pattern_for_each): FIX: issue 61, not all filename pattern is checked.
 
 2010-02-14  Tiger Soldier  <tigersoldi@gmail.com>

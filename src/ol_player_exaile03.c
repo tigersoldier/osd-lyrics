@@ -85,6 +85,7 @@ ol_player_exaile03_get_status ()
       {
         sscanf (buf, "status: %[^,],", status);
         /* fprintf (stderr, "status: %s\n", status); */
+        ret = ol_player_exaile03_parse_status (status);
       }
       g_free (buf);
     }
