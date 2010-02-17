@@ -296,7 +296,7 @@ ol_path_pattern_for_each (char **path_patterns,
   char file_name[MAX_PATH_LEN] = "";
   int i, j;
   for (i = 0; path_patterns[i]; i++)
-    for (j = 0; path_patterns[j]; j++)
+    for (j = 0; name_patterns[j]; j++)
     {
       ol_debugf ("  path:%s, name:%s\n", 
                  path_patterns[i], 

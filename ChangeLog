@@ -1,3 +1,7 @@
+2010-02-17  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_path_pattern.c (ol_path_pattern_for_each): FIX: issue 61, not all filename pattern is checked.
+
 2010-02-14  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_exaile03.c (ol_player_exaile03_get_status): FIX: Support Exaile 0.3.1
