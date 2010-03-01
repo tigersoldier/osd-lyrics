@@ -47,6 +47,7 @@ static const int MOUSE_TIMER_INTERVAL = 100;
 static const int DEFAULT_LINE_HEIGHT = 45;
 static const int DEFAULT_HEIGHT = 100;
 static const double LINE_PADDING = 0.1;
+static const int BORDER_WIDTH = 5;
 
 typedef struct __OlOsdWindowPrivate OlOsdWindowPrivate;
 struct __OlOsdWindowPrivate
@@ -178,46 +179,45 @@ ol_osd_window_bg_expose (GtkWidget *widget, GdkEventExpose *event)
     {
       ol_osd_window_clear_cairo (cr);
     }
-    double border_width = 5.0;
     int w, h, sw, sh;
     gdk_drawable_get_size (event->window, &w, &h);
     sw = gdk_pixbuf_get_width (osd->bg_pixbuf);
     sh = gdk_pixbuf_get_height (osd->bg_pixbuf);
     _paint_rect (cr, osd->bg_pixbuf,
-                 0, 0, border_width, border_width,
-                 0, 0, border_width, border_width);
+                 0, 0, BORDER_WIDTH, BORDER_WIDTH,
+                 0, 0, BORDER_WIDTH, BORDER_WIDTH);
     _paint_rect (cr, osd->bg_pixbuf,
-                 0, sh - border_width, border_width, border_width,
-                 0, h - border_width, border_width, border_width);
+                 0, sh - BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH,
+                 0, h - BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
     _paint_rect (cr, osd->bg_pixbuf,
-                 sw - border_width, 0, border_width, border_width,
-                 w - border_width, 0, border_width, border_width);
+                 sw - BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH,
+                 w - BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
     _paint_rect (cr, osd->bg_pixbuf,
-                 sw - border_width, sh - border_width,
-                 border_width, border_width,
-                 w - border_width, h - border_width,
-                 border_width, border_width);
+                 sw - BORDER_WIDTH, sh - BORDER_WIDTH,
+                 BORDER_WIDTH, BORDER_WIDTH,
+                 w - BORDER_WIDTH, h - BORDER_WIDTH,
+                 BORDER_WIDTH, BORDER_WIDTH);
     _paint_rect (cr, osd->bg_pixbuf,
-                 0, border_width, border_width, sh - border_width * 2,
-                 0, border_width, border_width, h - border_width * 2);
+                 0, BORDER_WIDTH, BORDER_WIDTH, sh - BORDER_WIDTH * 2,
+                 0, BORDER_WIDTH, BORDER_WIDTH, h - BORDER_WIDTH * 2);
     _paint_rect (cr, osd->bg_pixbuf,
-                 sw - border_width, border_width,
-                 border_width, sh - border_width * 2,
-                 w - border_width, border_width,
-                 border_width, h - border_width * 2);
+                 sw - BORDER_WIDTH, BORDER_WIDTH,
+                 BORDER_WIDTH, sh - BORDER_WIDTH * 2,
+                 w - BORDER_WIDTH, BORDER_WIDTH,
+                 BORDER_WIDTH, h - BORDER_WIDTH * 2);
     _paint_rect (cr, osd->bg_pixbuf,
-                 border_width, 0, sw - border_width * 2, border_width,
-                 border_width, 0, w - border_width * 2, border_width);
+                 BORDER_WIDTH, 0, sw - BORDER_WIDTH * 2, BORDER_WIDTH,
+                 BORDER_WIDTH, 0, w - BORDER_WIDTH * 2, BORDER_WIDTH);
     _paint_rect (cr, osd->bg_pixbuf,
-                 border_width, sh - border_width,
-                 sw - border_width * 2, border_width,
-                 border_width, h - border_width,
-                 w - border_width * 2, border_width);
+                 BORDER_WIDTH, sh - BORDER_WIDTH,
+                 sw - BORDER_WIDTH * 2, BORDER_WIDTH,
+                 BORDER_WIDTH, h - BORDER_WIDTH,
+                 w - BORDER_WIDTH * 2, BORDER_WIDTH);
     _paint_rect (cr, osd->bg_pixbuf,
-                 border_width, border_width,
-                 sw - border_width * 2, sh - border_width * 2,
-                 border_width, border_width,
-                 w - border_width * 2, h - border_width * 2);
+                 BORDER_WIDTH, BORDER_WIDTH,
+                 sw - BORDER_WIDTH * 2, sh - BORDER_WIDTH * 2,
+                 BORDER_WIDTH, BORDER_WIDTH,
+                 w - BORDER_WIDTH * 2, h - BORDER_WIDTH * 2);
     
     cairo_destroy (cr); 
   }
@@ -544,10 +544,10 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   {
     OlOsdWindow *osd = OL_OSD_WINDOW (widget);
     gdk_window_move_resize (widget->window,
-                            widget->allocation.x,
-                            widget->allocation.y,
-                            widget->allocation.width,
-                            widget->allocation.height);
+                            widget->allocation.x + BORDER_WIDTH,
+                            widget->allocation.y + BORDER_WIDTH,
+                            widget->allocation.width + BORDER_WIDTH * 2,
+                            widget->allocation.height + BORDER_WIDTH * 2);
     gdk_window_move_resize (osd->event_window,
                             widget->allocation.x,
                             widget->allocation.y,
@@ -782,7 +782,7 @@ ol_osd_window_compute_height (OlOsdWindow *osd)
   g_return_val_if_fail (OL_IS_OSD_WINDOW (osd) && osd->render_context != NULL,
                         DEFAULT_HEIGHT);
   int font_height = ol_osd_render_get_font_height (osd->render_context);
-  int height = font_height * (osd->line_count + (osd->line_count - 1) * LINE_PADDING);
+  int height = font_height * (osd->line_count + (osd->line_count - 1) * LINE_PADDING) + BORDER_WIDTH * 2;
   return height;
 }
 

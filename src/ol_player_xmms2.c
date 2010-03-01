@@ -221,8 +221,12 @@ ol_player_xmms2_connect ()
   if (connection == NULL && connected == FALSE && !ol_player_xmms2_init ())
     return FALSE;
   connected = xmmsc_connect (connection, getenv ("XMMS_PATH"));
+  ol_debug ("asdf");
   if (connected)
+  {
     xmmsc_disconnect_callback_set (connection, disconnect_callback, NULL);
+    ol_debugf ("connected");
+  }
   return connected;
 }
 

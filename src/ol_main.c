@@ -57,33 +57,27 @@ static LrcQueue *lrc_file = NULL;
 static OlOsdModule *module = NULL;
 static int fetch_id = 0;
 
-static void initialize (int argc, char **argv);
-static gint refresh_music_info (gpointer data);
-static void check_music_change (int time);
-static void on_music_changed (void);
-static check_lyric_file (void);
-/** 
- * @brief Handles SIG_CHILD for download child process
- * 
- * @param signal 
- */
-/* static void child_handler (int sig); */
-static void internal_search_callback (struct OlLrcFetchResult *result,
+static void _initialize (int argc, char **argv);
+static gint _refresh_music_info (gpointer data);
+static void _check_music_change (int time);
+static void _on_music_changed (void);
+static gboolean _check_lyric_file (void);
+static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
-static gboolean internal_download_callback (char *filepath);
+static gboolean _download_callback (char *filepath);
 
 static gboolean
-internal_download_callback (char *filepath)
+_download_callback (char *filepath)
 {
   if (filepath != NULL)
-    check_lyric_file ();
+    _check_lyric_file ();
   else
     ol_osd_module_download_fail_message (module, _("Download failed"));
   return FALSE;
 }
 
 static void
-internal_search_callback (struct OlLrcFetchResult *result,
+_search_callback (struct OlLrcFetchResult *result,
                           void *userdata)
 {
   ol_log_func ();
@@ -120,7 +114,7 @@ ol_app_download_lyric (OlMusicInfo *music_info)
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
   ol_lrc_fetch_begin_search (engine, 
                              music_info, 
-                             internal_search_callback,
+                             _search_callback,
                              NULL);
   if (module != NULL)
     ol_osd_module_search_message (module, _("Searching lyrics"));
@@ -133,7 +127,7 @@ ol_app_get_current_lyric ()
 }
 
 static gboolean
-check_lyric_file ()
+_check_lyric_file ()
 {
   gboolean ret = TRUE;
   char *filename = ol_lyric_find (&music_info);
@@ -153,7 +147,7 @@ check_lyric_file ()
 }
 
 static void
-on_music_changed ()
+_on_music_changed ()
 {
   ol_log_func ();
   if (module != NULL)
@@ -162,7 +156,7 @@ on_music_changed ()
     ol_osd_module_set_duration (module, previous_duration);
   }
   ol_osd_module_set_lrc (module, NULL);
-  if (!check_lyric_file ())
+  if (!_check_lyric_file ())
     ol_app_download_lyric (&music_info);
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
@@ -170,7 +164,7 @@ on_music_changed ()
 }
 
 static void
-check_music_change (int time)
+_check_music_change (int time)
 {
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
   /* checks whether the music has been changed */
@@ -211,12 +205,12 @@ check_music_change (int time)
   previous_duration = duration;
   if (changed)
   {
-    on_music_changed ();
+    _on_music_changed ();
   }
 }
 
 static gint
-refresh_music_info (gpointer data)
+_refresh_music_info (gpointer data)
 {
   /* fprintf (stderr, "%s\n", __FUNCTION__); */
   if (controller == NULL)
@@ -253,7 +247,7 @@ refresh_music_info (gpointer data)
   {
     controller = NULL;
   }
-  check_music_change (time);
+  _check_music_change (time);
   previous_position = time;
   if (controller == NULL)
   {
@@ -264,8 +258,8 @@ refresh_music_info (gpointer data)
   return TRUE;
 }
 
-static
-void initialize (int argc, char **argv)
+static void
+_initialize (int argc, char **argv)
 {
 #if ENABLE_NLS
   /* Set the text message domain.  */
@@ -286,8 +280,8 @@ void initialize (int argc, char **argv)
   ol_notify_init ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
-  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) internal_download_callback);
-  refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
+  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) _download_callback);
+  refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
 }
 
 OlPlayerController*
@@ -305,7 +299,7 @@ ol_app_get_current_music ()
 int
 main (int argc, char **argv)
 {
-  initialize (argc, argv);
+  _initialize (argc, argv);
   gtk_main ();
   ol_player_unload ();
   ol_notify_unload ();

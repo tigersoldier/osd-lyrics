@@ -1,3 +1,11 @@
+2010-02-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_debug.h: FIX: Put the debug macros into a do-while clause so they will be treated as a single statement, fix the issue 58
+
+2010-02-27  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* data/dialogs.glade: FIX: set the icon size of advance/delay lyric offset to the size of menuicon
+
 2010-02-17  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_exaile03.c : FIX: issue 62, cannot get status in exaile 0.3.0 due to forget to parse status string

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <interface>
-  <!-- interface-requires gtk+ 2.12 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAboutDialog" id="aboutdialog">
     <property name="border_width">5</property>
@@ -1709,10 +1709,12 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
-    <property name="icon_name">stock_left</property>
+    <property name="stock">gtk-go-back</property>
+    <property name="icon-size">1</property>
   </object>
   <object class="GtkImage" id="image6">
     <property name="visible">True</property>
-    <property name="icon_name">stock_right</property>
+    <property name="stock">gtk-go-forward</property>
+    <property name="icon-size">1</property>
   </object>
 </interface>

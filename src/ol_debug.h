@@ -9,19 +9,19 @@ enum OlDebugLevel {
   OL_INFO = 2,
 };
 
-#define ol_logf(level, ...)           fprintf (stdout, "%s[%d]:", __FILE__, __LINE__); \
-  fprintf (stdout, __VA_ARGS__)
-#define ol_log_func()                 ol_logf (OL_DEBUG, "%s\n", __FUNCTION__)
-#define ol_debugf(...)                ol_logf (OL_DEBUG, __VA_ARGS__)
-#define ol_debug(...)                 ol_logf (OL_DEBUG, "%s\n", __VA_ARGS__)
-#define ol_errorf(...)                ol_logf (OL_ERROR, __VA_ARGS__)
-#define ol_error(...)                 ol_logf (OL_ERROR, "%s\n", __VA_ARGS__)
-#define ol_assert(assertion)          if (!(assertion)) {      \
-    ol_logf (OL_ERROR, "assert %s failed\n", #assertion);   \
-    return;                                                 \
-  }
-#define ol_assert_ret(assertion, ret) if (!(assertion)) {   \
-    ol_logf (OL_ERROR, "assert %s failed\n", #assertion);   \
-    return (ret);                                           \
-  }
+#define ol_logf(level, ...)           do {fprintf (stdout, "%s[%d]:", __FILE__, __LINE__); \
+    fprintf (stdout, __VA_ARGS__); } while (0)
+#define ol_log_func()                 do {ol_logf (OL_DEBUG, "%s\n", __FUNCTION__); } while (0)
+#define ol_debugf(...)                do {ol_logf (OL_DEBUG, __VA_ARGS__); } while (0)
+#define ol_debug(...)                 do {ol_logf (OL_DEBUG, "%s\n", __VA_ARGS__); } while (0)
+#define ol_errorf(...)                do {ol_logf (OL_ERROR, __VA_ARGS__); } while (0)
+#define ol_error(...)                 do {ol_logf (OL_ERROR, "%s\n", __VA_ARGS__); } while (0)
+#define ol_assert(assertion)          do {if (!(assertion)) {      \
+      ol_logf (OL_ERROR, "assert %s failed\n", #assertion);        \
+      return;                                                      \
+    }} while (0)
+#define ol_assert_ret(assertion, ret) do {if (!(assertion)) {   \
+      ol_logf (OL_ERROR, "assert %s failed\n", #assertion);     \
+      return (ret);                                             \
+    }} while (0)
 #endif /* _OL_DEBUG_H_ */
