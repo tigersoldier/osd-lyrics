@@ -43,7 +43,7 @@ void ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src);
  */
 void ol_music_info_set_title (OlMusicInfo *music_info,
                               const char *title);
-char *ol_music_info_get_title (OlMusicInfo *music_info);
+const char *ol_music_info_get_title (const OlMusicInfo *music_info);
 
 /** 
  * @brief Sets the artist of music 
@@ -54,7 +54,7 @@ char *ol_music_info_get_title (OlMusicInfo *music_info);
  */
 void ol_music_info_set_artist (OlMusicInfo *music_info,
                                const char *artist);
-char *ol_music_info_get_artist (OlMusicInfo *music_info);
+const char *ol_music_info_get_artist (const OlMusicInfo *music_info);
 
 /** 
  * @brief Sets the name of music album
@@ -65,11 +65,11 @@ char *ol_music_info_get_artist (OlMusicInfo *music_info);
  */
 void ol_music_info_set_album (OlMusicInfo *music_info,
                               const char *album);
-char *ol_music_info_get_album (OlMusicInfo *music_info);
+const char *ol_music_info_get_album (const OlMusicInfo *music_info);
 
 void ol_music_info_set_track_number (OlMusicInfo *music_info,
                                      int track_number);
-int ol_music_info_get_track_number (OlMusicInfo *music_info);
+int ol_music_info_get_track_number (const OlMusicInfo *music_info);
 
 /** 
  * @brief Sets the location of music file
@@ -80,7 +80,7 @@ int ol_music_info_get_track_number (OlMusicInfo *music_info);
  */
 void ol_music_info_set_uri (OlMusicInfo *music_info,
                             const char *uri);
-char *ol_music_info_get_uri (OlMusicInfo *music_info);
+const char *ol_music_info_get_uri (const OlMusicInfo *music_info);
 
 /** 
  * @brief Check whether two MusicInfos are equal

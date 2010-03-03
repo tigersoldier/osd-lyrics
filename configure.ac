@@ -80,6 +80,7 @@ PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.12.0, gthread-2.0, gmodule-export-2.0])
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([NOTIFY], [libnotify])
+PKG_CHECK_MODULES([SQLITE], [sqlite3 >= 3.3.0])
 MPD_CFLAGS=
 MPD_LIBS=
 AS_IF([test "x$enable_mpd" != "xno"],

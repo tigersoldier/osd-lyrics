@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-#define ol_test_expect(expr)                if (!(expr)) { printf ("ERROR: EXPECT %s failed\n", #expr); }
+#define ol_test_expect(expr)                if (!(expr)) { printf ("ERROR[%d]: EXPECT %s failed\n", __LINE__, #expr); }
 
 #endif /* _OL_TEST_UTIL_H_ */

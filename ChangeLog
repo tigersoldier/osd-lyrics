@@ -1,3 +1,7 @@
+2010-03-03  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrclib.c: ADD: LRC Lib to store the assignment of LRC files
+
 2010-02-09  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c (ol_osd_window_unmap): FIX: OSD Window unset mapped flag twice.
