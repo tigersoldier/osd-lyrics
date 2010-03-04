@@ -7,6 +7,10 @@ const char title[] = "Test Title";
 const char album[] = "Test Album";
 const char artist[] = "Test Artist";
 const char uri[] = "Test URI";
+const char title2[] = "Test Title 2";
+const char album2[] = "Test Album 2";
+const char artist2[] = "Test Artist 2";
+const char uri2[] = "Test URI 2";
 const int track_number = 19870119;
 
 void
@@ -62,6 +66,28 @@ test_setter ()
   ol_test_expect (strcmp (ol_music_info_get_uri (&info),
                           uri) == 0);
   ol_test_expect (ol_music_info_get_track_number (&info) == track_number);
+  ol_music_info_set_title (&info, title2);
+  ol_music_info_set_artist (&info, artist2);
+  ol_music_info_set_album (&info, album2);
+  ol_music_info_set_uri (&info, uri2);
+  ol_test_expect (strcmp (ol_music_info_get_title (&info),
+                          title2) == 0);
+  ol_test_expect (strcmp (ol_music_info_get_artist (&info),
+                          artist2) == 0);
+  ol_test_expect (strcmp (ol_music_info_get_album (&info),
+                          album2) == 0);
+  ol_test_expect (strcmp (ol_music_info_get_uri (&info),
+                          uri2) == 0);
+  ol_test_expect (ol_music_info_get_track_number (&info) == track_number);
+  ol_music_info_set_title (&info, NULL);
+  ol_music_info_set_artist (&info, NULL);
+  ol_music_info_set_album (&info, NULL);
+  ol_music_info_set_uri (&info, NULL);
+  ol_test_expect (ol_music_info_get_title (&info) == NULL);
+  ol_test_expect (ol_music_info_get_artist (&info) == NULL);
+  ol_test_expect (ol_music_info_get_album (&info) == NULL);
+  ol_test_expect (ol_music_info_get_uri (&info) == NULL);
+
 }
 
 void

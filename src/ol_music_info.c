@@ -80,8 +80,8 @@ ol_music_info_set_title (OlMusicInfo *music_info,
   internal_set_string (&(music_info->title), title);
 }
 
-char *
-ol_music_info_get_title (OlMusicInfo *music_info)
+const char *
+ol_music_info_get_title (const OlMusicInfo *music_info)
 {
   ol_assert_ret (music_info != NULL, NULL);
   return music_info->title;
@@ -95,8 +95,8 @@ ol_music_info_set_artist (OlMusicInfo *music_info,
   internal_set_string (&(music_info->artist), artist);
 }
 
-char *
-ol_music_info_get_artist (OlMusicInfo *music_info)
+const char *
+ol_music_info_get_artist (const OlMusicInfo *music_info)
 {
   ol_assert_ret (music_info != NULL, NULL);
   return music_info->artist;
@@ -110,8 +110,8 @@ ol_music_info_set_album (OlMusicInfo *music_info,
   internal_set_string (&(music_info->album), album);
 }
 
-char *
-ol_music_info_get_album (OlMusicInfo *music_info)
+const char *
+ol_music_info_get_album (const OlMusicInfo *music_info)
 {
   ol_assert_ret (music_info != NULL, NULL);
   return music_info->album;
@@ -126,7 +126,7 @@ ol_music_info_set_track_number (OlMusicInfo *music_info,
 }
 
 int
-ol_music_info_get_track_number (OlMusicInfo *music_info)
+ol_music_info_get_track_number (const OlMusicInfo *music_info)
 {
   ol_assert_ret (music_info != NULL, DEFAULT_TRACK_NUM);
   return music_info->track_number;
@@ -140,8 +140,8 @@ ol_music_info_set_uri (OlMusicInfo *music_info,
   internal_set_string (&(music_info->uri), uri);
 }
 
-char *
-ol_music_info_get_uri (OlMusicInfo *music_info)
+const char *
+ol_music_info_get_uri (const OlMusicInfo *music_info)
 {
   ol_assert_ret (music_info != NULL, NULL);
   return music_info->uri;

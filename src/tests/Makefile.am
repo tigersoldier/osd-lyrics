@@ -11,7 +11,8 @@ check_PROGRAMS = \
 	ol_path_test \
 	ol_utils_cmdline_test \
 	ol_fork_test \
-	ol_music_info_test
+	ol_music_info_test \
+	ol_lrclib_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -50,6 +51,7 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_moc.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
 	$(top_srcdir)/src/ol_player_songbird.c \
+	$(top_srcdir)/src/ol_player_quodlibet.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
@@ -159,3 +161,12 @@ ol_music_info_test_LDADD = \
 	@CURL_LIBS@ \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@
+
+ol_lrclib_test_SOURCES = \
+	ol_lrclib_test.c \
+	$(top_srcdir)/src/ol_lrclib.c \
+	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_utils.c
+ol_lrclib_test_LDADD = \
+	@GTK2_LIBS@ \
+	@SQLITE_LIBS@
