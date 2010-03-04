@@ -211,7 +211,9 @@ _copy_str (char *dest, const char *src, size_t size)
       else
       {
         int maxsize = size - ret < next - ptr + 1 ? size - ret: next - ptr + 1;
-        ret += snprintf (dest, maxsize, "%s", ptr);
+        snprintf (dest + ret, maxsize, "%s", ptr);
+        ret += maxsize - 1;
+        ret += snprintf (dest + ret, size - ret, "''");
         ptr = next + 1;
       }
     }

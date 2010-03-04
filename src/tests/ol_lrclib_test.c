@@ -217,6 +217,36 @@ query_by_info_test ()
   unlink (DB_FILE);
 }
 
+void
+escape_test ()
+{
+  unlink (DB_FILE);
+  ol_test_expect (ol_lrclib_init (DB_FILE));
+  char *path = NULL;
+  char *ESCAPE_PATH = "p'a't'h";
+  OlMusicInfo *info = ol_music_info_new ();
+  ol_music_info_set_uri (info, "U'R'I");
+  ol_music_info_set_title (info, "t'i't'l'e");
+  ol_music_info_set_artist (info, "a'r't'i's't");
+  ol_music_info_set_album (info, "a'l'b'u'm");
+  /* Music info with URI */
+  ol_test_expect (ol_lrclib_assign_lyric (info, ESCAPE_PATH) != 0);
+  ol_test_expect (ol_lrclib_find (info, &path) != 0);
+  ol_test_expect (strcmp (path, ESCAPE_PATH) == 0);
+  g_free (path);
+
+  ol_music_info_set_uri (info, NULL);
+  ol_test_expect (ol_lrclib_find (info, &path) == 0);
+  ol_test_expect (ol_lrclib_assign_lyric (info, ESCAPE_PATH) != 0);
+  ol_test_expect (ol_lrclib_find (info, &path) != 0);
+  ol_test_expect (strcmp (path, ESCAPE_PATH) == 0);
+  g_free (path);
+
+  ol_lrclib_unload ();
+  
+  unlink (DB_FILE);
+}
+
 int main ()
 {
   basic_test ();
@@ -224,4 +254,5 @@ int main ()
   assign_lrc_test ();
   query_by_uri_test ();
   query_by_info_test ();
+  escape_test ();
 }

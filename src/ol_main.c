@@ -40,9 +40,11 @@
 #include "ol_stock.h"
 #include "ol_app.h"
 #include "ol_notify.h"
+#include "ol_lrclib.h"
 #include "ol_debug.h"
 
 #define REFRESH_INTERVAL 100
+#define LRCDB_FILENAME "lrc.db"
 
 static gboolean first_run = TRUE;
 static guint refresh_source = 0;
@@ -136,7 +138,10 @@ static gboolean
 check_lyric_file ()
 {
   gboolean ret = TRUE;
-  char *filename = ol_lyric_find (&music_info);
+  char *filename = NULL;
+  int code = ol_lrclib_find (&music_info, &filename);
+  if (code == 0)
+    filename = ol_lyric_find (&music_info);
   if (filename != NULL)
   {
     if (lrc_file != NULL)
@@ -144,10 +149,15 @@ check_lyric_file ()
     lrc_file = ol_lrc_parser_get_lyric_info (filename);
     ol_osd_module_set_lrc (module, lrc_file);
     ret = TRUE;
+    if (code == 0)
+    {
+      ol_lrclib_assign_lyric (&music_info, filename);
+    }
+    g_free (filename);
   }
   else
   {
-    ret = FALSE;
+    if (code == 0) ret = FALSE;
   }
   return ret;
 }
@@ -286,6 +296,15 @@ void initialize (int argc, char **argv)
   ol_notify_init ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
+  char *lrcdb_file = g_strdup_printf ("%s/%s/%s",
+                                      g_get_user_config_dir (),
+                                      PACKAGE_NAME,
+                                      LRCDB_FILENAME);
+  if (!ol_lrclib_init (lrcdb_file))
+  {
+    ol_error ("Initialize lrclib failed");
+  }
+  g_free (lrcdb_file);
   ol_lrc_fetch_add_async_download_callback ((GSourceFunc) internal_download_callback);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, refresh_music_info, NULL);
 }
@@ -312,5 +331,6 @@ main (int argc, char **argv)
   ol_osd_module_destroy (module);
   module = NULL;
   ol_trayicon_free ();
+  ol_lrclib_unload ();
   return 0;
 }

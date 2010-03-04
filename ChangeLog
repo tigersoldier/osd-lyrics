@@ -1,3 +1,9 @@
+2010-03-04  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c: ADD: Find lyrics from lrclib first
+
+	* src/ol_lrclib.c (_copy_str): FIX: escape SQL string works now.
+
 2010-03-03  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrclib.c: ADD: LRC Lib to store the assignment of LRC files
