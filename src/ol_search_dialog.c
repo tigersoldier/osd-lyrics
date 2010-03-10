@@ -60,7 +60,9 @@ ol_search_dialog_download_click (GtkWidget *widget,
   char *filename = ol_lyric_download_path (&music_info);
   if (filename != NULL)
   {
-    ol_lrc_fetch_begin_download (engine, candidate, filename);
+    ol_lrc_fetch_begin_download (engine, candidate,
+                                 &music_info, filename,
+                                 NULL);
     g_free (filename);
   }
   ol_lrc_candidate_free (candidate);

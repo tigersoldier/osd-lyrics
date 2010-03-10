@@ -12,10 +12,13 @@ gboolean ol_app_download_lyric (OlMusicInfo *music_info);
  * 
  * @return 
  */
-OlMusicInfo* ol_app_get_current_music ();
+OlMusicInfo* ol_app_get_current_music (void);
 
-OlPlayerController* ol_app_get_controller ();
+OlPlayerController* ol_app_get_controller (void);
 
-LrcQueue *ol_app_get_current_lyric ();
+LrcQueue *ol_app_get_current_lyric (void);
 
+gboolean ol_app_assign_lrcfile (const OlMusicInfo *info,
+                                const char *filepath,
+                                gboolean update);
 #endif /* _OL_APP_H_ */

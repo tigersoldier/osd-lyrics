@@ -13,8 +13,18 @@ struct OlLrcFetchResult
   OlLrcFetchEngine *engine;
 };
 
+struct OlLrcDownloadResult
+{
+  int id;
+  OlMusicInfo *info;
+  const char *filepath;
+  void *userdata;
+};
+
 typedef void (*OlLrcSearchCallback) (struct OlLrcFetchResult *result,
                                      void *userdata);
+
+typedef void (*OlLrcDownloadCallback) (struct OlLrcDownloadResult *result);
 
 struct OlLrcFetchResult* ol_lrc_fetch_result_new ();
 void ol_lrc_fetch_result_free (struct OlLrcFetchResult *result);
@@ -40,7 +50,7 @@ void ol_lrc_fetch_add_async_search_callback (GSourceFunc callbackFunc);
  * 
  * @param callbackFunc 
  */
-void ol_lrc_fetch_add_async_download_callback (GSourceFunc callbackFunc);
+void ol_lrc_fetch_add_async_download_callback (OlLrcDownloadCallback callbackFunc);
 
 /** 
  * @brief Begin searching lyrics. Once finished, search callbacks will be invoked.
@@ -62,7 +72,11 @@ int ol_lrc_fetch_begin_search (OlLrcFetchEngine *engine,
  * @param candidate The candidate to be downloaded. The function will keep a copy of it.
  * @param pathname The filename with full path of the target lrc file. The function will keep a copy of it
  */
-void ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine, OlLrcCandidate *candidate, const char *pathname);
+void ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
+                                  OlLrcCandidate *candidate,
+                                  const OlMusicInfo *info,
+                                  const char *pathname,
+                                  void *userdata);
 
 void ol_lrc_fetch_module_init ();
 

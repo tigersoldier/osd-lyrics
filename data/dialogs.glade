@@ -1209,9 +1209,15 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-download">
-        <property name="label" translatable="yes">_Search lyric</property>
+      <object class="GtkSeparatorMenuItem" id="menuitem1">
         <property name="visible">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkImageMenuItem" id="menu-download">
+        <property name="label" translatable="yes">_Search lyric...</property>
+        <property name="visible">True</property>
+        <property name="tooltip_text" translatable="yes">Search lyrics from Internet</property>
         <property name="use_underline">True</property>
         <property name="image">download-image</property>
         <property name="use_stock">False</property>
@@ -1219,8 +1225,25 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkSeparatorMenuItem" id="menuitem1">
+      <object class="GtkImageMenuItem" id="menu-assign-lrc">
+        <property name="label" translatable="yes">_Assign lyric...</property>
         <property name="visible">True</property>
+        <property name="tooltip_text" translatable="yes">Assign local LRC file to current music</property>
+        <property name="use_underline">True</property>
+        <property name="image">image8</property>
+        <property name="use_stock">False</property>
+        <signal name="activate" handler="ol_menu_assign_lrc"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkImageMenuItem" id="menu-no-lyric">
+        <property name="label" translatable="yes">_No lyric</property>
+        <property name="visible">True</property>
+        <property name="tooltip_text" translatable="yes">Don't assign lyric to this music</property>
+        <property name="use_underline">True</property>
+        <property name="image">image7</property>
+        <property name="use_stock">False</property>
+        <signal name="activate" handler="ol_menu_no_lyric"/>
       </object>
     </child>
     <child>
@@ -1239,6 +1262,11 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
         <property name="tooltip_text" translatable="yes">Adjust lyric delay by +0.2 s</property>
         <property name="image">image6</property>
         <property name="use_stock">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorMenuItem" id="menuitem2">
+        <property name="visible">True</property>
       </object>
     </child>
     <child>
@@ -1715,6 +1743,16 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   <object class="GtkImage" id="image6">
     <property name="visible">True</property>
     <property name="stock">gtk-go-forward</property>
+    <property name="icon-size">1</property>
+  </object>
+  <object class="GtkImage" id="image7">
+    <property name="visible">True</property>
+    <property name="stock">gtk-remove</property>
+    <property name="icon-size">1</property>
+  </object>
+  <object class="GtkImage" id="image8">
+    <property name="visible">True</property>
+    <property name="stock">gtk-open</property>
     <property name="icon-size">1</property>
   </object>
 </interface>

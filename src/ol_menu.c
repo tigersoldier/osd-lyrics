@@ -57,6 +57,8 @@ void ol_menu_stop (GtkWidget *widget, gpointer data);
 void ol_menu_prev (GtkWidget *widget, gpointer data);
 void ol_menu_next (GtkWidget *widget, gpointer data);
 void ol_menu_download (GtkWidget *widget, gpointer data);
+void ol_menu_no_lyric (GtkWidget *widget, gpointer data);
+void ol_menu_assign_lrc (GtkWidget *widget, gpointer data);
 void ol_menu_advance_lrc (GtkWidget *widget, gpointer data);
 void ol_menu_delay_lrc (GtkWidget *widget, gpointer data);
 static void internal_adjust_lyric_offset (int offset_ms);
@@ -92,11 +94,61 @@ ol_menu_delay_lrc (GtkWidget *widget, gpointer data)
 void
 ol_menu_download (GtkWidget *widget, gpointer data)
 {
-  if (ol_app_get_controller () != NULL)
-  {
-    OlMusicInfo *info = ol_app_get_current_music ();
+  /* if (ol_app_get_controller () != NULL) */
+  /* { */
+  OlMusicInfo *info = ol_app_get_current_music ();
+  if (info != NULL)
     ol_search_dialog_show ();
-    /* ol_app_download_lyric (info); */
+  /* ol_app_download_lyric (info); */
+  /* } */
+}
+
+void
+ol_menu_no_lyric (GtkWidget *widget, gpointer data)
+{
+  OlMusicInfo *info = ol_app_get_current_music ();
+  if (info != NULL)
+    ol_app_assign_lrcfile (info, NULL, TRUE);
+}
+
+void
+ol_menu_assign_lrc (GtkWidget *widget, gpointer data)
+{
+  static char *prev_path = NULL;
+  OlMusicInfo *info = ol_app_get_current_music ();
+  static GtkFileFilter *lrc_filter = NULL;
+  if (lrc_filter == NULL)
+  {
+    lrc_filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (lrc_filter, _("LRC files"));
+    gtk_file_filter_add_pattern (lrc_filter, "*.lrc");
+  }
+  if (info != NULL)
+  {
+    GtkWidget *dialog = NULL;
+    dialog = gtk_file_chooser_dialog_new (_("Choose LRC file to assign"),
+                                          NULL,
+                                          GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                          NULL);
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), lrc_filter);
+    
+    if (prev_path != NULL)
+      gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), prev_path);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+      char *filename;
+      filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+      ol_app_assign_lrcfile (info, filename, TRUE);
+      g_free (filename);
+      if (prev_path != NULL)
+        g_free (prev_path);
+      prev_path = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+    }
+    gtk_widget_destroy (dialog);
+    dialog = NULL;
   }
 }
 

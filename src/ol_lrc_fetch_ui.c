@@ -12,6 +12,7 @@ static GtkTreeView *list = NULL;
 static GtkTreeStore *store = NULL;
 static GtkButton *download_button = NULL;
 static OlLrcFetchEngine *engine = NULL;
+static OlMusicInfo *info = NULL;
 static char *filepath = NULL;
 
 static void ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data);
@@ -36,7 +37,7 @@ ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
   OlLrcCandidate candidate = {0};
   if (ol_lrc_candidate_list_get_selected (list, &candidate))
   {
-    ol_lrc_fetch_begin_download (engine, &candidate, filepath);
+    ol_lrc_fetch_begin_download (engine, &candidate, info, filepath, NULL);
   }
   OlConfig *config = ol_config_get_instance ();
   GtkToggleButton *prompt_btn = GTK_TOGGLE_BUTTON (ol_gui_get_widget ("choose-do-not-prompt"));
@@ -99,6 +100,7 @@ void
 ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
                       const OlLrcCandidate *candidates,
                       int count,
+                      const OlMusicInfo *music_info,
                       const char *filename)
 {
   ol_log_func ();
@@ -114,6 +116,10 @@ ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
   filepath = g_strdup (filename);
   engine = lrcengine;
   ol_lrc_candidate_list_set_list (list, candidates, count);
+  if (info == NULL)
+    info = ol_music_info_new ();
+  ol_music_info_copy (info, music_info);
+    
   gboolean prompt = TRUE;
   OlConfig *config = ol_config_get_instance ();
   if (config != NULL)

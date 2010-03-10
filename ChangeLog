@@ -1,3 +1,9 @@
+2010-03-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_menu.c: ADD: No lyric and Assign lyric menu item
+
+	* src/ol_main.c: CHANGE: Use lrclib to store assigned download LRC File
+
 2010-03-04  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_main.c: ADD: Find lyrics from lrclib first

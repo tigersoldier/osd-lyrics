@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <glib.h>
 #include "ol_lrc_fetch_module.h"
 #include "ol_fork.h"
@@ -10,6 +11,7 @@ static GCond *search_cond = NULL;
 static GMutex *search_mutex = NULL;
 static GMutex *search_thread_mutex = NULL;
 static int search_id = 0;
+static int download_id = 0;
 static GPtrArray *search_listeners;
 static GPtrArray *download_listeners;
 
@@ -132,15 +134,18 @@ internal_download_callback (void *ret_data,
                             int status,
                             void *userdata)
 {
+  struct OlLrcDownloadResult *result = userdata;
   if (ret_size == 0)
   {
-    internal_invoke_callback (download_listeners, NULL);
+    result->filepath = NULL;
+    internal_invoke_callback (download_listeners, result);
   }
   else
   {
-    char *filepath = (char *)ret_data;
-    (filepath)[ret_size] = '\0';
-    internal_invoke_callback (download_listeners, ret_data);
+    char *filepath = g_new0 (char, ret_size + 1);
+    strncpy (filepath, (char *)ret_data, ret_size);
+    result->filepath = filepath;
+    internal_invoke_callback (download_listeners, result);
   }
 }
 
@@ -151,7 +156,7 @@ ol_lrc_fetch_add_async_search_callback (GSourceFunc callbackFunc)
 }
 
 void
-ol_lrc_fetch_add_async_download_callback (GSourceFunc callbackFunc)
+ol_lrc_fetch_add_async_download_callback (OlLrcDownloadCallback callbackFunc)
 {
   g_ptr_array_add (download_listeners, callbackFunc);
 }
@@ -201,14 +206,27 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine,
 void
 ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                              OlLrcCandidate *candidate,
-                             const char *pathname)
+                             const OlMusicInfo *info,
+                             const char *pathname,
+                             void *userdata)
 {
   ol_log_func ();
   ol_assert (engine != NULL);
   ol_assert (candidate != NULL);
   ol_assert (pathname != NULL);
   ol_debugf ("  pathname: %s\n", pathname);
-  if (ol_fork (internal_download_callback, NULL) == 0)
+  struct OlLrcDownloadResult *result = g_new0 (struct OlLrcDownloadResult, 1);
+  result->id = ++download_id;
+  result->filepath = NULL;
+  if (info != NULL)
+  {
+    result->info = ol_music_info_new ();
+    result->userdata = userdata;
+    ol_music_info_copy (result->info, info);
+  }
+  result->userdata = userdata;
+  
+  if (ol_fork (internal_download_callback, result) == 0)
   {
     exit (internal_download (engine, candidate, pathname));
   }

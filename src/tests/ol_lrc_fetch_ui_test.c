@@ -18,7 +18,10 @@ void test_show ()
     sprintf (candidates[i].title, "Title #%d", i);
     sprintf (candidates[i].artist, "Artist #%d", i);
   }
-  ol_lrc_fetch_ui_show (&engine, candidates, N_CANDIDATE, "");
+  ol_lrc_fetch_ui_show (&engine,
+                        candidates, N_CANDIDATE,
+                        NULL,
+                        "");
   gtk_main ();
 }
 

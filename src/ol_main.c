@@ -66,21 +66,20 @@ static void _on_music_changed (void);
 static gboolean _check_lyric_file (void);
 static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
-static gboolean _download_callback (char *filepath);
+static void _download_callback (struct OlLrcDownloadResult *result);
 
-static gboolean
-_download_callback (char *filepath)
+static void
+_download_callback (struct OlLrcDownloadResult *result)
 {
-  if (filepath != NULL)
-    _check_lyric_file ();
+  if (result->filepath != NULL)
+    ol_app_assign_lrcfile (result->info, result->filepath, TRUE);
   else
     ol_osd_module_download_fail_message (module, _("Download failed"));
-  return FALSE;
 }
 
 static void
 _search_callback (struct OlLrcFetchResult *result,
-                          void *userdata)
+                  void *userdata)
 {
   ol_log_func ();
   ol_assert (result != NULL);
@@ -96,7 +95,9 @@ _search_callback (struct OlLrcFetchResult *result,
     {
       if (module != NULL)
         ol_osd_module_clear_message (module);
-      ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count, filename);
+      ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
+                            &result->info,
+                            filename);
       g_free (filename);
     }
   }
@@ -128,6 +129,31 @@ ol_app_get_current_lyric ()
   return lrc_file;
 }
 
+gboolean
+ol_app_assign_lrcfile (const OlMusicInfo *info,
+                       const char *filepath,
+                       gboolean update)
+{
+  ol_assert_ret (info != NULL, FALSE);
+  ol_assert_ret (filepath == NULL || ol_path_is_file (filepath), FALSE);
+  if (update)
+  {
+    ol_lrclib_assign_lyric (info, filepath);
+  }
+  if (ol_music_info_equal (&music_info, info))
+  {
+    if (lrc_file != NULL)
+    {
+      ol_lrc_parser_free (lrc_file);
+      lrc_file = NULL;
+    }
+    if (filepath != NULL)
+      lrc_file = ol_lrc_parser_get_lyric_info (filepath);
+    ol_osd_module_set_lrc (module, lrc_file);
+  }
+  return TRUE;
+}
+
 static gboolean
 _check_lyric_file ()
 {
@@ -138,15 +164,7 @@ _check_lyric_file ()
     filename = ol_lyric_find (&music_info);
   if (filename != NULL)
   {
-    if (lrc_file != NULL)
-      ol_lrc_parser_free (lrc_file);
-    lrc_file = ol_lrc_parser_get_lyric_info (filename);
-    ol_osd_module_set_lrc (module, lrc_file);
-    ret = TRUE;
-    if (code == 0)
-    {
-      ol_lrclib_assign_lyric (&music_info, filename);
-    }
+    ret = ol_app_assign_lrcfile (&music_info, filename, code == 0);
     g_free (filename);
   }
   else
@@ -299,7 +317,7 @@ _initialize (int argc, char **argv)
     ol_error ("Initialize lrclib failed");
   }
   g_free (lrcdb_file);
-  ol_lrc_fetch_add_async_download_callback ((GSourceFunc) _download_callback);
+  ol_lrc_fetch_add_async_download_callback (_download_callback);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
 }
 
