@@ -14,14 +14,15 @@ ESVN_REPO_URI="http://${PN}.googlecode.com/svn/trunk/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="mpd"
+IUSE="mpd xmms2"
 
 DEPEND="
 	dev-libs/dbus-glib
 	gnome-base/libglade
 	net-misc/curl
 	x11-libs/gtk+
-	mpd? ( media-libs/libmpd )"
+	mpd? ( media-libs/libmpd )
+	xmms2? ( media-sound/xmms2 )"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
@@ -29,7 +30,7 @@ src_prepare() {
 }
 
 src_configure() {
-	econf $(use_enable mpd)
+	econf $(use_enable mpd) $(use_enable xmms2)
 }
 
 src_compile() {
