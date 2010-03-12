@@ -1,4 +1,11 @@
+2010-03-11  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: CHANGE: Change the parent class of OSD Window to GtkBin
+	CHANGE: The background window of OSD Window is set to widget->window, so that the window of child widget is inside bg window
+
 2010-03-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_set_locked): FIX: Don't display background panel when unlocked with mouse out of event window
 
 	* src/ol_menu.c: ADD: No lyric and Assign lyric menu item
 

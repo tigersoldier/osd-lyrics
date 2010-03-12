@@ -46,9 +46,9 @@ enum OlOsdWindowSingals {
 
 struct _OlOsdWindow
 {
-  GtkWidget widget;
-  GdkWindow *event_window;
-  GdkWindow *bg_window;
+  GtkBin widget;
+  /* GdkWindow *event_window; */
+  GdkWindow *osd_window;
   GdkPixbuf *bg_pixbuf;
   GdkScreen *screen;
   gchar *lyrics[OL_OSD_WINDOW_MAX_LINE_COUNT];
@@ -69,7 +69,7 @@ struct _OlOsdWindow
 
 struct _OlOsdWindowClass
 {
-  GtkWidgetClass parent_class;
+  GtkBinClass parent_class;
   guint signals[OSD_SINGAL_COUNT];
 };
 
