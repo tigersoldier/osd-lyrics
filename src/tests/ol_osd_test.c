@@ -57,11 +57,14 @@ main (int argc, char **argv)
   g_timeout_add (100, timeout_callback, ol_osd);
 
   GtkWidget *button = gtk_button_new_with_label ("Tool button");
+  printf ("before add child\n");
   gtk_container_add (GTK_CONTAINER (ol_osd), GTK_WIDGET (button));
+  printf ("child added\n");
   g_signal_connect (button, "motion-notify-event",
                     G_CALLBACK (button_motion),
                     NULL);
   gtk_widget_show (button);
+  printf ("child shown\n");
 
   printf ("shown\n");
   gtk_main ();
