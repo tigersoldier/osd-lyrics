@@ -1,3 +1,10 @@
+2010-03-12  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_init): FIX: Set initial line count to 1
+	(ol_osd_window_set_line_alignment): FIX: Update area of lyric after update lyric aligment
+	(ol_osd_window_set_input_shape_mask): FIX: Set the input shape mask of osd window instead of that of the whole widget
+	(ol_osd_window_realize): FIX: set actual width and height of OSD window on realize
+
 2010-03-11  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: CHANGE: Change the parent class of OSD Window to GtkBin

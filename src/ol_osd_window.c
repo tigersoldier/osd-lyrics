@@ -66,6 +66,7 @@ struct __OlOsdWindowPrivate
   gboolean visible;
   guint mouse_timer_id;
   gboolean mouse_over;
+  GdkWindowEdge toolbar_pos;
 };
 
 struct OsdLrc
@@ -124,6 +125,7 @@ static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric);
 static void ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line);
+static void ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line);
 static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata);
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_height (OlOsdWindow *osd);
@@ -377,7 +379,11 @@ ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (!priv->pressed &&
-      /* event->window == widget->window && */
+      event->window == widget->window &&
+      (event->x_root < widget->allocation.x ||
+       event->x_root >= widget->allocation.x + widget->allocation.width ||
+       event->y_root < widget->allocation.y ||
+       event->y_root >= widget->allocation.y + widget->allocation.height) &&
       gdk_window_is_visible (widget->window))
   {
     ol_osd_window_unmap_bg (widget);
@@ -445,20 +451,13 @@ ol_osd_window_realize (GtkWidget *widget)
   gtk_widget_set_colormap (widget, colormap);
   
   /* ensure the size allocation */
-  GtkAllocation allocation = {0, 0, 150, 100};
-  if (widget->allocation.width <= 1 &&
-      widget->allocation.height <= 1)
-  {
-    printf ("ensure\n");
-    GtkRequisition requisition;
-    gtk_widget_size_request (widget, &requisition);
-    if (requisition.width || requisition.height)
-    {
-      allocation.width = requisition.width;
-      allocation.height = requisition.height;
-    }
-    widget->allocation = allocation;
-  }
+  GtkAllocation allocation;
+  ol_debug ("ensure allocation\n");
+  GtkRequisition requisition;
+  gtk_widget_size_request (widget, &requisition);
+  allocation.width = requisition.width;
+  allocation.height = requisition.height;
+  widget->allocation = allocation; /* comput_position needs to set allocation first */
   ol_osd_window_compute_position (osd, &allocation);
   gtk_widget_size_allocate (widget, &allocation);
 
@@ -539,6 +538,7 @@ ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
   }
   requisition->width = priv->width;
   requisition->height = ol_osd_window_compute_height (OL_OSD_WINDOW (widget));
+  ol_debugf ("size request: %d x %d\n", requisition->width, requisition->height);
 }
 
 static void ol_osd_window_unrealize (GtkWidget *widget)
@@ -619,7 +619,7 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 static gboolean
 ol_osd_window_mouse_timer (gpointer data)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
+  /* ol_log_func (); */
   g_return_val_if_fail (data != NULL, FALSE);
   g_return_val_if_fail (OL_IS_OSD_WINDOW (data), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (data);
@@ -630,15 +630,22 @@ ol_osd_window_mouse_timer (gpointer data)
     gint w, h;
     gboolean mouse_over = FALSE;
     gtk_widget_get_pointer (GTK_WIDGET (osd), &rel_x, &rel_y);
+    /* ol_debugf ("pointer: %d %d\n", rel_x, rel_y); */
     int i;
+    /* ol_debugf ("line count: %d\n", osd->line_count); */
     for (i = 0; i < osd->line_count; i++)
     {
+      /* ol_debugf ("lyric rect %d: (%d, %d) %d x %d\n", */
+      /*            i, */
+      /*            osd->lyric_rects[i].x, osd->lyric_rects[i].y, */
+      /*            osd->lyric_rects[i].width, osd->lyric_rects[i].height); */
       if (rel_x < osd->lyric_rects[i].x + osd->lyric_rects[i].width &&
           rel_y < osd->lyric_rects[i].y + osd->lyric_rects[i].height &&
           rel_x >= osd->lyric_rects[i].x &&
           rel_y >= osd->lyric_rects[i].y)
       {
         mouse_over = TRUE;
+        /* ol_debug ("mouse over"); */
         break;
       }
     }
@@ -646,9 +653,10 @@ ol_osd_window_mouse_timer (gpointer data)
     {
       priv->mouse_over = mouse_over;
       gtk_widget_queue_draw (GTK_WIDGET (osd));
-      if (priv->mouse_over && !priv->locked)
-        ol_osd_window_map_bg (GTK_WIDGET (osd));
     }
+    if (priv->mouse_over && !priv->locked &&
+        !gdk_window_is_visible (GTK_WIDGET (osd)->window))
+      ol_osd_window_map_bg (GTK_WIDGET (osd));
   }
   return TRUE;
 }
@@ -691,6 +699,7 @@ ol_osd_window_map_bg (GtkWidget *widget)
     ol_debug ("Map child");
     gtk_widget_map (bin->child);
   }
+  gdk_window_raise (osd->osd_window);
 }
 
 static void
@@ -978,7 +987,8 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   double alpha = 1.0;
   int font_height = ol_osd_render_get_font_height (osd->render_context);
-  if (priv->composited && priv->mouse_over && osd->translucent_on_mouse_over)
+  if (priv->composited && priv->locked && priv->mouse_over &&
+      osd->translucent_on_mouse_over)
   {
     alpha = 0.3;
   }
@@ -1097,13 +1107,14 @@ ol_osd_window_get_current_percentage (OlOsdWindow *osd)
 void
 ol_osd_window_set_current_line (OlOsdWindow *osd, gint line)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert (line < ol_osd_window_get_line_count (osd));
   osd->current_line = line;
 }
 
 gint ol_osd_window_get_current_line (OlOsdWindow *osd)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   return osd->current_line;
 }
 
@@ -1141,7 +1152,6 @@ static void
 ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
 {
   int i;
-  int w, h;
   if (!GTK_WIDGET_REALIZED (GTK_WIDGET (osd)))
     return;
   /* draws the inactive pixmaps */
@@ -1160,6 +1170,13 @@ ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
                                     osd->active_colors[i]);
   }
   ol_osd_draw_lyric_pixmap (osd, &osd->active_lyric_pixmap[line], osd->lyrics[line]);
+  ol_osd_window_update_lyric_rect (osd, line);
+}
+
+static void
+ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line)
+{
+  int w, h;
   w = h = 0;
   if (osd->active_lyric_pixmap[line] != NULL)
     gdk_drawable_get_size (osd->active_lyric_pixmap[line], &w, &h);
@@ -1201,6 +1218,7 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
   else if (alignment > 1.0)
     alignment = 1.0;
   osd->line_alignment[line] = alignment;
+  ol_osd_window_update_lyric_rect (osd, line);
   ol_osd_window_update_shape (osd, line);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -1267,7 +1285,7 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd)
   color.pixel = 0;              /* black */
   gdk_gc_set_foreground (gc, &color);
   gdk_draw_rectangle (input_mask, gc, TRUE, 0, 0, w, h);
-  gtk_widget_input_shape_combine_mask (widget, input_mask, 0, 0);
+  gdk_window_input_shape_combine_mask (osd->osd_window, input_mask, 0, 0);
   g_object_unref (input_mask);
   g_object_unref (gc);
 }
@@ -1398,6 +1416,7 @@ ol_osd_window_init (OlOsdWindow *self)
   /* self->event_window = NULL; */
   self->current_line = 0;
   self->bg_pixbuf = NULL;
+  self->line_count = 1;
   int i;
   for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
   {

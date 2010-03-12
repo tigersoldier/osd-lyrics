@@ -40,6 +40,8 @@ main (int argc, char **argv)
 /*   gtk_widget_input_shape_combine_mask (ol_osd, pixmap, 0, 0); */
   ol_osd_window_resize (OL_OSD_WINDOW (ol_osd), 800, 140);
   gtk_widget_show (ol_osd);
+  ol_osd_window_set_line_count (ol_osd, 2);
+  ol_osd_window_set_translucent_on_mouse_over (ol_osd, TRUE);
   ol_osd_window_set_lyric (OL_OSD_WINDOW (ol_osd), 0, "还没好好地感受");
   ol_osd_window_set_lyric (OL_OSD_WINDOW (ol_osd), 1, "雪花绽放的气候");
 /*   ol_osd_paint (OL_OSD_WINDOW (ol_osd), "还没好好地感受", "雪花绽放的气候", 0.3); */
