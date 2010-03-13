@@ -1,5 +1,7 @@
 2010-03-13  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_toolbar.c: ADD: OSD Toolbar widget
+
 	* src/ol_image_button.c: ADD: Image button widget
 
 	* src/ol_osd_window.c (ol_osd_window_update_allocation): FIX: Redraw after allocation updated

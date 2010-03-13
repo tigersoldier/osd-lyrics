@@ -6,6 +6,7 @@
 #include "ol_music_info.h"
 #include "ol_config.h"
 #include "ol_osd_window.h"
+#include "ol_osd_toolbar.h"
 
 typedef struct _OlOsdModule OlOsdModule;
 
@@ -20,6 +21,7 @@ struct _OlOsdModule
   LrcQueue *lrc_file;
   gboolean display;
   OlOsdWindow *osd;
+  OlOsdToolbar *toolbar;
   guint message_source;
 };
 

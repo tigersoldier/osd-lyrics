@@ -189,6 +189,13 @@ ol_osd_module_init_osd (OlOsdModule *module)
   ol_osd_window_set_bg (module->osd, bg);
   /* ol_osd_window_resize (osd, 1024, 100); */
   /* gtk_widget_show (GTK_WIDGET (module->osd)); */
+  module->toolbar = OL_OSD_TOOLBAR (ol_osd_toolbar_new ());
+  if (module->toolbar != NULL)
+  {
+    gtk_container_add (GTK_CONTAINER (module->osd),
+                       module->toolbar);
+    gtk_widget_show_all (GTK_WIDGET (module->toolbar));
+  }
   module->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);

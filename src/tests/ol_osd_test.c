@@ -64,7 +64,7 @@ init_toolbar ()
   GtkBox *toolbar = GTK_BOX (gtk_hbox_new (FALSE, 0));
   GtkWidget *btn = ol_image_button_new ();
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file ("/usr/local/share/icons/hicolor/scalable/actions/osd-lyrics-osd-play.svg", NULL);
-  ol_image_button_set_pixbuf (btn, pixbuf);
+  ol_image_button_set_pixbuf (OL_IMAGE_BUTTON (btn), pixbuf);
   gtk_box_pack_end (toolbar, btn, FALSE, TRUE, 0);
   gtk_widget_show_all (GTK_WIDGET (toolbar));
   return GTK_WIDGET (toolbar);

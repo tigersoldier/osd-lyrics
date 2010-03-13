@@ -154,10 +154,10 @@ _paint_rect (cairo_t *cr, GdkPixbuf *source,
 {
   ol_assert (cr != NULL);
   ol_assert (source != NULL);
-  ol_debugf ("source: (%.0lf, %.0lf, %.0lf, %.0lf)\n",
-             src_x, src_y, src_w, src_h);
-  ol_debugf ("dest: (%.0lf, %.0lf, %.0lf, %.0lf)\n",
-             des_x, des_y, des_w, des_h);
+  /* ol_debugf ("source: (%.0lf, %.0lf, %.0lf, %.0lf)\n", */
+  /*            src_x, src_y, src_w, src_h); */
+  /* ol_debugf ("dest: (%.0lf, %.0lf, %.0lf, %.0lf)\n", */
+  /*            des_x, des_y, des_w, des_h); */
   
   cairo_save (cr);
   double sw = des_w / src_w;

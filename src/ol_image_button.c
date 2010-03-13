@@ -148,6 +148,7 @@ ol_image_button_destroy (GtkObject *object)
   {
     g_object_unref (priv->image);
   }
+  GTK_OBJECT_CLASS (ol_image_button_parent_class)->destroy (object);
 }
 
 GtkWidget *
