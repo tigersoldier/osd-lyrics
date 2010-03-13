@@ -193,7 +193,7 @@ ol_osd_module_init_osd (OlOsdModule *module)
   if (module->toolbar != NULL)
   {
     gtk_container_add (GTK_CONTAINER (module->osd),
-                       module->toolbar);
+                       GTK_WIDGET (module->toolbar));
     gtk_widget_show_all (GTK_WIDGET (module->toolbar));
   }
   module->display = FALSE;
@@ -438,4 +438,12 @@ ol_osd_module_clear_message (OlOsdModule *module)
     hide_message (module);
   }
   ol_debug ("  clear message done");
+}
+
+void
+ol_osd_module_set_player (OlOsdModule *module, OlPlayerController *player)
+{
+  ol_log_func ();
+  if (module->toolbar != NULL)
+    ol_osd_toolbar_set_player (module->toolbar, player);
 }

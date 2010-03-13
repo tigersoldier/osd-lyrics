@@ -268,6 +268,7 @@ _refresh_music_info (gpointer data)
         gtk_main_quit ();
       }
     }
+    ol_osd_module_set_player (module, controller);
   }
   first_run = FALSE;
   guint time = 0;

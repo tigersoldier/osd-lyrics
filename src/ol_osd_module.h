@@ -7,6 +7,7 @@
 #include "ol_config.h"
 #include "ol_osd_window.h"
 #include "ol_osd_toolbar.h"
+#include "ol_player.h"
 
 typedef struct _OlOsdModule OlOsdModule;
 
@@ -28,6 +29,7 @@ struct _OlOsdModule
 OlOsdModule* ol_osd_module_new ();
 void ol_osd_module_destroy (OlOsdModule *module);
 void ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info);
+void ol_osd_module_set_player (OlOsdModule *module, OlPlayerController *player);
 void ol_osd_module_set_played_time (OlOsdModule *module, int played_time);
 void ol_osd_module_set_lrc (OlOsdModule *module, LrcQueue *lrc_file);
 void ol_osd_module_set_duration (OlOsdModule *module, int duration);

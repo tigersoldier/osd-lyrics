@@ -14,7 +14,11 @@ anim_DATA = osd-lyrics-loading.png
 
 osd_icondir = ${datadir}/icons/hicolor/scalable/actions
 osd_icon_DATA = \
-	osd-lyrics-osd-play.svg
+	osd-lyrics-osd-play.svg \
+	osd-lyrics-osd-pause.svg \
+	osd-lyrics-osd-stop.svg \
+	osd-lyrics-osd-next.svg \
+	osd-lyrics-osd-prev.svg
 
 bgdir = ${datadir}/icons/hicolor/scalable/apps
 bg_DATA = osd-lyrics-osd-bg.svg

@@ -1,5 +1,9 @@
 2010-03-13  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_toolbar.c: ADD: Prev, Next, Pause, Stop control on OSD Toolbar
+
+	* src/ol_main.c (_refresh_music_info): Update the player info of OSD Module when player changed
+
 	* src/ol_osd_toolbar.c: ADD: OSD Toolbar widget
 
 	* src/ol_image_button.c: ADD: Image button widget
