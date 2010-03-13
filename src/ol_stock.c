@@ -7,6 +7,7 @@ const char *ICON_LIST[] = {
   OL_STOCK_TRAYICON,
   OL_STOCK_LOADING,
   OL_STOCK_OSD_BG,
+  OL_STOCK_OSD_PLAY,
 };
 
 void 

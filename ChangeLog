@@ -1,10 +1,16 @@
+2010-03-13  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_image_button.c: ADD: Image button widget
+
+	* src/ol_osd_window.c (ol_osd_window_update_allocation): FIX: Redraw after allocation updated
+
 2010-03-12  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c (ol_osd_window_init): FIX: Set initial line count to 1
 	(ol_osd_window_set_line_alignment): FIX: Update area of lyric after update lyric aligment
 	(ol_osd_window_set_input_shape_mask): FIX: Set the input shape mask of osd window instead of that of the whole widget
 	(ol_osd_window_realize): FIX: set actual width and height of OSD window on realize
-	FIX: The allocation of background panel and child widget acts as design 
+	FIX: The allocation of background panel and child widget acts as design
 
 2010-03-11  Tiger Soldier  <tigersoldi@gmail.com>
 

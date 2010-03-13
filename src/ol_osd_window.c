@@ -918,6 +918,7 @@ ol_osd_window_update_allocation (OlOsdWindow *osd)
                                        &allocation,
                                        &priv->child_allocation);
   gtk_widget_size_allocate (GTK_WIDGET (osd), &allocation);
+  gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
 static void
@@ -1320,7 +1321,7 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd)
 static void
 ol_osd_window_class_init (OlOsdWindowClass *klass)
 {
-  printf ("class init\n");
+  ol_log_func ();
   GObjectClass *gobject_class;
   GtkObjectClass *object_class;
   GtkWidgetClass *widget_class;
@@ -1481,7 +1482,7 @@ ol_osd_window_init (OlOsdWindow *self)
 GtkWidget*
 ol_osd_window_new ()
 {
-  printf ("new\n");
+  ol_log_func ();
   OlOsdWindow *osd;
   osd = g_object_new (ol_osd_window_get_type (), NULL);
   return GTK_WIDGET (osd);
@@ -1629,7 +1630,6 @@ ol_osd_window_set_line_count (OlOsdWindow *osd,
   g_return_if_fail (line_count >= 1 && line_count <= 2);
   osd->line_count = line_count;
   ol_osd_window_update_allocation (osd);
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
 guint
