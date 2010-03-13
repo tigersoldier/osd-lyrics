@@ -1,5 +1,7 @@
 2010-03-13  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_window.c: CHANGE: Event window of OSD Window is back :)
+
 	* src/ol_osd_toolbar.c: ADD: Prev, Next, Pause, Stop control on OSD Toolbar
 
 	* src/ol_main.c (_refresh_music_info): Update the player info of OSD Module when player changed

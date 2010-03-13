@@ -502,12 +502,12 @@ ol_osd_window_realize (GtkWidget *widget)
   gdk_window_set_user_data (osd->osd_window, osd);
   
   /* create event window */
-  /* attr.wclass = GDK_INPUT_ONLY; */
-  /* attr.override_redirect = TRUE; */
-  /* attr_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_NOREDIR; */
-/* osd->event_window = gdk_window_new (parent_window, &attr, attr_mask); */
-  /* gdk_window_set_user_data (osd->event_window, osd); */
-  /* gdk_window_set_decorations (osd->event_window, 0); */
+  attr.wclass = GDK_INPUT_ONLY;
+  attr.override_redirect = TRUE;
+  attr_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_NOREDIR;
+osd->event_window = gdk_window_new (parent_window, &attr, attr_mask);
+  gdk_window_set_user_data (osd->event_window, osd);
+  gdk_window_set_decorations (osd->event_window, 0);
 
   /* setup input shape mask for osd window */
   ol_osd_window_set_input_shape_mask (osd);
@@ -572,11 +572,11 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
                             priv->osd_allocation.y,
                             priv->osd_allocation.width,
                             priv->osd_allocation.height);
-    /* gdk_window_move_resize (osd->event_window, */
-    /*                         widget->allocation.x, */
-    /*                         widget->allocation.y, */
-    /*                         widget->allocation.width, */
-    /*                         widget->allocation.height); */
+    gdk_window_move_resize (osd->event_window,
+                            widget->allocation.x,
+                            widget->allocation.y,
+                            widget->allocation.width,
+                            widget->allocation.height);
     gdk_window_move_resize (widget->window,
                             widget->allocation.x,
                             widget->allocation.y,
@@ -654,8 +654,8 @@ ol_osd_window_map (GtkWidget *widget)
   priv->visible = TRUE;
   if (!priv->locked)
   {
-    /* gdk_window_show (osd->event_window); */
-    /* gdk_window_raise (osd->event_window); */
+    gdk_window_show (osd->event_window);
+    gdk_window_raise (osd->event_window);
   }
   gdk_window_show (osd->osd_window);
   if (priv->mouse_timer_id == 0)
@@ -693,7 +693,7 @@ ol_osd_window_unmap (GtkWidget *widget)
   if (GTK_WIDGET_MAPPED (widget))
   {
     gdk_window_hide (osd->osd_window);
-    /* gdk_window_hide (osd->event_window); */
+    gdk_window_hide (osd->event_window);
     ol_osd_window_unmap_bg (widget);
     GTK_WIDGET_UNSET_FLAGS (widget, GTK_MAPPED);
   }
@@ -804,12 +804,12 @@ ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked)
     return;
   if (locked)
   {
-    /* gdk_window_hide (osd->event_window); */
+    gdk_window_hide (osd->event_window);
     ol_osd_window_unmap_bg (GTK_WIDGET (osd));
   }
   else
   {
-    /* gdk_window_show (osd->event_window); */
+    gdk_window_show (osd->event_window);
     if (priv->mouse_over)
     {
       ol_osd_window_map_bg (GTK_WIDGET (osd));

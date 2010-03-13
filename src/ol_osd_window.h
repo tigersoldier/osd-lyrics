@@ -47,7 +47,7 @@ enum OlOsdWindowSingals {
 struct _OlOsdWindow
 {
   GtkBin widget;
-  /* GdkWindow *event_window; */
+  GdkWindow *event_window;
   GdkWindow *osd_window;
   GdkPixbuf *bg_pixbuf;
   GdkScreen *screen;
