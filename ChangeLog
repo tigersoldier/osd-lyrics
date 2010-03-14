@@ -1,3 +1,7 @@
+2010-03-14  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_toolbar.c: CHANGE: Set the alignment of OSD toolbar to center
+
 2010-03-13  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: CHANGE: Event window of OSD Window is back :)
