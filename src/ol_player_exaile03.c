@@ -307,7 +307,6 @@ ol_player_exaile03_init_dbus ()
 static int
 ol_player_exaile03_get_capacity ()
 {
-  ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
   return OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_STOP |
     OL_PLAYER_PAUSE | OL_PLAYER_PREV | OL_PLAYER_NEXT;
 }
