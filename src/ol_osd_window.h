@@ -46,7 +46,7 @@ enum OlOsdWindowSingals {
 
 struct _OlOsdWindow
 {
-  GtkBin widget;
+  GtkWindow parent;
   GdkWindow *event_window;
   GdkWindow *osd_window;
   GdkPixbuf *bg_pixbuf;
@@ -69,7 +69,7 @@ struct _OlOsdWindow
 
 struct _OlOsdWindowClass
 {
-  GtkBinClass parent_class;
+  GtkWindowClass parent_class;
   guint signals[OSD_SINGAL_COUNT];
 };
 

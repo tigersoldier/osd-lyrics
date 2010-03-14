@@ -136,6 +136,7 @@ static void ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line);
 static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata);
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_allocation (OlOsdWindow *osd);
+static void ol_osd_window_check_resize (GtkContainer *container);
 
 static GtkWidgetClass *parent_class = NULL;
 
@@ -285,7 +286,7 @@ ol_osd_window_get_type (void)
         16,                     /* n_preallocs */
         (GInstanceInitFunc) ol_osd_window_init,
       };
-    ol_osd_type = g_type_register_static (GTK_TYPE_BIN, "OlOsdWindow",
+    ol_osd_type = g_type_register_static (GTK_TYPE_WINDOW, "OlOsdWindow",
                                           &ol_osd_info, 0);
   }
   return ol_osd_type;
@@ -460,6 +461,7 @@ ol_osd_window_realize (GtkWidget *widget)
   /* ensure the size allocation */
   ol_osd_window_update_allocation (osd);
   GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+  /* GTK_WIDGET_CLASS (parent_class)->realize (widget); */
 
   if (gdk_screen_is_composited (osd->screen))
   {
@@ -907,6 +909,12 @@ ol_osd_window_compute_osd_height (OlOsdWindow *osd)
 }
 
 static void
+ol_osd_window_check_resize (GtkContainer *container)
+{
+  ol_osd_window_update_allocation (OL_OSD_WINDOW (container));
+}
+
+static void
 ol_osd_window_update_allocation (OlOsdWindow *osd)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
@@ -1325,10 +1333,12 @@ ol_osd_window_class_init (OlOsdWindowClass *klass)
   GObjectClass *gobject_class;
   GtkObjectClass *object_class;
   GtkWidgetClass *widget_class;
+  GtkContainerClass *container_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
   object_class = (GtkObjectClass*)klass;
   widget_class = (GtkWidgetClass*)klass;
+  container_class = (GtkContainerClass*)klass;
   parent_class = g_type_class_peek_parent (klass);
 
   gobject_class->set_property = ol_osd_window_set_property;
@@ -1349,6 +1359,8 @@ ol_osd_window_class_init (OlOsdWindowClass *klass)
   widget_class->motion_notify_event = ol_osd_window_motion_notify;
   widget_class->enter_notify_event = ol_osd_window_enter_notify;
   widget_class->leave_notify_event = ol_osd_window_leave_notify;
+
+  container_class->check_resize = ol_osd_window_check_resize;
   
   /* set up properties */
   g_object_class_install_property (gobject_class,
@@ -1434,12 +1446,18 @@ static void
 ol_osd_window_init (OlOsdWindow *self)
 {
   ol_log_func ();
-  /* GTK_BIN automately add GTK_NO_WINDOW, we need to unset it */
-  GTK_WIDGET_UNSET_FLAGS (self, GTK_NO_WINDOW); 
-  GTK_WIDGET_SET_FLAGS (self, /* GTK_CAN_FOCUS |  */GTK_RECEIVES_DEFAULT);
-  GTK_WIDGET_SET_FLAGS (self, GTK_TOPLEVEL);
-  GTK_PRIVATE_SET_FLAG (self, GTK_ANCHORED);
-  gtk_container_set_resize_mode (GTK_CONTAINER (self), GTK_RESIZE_QUEUE);
+  /* /\* GTK_BIN automately add GTK_NO_WINDOW, we need to unset it *\/ */
+  /* GTK_WIDGET_UNSET_FLAGS (self, GTK_NO_WINDOW);  */
+  /* GTK_WIDGET_SET_FLAGS (self, /\* GTK_CAN_FOCUS |  *\/GTK_RECEIVES_DEFAULT); */
+  /* GTK_WIDGET_SET_FLAGS (self, GTK_TOPLEVEL); */
+  /* GTK_PRIVATE_SET_FLAG (self, GTK_ANCHORED); */
+  /* gtk_container_set_resize_mode (GTK_CONTAINER (self), GTK_RESIZE_QUEUE); */
+  GtkWindow *window = GTK_WINDOW (self);
+  gtk_window_set_decorated (window, FALSE);
+  window->type = GTK_WINDOW_POPUP;
+  gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_DOCK);
+  gtk_window_set_has_frame (window, FALSE);
+  gtk_widget_set_app_paintable (GTK_WIDGET (self), TRUE);
   self->screen = NULL;
   /* self->event_window = NULL; */
   self->current_line = 0;

@@ -44,7 +44,7 @@
 #include "ol_debug.h"
 
 #define REFRESH_INTERVAL 100
-#define INFO_INTERVAL 1000
+#define INFO_INTERVAL 500
 #define LRCDB_FILENAME "lrc.db"
 
 static gboolean first_run = TRUE;

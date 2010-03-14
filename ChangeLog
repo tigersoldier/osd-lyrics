@@ -1,5 +1,9 @@
 2010-03-14  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_window.c: CHANGE: The base class of OSD Window is changed to GtkWindow to avoid crashing on hiding child widgets
+
+	* src/ol_main.c (INFO_INTERVAL): CHANGE: The interval to refresh status of player is set to 500ms
+
 	* src/ol_osd_toolbar.c: CHANGE: Set the alignment of OSD toolbar to center
 	ADD: Hide play/pause button of OSD Toolbar when status changed
 
