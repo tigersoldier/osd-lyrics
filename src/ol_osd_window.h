@@ -130,7 +130,7 @@ void ol_osd_window_set_width (OlOsdWindow *osd, gint width);
  * @param width The width of the window, can be NULL
  * @param height The height of the window, can be NULL
  */
-void ol_osd_window_get_size (OlOsdWindow *osd, gint *width, gint *height);
+void ol_osd_window_get_osd_size (OlOsdWindow *osd, gint *width, gint *height);
 
 /** 
  * @brief Sets whether an OSD window is locked

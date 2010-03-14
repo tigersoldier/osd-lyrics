@@ -1,6 +1,8 @@
 2010-03-14  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: CHANGE: The base class of OSD Window is changed to GtkWindow to avoid crashing on hiding child widgets
+	CHANGE: Hide lyric window of OSD Window if lyrics are all empty. OSD Module doesn't hide OSD Window on empty lyrics any longer
+	(ol_osd_window_update_shape): FIX: Set shape mask to osd_window instead of bg_window in OSD Window
 
 	* src/ol_main.c (INFO_INTERVAL): CHANGE: The interval to refresh status of player is set to 500ms
 
