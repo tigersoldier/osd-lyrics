@@ -33,6 +33,7 @@ ol_osd_test_SOURCES = ol_osd_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
 	$(top_srcdir)/src/ol_osd_render.c \
 	$(top_srcdir)/src/ol_color.c \
+	$(top_srcdir)/src/ol_image_button.c \
 	$(top_srcdir)/src/ol_utils.c
 ol_osd_test_LDADD = \
 	@GTK2_LIBS@

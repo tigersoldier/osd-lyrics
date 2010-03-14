@@ -155,14 +155,14 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   else if (strcmp (name, "visible") == 0)
   {
     gboolean visible = ol_config_get_bool (config, "General", name);
-    if (visible && module->display)
-    {
-      gtk_widget_show (GTK_WIDGET (module->osd));
-    }
-    else
-    {
-      gtk_widget_hide (GTK_WIDGET (module->osd));
-    }
+    /* if (visible && module->display) */
+    /* { */
+    /*   gtk_widget_show (GTK_WIDGET (module->osd)); */
+    /* } */
+    /* else */
+    /* { */
+    /*   gtk_widget_hide (GTK_WIDGET (module->osd)); */
+    /* } */
   }
   else if (strcmp (name, "translucent-on-mouse-over") == 0)
   {
@@ -189,6 +189,13 @@ ol_osd_module_init_osd (OlOsdModule *module)
   ol_osd_window_set_bg (module->osd, bg);
   /* ol_osd_window_resize (osd, 1024, 100); */
   /* gtk_widget_show (GTK_WIDGET (module->osd)); */
+  module->toolbar = OL_OSD_TOOLBAR (ol_osd_toolbar_new ());
+  if (module->toolbar != NULL)
+  {
+    gtk_container_add (GTK_CONTAINER (module->osd),
+                       GTK_WIDGET (module->toolbar));
+    gtk_widget_show_all (GTK_WIDGET (module->toolbar));
+  }
   module->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
   g_return_if_fail (config != NULL);
@@ -313,10 +320,11 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
   } /* if (module->lrc_file != NULL && module->osd != NULL) */
   else
   {
-    if (module->osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd)))
-    {
-      clear_lyrics (module);
-    }
+    /* if (module->osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd))) */
+    /* { */
+    /*   ol_debug ("-1"); */
+    /*   clear_lyrics (module); */
+    /* } */
   }
 }
 
@@ -401,7 +409,7 @@ hide_message (OlOsdModule *module)
   ol_assert (module != NULL);
   ol_assert (module->lrc_file == NULL);
   ol_osd_window_set_lyric (module->osd, 0, NULL);
-  gtk_widget_hide (GTK_WIDGET (module->osd));
+  /* gtk_widget_hide (GTK_WIDGET (module->osd)); */
   module->message_source = 0;
   return FALSE;
 }
@@ -409,10 +417,11 @@ hide_message (OlOsdModule *module)
 static void
 clear_lyrics (OlOsdModule *module)
 {
+  ol_log_func ();
   if (module->osd != NULL && module->message_source == 0)
   {
     module->display = FALSE;
-    gtk_widget_hide (GTK_WIDGET (module->osd));
+    /* gtk_widget_hide (GTK_WIDGET (module->osd)); */
     ol_osd_window_set_lyric (module->osd, 0, NULL);
     ol_osd_window_set_lyric (module->osd, 1, NULL);
   }
@@ -431,4 +440,20 @@ ol_osd_module_clear_message (OlOsdModule *module)
     hide_message (module);
   }
   ol_debug ("  clear message done");
+}
+
+void
+ol_osd_module_set_player (OlOsdModule *module, OlPlayerController *player)
+{
+  ol_log_func ();
+  if (module->toolbar != NULL)
+    ol_osd_toolbar_set_player (module->toolbar, player);
+}
+
+void
+ol_osd_module_set_status (OlOsdModule *module, enum OlPlayerStatus status)
+{
+  ol_log_func ();
+  if (module->toolbar != NULL)
+    ol_osd_toolbar_set_status (module->toolbar, status);
 }

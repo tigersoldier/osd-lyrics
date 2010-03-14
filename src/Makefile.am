@@ -23,8 +23,10 @@ osd_lyrics_SOURCES = \
 	ol_about.c \
 	ol_option.c \
 	ol_osd_window.c \
+	ol_osd_toolbar.c \
 	ol_osd_render.c \
 	ol_osd_module.c \
+	ol_image_button.c \
 	ol_player.c \
 	ol_player_banshee.c \
 	ol_player_exaile02.c \

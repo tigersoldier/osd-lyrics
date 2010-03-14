@@ -263,7 +263,6 @@ ol_player_rhythmbox_init_dbus ()
 static int
 ol_player_rhythmbox_get_capacity ()
 {
-  ol_log_func ();
   return OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_PAUSE | OL_PLAYER_STOP |
     OL_PLAYER_PREV | OL_PLAYER_NEXT | OL_PLAYER_SEEK;
 }

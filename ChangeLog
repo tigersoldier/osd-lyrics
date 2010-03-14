@@ -1,4 +1,44 @@
+2010-03-14  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: CHANGE: The base class of OSD Window is changed to GtkWindow to avoid crashing on hiding child widgets
+	CHANGE: Hide lyric window of OSD Window if lyrics are all empty. OSD Module doesn't hide OSD Window on empty lyrics any longer
+	(ol_osd_window_update_shape): FIX: Set shape mask to osd_window instead of bg_window in OSD Window
+
+	* src/ol_main.c (INFO_INTERVAL): CHANGE: The interval to refresh status of player is set to 500ms
+
+	* src/ol_osd_toolbar.c: CHANGE: Set the alignment of OSD toolbar to center
+	ADD: Hide play/pause button of OSD Toolbar when status changed
+
+2010-03-13  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: CHANGE: Event window of OSD Window is back :)
+
+	* src/ol_osd_toolbar.c: ADD: Prev, Next, Pause, Stop control on OSD Toolbar
+
+	* src/ol_main.c (_refresh_music_info): Update the player info of OSD Module when player changed
+
+	* src/ol_osd_toolbar.c: ADD: OSD Toolbar widget
+
+	* src/ol_image_button.c: ADD: Image button widget
+
+	* src/ol_osd_window.c (ol_osd_window_update_allocation): FIX: Redraw after allocation updated
+
+2010-03-12  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_init): FIX: Set initial line count to 1
+	(ol_osd_window_set_line_alignment): FIX: Update area of lyric after update lyric aligment
+	(ol_osd_window_set_input_shape_mask): FIX: Set the input shape mask of osd window instead of that of the whole widget
+	(ol_osd_window_realize): FIX: set actual width and height of OSD window on realize
+	FIX: The allocation of background panel and child widget acts as design
+
+2010-03-11  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: CHANGE: Change the parent class of OSD Window to GtkBin
+	CHANGE: The background window of OSD Window is set to widget->window, so that the window of child widget is inside bg window
+
 2010-03-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_set_locked): FIX: Don't display background panel when unlocked with mouse out of event window
 
 	* src/ol_menu.c: ADD: No lyric and Assign lyric menu item
 
