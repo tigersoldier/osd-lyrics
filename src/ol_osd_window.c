@@ -1436,7 +1436,7 @@ ol_osd_window_init (OlOsdWindow *self)
   ol_log_func ();
   /* GTK_BIN automately add GTK_NO_WINDOW, we need to unset it */
   GTK_WIDGET_UNSET_FLAGS (self, GTK_NO_WINDOW); 
-  GTK_WIDGET_SET_FLAGS (self, GTK_CAN_FOCUS | GTK_RECEIVES_DEFAULT);
+  GTK_WIDGET_SET_FLAGS (self, /* GTK_CAN_FOCUS |  */GTK_RECEIVES_DEFAULT);
   GTK_WIDGET_SET_FLAGS (self, GTK_TOPLEVEL);
   GTK_PRIVATE_SET_FLAG (self, GTK_ANCHORED);
   gtk_container_set_resize_mode (GTK_CONTAINER (self), GTK_RESIZE_QUEUE);

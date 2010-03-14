@@ -44,15 +44,18 @@
 #include "ol_debug.h"
 
 #define REFRESH_INTERVAL 100
+#define INFO_INTERVAL 1000
 #define LRCDB_FILENAME "lrc.db"
 
 static gboolean first_run = TRUE;
 static guint refresh_source = 0;
+static guint info_timer = 0;
 static OlPlayerController *controller = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
 static gchar *previous_uri = NULL;
+static enum OlPlayerStatus previous_status = OL_PLAYER_UNKNOWN;
 static gint previous_duration = 0;
 static gint previous_position = -1;
 static LrcQueue *lrc_file = NULL;
@@ -61,9 +64,12 @@ static int fetch_id = 0;
 
 static void _initialize (int argc, char **argv);
 static gint _refresh_music_info (gpointer data);
+static gint _refresh_player_info (gpointer data);
 static void _check_music_change (int time);
 static void _on_music_changed (void);
 static gboolean _check_lyric_file (void);
+static void _update_player_status (enum OlPlayerStatus status);
+static gboolean _get_active_player (void);
 static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
 static void _download_callback (struct OlLrcDownloadResult *result);
@@ -237,40 +243,69 @@ _check_music_change (int time)
   }
 }
 
+static void
+_update_player_status (enum OlPlayerStatus status)
+{
+  if (previous_status != status)
+  {
+    previous_status = status;
+    if (module != NULL)
+    {
+      ol_osd_module_set_status (module, status);
+    }
+  }
+}
+
+static gint
+_refresh_player_info (gpointer data)
+{
+  if (controller != NULL)
+  {
+    if (ol_player_get_capacity (controller) & OL_PLAYER_STATUS)
+      _update_player_status (ol_player_get_status (controller));
+  }
+  return TRUE;
+}
+
+static gboolean
+_get_active_player (void)
+{
+  controller = ol_player_get_active_player ();
+  if (controller == NULL)
+  {
+    gboolean ignore = FALSE;
+    if (first_run)
+    {
+      OlConfig *config = ol_config_get_instance ();
+      char *player_cmd = ol_config_get_string (config,
+                                               "General",
+                                               "startup-player");
+      if (!ol_is_string_empty (player_cmd))
+      {
+        ignore = TRUE;
+        ol_debugf ("Running %s\n", player_cmd);
+        g_spawn_command_line_async (player_cmd, NULL);
+        sleep (5);
+      }
+      g_free (player_cmd);
+    }
+    if (!ignore)
+    {
+      printf (_("No supported player is running, exit.\n"));
+      gtk_main_quit ();
+    }
+  }
+  ol_osd_module_set_player (module, controller);
+  first_run = FALSE;
+  return controller != NULL;
+}
+
 static gint
 _refresh_music_info (gpointer data)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
-  if (controller == NULL)
-  {
-    controller = ol_player_get_active_player ();
-    if (controller == NULL)
-    {
-      gboolean ignore = FALSE;
-      if (first_run)
-      {
-        OlConfig *config = ol_config_get_instance ();
-        char *player_cmd = ol_config_get_string (config,
-                                                 "General",
-                                                 "startup-player");
-        if (!ol_is_string_empty (player_cmd))
-        {
-          ignore = TRUE;
-          ol_debugf ("Running %s\n", player_cmd);
-          g_spawn_command_line_async (player_cmd, NULL);
-          sleep (5);
-        }
-        g_free (player_cmd);
-      }
-      if (!ignore)
-      {
-        printf (_("No supported player is running, exit.\n"));
-        gtk_main_quit ();
-      }
-    }
-    ol_osd_module_set_player (module, controller);
-  }
-  first_run = FALSE;
+  /* ol_log_func (); */
+  if (controller == NULL && !_get_active_player ())
+    return TRUE;
   guint time = 0;
   if (controller && !ol_player_get_played_time (controller, &time))
   {
@@ -299,7 +334,6 @@ _initialize (int argc, char **argv)
   /* Handler for SIGCHLD to wait lrc downloading process */
   /* signal (SIGCHLD, child_handler); */
   
-  ol_logf (OL_INFO, "main\n");
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
   ol_stock_init ();
@@ -320,6 +354,7 @@ _initialize (int argc, char **argv)
   g_free (lrcdb_file);
   ol_lrc_fetch_add_async_download_callback (_download_callback);
   refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
+  info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
 }
 
 OlPlayerController*

@@ -30,6 +30,13 @@ AC_SUBST(OL_ICONDIR)
 OL_GUIDIR="$datadir/$PACKAGE"
 AC_SUBST(OL_GUIDIR)
 
+dnl debug_default="yes"
+dnl AC_ARG_ENABLE(debug, [  --enable-debug=[no/yes] turn on debugging
+dnl                        [default=$debug_default]],, enable_debug=$debug_default)
+dnl if test "x$enable_debug" = "xyes"; then
+dnl          CFLAGS="$CFLAGS -g -DDEBUG"
+dnl fi
+
 # gprof support
 AC_ARG_WITH(gprof-support,
 [  --with-gprof-support=DIR   Include gmon.out file renaming support 

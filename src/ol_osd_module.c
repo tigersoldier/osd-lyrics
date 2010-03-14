@@ -447,3 +447,11 @@ ol_osd_module_set_player (OlOsdModule *module, OlPlayerController *player)
   if (module->toolbar != NULL)
     ol_osd_toolbar_set_player (module->toolbar, player);
 }
+
+void
+ol_osd_module_set_status (OlOsdModule *module, enum OlPlayerStatus status)
+{
+  ol_log_func ();
+  if (module->toolbar != NULL)
+    ol_osd_toolbar_set_status (module->toolbar, status);
+}
