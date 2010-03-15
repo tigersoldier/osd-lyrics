@@ -20,6 +20,17 @@
   <defs
      id="defs5901">
     <linearGradient
+       id="linearGradient5190">
+      <stop
+         id="stop5192"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop5194"
+         offset="1"
+         style="stop-color:#e6e6e6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient6117">
       <stop
          id="stop6119"
@@ -104,7 +115,7 @@
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient6505"
+       xlink:href="#linearGradient5190"
        id="linearGradient6787"
        gradientUnits="userSpaceOnUse"
        x1="8"
@@ -141,10 +152,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="10"
-     inkscape:cx="13.376446"
+     inkscape:cx="-2.723554"
      inkscape:cy="7.6011549"
      inkscape:document-units="px"
-     inkscape:current-layer="layer6"
+     inkscape:current-layer="layer4"
      showgrid="false"
      inkscape:window-width="1280"
      inkscape:window-height="749"
@@ -160,7 +171,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -192,7 +203,7 @@
     <path
        id="path4187"
        d="m 4.125,-3.25 c -0.76175,0 -1.375,0.61325 -1.375,1.375 l 0,13.75 c 0,0.76175 0.61325,1.375 1.375,1.375 l 3.4375,0 c 0.76175,0 1.375,-0.61325 1.375,-1.375 l 0,-13.75 c 0,-0.76175 -0.61325,-1.375 -1.375,-1.375 l -3.4375,0 z m 10.3125,0 c -0.76175,0 -1.375,0.61325 -1.375,1.375 l 0,13.75 c 0,0.76175 0.61325,1.375 1.375,1.375 l 3.4375,0 c 0.76175,0 1.375,-0.61325 1.375,-1.375 l 0,-13.75 c 0,-0.76175 -0.61325,-1.375 -1.375,-1.375 l -3.4375,0 z"
-       style="color:#000000;fill:url(#linearGradient6787);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+       style="color:#000000;fill:url(#linearGradient6787);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.50000000000000000;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;opacity:0.8" />
   </g>
   <g
      inkscape:groupmode="layer"

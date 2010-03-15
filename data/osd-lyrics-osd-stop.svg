@@ -20,6 +20,17 @@
   <defs
      id="defs5901">
     <linearGradient
+       id="linearGradient6222">
+      <stop
+         id="stop6224"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop6226"
+         offset="1"
+         style="stop-color:#e6e6e6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient6892">
       <stop
          id="stop6894"
@@ -115,7 +126,7 @@
        y2="14" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient6505"
+       xlink:href="#linearGradient6222"
        id="linearGradient5767"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.375,0,0,1.375,0,-6)"
@@ -132,10 +143,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="10"
-     inkscape:cx="15.545868"
+     inkscape:cx="-0.554132"
      inkscape:cy="2.5"
      inkscape:document-units="px"
-     inkscape:current-layer="layer7"
+     inkscape:current-layer="layer4"
      showgrid="false"
      inkscape:window-width="1280"
      inkscape:window-height="749"
@@ -150,7 +161,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -161,7 +172,7 @@
      style="display:inline"
      transform="translate(0,6)">
     <rect
-       style="color:#000000;fill:url(#linearGradient5767);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.50000000000000000;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:url(#linearGradient5767);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.50000000000000000;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;opacity:0.8"
        id="rect6810"
        width="16.5"
        height="16.5"

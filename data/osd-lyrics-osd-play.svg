@@ -47,7 +47,7 @@
          offset="0"
          id="stop6507" />
       <stop
-         style="stop-color:#c8c8c8;stop-opacity:1;"
+         style="stop-color:#e6e6e6;stop-opacity:1"
          offset="1"
          id="stop6509" />
     </linearGradient>
@@ -104,7 +104,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="10"
-     inkscape:cx="33.712176"
+     inkscape:cx="17.612176"
      inkscape:cy="12.218663"
      inkscape:document-units="px"
      inkscape:current-layer="layer4"
@@ -122,7 +122,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -155,7 +155,7 @@
        sodipodi:nodetypes="ccccccc"
        id="play-normal"
        d="m 2.7407406,-2.8375001 0,15.6750001 c 0.022844,0.744792 0.5938271,0.423958 0.6851852,0.4125 L 19.185184,5.4124999 c 0.376852,-0.1375 0.411111,-0.584375 0,-0.825 l -15.7592582,-7.8375 c -0.091358,-0.045833 -0.6280864,-0.091667 -0.6851852,0.4125 z"
-       style="fill:url(#linearGradient6511);fill-opacity:1;stroke:none"
+       style="fill:url(#linearGradient6511);fill-opacity:1;stroke:none;opacity:0.8"
        inkscape:label="#path5930" />
     <path
        inkscape:label="#path5930"

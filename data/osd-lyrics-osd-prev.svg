@@ -20,6 +20,17 @@
   <defs
      id="defs5901">
     <linearGradient
+       id="linearGradient5706">
+      <stop
+         id="stop5708"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop5710"
+         offset="1"
+         style="stop-color:#e6e6e6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient8317">
       <stop
          id="stop8319"
@@ -78,7 +89,7 @@
        gradientTransform="matrix(0.83627663,0,0,1,0.32744675,0)" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient6505"
+       xlink:href="#linearGradient5706"
        id="linearGradient6596"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(-1.1498804,0,0,1.375,21.54976,-6)"
@@ -115,10 +126,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="10"
-     inkscape:cx="17.522162"
+     inkscape:cx="1.422162"
      inkscape:cy="4.601971"
      inkscape:document-units="px"
-     inkscape:current-layer="layer8"
+     inkscape:current-layer="layer4"
      showgrid="false"
      inkscape:window-width="1280"
      inkscape:window-height="749"
@@ -133,7 +144,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -143,7 +154,7 @@
      inkscape:label="层"
      transform="translate(0,6)">
     <path
-       style="fill:url(#linearGradient6596);fill-opacity:1;stroke:none"
+       style="fill:url(#linearGradient6596);fill-opacity:1;stroke:none;opacity:0.8"
        d="m 18.992187,-3.25 c 0.128164,0.045833 0.233858,0.1776042 0.257813,0.4296875 l 0,15.6406255 C 19.230831,13.565105 18.768065,13.261458 18.691406,13.25 L 8.25,7.0625 l 0,4.8125 c 0,0.76175 -0.61325,1.375 -1.375,1.375 l -2.75,0 C 3.36325,13.25 2.75,12.63675 2.75,11.875 l 0,-13.75 c 0,-0.76175 0.61325,-1.375 1.375,-1.375 l 2.75,0 c 0.76175,0 1.375,0.61325 1.375,1.375 l 0,4.8125 10.441406,-6.1875 c 0.03834,-0.022917 0.172618,-0.045833 0.300781,0 z"
        id="path5930" />
     <path
