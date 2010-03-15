@@ -1,3 +1,7 @@
+2010-03-15  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* configure.ac: CHANGE: Do not stop autoconf if xmms2 or mpd library is missing
+
 2010-03-14  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: CHANGE: The base class of OSD Window is changed to GtkWindow to avoid crashing on hiding child widgets

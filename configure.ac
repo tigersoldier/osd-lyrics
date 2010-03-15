@@ -98,7 +98,7 @@ AS_IF([test "x$enable_mpd" != "xno"],
     ],
     [enable_mpd=no
      #BUILD_MPD_SUPPORT=0
-     AC_MSG_FAILURE(
+     AC_MSG_WARN(
        [libmpd is not available, use --disable-mpd to disable MPD support])
     ])
   ],
@@ -132,7 +132,7 @@ AS_IF([test "x$enable_xmms2" != "xno"],
     ],
     [enable_xmms2=no
      #BUILD_XMMS2_SUPPORT=0
-     AC_MSG_FAILURE(
+     AC_MSG_WARN(
        [xmms2-client is not available, use --disable-xmms2 to disable XMMS2 support])
     ])
   ],
