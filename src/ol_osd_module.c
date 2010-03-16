@@ -177,7 +177,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
 static void
 ol_osd_module_init_osd (OlOsdModule *module)
 {
-  module->osd = OL_OSD_WINDOW (g_object_ref_sink (ol_osd_window_new ()));
+  module->osd = OL_OSD_WINDOW (ol_osd_window_new ());
   if (module->osd == NULL)
     return;
   GtkIconTheme *icontheme = gtk_icon_theme_get_default ();

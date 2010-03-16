@@ -88,15 +88,15 @@ ol_image_button_expose (GtkWidget *widget,
     sw = gdk_pixbuf_get_width (priv->image) / SLICE_NUM;
     sh = gdk_pixbuf_get_height (priv->image);
     x = mx - sw / 2; y = my - sh / 2;
-    ol_debugf ("cut: (%d, %d) %d x %d\n",
-               event->area.x, event->area.y,
-               w, h);
+    /* ol_debugf ("cut: (%d, %d) %d x %d\n", */
+    /*            event->area.x, event->area.y, */
+    /*            w, h); */
     cairo_rectangle (cr, event->area.x, event->area.y,
                      w, h);
     cairo_clip (cr);
-    ol_debugf ("cut: (%d, %d) %d x %d\n",
-               x, y,
-               sw, sh);
+    /* ol_debugf ("cut: (%d, %d) %d x %d\n", */
+    /*            x, y, */
+    /*            sw, sh); */
     cairo_rectangle (cr, x, y,
                      sw, sh);
     cairo_clip (cr);

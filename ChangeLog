@@ -1,3 +1,11 @@
+2010-03-16  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_unrealize): FIX: Memory leak due to the event_window of OSD Window is not unrefed on destroy
+	FIX: realize osd_window with proper size
+	FIX: alignments of OSD Window will be calculated properly when the window is moved
+
+	* src/ol_osd_module.c (ol_osd_module_init_osd): FIX: We don't have to g_object_ref_sink to OSD Window any longer
+
 2010-03-15  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* configure.ac: CHANGE: Do not stop autoconf if xmms2 or mpd library is missing
