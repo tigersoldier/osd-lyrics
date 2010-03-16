@@ -163,7 +163,7 @@ ol_option_startup_player_changed (GtkComboBox *cb,
   }
   else
   {
-    OlPlayerController ** players = ol_player_get_controllers ();
+    struct OlPlayer ** players = ol_player_get_players ();
     if (players[index - 1] != NULL)
       gtk_entry_set_text (entry,
                           ol_player_get_cmd (players[index - 1]));
@@ -847,7 +847,7 @@ load_general ()
      }
      else
      {
-       OlPlayerController **players = ol_player_get_controllers ();
+       struct OlPlayer **players = ol_player_get_players ();
        for (i = 0; players[i] != NULL; i++)
        {
          if (strcmp (player_cmd, ol_player_get_cmd (players[i])) == 0)
@@ -1100,7 +1100,7 @@ init_startup_player (GtkWidget *widget)
   if (cb == NULL)
     return;
   gtk_combo_box_append_text (cb, _("None"));
-  OlPlayerController **players = ol_player_get_controllers ();
+  struct OlPlayer **players = ol_player_get_players ();
   int i = 0;
   for (i = 0; players[i] != NULL; i++)
   {

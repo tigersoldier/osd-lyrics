@@ -19,6 +19,7 @@
 #include "ol_gui.h"
 #include "ol_search_dialog.h"
 #include "ol_lrc_parser.h"
+#include "ol_player.h"
 #include "ol_debug.h"
 
 static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
@@ -209,7 +210,7 @@ ol_menu_preference (GtkWidget *widget, gpointer data)
 void
 ol_menu_play (GtkWidget *widget, gpointer data)
 {
-  OlPlayerController *player = ol_app_get_controller ();
+  struct OlPlayer *player = ol_app_get_controller ();
   if (player == NULL)
     return;
   ol_log_func ();
@@ -219,7 +220,7 @@ ol_menu_play (GtkWidget *widget, gpointer data)
 void
 ol_menu_pause (GtkWidget *widget, gpointer data)
 {
-  OlPlayerController *player = ol_app_get_controller ();
+  struct OlPlayer *player = ol_app_get_controller ();
   if (player == NULL)
     return;
   ol_player_pause (player);
@@ -228,7 +229,7 @@ ol_menu_pause (GtkWidget *widget, gpointer data)
 void
 ol_menu_stop (GtkWidget *widget, gpointer data)
 {
-  OlPlayerController *player = ol_app_get_controller ();
+  struct OlPlayer *player = ol_app_get_controller ();
   if (player == NULL)
     return;
   ol_player_stop (player);
@@ -237,7 +238,7 @@ ol_menu_stop (GtkWidget *widget, gpointer data)
 void
 ol_menu_prev (GtkWidget *widget, gpointer data)
 {
-  OlPlayerController *player = ol_app_get_controller ();
+  struct OlPlayer *player = ol_app_get_controller ();
   if (player == NULL)
     return;
   ol_player_prev (player);
@@ -247,7 +248,7 @@ void
 ol_menu_next (GtkWidget *widget, gpointer data)
 {
   fprintf (stderr, "%s\n", __FUNCTION__);
-  OlPlayerController *player = ol_app_get_controller ();
+  struct OlPlayer *player = ol_app_get_controller ();
   if (player == NULL)
     return;
   ol_player_next (player);
@@ -299,7 +300,7 @@ static void
 ol_menu_update_player_control ()
 {
   ol_log_func ();
-  OlPlayerController *controller = ol_app_get_controller ();
+  struct OlPlayer *controller = ol_app_get_controller ();
   if (menu.play)
   {
     if (controller != NULL)

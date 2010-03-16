@@ -6,6 +6,7 @@
 #include "ol_player_exaile02.h"
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
+#include "ol_debug.h"
 
 static const char service[] = "org.exaile.DBusInterface";
 static const char path[] = "/DBusInterfaceObject";
@@ -104,12 +105,12 @@ ol_player_exaile02_get_music_info (OlMusicInfo *info)
   {
     return FALSE;
   }
-  printf ("%s\n"
-          "  title:%s\n"
-          "  artist:%s\n",
-          __FUNCTION__,
-          info->title,
-          info->artist);
+  ol_debugf ("%s\n"
+             "  title:%s\n"
+             "  artist:%s\n",
+             __FUNCTION__,
+             info->title,
+             info->artist);
   return TRUE;
 }
 
@@ -246,12 +247,11 @@ ol_player_exaile02_get_capacity ()
   return OL_PLAYER_STATUS;
 }
 
-OlPlayerController*
-ol_player_exaile02_get_controller ()
+struct OlPlayer*
+ol_player_exaile02_get ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
-  OlPlayerController *controller = ol_player_new ("Exaile 0.2");
+  ol_log_func ();
+  struct OlPlayer *controller = ol_player_new ("Exaile 0.2");
   ol_player_set_cmd (controller, "exaile");
   controller->get_music_info = ol_player_exaile02_get_music_info;
   controller->get_activated = ol_player_exaile02_get_activated;

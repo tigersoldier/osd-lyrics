@@ -50,7 +50,7 @@
 static gboolean first_run = TRUE;
 static guint refresh_source = 0;
 static guint info_timer = 0;
-static OlPlayerController *controller = NULL;
+static struct OlPlayer *controller = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
@@ -357,7 +357,7 @@ _initialize (int argc, char **argv)
   info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
 }
 
-OlPlayerController*
+struct OlPlayer*
 ol_app_get_controller ()
 {
   return controller;

@@ -368,12 +368,12 @@ ol_player_rhythmbox_seek (int pos_ms)
                             G_TYPE_INVALID);
 }
 
-OlPlayerController*
-ol_player_rhythmbox_get_controller ()
+struct OlPlayer*
+ol_player_rhythmbox_get ()
 {
   ol_log_func ();
   ol_elapse_emulator_init (&elapse, 0, 1000);
-  OlPlayerController *controller = ol_player_new ("Rhythmbox");
+  struct OlPlayer *controller = ol_player_new ("Rhythmbox");
   ol_player_set_cmd (controller, "rhythmbox");
   controller->get_music_info = ol_player_rhythmbox_get_music_info;
   controller->get_activated = ol_player_rhythmbox_get_activated;

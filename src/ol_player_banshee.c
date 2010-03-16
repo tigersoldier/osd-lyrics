@@ -5,6 +5,7 @@
 #include "ol_player_banshee.h"
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
+#include "ol_debug.h"
 
 static const char *service = "org.bansheeproject.Banshee";
 static const char *path = "/org/bansheeproject/Banshee/PlaybackController";
@@ -304,12 +305,11 @@ ol_player_banshee_seek (int pos_ms)
                             G_TYPE_INVALID);
 }
 
-OlPlayerController*
-ol_player_banshee_get_controller ()
+struct OlPlayer*
+ol_player_banshee_get ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
-  OlPlayerController *controller = ol_player_new ("Banshee");
+  ol_log_func ();
+  struct OlPlayer *controller = ol_player_new ("Banshee");
   ol_player_set_cmd (controller, "banshee");
   controller->get_music_info = ol_player_banshee_get_music_info;
   controller->get_activated = ol_player_banshee_get_activated;

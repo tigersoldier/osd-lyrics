@@ -3,6 +3,6 @@
 
 #include "ol_player.h"
 
-OlPlayerController* ol_player_audacious_get_controller ();
+struct OlPlayer* ol_player_audacious_get ();
 
 #endif /* _OL_PLAYER_AUDACIOUS_H_ */

@@ -21,71 +21,71 @@
 #include "ol_player_moc.h"
 #include "ol_player_quodlibet.h"
 
-static GArray *controllers = NULL;
+static GArray *players = NULL;
 
 void
 ol_player_init ()
 {
-  if (controllers == NULL)
+  if (players == NULL)
   {
-    controllers = g_array_new (FALSE, TRUE, sizeof (OlPlayerController*));
+    players = g_array_new (FALSE, TRUE, sizeof (struct OlPlayer*));
 #ifdef ENABLE_AMAROK1
-    ol_player_register_controller (ol_player_amarok1_get_controller ());
+    ol_player_register (ol_player_amarok1_get ());
 #endif
-    ol_player_register_controller (ol_player_amarok2_get_controller ());
-    ol_player_register_controller (ol_player_banshee_get_controller ());
-    ol_player_register_controller (ol_player_exaile02_get_controller ());
-    ol_player_register_controller (ol_player_exaile03_get_controller ());
-    ol_player_register_controller (ol_player_audacious_get_controller ());
-    ol_player_register_controller (ol_player_songbird_get_controller ()); 
+    ol_player_register (ol_player_amarok2_get ());
+    ol_player_register (ol_player_banshee_get ());
+    ol_player_register (ol_player_exaile02_get ());
+    ol_player_register (ol_player_exaile03_get ());
+    ol_player_register (ol_player_audacious_get ());
+    ol_player_register (ol_player_songbird_get ()); 
 #ifdef ENABLE_XMMS2
-    ol_player_register_controller (ol_player_xmms2_get_controller ());
+    ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
-    ol_player_register_controller (ol_player_rhythmbox_get_controller ());
+    ol_player_register (ol_player_rhythmbox_get ());
 #ifdef ENABLE_MPD
-    ol_player_register_controller (ol_player_mpd_get_controller ());
+    ol_player_register (ol_player_mpd_get ());
 #endif  /* ENABLE_MPD */
-    ol_player_register_controller (ol_player_moc_get_controller ());
-    ol_player_register_controller (ol_player_quodlibet_get_controller ());
+    ol_player_register (ol_player_moc_get ());
+    ol_player_register (ol_player_quodlibet_get ());
   }
 }
 
 void
 ol_player_unload ()
 {
-  if (controllers != NULL)
+  if (players != NULL)
   {
-    g_array_free (controllers, TRUE);
-    controllers = NULL;
+    g_array_free (players, TRUE);
+    players = NULL;
   }
 }
 
-OlPlayerController **
-ol_player_get_controllers ()
+struct OlPlayer **
+ol_player_get_players ()
 {
-  OlPlayerController **players = g_new0 (OlPlayerController *,
-                                         controllers->len + 1);
+  struct OlPlayer **ret = g_new0 (struct OlPlayer *,
+                                  players->len + 1);
   int i;
-  for (i = 0; i < controllers->len; i++)
+  for (i = 0; i < players->len; i++)
   {
-    players[i] = g_array_index (controllers, OlPlayerController*, i);
+    ret[i] = g_array_index (players, struct OlPlayer*, i);
   }
-  return players;
+  return ret;
 }
 
-OlPlayerController*
+struct OlPlayer*
 ol_player_get_active_player ()
 {
   ol_log_func ();
-  if (controllers == NULL)
+  if (players == NULL)
   {
     return NULL;
   }
   int i;
-  ol_debugf ("controller count:%d\n", controllers->len);
-  for (i = 0; i < controllers->len; i++)
+  ol_debugf ("controller count:%d\n", players->len);
+  for (i = 0; i < players->len; i++)
   {
-    OlPlayerController *controller = g_array_index (controllers, OlPlayerController*, i);
+    struct OlPlayer *controller = g_array_index (players, struct OlPlayer*, i);
     ol_debugf ("trying player %d\n", i);
     if (controller && controller->get_activated ())
     {
@@ -96,16 +96,16 @@ ol_player_get_active_player ()
 }
 
 void
-ol_player_register_controller (OlPlayerController *controller)
+ol_player_register (struct OlPlayer *controller)
 {
   ol_assert (controller != NULL);
   ol_assert (ol_player_get_name (controller) != NULL);
   /* controller->get_activated (); */
-  g_array_append_val (controllers, controller);
+  g_array_append_val (players, controller);
 }
 
 gboolean
-ol_player_get_music_info (OlPlayerController *player, OlMusicInfo *info)
+ol_player_get_music_info (struct OlPlayer *player, OlMusicInfo *info)
 {
   if (player == NULL)
     return FALSE;
@@ -113,7 +113,7 @@ ol_player_get_music_info (OlPlayerController *player, OlMusicInfo *info)
 }
 
 gboolean
-ol_player_get_activated (OlPlayerController *player)
+ol_player_get_activated (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -121,7 +121,7 @@ ol_player_get_activated (OlPlayerController *player)
 }
 
 gboolean
-ol_player_get_played_time (OlPlayerController *player, int *played_time)
+ol_player_get_played_time (struct OlPlayer *player, int *played_time)
 {
   if (player == NULL)
     return FALSE;
@@ -129,7 +129,7 @@ ol_player_get_played_time (OlPlayerController *player, int *played_time)
 }
 
 gboolean
-ol_player_get_music_length (OlPlayerController *player, int *len)
+ol_player_get_music_length (struct OlPlayer *player, int *len)
 {
   if (player == NULL)
     return FALSE;
@@ -137,7 +137,7 @@ ol_player_get_music_length (OlPlayerController *player, int *len)
 }
 
 enum OlPlayerStatus
-ol_player_get_status (OlPlayerController *player)
+ol_player_get_status (struct OlPlayer *player)
 {
   if (player == NULL)
     return OL_PLAYER_ERROR;
@@ -147,7 +147,7 @@ ol_player_get_status (OlPlayerController *player)
 }
 
 int
-ol_player_get_capacity (OlPlayerController *player)
+ol_player_get_capacity (struct OlPlayer *player)
 {
   if (player == NULL)
     return -1;
@@ -157,7 +157,7 @@ ol_player_get_capacity (OlPlayerController *player)
 }
 
 gboolean
-ol_player_play (OlPlayerController *player)
+ol_player_play (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -167,7 +167,7 @@ ol_player_play (OlPlayerController *player)
 }
 
 gboolean
-ol_player_prev (OlPlayerController *player)
+ol_player_prev (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -177,7 +177,7 @@ ol_player_prev (OlPlayerController *player)
 }
 
 gboolean
-ol_player_next (OlPlayerController *player)
+ol_player_next (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -187,7 +187,7 @@ ol_player_next (OlPlayerController *player)
 }
 
 gboolean
-ol_player_seek (OlPlayerController *player, int pos_ms)
+ol_player_seek (struct OlPlayer *player, int pos_ms)
 {
   if (player == NULL)
     return FALSE;
@@ -197,7 +197,7 @@ ol_player_seek (OlPlayerController *player, int pos_ms)
 }
 
 gboolean
-ol_player_stop (OlPlayerController *player)
+ol_player_stop (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -207,7 +207,7 @@ ol_player_stop (OlPlayerController *player)
 }
 
 gboolean
-ol_player_pause (OlPlayerController *player)
+ol_player_pause (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -217,7 +217,7 @@ ol_player_pause (OlPlayerController *player)
 }
 
 gboolean
-ol_player_play_pause (OlPlayerController *player)
+ol_player_play_pause (struct OlPlayer *player)
 {
   if (player == NULL)
     return FALSE;
@@ -240,17 +240,17 @@ ol_player_play_pause (OlPlayerController *player)
   }
 }
 
-OlPlayerController *
+struct OlPlayer *
 ol_player_new (const char *name)
 {
   ol_assert_ret (name != NULL, NULL);
-  OlPlayerController *player = g_new0 (OlPlayerController, 1);
+  struct OlPlayer *player = g_new0 (struct OlPlayer, 1);
   player->name = name;
   return player;
 }
 
 void
-ol_player_free (OlPlayerController *player)
+ol_player_free (struct OlPlayer *player)
 {
   ol_assert (player != NULL);
   if (player->cmdline != NULL)
@@ -259,7 +259,7 @@ ol_player_free (OlPlayerController *player)
 }
 
 const char *
-ol_player_set_cmd (OlPlayerController *player,
+ol_player_set_cmd (struct OlPlayer *player,
                               const char *cmd)
 {
   ol_assert_ret (player != NULL, NULL);
@@ -269,14 +269,14 @@ ol_player_set_cmd (OlPlayerController *player,
 }
 
 const char *
-ol_player_get_cmd (OlPlayerController *player)
+ol_player_get_cmd (struct OlPlayer *player)
 {
   ol_assert_ret (player != NULL, NULL);
   return player->cmdline;
 }
 
 const char *
-ol_player_get_name (OlPlayerController *player)
+ol_player_get_name (struct OlPlayer *player)
 {
   ol_assert_ret (player != NULL, NULL);
   return player->name;

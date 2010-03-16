@@ -3,6 +3,6 @@
 
 #include "ol_player.h"
 
-OlPlayerController* ol_player_quodlibet_get_controller ();
+struct OlPlayer* ol_player_quodlibet_get ();
 
 #endif /* _OL_PLAYER_QUODLIBET_H_ */

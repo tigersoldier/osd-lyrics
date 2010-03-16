@@ -443,7 +443,7 @@ ol_osd_module_clear_message (OlOsdModule *module)
 }
 
 void
-ol_osd_module_set_player (OlOsdModule *module, OlPlayerController *player)
+ol_osd_module_set_player (OlOsdModule *module, struct OlPlayer *player)
 {
   ol_log_func ();
   if (module->toolbar != NULL)

@@ -377,11 +377,11 @@ ol_player_exaile03_next ()
   return ol_dbus_invoke (proxy, next);
 }
 
-OlPlayerController*
-ol_player_exaile03_get_controller ()
+struct OlPlayer*
+ol_player_exaile03_get ()
 {
   ol_logf (OL_DEBUG, "%s\n",__FUNCTION__);
-  OlPlayerController *controller = ol_player_new ("Exaile 0.3");
+  struct OlPlayer *controller = ol_player_new ("Exaile 0.3");
   ol_player_set_cmd (controller, "exaile");
   controller->get_music_info = ol_player_exaile03_get_music_info;
   controller->get_activated = ol_player_exaile03_get_activated;

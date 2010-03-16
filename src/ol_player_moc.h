@@ -8,7 +8,7 @@
  * 
  * @return The controller of MOC. It's allocated by g_new, so use g_free to free the memory
  */
-OlPlayerController* ol_player_moc_get_controller ();
+struct OlPlayer* ol_player_moc_get ();
 
 
 #endif /* _OL_PLAYER_MOC_H_ */

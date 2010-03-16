@@ -184,13 +184,11 @@ ol_osd_window_bg_expose (GtkWidget *widget, GdkEventExpose *event)
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  ol_debugf ("pixbuf: %p\n", osd->bg_pixbuf);
   int w, h;
   gdk_drawable_get_size (event->window, &w, &h);
   if (osd->bg_pixbuf != NULL)
   {
     int sw, sh;
-    ol_debug ("Drawing pixbuf");
     cairo_t *cr;
     cr = gdk_cairo_create (event->window);
     if (priv->composited)
@@ -1034,6 +1032,8 @@ static void
 ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
 {
   ol_assert (osd != NULL);
+  if (!gdk_window_is_visible (osd->osd_window))
+    return;
   GtkWidget *widget = GTK_WIDGET (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   double alpha = 1.0;
@@ -1700,14 +1700,14 @@ void
 ol_osd_window_set_translucent_on_mouse_over (OlOsdWindow *osd,
                                              gboolean value)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   osd->translucent_on_mouse_over = value;
 }
 
 gboolean
 ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd)
 {
-  g_return_val_if_fail (OL_IS_OSD_WINDOW (osd), FALSE);
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), FALSE);
   return osd->translucent_on_mouse_over;
 }
 

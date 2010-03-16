@@ -244,11 +244,11 @@ internal_ensure_dbus ()
   return TRUE;
 }
 
-OlPlayerController*
-ol_player_quodlibet_get_controller ()
+struct OlPlayer*
+ol_player_quodlibet_get ()
 {
   ol_log_func ();
-  OlPlayerController *controller = ol_player_new ("Quod Libet");
+  struct OlPlayer *controller = ol_player_new ("Quod Libet");
   ol_player_set_cmd (controller, "quodlibet");
   controller->get_music_info = internal_get_music_info;
   controller->get_activated = internal_get_activated;

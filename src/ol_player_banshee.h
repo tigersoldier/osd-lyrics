@@ -8,6 +8,6 @@
  * 
  * @return The controller of Banshee. It's allocated by g_new, so use g_free to free the memory
  */
-OlPlayerController* ol_player_banshee_get_controller ();
+struct OlPlayer* ol_player_banshee_get ();
 
 #endif // __OL_PLAYER_BANSHEE_H__

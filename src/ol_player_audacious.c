@@ -127,12 +127,12 @@ ol_player_audacious_seek (int pos_ms)
   return ol_player_mpris_seek (mpris, pos_ms);
 }
 
-OlPlayerController*
-ol_player_audacious_get_controller ()
+struct OlPlayer*
+ol_player_audacious_get ()
 {
   printf ("%s\n",
           __FUNCTION__);
-  OlPlayerController *controller = ol_player_new ("Audacious");
+  struct OlPlayer *controller = ol_player_new ("Audacious");
   ol_player_set_cmd (controller, "audacious2");
   controller->get_music_info = ol_player_audacious_get_music_info;
   controller->get_activated = ol_player_audacious_get_activated;

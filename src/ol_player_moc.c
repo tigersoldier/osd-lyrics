@@ -266,11 +266,11 @@ ol_player_moc_next ()
   return ol_cmd_exec (NEXT_CMD);
 }
 
-OlPlayerController*
-ol_player_moc_get_controller ()
+struct OlPlayer*
+ol_player_moc_get ()
 {
   ol_log_func ();
-  OlPlayerController *controller = ol_player_new ("MOC");
+  struct OlPlayer *controller = ol_player_new ("MOC");
   ol_player_set_cmd (controller, "mocp -S");
   controller->get_music_info = ol_player_moc_get_music_info;
   controller->get_activated = ol_player_moc_get_activated;

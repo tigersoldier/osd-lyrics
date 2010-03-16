@@ -8,6 +8,6 @@
  * 
  * @return The controller of Rhythmbox. It's allocated by g_new, so use g_free to free the memory
  */
-OlPlayerController* ol_player_rhythmbox_get_controller ();
+struct OlPlayer* ol_player_rhythmbox_get ();
 
 #endif /* _OL_PLAYER_RHYTHMBOX_H_ */

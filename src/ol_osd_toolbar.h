@@ -31,7 +31,7 @@ struct _OlOsdToolbarClass
 GtkType ol_osd_toolbar_get_type (void);
 
 GtkWidget *ol_osd_toolbar_new (void);
-void ol_osd_toolbar_set_player (OlOsdToolbar *toolbar, OlPlayerController *player);
+void ol_osd_toolbar_set_player (OlOsdToolbar *toolbar, struct OlPlayer *player);
 void ol_osd_toolbar_set_status (OlOsdToolbar *toolbar, enum OlPlayerStatus status);
 
 #endif /* _OL_OSD_TOOLBAR_H_ */

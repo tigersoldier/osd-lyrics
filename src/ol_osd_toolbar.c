@@ -10,7 +10,7 @@
 typedef struct _OlOsdToolbarPriv OlOsdToolbarPriv;
 struct _OlOsdToolbarPriv
 {
-  OlPlayerController *player;
+  struct OlPlayer *player;
   enum OlPlayerStatus status;
 };
 
@@ -30,9 +30,9 @@ struct ButtonSpec
   void (*handler) (GtkButton *button, OlOsdToolbar *toolbar);
 };
 
-static void _player_control (OlPlayerController *player,
+static void _player_control (struct OlPlayer *player,
                              enum OlPlayerCapacity capacity,
-                             gboolean (*cmd) (OlPlayerController *player));
+                             gboolean (*cmd) (struct OlPlayer *player));
 static void _play_clicked (GtkButton *button, OlOsdToolbar *toolbar);
 static void _pause_clicked (GtkButton *button, OlOsdToolbar *toolbar);
 static void _stop_clicked (GtkButton *button, OlOsdToolbar *toolbar);
@@ -52,9 +52,9 @@ const static struct ButtonSpec btn_spec[] = {
 };
 
 static void
-_player_control (OlPlayerController *player,
+_player_control (struct OlPlayer *player,
                  enum OlPlayerCapacity capacity,
-                 gboolean (*cmd) (OlPlayerController *player))
+                 gboolean (*cmd) (struct OlPlayer *player))
 {
   if (player != NULL &&
       (ol_player_get_capacity (player) & capacity))
@@ -190,7 +190,7 @@ ol_osd_toolbar_new (void)
 
 void
 ol_osd_toolbar_set_player (OlOsdToolbar *toolbar,
-                           OlPlayerController *player)
+                           struct OlPlayer *player)
 {
   ol_assert (OL_IS_OSD_TOOLBAR (toolbar));
   OlOsdToolbarPriv *priv = OL_OSD_TOOLBAR_GET_PRIVATE (toolbar);

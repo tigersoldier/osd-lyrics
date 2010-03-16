@@ -543,11 +543,11 @@ ol_player_xmms2_seek (int pos_ms)
 }
   
 
-OlPlayerController*
-ol_player_xmms2_get_controller ()
+struct OlPlayer*
+ol_player_xmms2_get ()
 {
   ol_log_func ();
-  OlPlayerController *controller = ol_player_new ("XMMS2");
+  struct OlPlayer *controller = ol_player_new ("XMMS2");
   ol_player_set_cmd (controller, "xmms2-launcher");
   controller->get_music_info = ol_player_xmms2_get_music_info;
   controller->get_activated = ol_player_xmms2_get_activated;

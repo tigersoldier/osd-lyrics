@@ -5,6 +5,7 @@
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
 #include "ol_player_mpris.h"
+#include "ol_debug.h"
 
 static const char *SERVICE = "org.mpris.songbird";
 
@@ -128,12 +129,11 @@ ol_player_songbird_seek (int pos_ms)
   return ol_player_mpris_seek (mpris, pos_ms);
 }
 
-OlPlayerController*
-ol_player_songbird_get_controller ()
+struct OlPlayer*
+ol_player_songbird_get ()
 {
-  fprintf (stderr, "%s\n",
-           __FUNCTION__);
-  OlPlayerController *controller = ol_player_new ("Songbird");
+  ol_log_func ();
+  struct OlPlayer *controller = ol_player_new ("Songbird");
   ol_player_set_cmd (controller, "songbird");
   controller->get_music_info = ol_player_songbird_get_music_info;
   controller->get_activated = ol_player_songbird_get_activated;

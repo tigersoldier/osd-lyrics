@@ -276,11 +276,11 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   }
 }
 
-OlPlayerController*
-ol_player_mpd_get_controller ()
+struct OlPlayer*
+ol_player_mpd_get ()
 {
   ol_log_func ();
-  OlPlayerController *controller = ol_player_new ("MPD");
+  struct OlPlayer *controller = ol_player_new ("MPD");
   ol_player_set_cmd (controller, "gksu /etc/init.d/mpd start");
   controller->get_music_info = ol_player_mpd_get_music_info;
   controller->get_activated = ol_player_mpd_get_activated;

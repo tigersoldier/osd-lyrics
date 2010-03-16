@@ -12,6 +12,6 @@
 
 #include "ol_player.h"
 
-OlPlayerController* ol_player_amarok2_get_controller ();
+struct OlPlayer* ol_player_amarok2_get ();
 
 #endif /* _OL_PLAYER_AMAROK2_H_ */
