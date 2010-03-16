@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <glib.h>
-#include <sys/stat.h>
 #include "ol_path_pattern.h"
 #include "ol_utils.h"
 #include "ol_debug.h"
@@ -268,17 +267,6 @@ ol_path_expand_path_pattern (const char *pattern,
     return -1;
   else
     return end - filename;
-}
-
-gboolean
-ol_path_is_file (const char *filename)
-{
-  ol_log_func ();
-  if (filename == NULL)
-    return FALSE;
-  struct stat buf;
-  ol_debugf ("  stat:%d mode:%d\n", stat (filename, &buf), (int)buf.st_mode);
-  return stat (filename, &buf) == 0 && S_ISREG (buf.st_mode);
 }
 
 gboolean

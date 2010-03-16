@@ -25,6 +25,12 @@ _get_notify (const char *summary,
              const char *icon,
              GtkWidget *attach)
 {
+  ol_debugf ("summary: %s\n"
+             "body: %s\n"
+             "icon: %s\n",
+             summary,
+             body,
+             icon);
   if (notify == NULL)
   {
     notify = notify_notification_new (summary,
@@ -65,7 +71,7 @@ ol_notify_unload ()
 }
 
 void
-ol_notify_music_change (OlMusicInfo *info)
+ol_notify_music_change (OlMusicInfo *info, const char *icon)
 {
   ol_assert (info != NULL);
   if (!_init ())
@@ -93,7 +99,7 @@ ol_notify_music_change (OlMusicInfo *info)
                             artist,
                             album);
   }
-  NotifyNotification *music_notify = _get_notify (title, body, NULL, NULL);
+  NotifyNotification *music_notify = _get_notify (title, body, icon, NULL);
   notify_notification_set_timeout (music_notify,
                                    DEFAULT_TIMEOUT);
   notify_notification_show (music_notify, NULL);

@@ -7,6 +7,10 @@
 #include "ol_player_mpris.h"
 
 static const char *SERVICE = "org.mpris.audacious";
+static const char *icon_paths[] = {
+  "/usr/share/icons/hicolor/48x48/apps/audacious2.png",
+  "/usr/local/share/icons/hicolor/48x48/apps/audacious2.png",
+};
 
 static int first_time = -1;
 static int prev_time = 0;
@@ -28,6 +32,7 @@ static gboolean ol_player_audacious_stop ();
 static gboolean ol_player_audacious_prev ();
 static gboolean ol_player_audacious_next ();
 static gboolean ol_player_audacious_seek (int pos_ms);
+static const char *_get_icon_path ();
 
 static OlPlayerMpris*
 ol_player_audacious_get_mpris ()
@@ -127,6 +132,18 @@ ol_player_audacious_seek (int pos_ms)
   return ol_player_mpris_seek (mpris, pos_ms);
 }
 
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_audacious_get ()
 {
@@ -146,5 +163,6 @@ ol_player_audacious_get ()
   controller->prev = ol_player_audacious_prev;
   controller->next = ol_player_audacious_next;
   controller->seek = ol_player_audacious_seek;
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }

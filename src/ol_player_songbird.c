@@ -8,6 +8,10 @@
 #include "ol_debug.h"
 
 static const char *SERVICE = "org.mpris.songbird";
+static const char *icon_paths[] = {
+  "/usr/share/icons/hicolor/64x64/apps/songbird.png",
+  "/usr/local/share/icons/hicolor/64x64/apps/songbird.png",
+};
 
 static int first_time = -1;
 static int prev_time = 0;
@@ -20,15 +24,16 @@ static OlPlayerMpris* ol_player_songbird_get_mpris ();
 static gboolean ol_player_songbird_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_songbird_get_played_time (int *played_time);
 static gboolean ol_player_songbird_get_music_length (int *len);
-static gboolean ol_player_songbird_get_activated ();
-static enum OlPlayerStatus ol_player_songbird_get_status ();
-static int ol_player_songbird_get_capacity ();
-static gboolean ol_player_songbird_play ();
-static gboolean ol_player_songbird_pause ();
-static gboolean ol_player_songbird_stop ();
-static gboolean ol_player_songbird_prev ();
-static gboolean ol_player_songbird_next ();
+static gboolean ol_player_songbird_get_activated (void);
+static enum OlPlayerStatus ol_player_songbird_get_status (void);
+static int ol_player_songbird_get_capacity (void);
+static gboolean ol_player_songbird_play (void);
+static gboolean ol_player_songbird_pause (void);
+static gboolean ol_player_songbird_stop (void);
+static gboolean ol_player_songbird_prev (void);
+static gboolean ol_player_songbird_next (void);
 static gboolean ol_player_songbird_seek (int pos_ms);
+static const char *_get_icon_path (void);
 
 static OlPlayerMpris*
 ol_player_songbird_get_mpris ()
@@ -129,6 +134,18 @@ ol_player_songbird_seek (int pos_ms)
   return ol_player_mpris_seek (mpris, pos_ms);
 }
 
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_songbird_get ()
 {
@@ -147,5 +164,6 @@ ol_player_songbird_get ()
   controller->prev = ol_player_songbird_prev;
   controller->next = ol_player_songbird_next;
   controller->seek = ol_player_songbird_seek;
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }

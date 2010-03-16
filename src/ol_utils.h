@@ -107,4 +107,13 @@ char *ol_split_a_line (char *str);
  */
 char *ol_trim_string (char *str);
 
+/** 
+ * @brief Check whether a file exists and is a regular file.
+ * 
+ * @param filename The path and fullname of the file
+ * 
+ * @return TRUE if the file in the path exists and is a regular file
+ */
+gboolean ol_path_is_file (const char *filename);
+
 #endif // __OL_UTILS_H__

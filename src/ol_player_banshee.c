@@ -26,7 +26,10 @@ static const char *get_cover_path = "";
 static const char *get_status = "GetCurrentState";
 static const char *duration = "GetLength";
 static const char *current_position = "GetPosition";
-
+static const char *icon_paths[] = {
+  "/usr/share/icons/hicolor/48x48/apps/media-player-banshee.png",
+  "/usr/local/share/icons/hicolor/48x48/apps/media-player-banshee.png",
+};
 static DBusGProxy *proxy = NULL;
 static DBusGProxy *control_proxy = NULL;
 static GError *error = NULL;
@@ -45,6 +48,7 @@ static gboolean ol_player_banshee_stop ();
 static gboolean ol_player_banshee_prev ();
 static gboolean ol_player_banshee_next ();
 static gboolean ol_player_banshee_seek (int pos_ms);
+static const char *ol_player_banshee_get_icon_path ();
 
 static gboolean
 ol_player_banshee_proxy_destroy_handler (gpointer userdata)
@@ -305,6 +309,18 @@ ol_player_banshee_seek (int pos_ms)
                             G_TYPE_INVALID);
 }
 
+static const char *
+ol_player_banshee_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_banshee_get ()
 {
@@ -323,5 +339,6 @@ ol_player_banshee_get ()
   controller->prev = ol_player_banshee_prev;
   controller->next = ol_player_banshee_next;
   controller->seek = ol_player_banshee_seek;
+  controller->get_icon_path = ol_player_banshee_get_icon_path;
   return controller;
 }

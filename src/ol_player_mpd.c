@@ -11,8 +11,20 @@
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-static char *DEFAULT_HOSTNAME = "localhost";
+static const char *DEFAULT_HOSTNAME = "localhost";
 static const int DEFAULT_PORT = 6600;
+static const char *icon_paths[] = {
+  "/usr/share/pixmaps/sonata.png",
+  "/usr/share/pixmaps/sonata.xpm",
+  "/usr/local/share/pixmaps/sonata.png",
+  "/usr/local/share/pixmaps/sonata.xpm",
+  "/usr/share/icons/hicolor/48x48/apps/ario.png",
+  "/usr/local/share/icons/hicolor/48x48/apps/ario.png",
+  "/usr/share/icons/hicolor/48x48/apps/gmpc.png",
+  "/usr/local/share/icons/hicolor/48x48/apps/gmpc.png",
+  "/usr/share/pixmaps/gimmix.png",
+  "/usr/local/share/pixmaps/gimmix.png",
+};
 static char *hostname = NULL;
 static int port;
 static MpdObj *mpd = NULL;
@@ -21,19 +33,20 @@ static OlElapseEmulator *elapse_emulator = NULL;
 static gboolean ol_player_mpd_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_mpd_get_played_time (int *played_time);
 static gboolean ol_player_mpd_get_music_length (int *len);
-static gboolean ol_player_mpd_ensure_connection ();
-static gboolean ol_player_mpd_get_activated ();
+static gboolean ol_player_mpd_ensure_connection (void);
+static gboolean ol_player_mpd_get_activated (void);
 static gboolean ol_player_mpd_proxy_destroy_handler (gpointer userdata);
-static enum OlPlayerStatus ol_player_mpd_get_status ();
-static int ol_player_mpd_get_capacity ();
-static gboolean ol_player_mpd_play ();
-static gboolean ol_player_mpd_pause ();
-static gboolean ol_player_mpd_stop ();
-static gboolean ol_player_mpd_prev ();
-static gboolean ol_player_mpd_next ();
+static enum OlPlayerStatus ol_player_mpd_get_status (void);
+static int ol_player_mpd_get_capacity (void);
+static gboolean ol_player_mpd_play (void);
+static gboolean ol_player_mpd_pause (void);
+static gboolean ol_player_mpd_stop (void);
+static gboolean ol_player_mpd_prev (void);
+static gboolean ol_player_mpd_next (void);
 static gboolean ol_player_mpd_seek (int pos_ms);
-static gboolean ol_player_mpd_init ();
+static gboolean ol_player_mpd_init (void);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
+static const char *_get_icon_path (void);
 
 static gboolean
 ol_player_mpd_get_music_info (OlMusicInfo *info)
@@ -276,6 +289,18 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   }
 }
 
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_mpd_get ()
 {
@@ -294,6 +319,7 @@ ol_player_mpd_get ()
   controller->prev = ol_player_mpd_prev;
   controller->next = ol_player_mpd_next;
   controller->seek = ol_player_mpd_seek;
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }
 #endif  /* ENABLE_MPD */

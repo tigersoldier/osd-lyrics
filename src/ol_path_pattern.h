@@ -60,15 +60,6 @@ int ol_path_expand_path_pattern (const char *pattern,
                                  char *filename,
                                  size_t len);
 
-/** 
- * @brief Check whether a file exists and is a regular file.
- * 
- * @param filename The path and fullname of the file
- * 
- * @return TRUE if the file in the path exists and is a regular file
- */
-gboolean ol_path_is_file (const char *filename);
-
 typedef gboolean (*OlPathFunc) (const char *filename,
                                 gpointer userdata);
 

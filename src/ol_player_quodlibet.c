@@ -18,6 +18,10 @@ const char *TRACK_NUMBER = "tracknumber";
 const char *ALBUM = "album";
 const char *LENGTH = "~#length";
 const char *IS_PLAYING = "IsPlaying";
+static const char *icon_paths[] = {
+  "/usr/share/pixmaps/quodlibet.png",
+  "/usr/local/share/pixmaps/quodlibet.png",
+};
 
 static DBusGProxy *proxy = NULL;
 static GError *error = NULL;
@@ -36,6 +40,7 @@ static gboolean internal_pause ();
 static gboolean internal_prev ();
 static gboolean internal_next ();
 static gboolean internal_invoke (const char *method);
+static const char *_get_icon_path ();
 
 static int
 internal_get_capacity ()
@@ -244,6 +249,18 @@ internal_ensure_dbus ()
   return TRUE;
 }
 
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_quodlibet_get ()
 {
@@ -262,6 +279,7 @@ ol_player_quodlibet_get ()
   controller->prev = internal_prev;
   controller->next = internal_next;
   /* controller->seek = internal_seek; */
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }
 

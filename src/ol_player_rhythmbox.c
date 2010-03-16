@@ -24,6 +24,12 @@ static const char PREVIOUSE[] = "previous";
 static const char NEXT[] = "next";
 static const char GET_PLAYING[] = "getPlaying";
 static const char SEEK[] = "setElapsed";
+static const char *icon_paths[] = {
+  "/usr/share/icons/hicolor/scalable/apps/rhythmbox.svg",
+  "/usr/share/icons/hicolor/48x48/apps/rhythmbox.png",
+  "/usr/local/share/icons/hicolor/scalable/apps/rhythmbox.svg",
+  "/usr/local/share/icons/hicolor/48x48/apps/rhythmbox.png",
+};
 static GHashTable *STOP_PROPERTIES = (GHashTable*)-1;
 
 static DBusGProxy *proxy_player = NULL;
@@ -47,6 +53,7 @@ static gboolean ol_player_rhythmbox_stop ();
 static gboolean ol_player_rhythmbox_prev ();
 static gboolean ol_player_rhythmbox_next ();
 static gboolean ol_player_rhythmbox_seek (int pos_ms);
+static const char *ol_player_rhythmbox_get_icon_path ();
 
 static OlElapseEmulator elapse;
 
@@ -368,6 +375,18 @@ ol_player_rhythmbox_seek (int pos_ms)
                             G_TYPE_INVALID);
 }
 
+static const char *
+ol_player_rhythmbox_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_rhythmbox_get ()
 {
@@ -387,5 +406,6 @@ ol_player_rhythmbox_get ()
   controller->next = ol_player_rhythmbox_next;
   controller->seek = ol_player_rhythmbox_seek;
   controller->stop = ol_player_rhythmbox_stop;
+  controller->get_icon_path = ol_player_rhythmbox_get_icon_path;
   return controller;
 }

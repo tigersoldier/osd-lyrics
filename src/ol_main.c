@@ -50,7 +50,7 @@
 static gboolean first_run = TRUE;
 static guint refresh_source = 0;
 static guint info_timer = 0;
-static struct OlPlayer *controller = NULL;
+static struct OlPlayer *player = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
@@ -194,7 +194,7 @@ _on_music_changed ()
     ol_app_download_lyric (&music_info);
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
-    ol_notify_music_change (&music_info);
+    ol_notify_music_change (&music_info, ol_player_get_icon_path (player));
 }
 
 static void
@@ -208,14 +208,14 @@ _check_music_change (int time)
       previous_title != NULL)
     return;
   /* compares the previous title with current title */
-  if (controller && !ol_player_get_music_info (controller, &music_info))
+  if (player && !ol_player_get_music_info (player, &music_info))
   {
-    controller = NULL;
+    player = NULL;
   }
   guint duration = 0;
-  if (controller && !ol_player_get_music_length (controller, &duration))
+  if (player && !ol_player_get_music_length (player, &duration))
   {
-    controller = NULL;
+    player = NULL;
   }
   if (!ol_streq (music_info.title, previous_title))
     changed = TRUE;
@@ -259,10 +259,10 @@ _update_player_status (enum OlPlayerStatus status)
 static gint
 _refresh_player_info (gpointer data)
 {
-  if (controller != NULL)
+  if (player != NULL)
   {
-    if (ol_player_get_capacity (controller) & OL_PLAYER_STATUS)
-      _update_player_status (ol_player_get_status (controller));
+    if (ol_player_get_capacity (player) & OL_PLAYER_STATUS)
+      _update_player_status (ol_player_get_status (player));
   }
   return TRUE;
 }
@@ -270,8 +270,8 @@ _refresh_player_info (gpointer data)
 static gboolean
 _get_active_player (void)
 {
-  controller = ol_player_get_active_player ();
-  if (controller == NULL)
+  player = ol_player_get_active_player ();
+  if (player == NULL)
   {
     gboolean ignore = FALSE;
     if (first_run)
@@ -295,25 +295,25 @@ _get_active_player (void)
       gtk_main_quit ();
     }
   }
-  ol_osd_module_set_player (module, controller);
+  ol_osd_module_set_player (module, player);
   first_run = FALSE;
-  return controller != NULL;
+  return player != NULL;
 }
 
 static gint
 _refresh_music_info (gpointer data)
 {
   /* ol_log_func (); */
-  if (controller == NULL && !_get_active_player ())
+  if (player == NULL && !_get_active_player ())
     return TRUE;
   guint time = 0;
-  if (controller && !ol_player_get_played_time (controller, &time))
+  if (player && !ol_player_get_played_time (player, &time))
   {
-    controller = NULL;
+    player = NULL;
   }
   _check_music_change (time);
   previous_position = time;
-  if (controller == NULL)
+  if (player == NULL)
   {
     previous_position = -1;
     return TRUE;
@@ -358,9 +358,9 @@ _initialize (int argc, char **argv)
 }
 
 struct OlPlayer*
-ol_app_get_controller ()
+ol_app_get_player ()
 {
-  return controller;
+  return player;
 }
 
 OlMusicInfo*

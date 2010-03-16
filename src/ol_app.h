@@ -17,7 +17,7 @@ struct OlPlayer;
  */
 OlMusicInfo* ol_app_get_current_music (void);
 
-struct OlPlayer* ol_app_get_controller (void);
+struct OlPlayer* ol_app_get_player (void);
 
 LrcQueue *ol_app_get_current_lyric (void);
 

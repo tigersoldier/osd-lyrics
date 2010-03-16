@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <glib.h>
 #include <glib-object.h>
 
@@ -84,7 +86,7 @@ ol_path_alloc(void)
   }
 
   if((ptr = calloc(pathmax, sizeof(char))) == NULL) {
-    fprintf(stderr, "malloc error for pathname\n");
+    ol_debugf ("malloc error for pathname");
     return NULL;
   }
 
@@ -235,3 +237,15 @@ ol_trim_string (char *str)
   }
   return str;
 }
+
+gboolean
+ol_path_is_file (const char *filename)
+{
+  ol_log_func ();
+  if (filename == NULL)
+    return FALSE;
+  struct stat buf;
+  /* ol_debugf ("  stat:%d mode:%d\n", stat (filename, &buf), (int)buf.st_mode); */
+  return stat (filename, &buf) == 0 && S_ISREG (buf.st_mode);
+}
+

@@ -7,6 +7,10 @@
 #include "ol_debug.h"
 
 static const char *SERVICE = "org.kde.amarok";
+static const char *icon_paths[] = {
+  "/usr/share/icons/hicolor/48x48/apps/amarok.png",
+  "/usr/local/share/icons/hicolor/48x48/apps/amarok.png",
+};
 
 static OlPlayerMpris *mpris = NULL;
 static OlElapseEmulator *elapse_emulator = NULL;
@@ -26,6 +30,7 @@ static gboolean ol_player_amarok2_prev ();
 static gboolean ol_player_amarok2_next ();
 static gboolean ol_player_amarok2_seek (int pos_ms);
 static void ol_player_amarok2_ensure_elapse (int elapsed_time);
+static const char *ol_player_amarok2_get_icon_path ();
 
 static void
 ol_player_amarok2_ensure_elapse (int elapsed_time)
@@ -152,6 +157,18 @@ ol_player_amarok2_seek (int pos_ms)
   return ol_player_mpris_seek (mpris, pos_ms);
 }
 
+static const char *
+ol_player_amarok2_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_amarok2_get ()
 {
@@ -170,5 +187,6 @@ ol_player_amarok2_get ()
   controller->prev = ol_player_amarok2_prev;
   controller->next = ol_player_amarok2_next;
   controller->seek = ol_player_amarok2_seek;
+  controller->get_icon_path = ol_player_amarok2_get_icon_path;
   return controller;
 }

@@ -4,6 +4,7 @@
 
 #include "ol_player_exaile03.h"
 #include "ol_player.h"
+#include "ol_utils.h"
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
 #include "ol_debug.h"
@@ -28,6 +29,10 @@ static const char get_track_attr[] = "GetTrackAttr";
 static const char set_track_attr[] = "SetTrackAttr";
 static const char change_volume[] = "ChangeVolume";
 static const char query[] = "Query";
+static const char *icon_paths[] = {
+  "/usr/share/pixmaps/exaile.png",
+  "/usr/local/share/pixmaps/exaile.png",
+};
 
 static DBusGConnection *connection = NULL;
 static DBusGProxy *proxy = NULL;
@@ -47,6 +52,7 @@ static gboolean ol_player_exaile03_stop ();
 static gboolean ol_player_exaile03_prev ();
 static gboolean ol_player_exaile03_next ();
 static enum OlPlayerStatus ol_player_exaile03_parse_status (const char *status);
+static const char *_get_icon_path ();
 
 static enum OlPlayerStatus
 ol_player_exaile03_parse_status (const char *status)
@@ -377,6 +383,18 @@ ol_player_exaile03_next ()
   return ol_dbus_invoke (proxy, next);
 }
 
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_exaile03_get ()
 {
@@ -395,6 +413,7 @@ ol_player_exaile03_get ()
   controller->next = ol_player_exaile03_next;
   controller->seek = NULL;
   controller->stop = ol_player_exaile03_stop;
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }
 

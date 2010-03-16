@@ -29,6 +29,7 @@ struct OlPlayer
 {
   const char * name;
   const char * cmdline;
+  const char *(*get_icon_path) ();
   gboolean (*get_music_info) (OlMusicInfo *info);
   gboolean (*get_activated) ();
   gboolean (*get_played_time) (int *played_time);
@@ -105,6 +106,16 @@ const char *ol_player_set_cmd (struct OlPlayer *player,
  *         be freed
  */
 const char *ol_player_get_cmd (struct OlPlayer *player);
+
+/** 
+ * @brief Gets the full path of the icon of the player.
+ *
+ * @param player 
+ * 
+ * @return The path of the icon file, or NULL. The string is owned by the player
+ *         and should not be freed.
+ */
+const char *ol_player_get_icon_path (struct OlPlayer *player);
 
 /** 
  * @brief Registers a player controller

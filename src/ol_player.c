@@ -281,3 +281,12 @@ ol_player_get_name (struct OlPlayer *player)
   ol_assert_ret (player != NULL, NULL);
   return player->name;
 }
+
+const char *
+ol_player_get_icon_path (struct OlPlayer *player)
+{
+  if (player->get_icon_path != NULL)
+    return player->get_icon_path ();
+  else
+    return NULL;
+}

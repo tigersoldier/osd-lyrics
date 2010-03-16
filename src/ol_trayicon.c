@@ -3,6 +3,7 @@
 #include "ol_intl.h"
 #include "ol_menu.h"
 #include "ol_stock.h"
+#include "ol_player.h"
 #include "config.h"
 #include "ol_debug.h"
 
@@ -69,6 +70,18 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
     }
     gtk_tooltip_set_markup (tooltip, markup);
     g_free (markup);
+    
+    struct OlPlayer *player = ol_app_get_player ();
+    const char *icon_path = ol_player_get_icon_path (player);
+    GdkPixbuf *icon = NULL;
+    if (icon_path != NULL)
+    {
+      icon = gdk_pixbuf_new_from_file_at_scale (icon_path, 48, 48, FALSE, NULL);
+    }
+    gtk_tooltip_set_icon (tooltip,
+                          icon);
+    if (icon != NULL)
+      g_object_unref (icon);
   }
   return TRUE;
 }

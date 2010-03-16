@@ -3,11 +3,21 @@
 #include <stdlib.h>
 #include <xmmsclient/xmmsclient.h>
 #include "ol_player_xmms2.h"
+#include "ol_utils.h"
 #include "ol_debug.h"
 
 static xmmsc_connection_t *connection = NULL;
 static gboolean connected = FALSE;
-
+static const char *icon_paths[] = {
+  "/usr/share/pixmaps/xmms2.svg",
+  "/usr/local/share/pixmaps/xmms2.svg",
+  "/usr/share/pixmaps/lxmusic.png",
+  "/usr/local/share/pixmaps/lxmusic.png",
+  "/usr/share/icons/abraca.svg",
+  "/usr/local/share/icons/abraca.svg",
+  "/usr/share/icons/hicolor/48x48/apps/ario.png",
+  "/usr/local/share/icons/hicolor/48x48/apps/ario.png",
+};
 static gboolean ol_player_xmms2_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_xmms2_get_played_time (int *played_time);
 static gboolean ol_player_xmms2_get_music_length (int *len);
@@ -33,6 +43,8 @@ static gboolean ol_player_xmms2_connect ();
  * @return TRUE if succeeded
  */
 static gboolean ol_player_xmms2_go_rel (int rel);
+static const char *_get_icon_path (void);
+
 
 #if XMMS_IPC_PROTOCOL_VERSION < 13 /* Before xmmsv_t introduced */
 typedef xmmsc_result_t xmmsv_t;
@@ -542,6 +554,17 @@ ol_player_xmms2_seek (int pos_ms)
   return TRUE;
 }
   
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
 
 struct OlPlayer*
 ol_player_xmms2_get ()
@@ -561,6 +584,7 @@ ol_player_xmms2_get ()
   controller->prev = ol_player_xmms2_prev;
   controller->next = ol_player_xmms2_next;
   controller->seek = ol_player_xmms2_seek;
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }
 #endif  /* ENABLE_XMMS2 */

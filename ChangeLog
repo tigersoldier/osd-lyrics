@@ -1,5 +1,11 @@
 2010-03-16  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* ADD: Display player icons in notification and tray icon
+	* ADD: Path of icons for Audacious, Amarok 2, Banshee, Exaile 0.3, MPD, Quod Libet, Rhythmbox, Songbird, XMMS2
+
+	* src/ol_utils.c: CHANGE: Move ol_path_is_file from ol_path_pattern.[ch] to ol_utils.[ch]
+
+	* src/ol_player.h: CHANGE: Change the type OlPlayerController to struct OlPlayer to reduce dependency of ol_player.h
 	* src/ol_osd_window.c (ol_osd_window_unrealize): FIX: Memory leak due to the event_window of OSD Window is not unrefed on destroy
 	FIX: realize osd_window with proper size
 	FIX: alignments of OSD Window will be calculated properly when the window is moved

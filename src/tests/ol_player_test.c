@@ -2,7 +2,7 @@
 #include <gtk/gtk.h>
 #include "ol_player.h"
 
-static OlPlayerController *controller = NULL;
+static struct OlPlayer *controller = NULL;
 
 void get_music_info ()
 {
