@@ -85,6 +85,7 @@ internal_search_callback (void *ret_data,
   struct SearchData *data = (struct SearchData *) userdata;
   struct OlLrcFetchResult *result = data->result;
   char *current = (char *) ret_data;
+  ol_debugf ("returned data:\n%s", current);
   char *count_str = ret_data;
   current = ol_split_a_line (current);
   ol_assert (current != NULL);
