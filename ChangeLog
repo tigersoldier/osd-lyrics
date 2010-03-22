@@ -1,3 +1,7 @@
+2010-03-22  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_trayicon.c (activate): ADD: Show/Hide Lyrics when click the tray icon
+
 2010-03-16  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* ADD: Display player icons in notification and tray icon

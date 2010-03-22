@@ -5,6 +5,7 @@
 #include "ol_stock.h"
 #include "ol_player.h"
 #include "config.h"
+#include "ol_config.h"
 #include "ol_debug.h"
 
 static GtkStatusIcon *status_icon = NULL;
@@ -20,7 +21,9 @@ static void
 activate (GtkStatusIcon* status_icon,
           gpointer user_data)
 {
-  g_debug ("'activate' signal triggered");
+  OlConfig *config = ol_config_get_instance ();
+  ol_config_set_bool (config, "General", "visible",
+                      ol_config_get_bool (config, "General", "visible"));
 }
 
 static gboolean internal_query_tooltip (GtkStatusIcon *status_icon,

@@ -5,7 +5,7 @@
 #include "ol_fork.h"
 #include "ol_debug.h"
 
-const size_t DEFAULT_BUF_SIZE = 1024;
+const size_t DEFAULT_BUF_SIZE = 10240;
 int ret_fd = 0;
 FILE *fret = NULL;
 
