@@ -241,7 +241,7 @@ ol_trim_string (char *str)
 gboolean
 ol_path_is_file (const char *filename)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   if (filename == NULL)
     return FALSE;
   struct stat buf;
