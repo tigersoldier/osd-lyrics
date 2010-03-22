@@ -23,7 +23,7 @@ activate (GtkStatusIcon* status_icon,
 {
   OlConfig *config = ol_config_get_instance ();
   ol_config_set_bool (config, "General", "visible",
-                      ol_config_get_bool (config, "General", "visible"));
+                      !ol_config_get_bool (config, "General", "visible"));
 }
 
 static gboolean internal_query_tooltip (GtkStatusIcon *status_icon,

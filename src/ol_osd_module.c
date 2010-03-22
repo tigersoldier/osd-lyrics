@@ -155,14 +155,14 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   else if (strcmp (name, "visible") == 0)
   {
     gboolean visible = ol_config_get_bool (config, "General", name);
-    /* if (visible && module->display) */
-    /* { */
-    /*   gtk_widget_show (GTK_WIDGET (module->osd)); */
-    /* } */
-    /* else */
-    /* { */
-    /*   gtk_widget_hide (GTK_WIDGET (module->osd)); */
-    /* } */
+    if (visible)
+    {
+      gtk_widget_show (GTK_WIDGET (module->osd));
+    }
+    else
+    {
+      gtk_widget_hide (GTK_WIDGET (module->osd));
+    }
   }
   else if (strcmp (name, "translucent-on-mouse-over") == 0)
   {

@@ -1,5 +1,7 @@
 2010-03-22  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_module.c: FIX: The bug that OSD Window never hides when is set to hidden is fixed
+
 	* src/ol_utils.c (ol_path_is_file): CHANGE: Comment out the annoying ol_path_is_file log
 
 	* src/ol_trayicon.c (activate): ADD: Show/Hide Lyrics when click the tray icon

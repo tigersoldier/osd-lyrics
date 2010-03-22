@@ -109,6 +109,7 @@ static gboolean ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *
 static gboolean ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event);
 static void ol_osd_window_compute_osd_allocation (OlOsdWindow *osd,
                                                   GtkAllocation *allocation);
+static gboolean ol_osd_window_has_lyrics (OlOsdWindow *osd);
 static void ol_osd_window_compute_bg_allocation (OlOsdWindow *osd,
                                                  GtkAllocation *osd_alloc,
                                                  GtkAllocation *allocation,
@@ -663,7 +664,8 @@ ol_osd_window_map (GtkWidget *widget)
     gdk_window_show (osd->event_window);
     gdk_window_raise (osd->event_window);
   }
-  gdk_window_show (osd->osd_window);
+  if (ol_osd_window_has_lyrics (osd))
+    gdk_window_show (osd->osd_window);
   if (priv->mouse_timer_id == 0)
   {
     priv->mouse_timer_id = g_timeout_add (MOUSE_TIMER_INTERVAL,
@@ -1242,6 +1244,22 @@ ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line)
   osd->lyric_rects[line].height = h;
 }
 
+static gboolean
+ol_osd_window_has_lyrics (OlOsdWindow *osd)
+{
+  int i;
+  gboolean ret = FALSE;
+  for (i = 0; i < ol_osd_window_get_line_count (osd); i++)
+  {
+    if (!ol_is_string_empty (osd->lyrics[i]))
+    {
+      ret = TRUE;
+      break;
+    }
+  }
+  return ret;
+}
+
 void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
@@ -1255,16 +1273,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
     osd->lyrics[line] = g_strdup (lyric);
   else
     osd->lyrics[line] = g_strdup ("");
-  gboolean empty = TRUE;
-  int i;
-  for (i = 0; i < ol_osd_window_get_line_count (osd); i++)
-  {
-    if (!ol_is_string_empty (osd->lyrics[i]))
-    {
-      empty = FALSE;
-      break;
-    }
-  }
+  gboolean empty = !ol_osd_window_has_lyrics (osd);
   if (empty && gdk_window_is_visible (osd->osd_window))
   {
     ol_debug ("Lyrics are empty strings");
