@@ -7,7 +7,7 @@ CXXFLAGS=-c \
 	-D_REENTRANT -I./src -I./include
 
 SUBDIRS=src
-DESTLIBDIR=/usr/lib/pcmanx/addons
+#DESTLIBDIR=/usr/lib/pcmanx/addons
 
 all: $(TARGET)
 
@@ -20,10 +20,15 @@ $(TARGET):
 	libtool --mode=compile $(CXX) $(CXXFLAGS) src/entry/impl.cpp
 	libtool --tag=CC --mode=link gcc -O2 -o $(TARGET) \
 		impl.lo src/*.lo \
-	        -rpath $(DESTLIBDIR) -avoid-version -module \
+	        -avoid-version -module \
 		-export-symbols src/entry/export-symbol.list \
 		-lsupc++
-	mv -f .libs/chardetect.so .
+	# libtool --tag=CC --mode=link gcc -O2 -o $(TARGET) \
+	# 	impl.lo src/*.lo \
+	#         -rpath $(DESTLIBDIR) -avoid-version -module \
+	# 	-export-symbols src/entry/export-symbol.list \
+	# 	-lsupc++
+#	mv -f .libs/chardetect.so .
 
 clean:
 	@for mdir in $(SUBDIRS); do \
@@ -31,7 +36,7 @@ clean:
 	    $(MAKE) -C $$mdir clean ; \
 	  fi; \
 	done
-	rm -f *.o *.lo *.la *.so
+	rm -f *.o *.lo *.la *.so *.a
 	rm -rf .libs
 
 check: all
