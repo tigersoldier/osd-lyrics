@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
 "POT-Creation-Date: 2010-03-10 16:06+0800\n"
-"PO-Revision-Date: 2010-01-02 19:11+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"PO-Revision-Date: 2010-02-19 20:07+0000\n"
+"Last-Translator: Hector Louzao <os390l@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-04 14:28+0000\n"
+"X-Launchpad-Export-Date: 2010-03-25 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/ol_menu.c:123
@@ -22,9 +22,8 @@ msgid "LRC files"
 msgstr ""
 
 #: src/ol_menu.c:129
-#, fuzzy
 msgid "Choose LRC file to assign"
-msgstr "Escoger el archivo LRC para descargar"
+msgstr ""
 
 #: src/ol_main.c:77
 msgid "Download failed"
@@ -32,7 +31,7 @@ msgstr "Descarga fallida"
 
 #: src/ol_main.c:92
 msgid "Cannot create the lyric directory"
-msgstr ""
+msgstr "No se puede crear el directorio de letras"
 
 #: src/ol_main.c:107
 msgid "Lyrics not found"
@@ -49,11 +48,11 @@ msgstr "Ningún reproductor soportado está en ejecución, saliendo.\n"
 
 #: src/ol_trayicon.c:11
 msgid "Unknown title"
-msgstr ""
+msgstr "Título desconocido"
 
 #: src/ol_trayicon.c:12
 msgid "Unknown artist"
-msgstr ""
+msgstr "Artista desconocido"
 
 #: src/ol_trayicon.c:45 src/ol_trayicon.c:99
 msgid "OSD Lyrics"
@@ -76,18 +75,18 @@ msgid "Artist"
 msgstr "Artista"
 
 #: src/ol_search_dialog.c:12
-#, fuzzy, c-format
+#, c-format
 msgid "Searching lyrics from %s..."
-msgstr "Buscando letras"
+msgstr "Buscando letras de canciones de %s..."
 
 #: src/ol_search_dialog.c:13
 msgid "Ooops, no lyric found :("
-msgstr ""
+msgstr "Vaya, no se encontró Letra: ("
 
 #: src/ol_search_dialog.c:14
-#, fuzzy, c-format
+#, c-format
 msgid "%d lyrics found :)"
-msgstr "No se encontraron letras"
+msgstr "letras encontrado %d :)"
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
@@ -116,10 +115,12 @@ msgstr ""
 "  Albert Abril https://launchpad.net/~abrilc\n"
 "  DiegoJ https://launchpad.net/~diegojromerolopez\n"
 "  Feder Sáiz https://launchpad.net/~federsaiz\n"
+"  Hector Louzao https://launchpad.net/~hhlp\n"
 "  José A. Fuentes Santiago https://launchpad.net/~joanfusan\n"
 "  Juan L Rodas https://launchpad.net/~jlrodasr\n"
 "  Macafyc https://launchpad.net/~macafyc\n"
 "  Monkey https://launchpad.net/~monkey-libre\n"
+"  Paco Molinero https://launchpad.net/~franciscomol\n"
 "  Rodribuntu https://launchpad.net/~rajc-56\n"
 "  Tiger Soldier https://launchpad.net/~tigersoldi\n"
 "  alakran https://launchpad.net/~alakran-1"
@@ -146,7 +147,7 @@ msgstr ""
 
 #: data/dialogs.glade:167
 msgid "_Display notification"
-msgstr ""
+msgstr "_Mostrar las notifiaciones"
 
 #: data/dialogs.glade:184
 msgid "_General"
@@ -264,9 +265,8 @@ msgid "_Lyric Location"
 msgstr "Ubicación de la letra"
 
 #: data/dialogs.glade:1049 data/dialogs.glade:1064
-#, fuzzy
 msgid "Choose witch site you want to download from."
-msgstr "Escoger el archivo LRC para descargar"
+msgstr ""
 
 #: data/dialogs.glade:1052
 msgid "Download _engine:"
@@ -291,9 +291,8 @@ msgid "If locked, you can't move OSD window by mouse"
 msgstr "Si está bloqueada, no podrás mover la ventana OSD con el ratón."
 
 #: data/dialogs.glade:1197
-#, fuzzy
 msgid "_Lock Position"
-msgstr "Ubicación de la letra"
+msgstr ""
 
 #: data/dialogs.glade:1205
 msgid "Hide the OSD Window"
@@ -304,14 +303,12 @@ msgid "_Hide"
 msgstr "_Ocultar"
 
 #: data/dialogs.glade:1218
-#, fuzzy
 msgid "_Search lyric..."
-msgstr "Buscando letras"
+msgstr ""
 
 #: data/dialogs.glade:1220
-#, fuzzy
 msgid "Search lyrics from Internet"
-msgstr "Buscando letras"
+msgstr ""
 
 #: data/dialogs.glade:1229
 msgid "_Assign lyric..."
@@ -322,9 +319,8 @@ msgid "Assign local LRC file to current music"
 msgstr ""
 
 #: data/dialogs.glade:1240
-#, fuzzy
 msgid "_No lyric"
-msgstr "_Descargar letras"
+msgstr ""
 
 #: data/dialogs.glade:1242
 msgid "Don't assign lyric to this music"
@@ -395,34 +391,30 @@ msgid "%f - Filename"
 msgstr "%f - Nombre_del_archivo"
 
 #: data/dialogs.glade:1521
-#, fuzzy
 msgid "Search lyrics"
-msgstr "Buscando letras"
+msgstr ""
 
 #: data/dialogs.glade:1539
-#, fuzzy
 msgid "_Title:"
-msgstr "Título"
+msgstr ""
 
 #: data/dialogs.glade:1552
-#, fuzzy
 msgid "_Artist:"
-msgstr "Artista"
+msgstr ""
 
 #: data/dialogs.glade:1588
 msgid "_Search"
 msgstr ""
 
 #: data/dialogs.glade:1608
-#, fuzzy
 msgid "_From:"
-msgstr "_Fuente:"
-
-#~ msgid "Customize"
-#~ msgstr "Personalizar"
+msgstr ""
 
 #~ msgid "_Lock"
 #~ msgstr "B_loquear"
 
 #~ msgid "TODO: Add options here"
 #~ msgstr "Añadir opciones aqui"
+
+#~ msgid "Customize"
+#~ msgstr "Personalizar"

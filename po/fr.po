@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
 "POT-Creation-Date: 2010-03-10 16:06+0800\n"
-"PO-Revision-Date: 2009-12-27 13:53+0000\n"
-"Last-Translator: François Blondel <Unknown>\n"
+"PO-Revision-Date: 2010-01-04 19:09+0000\n"
+"Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-04 14:28+0000\n"
+"X-Launchpad-Export-Date: 2010-03-25 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/ol_menu.c:123
@@ -22,9 +22,8 @@ msgid "LRC files"
 msgstr ""
 
 #: src/ol_menu.c:129
-#, fuzzy
 msgid "Choose LRC file to assign"
-msgstr "Choisissez le fichier LRC à télécharger"
+msgstr ""
 
 #: src/ol_main.c:77
 msgid "Download failed"
@@ -76,18 +75,18 @@ msgid "Artist"
 msgstr "Artiste"
 
 #: src/ol_search_dialog.c:12
-#, fuzzy, c-format
+#, c-format
 msgid "Searching lyrics from %s..."
-msgstr "Recherche des paroles en cours"
+msgstr ""
 
 #: src/ol_search_dialog.c:13
 msgid "Ooops, no lyric found :("
 msgstr ""
 
 #: src/ol_search_dialog.c:14
-#, fuzzy, c-format
+#, c-format
 msgid "%d lyrics found :)"
-msgstr "Paroles introuvables"
+msgstr ""
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
@@ -257,9 +256,8 @@ msgid "_Lyric Location"
 msgstr "Emplacement des paro_les"
 
 #: data/dialogs.glade:1049 data/dialogs.glade:1064
-#, fuzzy
 msgid "Choose witch site you want to download from."
-msgstr "Choisissez le fichier LRC à télécharger"
+msgstr ""
 
 #: data/dialogs.glade:1052
 msgid "Download _engine:"
@@ -284,9 +282,8 @@ msgid "If locked, you can't move OSD window by mouse"
 msgstr "Si bloqué, impossible de déplacer la fenètre OSD avec la souris"
 
 #: data/dialogs.glade:1197
-#, fuzzy
 msgid "_Lock Position"
-msgstr "Emplacement des paro_les"
+msgstr ""
 
 #: data/dialogs.glade:1205
 msgid "Hide the OSD Window"
@@ -297,14 +294,12 @@ msgid "_Hide"
 msgstr "Cac_her"
 
 #: data/dialogs.glade:1218
-#, fuzzy
 msgid "_Search lyric..."
-msgstr "Recherche des paroles en cours"
+msgstr ""
 
 #: data/dialogs.glade:1220
-#, fuzzy
 msgid "Search lyrics from Internet"
-msgstr "Recherche des paroles en cours"
+msgstr ""
 
 #: data/dialogs.glade:1229
 msgid "_Assign lyric..."
@@ -315,9 +310,8 @@ msgid "Assign local LRC file to current music"
 msgstr ""
 
 #: data/dialogs.glade:1240
-#, fuzzy
 msgid "_No lyric"
-msgstr "_Télécharger les paroles"
+msgstr ""
 
 #: data/dialogs.glade:1242
 msgid "Don't assign lyric to this music"
@@ -388,28 +382,24 @@ msgid "%f - Filename"
 msgstr "%f - Nom du fichier"
 
 #: data/dialogs.glade:1521
-#, fuzzy
 msgid "Search lyrics"
-msgstr "Recherche des paroles en cours"
+msgstr ""
 
 #: data/dialogs.glade:1539
-#, fuzzy
 msgid "_Title:"
-msgstr "Titre"
+msgstr ""
 
 #: data/dialogs.glade:1552
-#, fuzzy
 msgid "_Artist:"
-msgstr "Artiste"
+msgstr ""
 
 #: data/dialogs.glade:1588
 msgid "_Search"
 msgstr ""
 
 #: data/dialogs.glade:1608
-#, fuzzy
 msgid "_From:"
-msgstr "_Police :"
+msgstr ""
 
 #~ msgid "Customize"
 #~ msgstr "Personnaliser"

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
 "POT-Creation-Date: 2010-03-10 16:06+0800\n"
-"PO-Revision-Date: 2010-03-10 16:09+0800\n"
+"PO-Revision-Date: 2010-03-10 12:13+0000\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-08-15 11:44+0000\n"
+"X-Launchpad-Export-Date: 2010-03-25 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/ol_menu.c:123
@@ -396,35 +396,31 @@ msgstr "搜索(_S)"
 msgid "_From:"
 msgstr "下载自(_F):"
 
-#~ msgid ""
-#~ "<big><b>%s</b></big>\n"
-#~ "  %s"
-#~ msgstr ""
-#~ "<big><b>%s</b></big>\n"
-#~ "  %s"
-
-#~ msgid ""
-#~ "<big><b>%s</b></big>\n"
-#~ "  %s - <i>%s</i>"
-#~ msgstr ""
-#~ "<big><b>%s</b></big>\n"
-#~ "  %s - <i>%s</i>"
-
-#~ msgid "Customize"
-#~ msgstr "自定义"
-
 #~ msgid "_Lock"
 #~ msgstr "锁定(_L)"
-
-#, fuzzy
-#~ msgid "_Path:"
-#~ msgstr "路径(_P):"
-
-#~ msgid "TODO: Add options here"
-#~ msgstr "TODO: Add options here"
 
 #~ msgid "gtk-cancel"
 #~ msgstr "gtk-cancel"
 
 #~ msgid "gtk-ok"
 #~ msgstr "gtk-ok"
+
+#~ msgid "Customize"
+#~ msgstr "自定义"
+
+#~ msgid "TODO: Add options here"
+#~ msgstr "TODO: Add options here"
+
+#~ msgid ""
+#~ "<big><b>%s</b></big>\n"
+#~ "  %s"
+#~ msgstr ""
+#~ "<big><b>%s</b></big>\n"
+#~ "  %s"
+
+#~ msgid ""
+#~ "<big><b>%s</b></big>\n"
+#~ "  %s - <i>%s</i>"
+#~ msgstr ""
+#~ "<big><b>%s</b></big>\n"
+#~ "  %s - <i>%s</i>"
