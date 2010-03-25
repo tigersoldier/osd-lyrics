@@ -1,142 +1,138 @@
-#ifndef __OL_LRC_PARSER_H__
-#define __OL_LRC_PARSER_H__
+#ifndef _OL_LRC_PARSER_H_
+#define _OL_LRC_PARSER_H_
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/stat.h>
+/** 
+ * @brief LRC Parser struct
+ * 
+ * To user the struct, you need to create an instance with
+ * ol_lrc_parser_new or ol_lrc_parser_new_from file, and frees with
+ * ol_lrc_parser_free
+ */
+struct OlLrcParser;
 
-#define MAX_LINE 1024
-#define MAX_LINE_LEN 512
-typedef struct _LrcInfo {
-  int lyric_time;
-  char lyric_text[MAX_LINE_LEN];
-  int lyric_id;
-  struct _LrcInfo *prev;
-  struct _LrcInfo *next;
-} LrcInfo;
+/** 
+ * @brief Types of OlLrcToken
+ * 
+ * 
+ */
+enum OlLrcTokenType {
+  OL_LRC_TOKEN_TEXT = 0,        /**< Normal text token */
+  OL_LRC_TOKEN_ATTR,            /**< Attribute tag token */
+  OL_LRC_TOKEN_TIME,            /**< Time tag token */
+  OL_LRC_TOKEN_INVALID,         /**< Invalid token */
+};
 
-typedef struct {
-  LrcInfo list[MAX_LINE];
-  int length;
-  int first;
-  int last;
-  int offset;
-  char *filename;
-} LrcQueue;
-/** 
- * Loads an Lrc file and returns its content
- * 
- * @param lyric_sourse A local file name
- * 
- * @return The content of the file, must use ol_lrc_parser_free () to destroy it
- */
+struct OlLrcTextToken
+{
+  enum OlLrcTokenType type;
+  char *text;
+};
 
-LrcQueue* ol_lrc_parser_get_lyric_info(const char *lyric_source);
+struct OlLrcAttrToken
+{
+  enum OlLrcTokenType type;
+  char *attr;
+  char *value;
+};
+
+struct OlLrcTimeToken
+{
+  enum OlLrcTokenType type;
+  int time;
+};
+
 /** 
- * Get the first LrcInfo from the current LrcQueue
- * 
- * @param lyric_source  The Lrc filepath
- * 
- * @return the LrcInfo, must not be freed.
- */
-LrcInfo *ol_lrc_parser_get_first_of_list(LrcQueue *list);
-/** 
- * Get The last LrcInfo from the current LrcQueue
- * 
- * @Param List The Lrcqueue
- * 
- * @Return The Lrcinfo,Must Not be freed.
- */
-LrcInfo *ol_lrc_parser_get_last_of_list(LrcQueue *list);
-/** 
- * Get the next LrcInfo of the current one
- * 
- * @param current_lyric The current LrcInfo
- * 
- * @return the LrcInfo, must not be freed.
- */
-LrcInfo *ol_lrc_parser_get_next_of_lyric(LrcInfo *current_lyric);
-/** 
- * Get the preview LrcInfo of the current one
- * 
- * @param current_lyric The current LrcInfo.
- * 
- * @return the LrcInfo, must not be freed.
- */
-LrcInfo *ol_lrc_parser_get_prev_of_lyric(LrcInfo *current_lyric);
-/** 
- * Get the lyric_time of the LrcInfo
- * 
- * @param current_lyric The current LrcInfo.
- * 
- * @return lyric_time The lyric_id of the current LrcInfo.
- */
-int ol_lrc_parser_get_lyric_time(LrcInfo *current_lyric);
-/** 
- * Get the lyric_text of the LrcInfo
- * 
- * @param current_lyric The current LrcInfo.
- * 
- * @return lyric_text The lyric_text of the current LrcInfo 
- */
-char *ol_lrc_parser_get_lyric_text(LrcInfo *current_lyric);
-/** 
- * Get the lyric_id of the LrcInfo
- * 
- * @param current_lyric The current LrcInfo.
- * 
- * @return lyric_id The lyric_id of the current LrcInfo 
- */
-int ol_lrc_parser_get_lyric_id(LrcInfo *current_lyric);
-/** 
- * Get the LrcInfo from LrcQueue by lyric id 
- * 
- * @param list The LrcQueue
- * @param lyric_id The lyric_id of the current LrcInfo 
- * 
- * @return the lrcInfo, must not be freed.
- */
-LrcInfo *ol_lrc_parser_get_lyric_by_id(LrcQueue *list,int lyric_id);
-/** 
- * update the Lrc_time and offset_time from LrcQueue
+ * @brief Token parsed from LRC files
  *
- * @param offset The offset of which should be ajusted 
- * @param list The LrcQueue
+ * You can use the type member to get the type of the token
  */
-void ol_lrc_parser_set_lyric_offset(LrcQueue *list, int offset);
-/** 
- * get the offset_time from LrcQueue
- *
- * @param list The LrcQueue
- *
- * @return the current offset time
- */
-int ol_lrc_parser_get_lyric_offset(LrcQueue *list);
-/** 
- * update the offset_time from file
- *
- * @param offset The offset of which should be ajusted 
- * @param lyric_source The Lrc filepath
- */
-void ol_lrc_parser_set_lyric_file_offset (const char *lyric_source,
-                                          int offset);
-#endif
+union OlLrcToken
+{
+  enum OlLrcTokenType type;
+  struct OlLrcTextToken text;
+  struct OlLrcAttrToken attr;
+  struct OlLrcTimeToken time;
+};
 
 /** 
- * @brief Frees an LrcQueue
+ * @brief Creates a new LRC parser instance
  * 
- * @param list 
+ * You need to call ol_lrc_parser_set_buffer to set the contents
+ * @return A new OlLrcParser instance. You should use ol_lrc_parser_free to free it
  */
-void ol_lrc_parser_free (LrcQueue *list);
+struct OlLrcParser *ol_lrc_parser_new ();
 
 /** 
- * @brief Gets the filename for an LrcQueue
+ * @brief Create a new LRC parser and loads a file as its buffer
  * 
- * @param list 
+ * @param filename The file name of the LRC file to be loaded
  * 
- * @return The filename, or NULL if failed
- *         The returned filename is owned by LrcQueue, so you
- *         must neigther modify nor free it manually 
+ * @return A new OlLrcParser instance, or NULL if the file fail to load.
+ *         You should use ol_lrc_parser_free to free it
  */
-const char *ol_lrc_parser_get_filename (LrcQueue *list);
+struct OlLrcParser *ol_lrc_parser_new_from_file (const char *filename);
+
+/** 
+ * @brief Set the buffer of the parser.
+ *
+ * The parser will be reset to parse from the beginning.
+ * The filename of the parser will be set to NULL
+ *
+ * @param parser The LRC parser
+ * @param buffer The content of the lyric
+ */
+void ol_lrc_parser_set_buffer (struct OlLrcParser *parser,
+                               const char *buffer);
+
+/** 
+ * @brief Reset the current location of the parser
+ *
+ * The parser will parse from the begging of its buffer after reset
+ * @param parser The parser to reset
+ */
+void ol_lrc_parser_reset (struct OlLrcParser *parser);
+
+/** 
+ * @brief Get the token from the current position of parser
+ *
+ * You can use ol_lrc_token_get_type to get the type of the token
+ * @param parser An LRC parser
+ * 
+ * @return The next token return. If there is no more tokens, return NULL.
+ */
+union OlLrcToken *ol_lrc_parser_next_token (struct OlLrcParser *parser);
+
+/** 
+ * @brief Frees a parser
+ *
+ * All the buffers from the parser is freed
+ * @param parser 
+ */
+void ol_lrc_parser_free (struct OlLrcParser *parser);
+
+/** 
+ * @brief Gets the type of a token
+ *
+ * @param token 
+ * 
+ * @return The type of token. If the token is NULL or invalid, return OL_LRC_TOKEN_INVALID
+ */
+enum OlLrcTokenType ol_lrc_token_get_type (union OlLrcToken *token);
+
+/** 
+ * @brief Frees the token, include its strings
+ * 
+ * @param token 
+ */
+void ol_lrc_token_free (union OlLrcToken *token);
+
+/** 
+ * @brief Get the filename of the LRC file the parser uses
+ * 
+ * @param parser 
+ * 
+ * @return The full filename, may be NULL
+ */
+const char *ol_lrc_parser_get_filename (struct OlLrcParser *parser);
+
+#endif /* _OL_LRC_PARSER_H_ */

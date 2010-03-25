@@ -3,12 +3,11 @@
 
 #include <glib.h>
 #include "ol_music_info.h"
-#include "ol_lrc_parser.h"
-
 
 gboolean ol_app_download_lyric (OlMusicInfo *music_info);
 
 struct OlPlayer;
+struct OlLrc;
 
 /** 
  * @brief Gets the current music
@@ -19,7 +18,7 @@ OlMusicInfo* ol_app_get_current_music (void);
 
 struct OlPlayer* ol_app_get_player (void);
 
-LrcQueue *ol_app_get_current_lyric (void);
+struct OlLrc *ol_app_get_current_lyric (void);
 
 gboolean ol_app_assign_lrcfile (const OlMusicInfo *info,
                                 const char *filepath,

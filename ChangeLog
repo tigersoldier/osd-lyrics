@@ -1,3 +1,19 @@
+2010-03-24  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* data/dialogs.glade: FIX: The handler of advance/delay lrc offset in pop menu is fixed
+
+	* src/ol_lrc.c: ADD: Rewirte of LRC file module
+
+	* src/ol_lrc_parser.c: ADD: Charset detection and convertion of LRC Parser
+
+	* src/tests/ol_lrc_parser_test.c: ADD: Basic test for LRC Parser
+
+	* src/ol_lrc_parser.c: ADD: A new lexical parser of LRC files
+
+2010-03-23  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* ADD: Charset detector library from pcmanx
+
 2010-03-22  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_module.c: FIX: The bug that OSD Window never hides when is set to hidden is fixed

@@ -249,3 +249,12 @@ ol_path_is_file (const char *filename)
   return stat (filename, &buf) == 0 && S_ISREG (buf.st_mode);
 }
 
+ssize_t
+ol_file_len (const char *filename)
+{
+  ol_assert_ret (filename != NULL, -1);
+  struct stat buf;
+  if (stat (filename, &buf) != 0)
+    return -1;
+  return buf.st_size;
+}

@@ -24,8 +24,7 @@
 #include <pwd.h>
 #include "config.h"
 #include "ol_osd_window.h"
-#include "ol_lrc_parser.h"
-#include "ol_lrc_utility.h"
+#include "ol_lrc.h"
 #include "ol_player.h"
 #include "ol_utils.h"
 #include "ol_lrc_fetch.h"
@@ -58,7 +57,7 @@ static gchar *previous_uri = NULL;
 static enum OlPlayerStatus previous_status = OL_PLAYER_UNKNOWN;
 static gint previous_duration = 0;
 static gint previous_position = -1;
-static LrcQueue *lrc_file = NULL;
+static struct OlLrc *lrc_file = NULL;
 static OlOsdModule *module = NULL;
 static int fetch_id = 0;
 
@@ -129,7 +128,7 @@ ol_app_download_lyric (OlMusicInfo *music_info)
     ol_osd_module_search_message (module, _("Searching lyrics"));
 }
 
-LrcQueue *
+struct OlLrc *
 ol_app_get_current_lyric ()
 {
   return lrc_file;
@@ -150,11 +149,11 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
   {
     if (lrc_file != NULL)
     {
-      ol_lrc_parser_free (lrc_file);
+      ol_lrc_free (lrc_file);
       lrc_file = NULL;
     }
     if (filepath != NULL)
-      lrc_file = ol_lrc_parser_get_lyric_info (filepath);
+      lrc_file = ol_lrc_new (filepath);
     ol_osd_module_set_lrc (module, lrc_file);
   }
   return TRUE;

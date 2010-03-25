@@ -7,26 +7,23 @@
 #include "ol_utils_dbus.h"
 #include "ol_debug.h"
 
-static const char *service = "org.bansheeproject.Banshee";
-static const char *path = "/org/bansheeproject/Banshee/PlaybackController";
-static const char *interface = "org.bansheeproject.Banshee.PlaybackController";
-static const char *path2 = "/org/bansheeproject/Banshee/PlayerEngine";
-static const char *interface2 = "org.bansheeproject.Banshee.PlayerEngine";	
-static const char *play = "Play";
-static const char *pause = "Pause";
-static const char *stop = "Close";
-static const char *play_pause = "TogglePlaying";
-static const char *next = "Next";
-static const char *previous = "Previous";
-static const char *seek = "SetPosition";
-static const char *get_title = "GetCurrentTrack";
-static const char *get_artist = "";
-static const char *get_album = "";
-static const char *get_cover_path = "";
-static const char *get_status = "GetCurrentState";
-static const char *duration = "GetLength";
-static const char *current_position = "GetPosition";
-static const char *icon_paths[] = {
+static const char *SERVICE = "org.bansheeproject.Banshee";
+static const char *PATH = "/org/bansheeproject/Banshee/PlaybackController";
+static const char *INTERFACE = "org.bansheeproject.Banshee.PlaybackController";
+static const char *PATH2 = "/org/bansheeproject/Banshee/PlayerEngine";
+static const char *INTERFACE2 = "org.bansheeproject.Banshee.PlayerEngine";	
+static const char *PLAY = "Play";
+static const char *PAUSE = "Pause";
+static const char *STOP = "Close";
+static const char *PLAY_PAUSE = "TogglePlaying";
+static const char *NEXT = "Next";
+static const char *PREVIOUS = "Previous";
+static const char *SEEK = "SetPosition";
+static const char *GET_TITLE = "GetCurrentTrack";
+static const char *GET_STATUS = "GetCurrentState";
+static const char *DURATION = "GetLength";
+static const char *CURRENT_POSITION = "GetPosition";
+static const char *ICON_PATHS[] = {
   "/usr/share/icons/hicolor/48x48/apps/media-player-banshee.png",
   "/usr/local/share/icons/hicolor/48x48/apps/media-player-banshee.png",
 };
@@ -72,7 +69,7 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   if (dbus_g_proxy_call (proxy,
-                        get_title,
+                        GET_TITLE,
                         NULL,G_TYPE_INVALID,
                         dbus_g_type_get_map("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
                         &data_list,
@@ -92,7 +89,7 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
   }
   else
   {
-    fprintf (stderr, "%s fail\n", get_title);
+    ol_debugf ("%s fail\n", GET_TITLE);
     proxy = NULL;
     ret = FALSE;
   }
@@ -109,7 +106,7 @@ ol_player_banshee_get_music_length (int *len)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   if (dbus_g_proxy_call (proxy,
-                         duration,
+                         DURATION,
                          NULL,
                          G_TYPE_INVALID,
                          G_TYPE_UINT,
@@ -133,7 +130,7 @@ ol_player_banshee_get_played_time (int *played_time)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   if (ol_dbus_get_uint (proxy,
-                        current_position,
+                        CURRENT_POSITION,
                         played_time))
   {
   }
@@ -173,7 +170,7 @@ ol_player_banshee_init_dbus ()
   }
   if (proxy == NULL)
   {
-    proxy = dbus_g_proxy_new_for_name_owner (connection, service, path2, interface2, &error);
+    proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH2, INTERFACE2, &error);
     if (proxy == NULL)
     {
       printf ("get proxy failed: %s\n", error->message);
@@ -185,7 +182,7 @@ ol_player_banshee_init_dbus ()
   }
   if (control_proxy == NULL)
   {
-    control_proxy = dbus_g_proxy_new_for_name_owner (connection, service, path, interface, &error);
+    control_proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH, INTERFACE, &error);
     if (control_proxy == NULL)
     {
       printf ("get proxy failed: %s\n", error->message);
@@ -206,7 +203,7 @@ OlPlayerStatus ol_player_banshee_get_status ()
       return OL_PLAYER_ERROR;
   char *status_str = NULL;
   if (ol_dbus_get_string (proxy,
-                          get_status,
+                          GET_STATUS,
                           &status_str))
   {
     enum OlPlayerStatus status;
@@ -241,7 +238,7 @@ ol_player_banshee_play ()
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   return ol_dbus_invoke (proxy,
-                         play);
+                         PLAY);
 }
 
 static gboolean
@@ -251,7 +248,7 @@ ol_player_banshee_pause ()
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   return ol_dbus_invoke (proxy,
-                         pause);
+                         PAUSE);
 }
 
 static gboolean
@@ -261,7 +258,7 @@ ol_player_banshee_stop ()
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   return ol_dbus_invoke (proxy,
-                         stop);
+                         STOP);
 }
 
 static gboolean
@@ -271,7 +268,7 @@ ol_player_banshee_prev ()
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   return dbus_g_proxy_call (control_proxy,
-                            previous,
+                            PREVIOUS,
                             NULL,
                             G_TYPE_BOOLEAN,
                             TRUE,
@@ -286,7 +283,7 @@ ol_player_banshee_next ()
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   return dbus_g_proxy_call (control_proxy,
-                            next,
+                            NEXT,
                             NULL,
                             G_TYPE_BOOLEAN,
                             TRUE,
@@ -301,7 +298,7 @@ ol_player_banshee_seek (int pos_ms)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   return dbus_g_proxy_call (proxy,
-                            seek,
+                            SEEK,
                             NULL,
                             G_TYPE_UINT,
                             (guint) pos_ms,
@@ -313,10 +310,10 @@ static const char *
 ol_player_banshee_get_icon_path ()
 {
   int i;
-  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  for (i = 0; i < ol_get_array_len (ICON_PATHS); i++)
   {
-    if (ol_path_is_file (icon_paths[i]))
-      return icon_paths[i];
+    if (ol_path_is_file (ICON_PATHS[i]))
+      return ICON_PATHS[i];
   }
   return NULL;
 }

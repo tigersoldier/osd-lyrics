@@ -14,6 +14,7 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in

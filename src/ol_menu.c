@@ -67,17 +67,13 @@ static void internal_adjust_lyric_offset (int offset_ms);
 static void
 internal_adjust_lyric_offset (int offset_ms)
 {
-  LrcQueue *lrc = ol_app_get_current_lyric ();
+  ol_log_func ();
+  struct OlLrc *lrc = ol_app_get_current_lyric ();
   if (lrc == NULL)
     return;
-  int old_offset = ol_lrc_parser_get_lyric_offset (lrc);
+  int old_offset = ol_lrc_get_offset (lrc);
   int new_offset = old_offset - offset_ms;
-  ol_lrc_parser_set_lyric_offset (lrc, new_offset);
-  const char *file = ol_lrc_parser_get_filename (lrc);
-  ol_debugf ("filename: %s\n", file);
-  if (file != NULL)
-    ol_lrc_parser_set_lyric_file_offset (file,
-                                         new_offset);
+  ol_lrc_set_offset (lrc, new_offset);
 }
 
 void
@@ -89,6 +85,7 @@ ol_menu_advance_lrc (GtkWidget *widget, gpointer data)
 void
 ol_menu_delay_lrc (GtkWidget *widget, gpointer data)
 {
+  ol_log_func ();
   internal_adjust_lyric_offset (200);
 }
 

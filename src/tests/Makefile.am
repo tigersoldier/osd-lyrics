@@ -2,7 +2,7 @@ check_PROGRAMS = \
 	ol_osd_test \
 	ol_player_test\
 	ol_lrc_parser_test\
-	ol_lrc_utility_test \
+	ol_lrc_test \
 	ol_lrc_fetch_test \
 	ol_config_test \
 	ol_color_test \
@@ -18,7 +18,8 @@ INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@MPD_CFLAGS@ \
 	@XMMS2_CFLAGS@ \
-	-I$(top_srcdir)/src
+	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/lib/chardetect/include
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
@@ -69,11 +70,22 @@ ol_player_test_LDADD = \
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
 	$(top_srcdir)/src/ol_lrc_parser.c \
-	$(top_srcdir)/src/ol_lrc_utility.c
+	$(top_srcdir)/src/ol_utils.c
 
-ol_lrc_utility_test_SOURCES = ol_lrc_utility_test.c \
-	$(top_srcdir)/src/ol_lrc_parser.c \
-	$(top_srcdir)/src/ol_lrc_utility.c
+ol_lrc_parser_test_LDADD = \
+	$(top_srcdir)/lib/chardetect/chardetect.a \
+	@GTK2_LIBS@ \
+	-lstdc++
+
+ol_lrc_test_SOURCES = ol_lrc_test.c \
+	$(top_srcdir)/src/ol_lrc.c \
+	$(top_srcdir)/src/ol_utils.c \
+	$(top_srcdir)/src/ol_lrc_parser.c 
+
+ol_lrc_test_LDADD = \
+	$(top_srcdir)/lib/chardetect/chardetect.a \
+	@GTK2_LIBS@ \
+	-lstdc++
 
 ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \

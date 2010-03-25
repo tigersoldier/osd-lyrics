@@ -1,5 +1,6 @@
 #ifndef __OL_UTILS_H__
 #define __OL_UTILS_H__
+#include <unistd.h>
 #include <glib.h>
 
 #define ol_get_array_len(arr) (sizeof (arr) / sizeof (arr[0]))
@@ -115,5 +116,15 @@ char *ol_trim_string (char *str);
  * @return TRUE if the file in the path exists and is a regular file
  */
 gboolean ol_path_is_file (const char *filename);
+
+/** 
+ * @brief Gets the length of a file
+ * 
+ * @param filename The full path of the file
+ * 
+ * @return The length of a file, or negative if error occurs
+ */
+ssize_t ol_file_len (const char *filename);
+
 
 #endif // __OL_UTILS_H__

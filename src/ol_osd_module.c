@@ -1,4 +1,5 @@
 #include "ol_osd_module.h"
+#include "ol_lrc.h"
 #include "ol_stock.h"
 #include "ol_debug.h"
 
@@ -8,13 +9,13 @@ const int MESSAGE_DURATION_MS = 3000;
  * A REAL lyric is the nearest lyric to the given lyric, whose text is not empty
  * If the given lyric text is not empty, the given lyric is a real lyric
  * If not real lyric available, returns NULL
- * @param lrc An LrcInfo
+ * @param lrc An const struct OlLrcItem
  * 
  * @return The real lyric of the lrc. returns NULL if not available
  */
-static LrcInfo* ol_osd_module_get_real_lyric (LrcInfo *lrc);
+static const struct OlLrcItem* ol_osd_module_get_real_lyric (const struct OlLrcItem *lrc);
 static void ol_osd_module_update_next_lyric (OlOsdModule *module,
-                                             LrcInfo *current_lrc);
+                                             const struct OlLrcItem *current_lrc);
 static void ol_osd_module_init_osd (OlOsdModule *module);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
@@ -34,14 +35,14 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
 }
 
 static void
-ol_osd_module_update_next_lyric (OlOsdModule *module, LrcInfo *current_lrc)
+ol_osd_module_update_next_lyric (OlOsdModule *module, const struct OlLrcItem *current_lrc)
 {
   if (module->line_count == 1)
   {
     module->lrc_next_id = -1;
     return;
   }
-  LrcInfo *info = ol_lrc_parser_get_next_of_lyric (current_lrc);
+  const struct OlLrcItem *info = ol_lrc_item_next (current_lrc);
   info = ol_osd_module_get_real_lyric (info);
   if (info == NULL)
   {
@@ -57,13 +58,13 @@ ol_osd_module_update_next_lyric (OlOsdModule *module, LrcInfo *current_lrc)
   }
   else
   {
-    if (module->lrc_next_id == ol_lrc_parser_get_lyric_id (info))
+    if (module->lrc_next_id == ol_lrc_item_get_id (info))
       return;
     if (info != NULL)
     {
-      module->lrc_next_id = ol_lrc_parser_get_lyric_id (info);
+      module->lrc_next_id = ol_lrc_item_get_id (info);
       ol_osd_window_set_lyric (module->osd, 1 - module->current_line,
-                               ol_lrc_parser_get_lyric_text (info));
+                               ol_lrc_item_get_lyric (info));
     }
   }
   ol_osd_window_set_percentage (module->osd, 1 - module->current_line, 0.0);
@@ -72,7 +73,7 @@ ol_osd_module_update_next_lyric (OlOsdModule *module, LrcInfo *current_lrc)
 static void
 config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata)
 {
-  fprintf (stderr, "%s:[%s]%s\n", __FUNCTION__, group, name);
+  ol_debugf ("%s:[%s]%s\n", __FUNCTION__, group, name);
   OlOsdModule *module = (OlOsdModule*) userdata;
   if (module == NULL)
     return;
@@ -226,7 +227,7 @@ ol_osd_module_new ()
   ol_log_func ();
   OlOsdModule *module = g_new (OlOsdModule, 1);
   module->osd = NULL;
-  module->lrc_file = NULL;
+  module->lrc = NULL;
   module->lrc_id = -1;
   module->lrc_next_id = -1;
   module->current_line = 0;
@@ -263,24 +264,23 @@ void
 ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
 {
   /* updates the time and lyrics */
-  if (module->lrc_file != NULL && module->osd != NULL)
+  if (module->lrc != NULL && module->osd != NULL)
   {
-    char current_lrc[1024];
+    char *current_lrc = NULL;
     double percentage;
     int id, lyric_id;
-    ol_lrc_utility_get_lyric_by_time (module->lrc_file,
-                                      played_time,
-                                      module->duration,
-                                      current_lrc,
-                                      &percentage,
-                                      &lyric_id);
-    LrcInfo *info = ol_lrc_parser_get_lyric_by_id (module->lrc_file,
-                                                   lyric_id);
+    ol_lrc_get_lyric_by_time (module->lrc,
+                              played_time,
+                              module->duration,
+                              &current_lrc,
+                              &percentage,
+                              &lyric_id);
+    const struct OlLrcItem *info = ol_lrc_get_item (module->lrc, lyric_id);
     info = ol_osd_module_get_real_lyric (info);
     if (info == NULL)
       id = -1;
     else
-      id = ol_lrc_parser_get_lyric_id (info);
+      id = ol_lrc_item_get_id (info);
     if (module->lrc_id != id)
     {
       if (id == -1)
@@ -291,8 +291,9 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
       if (id != module->lrc_next_id)
       {
         module->current_line = 0;
-        if (ol_lrc_parser_get_lyric_text (info) != NULL)
-          ol_osd_window_set_lyric (module->osd, module->current_line, ol_lrc_parser_get_lyric_text (info));
+        if (ol_lrc_item_get_lyric (info) != NULL)
+          ol_osd_window_set_lyric (module->osd, module->current_line,
+                                   ol_lrc_item_get_lyric (info));
         if (id != lyric_id)
           ol_osd_window_set_current_percentage (module->osd, 0.0);
         ol_osd_module_update_next_lyric (module, info);
@@ -328,23 +329,23 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
   }
 }
 
-static LrcInfo*
-ol_osd_module_get_real_lyric (LrcInfo *lrc)
+static const struct OlLrcItem*
+ol_osd_module_get_real_lyric (const struct OlLrcItem *lrc)
 {
   while (lrc != NULL)
   {
-    if (!ol_is_string_empty (ol_lrc_parser_get_lyric_text (lrc)))
+    if (!ol_is_string_empty (ol_lrc_item_get_lyric (lrc)))
       break;
-    lrc = ol_lrc_parser_get_next_of_lyric (lrc);
+    lrc = ol_lrc_item_next (lrc);
   }
   return lrc;
 }
 
 void
-ol_osd_module_set_lrc (OlOsdModule *module, LrcQueue *lrc_file)
+ol_osd_module_set_lrc (OlOsdModule *module, struct OlLrc *lrc_file)
 {
   ol_log_func ();
-  module->lrc_file = lrc_file;
+  module->lrc = lrc_file;
   if (lrc_file != NULL && module->message_source != 0)
   {
     ol_osd_module_clear_message (module);
@@ -369,7 +370,7 @@ ol_osd_module_set_message (OlOsdModule *module,
   ol_assert (module != NULL);
   ol_assert (message != NULL);
   ol_assert (module->osd != NULL);
-  if (module->lrc_file != NULL)
+  if (module->lrc != NULL)
     return;
   ol_debugf ("  message:%s\n", message);
   ol_osd_window_set_current_line (module->osd, 0);
@@ -407,7 +408,7 @@ hide_message (OlOsdModule *module)
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  ol_assert (module->lrc_file == NULL);
+  ol_assert (module->lrc == NULL);
   ol_osd_window_set_lyric (module->osd, 0, NULL);
   /* gtk_widget_hide (GTK_WIDGET (module->osd)); */
   module->message_source = 0;
