@@ -1,5 +1,9 @@
 2010-03-29  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_lrc_fetch_minilyrics.c (ol_lrc_fetch_minilyrics_download): FIX: Detect encoding of downloaded lyrics.
+
+	* src/ol_lrc.c (_init_lrc): FIX: Initialize offset of LRC Parser.
+
 	* src/ol_lrc_fetch_minilyrics.c: ADD: Support download from MiniLyrics
 
 2010-03-28  Tiger Soldier  <tigersoldi@gmail.com>

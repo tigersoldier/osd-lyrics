@@ -144,10 +144,12 @@ ol_lrc_parser_new ()
 struct OlLrcParser *
 ol_lrc_parser_new_from_file (const char *filename)
 {
+  ol_log_func ();
   ol_assert_ret (filename != NULL, NULL);
   if (!ol_path_is_file (filename))
     return NULL;
   ssize_t len = ol_file_len (filename);
+  /* ol_debugf ("len: %d\n", len); */
   if (len < 0)
     return NULL;
   FILE *flrc = fopen (filename, "rb");
@@ -176,6 +178,8 @@ ol_lrc_parser_set_buffer (struct OlLrcParser *parser,
                           const char *buffer)
 {
   /* TODO: detect charset and convert to UTF-8 */
+  /* ol_log_func (); */
+  /* ol_debugf ("buf: %s\n", buffer); */
   ol_assert (parser != NULL);
   if (parser->filename != NULL)
   {
@@ -241,8 +245,11 @@ ol_lrc_parser_reset (struct OlLrcParser *parser)
 union OlLrcToken *
 ol_lrc_parser_next_token (struct OlLrcParser *parser)
 {
+  /* ol_log_func (); */
   ol_assert_ret (parser != NULL, NULL);
   ol_assert_ret (parser->buffer != NULL, NULL);
+  /* ol_debugf ("offset: %d, buflen: %d\n", parser->offset, parser->buflen); */
+  /* ol_debugf ("buf: %s\n", parser->buffer); */
   if (parser->offset == parser->buflen)
     return NULL;
   int tag = 0;

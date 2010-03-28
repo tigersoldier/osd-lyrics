@@ -68,12 +68,15 @@ _init_lrc (struct OlLrc *lrc)
   lrc->nlyrics = 0;
   lrc->attrs = g_hash_table_new_full (g_str_hash, g_str_equal,
                                       g_free, g_free);
+  lrc->offset = 0;
   lrc->filename = NULL;
 }
 
 static void
 _add_lyric (struct OlLrc *lrc, const char *lyric)
 {
+  ol_log_func ();
+  ol_debugf ("lyric: %s\n", lyric);
   ol_assert (lrc != NULL);
   ol_assert (lyric != NULL);
   g_ptr_array_add (lrc->lyrics, g_strdup (lyric));
@@ -83,14 +86,18 @@ _add_lyric (struct OlLrc *lrc, const char *lyric)
 static void
 _add_time (struct OlLrc *lrc, struct OlLrcTimeToken *token)
 {
+  ol_log_func ();
   ol_assert (lrc != NULL);
   ol_assert (token != NULL);
   struct OlLrcItem *item = g_new (struct OlLrcItem, 1);
   item->lyric_id = lrc->nlyrics;
   item->timestamp = token->time;
+  ol_debugf ("time: %d\n", token->time);
+  ol_debugf ("cnt: %d\n", lrc->nitems);
   item->lrc = lrc;
   g_ptr_array_add (lrc->items, item);
   lrc->nitems++;
+  ol_assert (token->time - lrc->offset == ol_lrc_item_get_time (ol_lrc_get_item (lrc, lrc->nitems - 1)));
 }
 
 static void
@@ -118,6 +125,7 @@ ol_lrc_new (const char *filename)
   gboolean hastime = FALSE;
   while ((token = ol_lrc_parser_next_token (parser)) != NULL)
   {
+    //ol_debugf ("token type: %d\n", ol_lrc_token_get_type (token));
     switch (ol_lrc_token_get_type (token))
     {
     case OL_LRC_TOKEN_TEXT:
@@ -240,6 +248,7 @@ ol_lrc_get_lyric_by_time (struct OlLrc *lrc,
   ol_assert (lrc != NULL);
   int l = 0;
   int r = ol_lrc_item_count (lrc) - 1;
+  /* ol_debugf ("r: %d\n", r); */
   /* Binary search */
   while (l < r)
   {

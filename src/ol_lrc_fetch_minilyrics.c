@@ -2,6 +2,7 @@
 #include "ol_intl.h"
 #include "ol_md5.h"
 #include "ol_utils.h"
+#include "chardetect.h"
 #include "ol_debug.h"
 
 #define BUF_SIZE 1024
@@ -165,6 +166,7 @@ ol_lrc_fetch_minilyrics_search (const OlMusicInfo *info,
                                         &candidate);
   }
   *size = count;
+  free (lrc.mem_base);
   return result;
 }
 
@@ -179,6 +181,8 @@ ol_lrc_fetch_minilyrics_download (OlLrcCandidate *candidate,
   FILE *fp;
   int ret;
   struct memo lrc;
+  chardet_t det;
+  char real_charset[20] = "";
   lrc.mem_base = NULL;
   lrc.mem_len = 0;
 
@@ -189,9 +193,30 @@ ol_lrc_fetch_minilyrics_download (OlLrcCandidate *candidate,
                               0,    /* postdata len */
                               &lrc)) < 0)
     return -1;
-  lrc_conv = calloc(lrc.mem_len*2, sizeof(char));
-  convert("GBK", charset==NULL ? "UTF-8" : charset, lrc.mem_base, lrc.mem_len, lrc_conv, lrc.mem_len*2);
-  free(lrc.mem_base);
+  ol_debugf ("len: %d, result:\n%s\n", lrc.mem_len, lrc.mem_base);
+  if (chardet_create (&det) == CHARDET_RESULT_OK)
+  {
+    chardet_handle_data (det, lrc.mem_base, lrc.mem_len);
+    chardet_data_end (det);
+    chardet_get_charset (det, real_charset, 20);
+    chardet_destroy (det);
+  }
+  else
+  {
+    ol_error ("Can not create charset detector");
+  }
+  ol_debugf ("Charset is %s\n", charset);
+  if (strlen (real_charset) > 0)
+  {
+    lrc_conv = calloc(lrc.mem_len*2, sizeof(char));
+    convert(real_charset, "UTF-8", lrc.mem_base,
+            lrc.mem_len, lrc_conv, lrc.mem_len*2);
+    free(lrc.mem_base);
+  }
+  else
+  {
+    lrc_conv = lrc.mem_base;
+  }
 	
   pathbuf = ol_path_alloc();
   if(pathname == NULL)
