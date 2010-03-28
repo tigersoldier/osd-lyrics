@@ -1,3 +1,7 @@
+2010-03-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_md5.c: ADD: MD5 Library from nettle library
+
 2010-03-25  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* configure.ac: New release version
