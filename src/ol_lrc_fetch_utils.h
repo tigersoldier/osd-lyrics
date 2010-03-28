@@ -49,11 +49,17 @@ struct memo {
  * @brief fetch the content of url into memery
  *
  * @param url target Url
+ * @param user_agent Useragent, can be NULL
  * @param dest a bunch of memory identified by the struct memo
  *
  * @return 0 if success, or negative number
  */
-int fetch_into_memory(const char *url, const char *refer, struct memo *dest);
+int fetch_into_memory(const char *url,
+                      const char *refer,
+                      const char *user_agent,
+                      const char *post_data,
+                      size_t post_len,
+                      struct memo *dest);
 
 /** 
  * @brief fetch the content of url into file

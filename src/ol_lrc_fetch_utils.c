@@ -80,7 +80,15 @@ convert(const char *from_charset, const char *to_charset, char *src, size_t srcl
 }
 
 static CURL *
-my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func, void *data, long connecttimeout)
+my_curl_init(CURL *curl,
+             const char *url,
+             const char *refer,
+             const char *user_agent,
+             const char *post_data,
+             size_t post_len,
+             WriteCallback func,
+             void *data,
+             long connecttimeout)
 {
   ol_log_func ();
   CURLcode code;
@@ -112,13 +120,6 @@ my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func,
     return NULL;
   }
 
-  /* For multiple thread support */
-  /* code = curl_easy_setopt(curl_handler, CURLOPT_NOSIGNAL, 1); */
-  /* if (code != CURLE_OK) { */
-  /*   ol_errorf ("failed to set no signal parameter [%s]\n", errbuf); */
-  /*   return NULL; */
-  /* } */
-  
   code = curl_easy_setopt(curl_handler, CURLOPT_URL, url);
   if(code != CURLE_OK) {
     ol_errorf("failed to set URL [%s]\n", errbuf);
@@ -129,7 +130,31 @@ my_curl_init(CURL *curl, const char *url, const char *refer, WriteCallback func,
     code = curl_easy_setopt (curl_handler, CURLOPT_REFERER, refer);
     if (code != CURLE_OK)
     {
-      ol_errorf("failed to set refer utl [%s]\n", errbuf);
+      ol_errorf("failed to set refer url [%s]\n", errbuf);
+      return NULL;
+    }
+  }
+  if (post_data != NULL && post_len > 0)
+  {
+    code = curl_easy_setopt (curl_handler, CURLOPT_POSTFIELDS, post_data);
+    if (code != CURLE_OK)
+    {
+      ol_errorf("failed to set post field [%s]\n", errbuf);
+      return NULL;
+    }
+    code = curl_easy_setopt (curl_handler, CURLOPT_POSTFIELDSIZE, post_len);
+    if (code != CURLE_OK)
+    {
+      ol_errorf("failed to set post field size  [%s]\n", errbuf);
+      return NULL;
+    }
+  }
+  if (user_agent != NULL)
+  {
+    code = curl_easy_setopt(curl_handler, CURLOPT_USERAGENT, user_agent);
+    if (code != CURLE_OK)
+    {
+      ol_errorf("failed to set user agent [%s]\n", errbuf);
       return NULL;
     }
   }
@@ -163,7 +188,7 @@ fetch_into_file(const char *url, const char *refer, FILE *fp)
   CURL *curl;
   CURLcode code;
 
-  curl = my_curl_init(NULL, url, refer, NULL, fp, cntimeout);
+  curl = my_curl_init(NULL, url, refer, NULL, NULL, 0, NULL, fp, cntimeout);
   if(curl == NULL)
     return -1;
 
@@ -203,14 +228,20 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 }
 
 int
-fetch_into_memory(const char *url, const char *refer, struct memo *dest)
+fetch_into_memory (const char *url,
+                   const char *refer,
+                   const char *user_agent,
+                   const char *post_data,
+                   size_t post_len,
+                   struct memo *dest)
 {
   ol_log_func ();
   CURL *curl;
   CURLcode code;
   WriteCallback callback = WriteMemoryCallback;
 
-  curl = my_curl_init(NULL, url, refer, callback, dest, cntimeout);
+  curl = my_curl_init(NULL, url, refer, user_agent, post_data, post_len,
+                      callback, dest, cntimeout);
   if(curl == NULL)
     return -1;
 

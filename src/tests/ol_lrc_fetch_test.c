@@ -9,7 +9,7 @@
 #define FALSE 0
 
 const char *charset = "UTF-8";
-const char *enginename = "qianqian";
+const char *enginename = "Minilyrics";
 const char *title = "Candidate Title";
 const char *artist = "Candidate Artist";
 const char *uri = "Candidate URI";

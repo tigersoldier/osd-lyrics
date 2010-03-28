@@ -92,6 +92,9 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
 	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
+	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
+	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils.c
 ol_lrc_fetch_test_LDADD = \
 	@CURL_LIBS@ \
@@ -115,7 +118,9 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
 	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
+	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
 	$(top_srcdir)/src/ol_lrc_fetch_module.c \
+	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_fork.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c \
@@ -134,10 +139,12 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
 	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
+	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
+	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
 	$(top_srcdir)/src/ol_lrc_candidate_list.c \
-	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_fork.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \

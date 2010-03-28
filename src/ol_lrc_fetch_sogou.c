@@ -134,7 +134,12 @@ ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const cha
   lrc.mem_base = NULL;
   lrc.mem_len = 0;
 
-  if((ret = fetch_into_memory(tsu->url, NULL, &lrc)) < 0)
+  if((ret = fetch_into_memory(tsu->url,
+                              NULL, /* refer */
+                              NULL, /* user-agent */
+                              NULL, /* postdata */
+                              0,    /* postdata len */
+                              &lrc)) < 0)
     return -1;
   lrc_conv = calloc(lrc.mem_len*2, sizeof(char));
   convert("GBK", charset==NULL ? "UTF-8" : charset, lrc.mem_base, lrc.mem_len, lrc_conv, lrc.mem_len*2);

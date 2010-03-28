@@ -1,7 +1,8 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<errno.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 #include "ol_lrc_fetch.h"
 #include "ol_lrc_fetch_qianqian.h"
 #include "ol_utils.h"
@@ -182,7 +183,7 @@ ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
   {
     return 0;
   }
-  unlink (fd2);
+  unlink (frame_tmp_file);
   if ((fp2 = fdopen (fd2, "w+")) == NULL)
   {
     return 0;
@@ -257,7 +258,7 @@ ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* cha
   snprintf (page_url, BUFSIZE - 1, PREFIX_PAGE_QIANQIAN, title_buf);
   if ((fd = mkstemp(tmpfilenam)) < 0)
     return NULL;
-  unlink (fd);
+  unlink (tmpfilenam);
   if ((fp = fdopen(fd, "w+")) == NULL)
     return NULL;
   if((ret = fetch_into_file(page_url, QIANQIAN_REFER, fp)) < 0)
@@ -285,7 +286,12 @@ ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const 
   lrc.mem_base = NULL;
   lrc.mem_len = 0;
 
-  if((ret = fetch_into_memory(tsu->url, QIANQIAN_REFER, &lrc)) < 0)
+  if((ret = fetch_into_memory(tsu->url,
+                              QIANQIAN_REFER,
+                              NULL, /* user-agent */
+                              NULL, /* post-data */
+                              0,    /* post-data len */
+                              &lrc)) < 0)
     return -1;
   pathbuf = ol_path_alloc();
   if(pathname == NULL)

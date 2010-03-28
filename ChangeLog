@@ -1,4 +1,10 @@
+2010-03-29  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch_minilyrics.c: ADD: Support download from MiniLyrics
+
 2010-03-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch_qianqian.c (ol_lrc_fetch_qianqian_search): FIX: remove temp files after searching and downloading
 
 	* src/ol_md5.c: ADD: MD5 Library from nettle library
 
