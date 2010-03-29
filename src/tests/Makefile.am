@@ -24,11 +24,17 @@ AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
 	-DGUIDIR='"$(OL_GUIDIR)"'
+LDADD = \
+	@GTK2_LIBS@ \
+	@DBUS_GLIB_LIBS@ \
+	@XMMS2_LIBS@ \
+	@MPD_LIBS@ \
+	@CURL_LIBS@ \
+	$(top_srcdir)/lib/chardetect/chardetect.a \
+	-lstdc++
 # Tests
 ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c
-ol_utils_cmdline_test_LDADD = \
-	@GTK2_LIBS@
 
 ol_osd_test_SOURCES = ol_osd_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
@@ -36,8 +42,6 @@ ol_osd_test_SOURCES = ol_osd_test.c \
 	$(top_srcdir)/src/ol_color.c \
 	$(top_srcdir)/src/ol_image_button.c \
 	$(top_srcdir)/src/ol_utils.c
-ol_osd_test_LDADD = \
-	@GTK2_LIBS@
 
 ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player.c \
@@ -62,30 +66,15 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_utils_dbus.c \
 	$(top_srcdir)/src/ol_utils_dcop.c \
 	$(top_srcdir)/src/ol_music_info.c 
-ol_player_test_LDADD = \
-	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@ \
-	@XMMS2_LIBS@ \
-	@MPD_LIBS@
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
 	$(top_srcdir)/src/ol_lrc_parser.c \
 	$(top_srcdir)/src/ol_utils.c
 
-ol_lrc_parser_test_LDADD = \
-	$(top_srcdir)/lib/chardetect/chardetect.a \
-	@GTK2_LIBS@ \
-	-lstdc++
-
 ol_lrc_test_SOURCES = ol_lrc_test.c \
 	$(top_srcdir)/src/ol_lrc.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_lrc_parser.c 
-
-ol_lrc_test_LDADD = \
-	$(top_srcdir)/lib/chardetect/chardetect.a \
-	@GTK2_LIBS@ \
-	-lstdc++
 
 ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
@@ -96,22 +85,15 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils.c
-ol_lrc_fetch_test_LDADD = \
-	@CURL_LIBS@ \
-	@GTK2_LIBS@
 
 ol_config_test_SOURCES = \
 	ol_config_test.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c
-ol_config_test_LDADD = \
-	@GTK2_LIBS@
 
 ol_color_test_SOURCES = \
 	ol_color_test.c \
 	$(top_srcdir)/src/ol_color.c
-ol_color_test_LDADD = \
-	@GTK2_LIBS@
 
 ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
@@ -129,9 +111,6 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
 	$(top_srcdir)/src/ol_gui.c
-ol_lrc_fetch_ui_test_LDADD = \
-	@CURL_LIBS@ \
-	@GTK2_LIBS@
 
 ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
@@ -150,43 +129,23 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_marshal.c \
 	$(top_srcdir)/src/ol_gui.c 
 
-ol_lrc_fetch_module_test_LDADD = \
-	@CURL_LIBS@ \
-	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@
-
 ol_path_test_SOURCES = \
 	 ol_path_test.c \
 	$(top_srcdir)/src/ol_path_pattern.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_music_info.c
-ol_path_test_LDADD = \
-	@CURL_LIBS@ \
-	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@
 
 ol_fork_test_SOURCES = \
 	ol_fork_test.c \
 	$(top_srcdir)/src/ol_fork.c
-ol_fork_test_LDADD = \
-	@CURL_LIBS@ \
-	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@
 
 ol_music_info_test_SOURCES = \
 	ol_music_info_test.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c
-ol_music_info_test_LDADD = \
-	@CURL_LIBS@ \
-	@GTK2_LIBS@ \
-	@DBUS_GLIB_LIBS@
 
 ol_lrclib_test_SOURCES = \
 	ol_lrclib_test.c \
 	$(top_srcdir)/src/ol_lrclib.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c
-ol_lrclib_test_LDADD = \
-	@GTK2_LIBS@ \
-	@SQLITE_LIBS@

@@ -1,5 +1,7 @@
 2010-03-29  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/tests/Makefile.am: CHANGE: Use an universal LDADD for all tests.
+
 	* src/ol_lrc.c (ol_lrc_new): FIX: issue 70, add an extra empty lyric at the end to avoid lack of lyric text.
 
 	* src/ol_main.c: CHANGE: Check whether music has been changed every second. This should fix issue 69.
