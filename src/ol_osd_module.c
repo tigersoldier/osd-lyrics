@@ -264,6 +264,7 @@ void
 ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
 {
   /* updates the time and lyrics */
+  ol_log_func ();
   if (module->lrc != NULL && module->osd != NULL)
   {
     char *current_lrc = NULL;

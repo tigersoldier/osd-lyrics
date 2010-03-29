@@ -64,7 +64,7 @@ static int fetch_id = 0;
 static void _initialize (int argc, char **argv);
 static gint _refresh_music_info (gpointer data);
 static gint _refresh_player_info (gpointer data);
-static void _check_music_change (int time);
+static void _check_music_change ();
 static void _on_music_changed (void);
 static gboolean _check_lyric_file (void);
 static void _update_player_status (enum OlPlayerStatus status);
@@ -197,15 +197,12 @@ _on_music_changed ()
 }
 
 static void
-_check_music_change (int time)
+_check_music_change ()
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
+  ol_log_func ();
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
   /* fprintf (stderr, "%d-%d\n", previous_position, time); */
-  if (previous_position >=0 && time >= previous_position &&
-      previous_title != NULL)
-    return;
   /* compares the previous title with current title */
   if (player && !ol_player_get_music_info (player, &music_info))
   {
@@ -262,6 +259,7 @@ _refresh_player_info (gpointer data)
   {
     if (ol_player_get_capacity (player) & OL_PLAYER_STATUS)
       _update_player_status (ol_player_get_status (player));
+    _check_music_change ();
   }
   return TRUE;
 }
@@ -310,7 +308,9 @@ _refresh_music_info (gpointer data)
   {
     player = NULL;
   }
-  _check_music_change (time);
+  if (previous_position < 0 || time < previous_position ||
+      previous_title == NULL)
+    _check_music_change ();
   previous_position = time;
   if (player == NULL)
   {

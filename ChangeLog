@@ -1,5 +1,7 @@
 2010-03-29  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_main.c: CHANGE: Check whether music has been changed every second. This should fix issue 69.
+
 	* src/ol_lrc_fetch_minilyrics.c (ol_lrc_fetch_minilyrics_download): FIX: Detect encoding of downloaded lyrics.
 	FIX: Decode XML special characters in search results
 
