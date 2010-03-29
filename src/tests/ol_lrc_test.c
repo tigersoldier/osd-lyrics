@@ -68,6 +68,19 @@ void offset_test ()
     ol_test_expect (strcmp (ol_lrc_item_get_lyric (item1),
                        ol_lrc_item_get_lyric (item2)) == 0);
   }
+  ol_lrc_free (lrc1);
+  ol_lrc_free (lrc2);
+}
+
+/* Issue 70 */
+void no_newline_test ()
+{
+  const char *DATAFILE = "lrc_no_newline.lrc";
+  struct OlLrc *lrc = ol_lrc_new (DATAFILE);
+  const struct OlLrcItem *item = ol_lrc_get_item (lrc, 0);
+  ol_test_expect (ol_lrc_item_get_lyric (item) != NULL);
+  ol_test_expect (ol_lrc_item_get_lyric (item)[0] == '\0');
+  ol_lrc_free (lrc);
 }
 
 int main ()
@@ -75,5 +88,6 @@ int main ()
   basic_test ();
   gbk_test ();
   offset_test ();
+  no_newline_test ();
   return 0;
 }
