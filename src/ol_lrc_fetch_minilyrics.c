@@ -16,8 +16,19 @@ const char *REQUEST_PREFIX = "\x02\x00\x04\x00\x00\x00";
 const int REQUEST_PREFIX_LEN = 6;
 const char *SEARCH_URL = "http://www.viewlyrics.com:1212/searchlyrics.htm";
 const char *USER_AGENT = "MiniLyrics";
-
+const char *HTML_SPCHAR[][2] = {
+  {"&ndash;", "–"},
+  {"&mdash;", "—"},
+  {"&apos;", "'"},
+  {"&amp;", "&"},
+  {"&quot;", "\""},
+  {"&gt;", ">"},
+  {"&lt;", "<"},
+  {"&middot;", "·"},
+  {NULL, NULL},
+};
 static OlLrcFetchEngine *engine = NULL;
+
 
 static OlLrcCandidate *ol_lrc_fetch_minilyrics_search (const OlMusicInfo *info,
                                                   int *size,
@@ -39,6 +50,55 @@ static int _get_value (const char *src,
                        const char *attr,
                        char *value,
                        size_t size);
+static void _decode_value (char *value);
+
+static int _strcmp_prefix (const char *str1, const char *str2);
+
+static int
+_strcmp_prefix (const char *str1, const char *str2)
+{
+  if (str1 == str2)
+    return 0;
+  if (str1 == NULL)
+    return -1;
+  if (str2 == NULL)
+    return 1;
+  while (*str1 == *str2)
+  {
+    str1++;
+    str2++;
+  }
+  if (*str1 == 0 || *str2 == 0)
+    return 0;
+  return *str1 - *str2;
+}
+
+static void
+_decode_value (char *value)
+{
+  /* ol_log_func (); */
+  ol_assert (value != NULL);
+  /* ol_debugf ("value: %s\n", value); */
+  char *pos;
+  while ((pos = strchr (value, '&')) != NULL)
+  {
+    value = pos + 1;
+    int i = 0;
+    /* ol_debugf ("pos is: %s\n", pos); */
+    for (i = 0; HTML_SPCHAR[i][0] != NULL; i++)
+    {
+      /* ol_debugf ("checking: %s\n", HTML_SPCHAR[i][0]); */
+      if (_strcmp_prefix (HTML_SPCHAR[i][0], pos) == 0)
+      {
+        /* ol_debugf ("found: %s\n", HTML_SPCHAR[i][0]); */
+        strcpy (pos, HTML_SPCHAR[i][1]);
+        strcpy (pos + strlen (HTML_SPCHAR[i][1]), pos + strlen (HTML_SPCHAR[i][0]));
+        value = pos + strlen (HTML_SPCHAR[i][1]);
+        break;
+      }
+    }
+  }
+}
 
 static int
 _get_value (const char *src,
@@ -46,6 +106,7 @@ _get_value (const char *src,
             char *value,
             size_t size)
 {
+  /* ol_log_func (); */
   ol_assert_ret (src != NULL, 0);
   ol_assert_ret (attr != NULL, 0);
   ol_assert_ret (value != NULL, 0);
@@ -63,6 +124,7 @@ _get_value (const char *src,
     len++; ptr++;
   }
   value[len] = '\0';
+  _decode_value (value);
   return 1;
 }
 
@@ -92,6 +154,7 @@ static int _get_candidate (const char *str,
       ptr = end;
       continue;
     }
+    ol_debug ("title");
     if (_get_value (ptr, "title", val, BUF_SIZE))
       strncpy (candidate->title, val, OL_TS_LEN_MAX);
     else
