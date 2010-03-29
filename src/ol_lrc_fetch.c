@@ -71,9 +71,9 @@ ol_lrc_fetch_get_engine (const char *name)
 void
 ol_lrc_fetch_init ()
 {
+  ol_lrc_fetch_add_engine (ol_lrc_fetch_minilyrics_engine ());
   ol_lrc_fetch_add_engine (ol_lrc_fetch_sogou_engine ());
   ol_lrc_fetch_add_engine (ol_lrc_fetch_qianqian_engine ());
-  ol_lrc_fetch_add_engine (ol_lrc_fetch_minilyrics_engine ());
 }
 
 static int

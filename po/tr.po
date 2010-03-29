@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-03-10 16:06+0800\n"
+"POT-Creation-Date: 2010-03-29 14:46+0800\n"
 "PO-Revision-Date: 2010-03-11 23:10+0000\n"
 "Last-Translator: GüneyTekfidan <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -17,53 +17,57 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-03-25 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:123
+#: src/ol_menu.c:121
 msgid "LRC files"
 msgstr ""
 
-#: src/ol_menu.c:129
+#: src/ol_menu.c:127
 msgid "Choose LRC file to assign"
 msgstr ""
 
-#: src/ol_main.c:77
+#: src/ol_main.c:82
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:92
+#: src/ol_main.c:97
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:107
+#: src/ol_main.c:112
 msgid "Lyrics not found"
 msgstr "Şarkı sözleri bulunamadı"
 
-#: src/ol_main.c:123
+#: src/ol_main.c:128
 msgid "Searching lyrics"
 msgstr ""
 
-#: src/ol_main.c:267
+#: src/ol_main.c:291
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
 
-#: src/ol_trayicon.c:11
+#: src/ol_trayicon.c:13
 msgid "Unknown title"
 msgstr ""
 
-#: src/ol_trayicon.c:12
+#: src/ol_trayicon.c:14
 msgid "Unknown artist"
 msgstr ""
 
-#: src/ol_trayicon.c:45 src/ol_trayicon.c:99
+#: src/ol_trayicon.c:49 src/ol_trayicon.c:115
 msgid "OSD Lyrics"
 msgstr ""
 
-#: src/ol_lrc_fetch_qianqian.c:308
+#: src/ol_lrc_fetch_qianqian.c:314
 msgid "Qianqian"
 msgstr ""
 
-#: src/ol_lrc_fetch_sogou.c:160
+#: src/ol_lrc_fetch_sogou.c:165
 msgid "Sogou"
+msgstr ""
+
+#: src/ol_lrc_fetch_minilyrics.c:305
+msgid "MiniLyrics"
 msgstr ""
 
 #: src/ol_lrc_candidate_list.c:25
@@ -259,13 +263,13 @@ msgstr ""
 msgid "Do_wnload the first candidate"
 msgstr ""
 
-#: data/dialogs.glade:1090 data/dialogs.glade:1384
+#: data/dialogs.glade:1090 data/dialogs.glade:1386
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
 msgstr ""
 
-#: data/dialogs.glade:1110 data/dialogs.glade:1399 data/dialogs.glade:1692
+#: data/dialogs.glade:1110 data/dialogs.glade:1401 data/dialogs.glade:1694
 msgid "_Download"
 msgstr ""
 
@@ -317,78 +321,78 @@ msgstr ""
 msgid "Adjust lyrics delay by -0.2 s"
 msgstr ""
 
-#: data/dialogs.glade:1260
+#: data/dialogs.glade:1261
 msgid "Lyric delay +"
 msgstr ""
 
-#: data/dialogs.glade:1262
+#: data/dialogs.glade:1263
 msgid "Adjust lyric delay by +0.2 s"
 msgstr ""
 
-#: data/dialogs.glade:1352
+#: data/dialogs.glade:1354
 msgid "Choose LRC file to download"
 msgstr ""
 
-#: data/dialogs.glade:1380
+#: data/dialogs.glade:1382
 msgid "D_on't ask me again"
 msgstr ""
 
-#: data/dialogs.glade:1446
+#: data/dialogs.glade:1448
 msgid "The title of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1447
+#: data/dialogs.glade:1449
 msgid "%t - Title"
 msgstr ""
 
-#: data/dialogs.glade:1455
+#: data/dialogs.glade:1457
 msgid "The artist of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1456
+#: data/dialogs.glade:1458
 msgid "%p - Artist"
 msgstr ""
 
-#: data/dialogs.glade:1464
+#: data/dialogs.glade:1466
 msgid "The title of album of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1465
+#: data/dialogs.glade:1467
 msgid "%a - Album"
 msgstr ""
 
-#: data/dialogs.glade:1473
+#: data/dialogs.glade:1475
 msgid "The number of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1474
+#: data/dialogs.glade:1476
 msgid "%n - Track number"
 msgstr ""
 
-#: data/dialogs.glade:1482
+#: data/dialogs.glade:1484
 msgid "The filename of the current track"
 msgstr ""
 
-#: data/dialogs.glade:1483
+#: data/dialogs.glade:1485
 msgid "%f - Filename"
 msgstr "%f - Dosya Adı"
 
-#: data/dialogs.glade:1521
+#: data/dialogs.glade:1523
 msgid "Search lyrics"
 msgstr ""
 
-#: data/dialogs.glade:1539
+#: data/dialogs.glade:1541
 msgid "_Title:"
 msgstr ""
 
-#: data/dialogs.glade:1552
+#: data/dialogs.glade:1554
 msgid "_Artist:"
 msgstr ""
 
-#: data/dialogs.glade:1588
+#: data/dialogs.glade:1590
 msgid "_Search"
 msgstr ""
 
-#: data/dialogs.glade:1608
+#: data/dialogs.glade:1610
 msgid "_From:"
 msgstr ""

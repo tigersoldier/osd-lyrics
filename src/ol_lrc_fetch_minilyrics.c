@@ -302,7 +302,7 @@ ol_lrc_fetch_minilyrics_engine ()
   if (engine == NULL)
   {
     engine = malloc (sizeof (OlLrcFetchEngine));
-    engine->name = N_("Minilyrics");
+    engine->name = N_("MiniLyrics");
     engine->search = ol_lrc_fetch_minilyrics_search;
     engine->download = ol_lrc_fetch_minilyrics_download;
   }

@@ -3,6 +3,7 @@
      ../src/ol_trayicon.c \
      ../src/ol_lrc_fetch_qianqian.c \
      ../src/ol_lrc_fetch_sogou.c \
+     ../src/ol_lrc_fetch_minilyrics.c \
      ../src/ol_lrc_candidate_list.c \
      ../src/ol_search_dialog.c \
      ../data/dialogs.glade

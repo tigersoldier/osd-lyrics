@@ -219,7 +219,7 @@ static const OlConfigStringValue config_str[] = {
    "serif"},
   {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
    "Download engine", "Select the source where LRC files are downloaded from",
-   "sogou"},
+   "MiniLyrics"},
 #ifdef ENABLE_MPD
   {PROP_MPD_HOSTNAME, "mpd-hostname", "Player",
    "Hostname of MPD", "The server to connect for MPD service",
