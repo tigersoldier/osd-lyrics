@@ -240,7 +240,7 @@ ol_lrc_get_lyric_by_time (struct OlLrc *lrc,
                           double *percentage,
                           int *id)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   if (id != NULL)
     *id = -1;
   if (text != NULL)
@@ -264,7 +264,6 @@ ol_lrc_get_lyric_by_time (struct OlLrc *lrc,
     else
       r = mid - 1;
   }
-  ol_debug ("asdf");
   if (l == r)                    /* found */
   {
     const struct OlLrcItem *item = ol_lrc_get_item (lrc, l);
@@ -282,7 +281,7 @@ ol_lrc_get_lyric_by_time (struct OlLrc *lrc,
       else
         nextstamp = music_duration;
       *percentage = (double)(time - timestamp) / (nextstamp - timestamp);
-      ol_debugf ("timestamp: %d, id: %d, per: %lf\n", timestamp, *id, *percentage);
+      /* ol_debugf ("timestamp: %d, id: %d, per: %lf\n", timestamp, *id, *percentage); */
     }
   }
 }

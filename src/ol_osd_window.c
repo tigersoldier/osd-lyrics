@@ -1286,7 +1286,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
   }
   ol_osd_window_update_lyric_pixmap (osd, line);
   ol_osd_window_update_shape (osd, line);
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
+  ol_osd_window_paint (osd);
 }
 
 void

@@ -264,7 +264,7 @@ void
 ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
 {
   /* updates the time and lyrics */
-  ol_log_func ();
+  /* ol_log_func (); */
   if (module->lrc != NULL && module->osd != NULL)
   {
     char *current_lrc = NULL;
@@ -313,12 +313,12 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
     {
       ol_osd_window_set_current_percentage (module->osd, percentage);
     }
-    if (!module->display)
-    {
-      module->display = TRUE;
-      if (ol_config_get_bool (ol_config_get_instance (), "General", "visible"))
-        gtk_widget_show (GTK_WIDGET (module->osd));
-    }
+    /* if (!module->display) */
+    /* { */
+    /*   module->display = TRUE; */
+    /*   if (ol_config_get_bool (ol_config_get_instance (), "General", "visible")) */
+    /*     gtk_widget_show (GTK_WIDGET (module->osd)); */
+    /* } */
   } /* if (module->lrc_file != NULL && module->osd != NULL) */
   else
   {
@@ -351,6 +351,10 @@ ol_osd_module_set_lrc (OlOsdModule *module, struct OlLrc *lrc_file)
   {
     ol_osd_module_clear_message (module);
   }
+  if (lrc_file == NULL && module->message_source == 0)
+  {
+    clear_lyrics (module);
+  }
   /* if (lrc_file != NULL) */
   /*   module->display = TRUE; */
 }
@@ -378,7 +382,6 @@ ol_osd_module_set_message (OlOsdModule *module,
   ol_osd_window_set_current_percentage (module->osd, 1.0);
   ol_osd_window_set_lyric (module->osd, 0, message);
   ol_osd_window_set_lyric (module->osd, 1, NULL);
-  gtk_widget_show (GTK_WIDGET (module->osd));
   if (module->message_source != 0)
     g_source_remove (module->message_source);
   module->message_source = g_timeout_add (duration_ms,

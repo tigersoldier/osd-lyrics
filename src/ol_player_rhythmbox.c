@@ -111,7 +111,7 @@ ol_player_rhythmbox_elapsed_changed (DBusGProxy *player_proxy, int elapsed, gpoi
 static GHashTable*
 ol_player_rhythmbox_get_song_properties ()
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   if (proxy_player == NULL || proxy_shell == NULL)
     if (!ol_player_rhythmbox_init_dbus ())
       return NULL;
@@ -140,8 +140,8 @@ ol_player_rhythmbox_get_song_properties ()
 static gboolean
 ol_player_rhythmbox_get_music_info (OlMusicInfo *info)
 {
-  ol_log_func ();
-  g_return_val_if_fail (info != NULL, FALSE);
+  /* ol_log_func (); */
+  ol_assert_ret (info != NULL, FALSE);
   if (proxy_player == NULL || proxy_shell == NULL)
     if (!ol_player_rhythmbox_init_dbus ())
       return FALSE;
@@ -159,18 +159,17 @@ ol_player_rhythmbox_get_music_info (OlMusicInfo *info)
       info->album = g_strdup (ol_get_string_from_hash_table (data_list, PROP_ALBUM));
       info->track_number = ol_get_int_from_hash_table (data_list, PROP_TRACK);
       ol_dbus_get_string (proxy_player, GET_URI, &info->uri);
-      ol_debugf ("gogogo\n");
       g_hash_table_destroy (data_list);
-      ol_debugf("  artist:%s\n"
-                "  title:%s\n"
-                "  album:%s\n"
-                "  track:%d\n"
-                "  uri:%s\n",
-                info->artist,
-                info->title,
-                info->album,
-                info->track_number,
-                info->uri);
+      /* ol_debugf("  artist:%s\n" */
+      /*           "  title:%s\n" */
+      /*           "  album:%s\n" */
+      /*           "  track:%d\n" */
+      /*           "  uri:%s\n", */
+      /*           info->artist, */
+      /*           info->title, */
+      /*           info->album, */
+      /*           info->track_number, */
+      /*           info->uri); */
     }
   }
   else
@@ -196,8 +195,8 @@ ol_player_rhythmbox_get_played_time (int *played_time)
 static gboolean
 ol_player_rhythmbox_get_music_length (int *len)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
-  g_return_val_if_fail (len != NULL, FALSE);
+  /* ol_log_func (); */
+  ol_assert_ret (len != NULL, FALSE);
   GHashTable *data_list = ol_player_rhythmbox_get_song_properties ();
   if (data_list == NULL)
     return FALSE;
@@ -240,7 +239,7 @@ ol_player_rhythmbox_init_dbus ()
     proxy_player = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH_PLAYER, INTERFACE_PLAYER, &error);
     if (proxy_player == NULL)
     {
-      printf ("get proxy failed: %s\n", error->message);
+      ol_errorf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;
@@ -257,7 +256,7 @@ ol_player_rhythmbox_init_dbus ()
     proxy_shell = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH_SHELL, INTERFACE_SHELL, &error);
     if (proxy_shell == NULL)
     {
-      printf ("get proxy failed: %s\n", error->message);
+      ol_errorf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

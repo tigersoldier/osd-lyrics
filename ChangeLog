@@ -1,3 +1,9 @@
+2010-03-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_set_lyric): FIX: Repaint lyrics window directly when settting lyric text
+
+	* src/ol_osd_module.c (ol_osd_module_set_lrc): FIX: Clear displaying lyrics if a NULL lrc is set
+
 2010-03-29  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_config_property.h: Make MiniLyrics the default lyric download engine.
@@ -23,7 +29,7 @@
 
 2010-03-25  Tiger Soldier  <tigersoldi@gmail.com>
 
-	* configure.ac: New release version
+	* configure.ac: New release version <Not released>
 
 2010-03-24  Tiger Soldier  <tigersoldi@gmail.com>
 
