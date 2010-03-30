@@ -87,7 +87,7 @@ internal_next ()
 static enum OlPlayerStatus
 internal_get_status ()
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   if (!internal_ensure_dbus ())
     return OL_PLAYER_ERROR;
   gboolean playing;
@@ -119,7 +119,7 @@ internal_proxy_destroy_handler (DBusGProxy *proxy,
 static gboolean
 internal_get_music_length (int *len)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (len != NULL, FALSE);
   if (!internal_ensure_dbus ())
     return FALSE;
@@ -175,7 +175,7 @@ internal_get_activated ()
 static gboolean
 internal_get_music_info (OlMusicInfo *info)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (info != NULL, FALSE);
   if (!internal_ensure_dbus ())
     return FALSE;
@@ -190,8 +190,6 @@ internal_get_music_info (OlMusicInfo *info)
                          G_TYPE_INVALID))
   {
     ol_music_info_clear (info);
-    ol_debug ("got it");
-    
     ol_music_info_set_title (info,
                              g_hash_table_lookup (data_list, TITLE));
     ol_music_info_set_album (info,
@@ -206,16 +204,16 @@ internal_get_music_info (OlMusicInfo *info)
       ol_music_info_set_track_number (info, track_num);
     }
     g_hash_table_destroy (data_list);
-    ol_debugf("  artist:%s\n"
-              "  title:%s\n"
-              "  album:%s\n"
-              "  track:%d\n"
-              "  uri:%s\n",
-              info->artist,
-              info->title,
-              info->album,
-              info->track_number,
-              info->uri);
+    /* ol_debugf("  artist:%s\n" */
+    /*           "  title:%s\n" */
+    /*           "  album:%s\n" */
+    /*           "  track:%d\n" */
+    /*           "  uri:%s\n", */
+    /*           info->artist, */
+    /*           info->title, */
+    /*           info->album, */
+    /*           info->track_number, */
+    /*           info->uri); */
     return TRUE;
   }
   else

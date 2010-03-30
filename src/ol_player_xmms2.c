@@ -315,7 +315,7 @@ ol_player_xmms2_get_status ()
 static int32_t
 ol_player_xmms2_get_currend_id ()
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   if (!ol_player_xmms2_ensure_connection ())
     return 0;
   int32_t ret = 0;
@@ -342,7 +342,7 @@ ol_player_xmms2_get_currend_id ()
 static char *
 ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (dict != NULL, NULL);
   ol_assert_ret (key != NULL, NULL);
   const char *val = NULL;
@@ -357,7 +357,7 @@ ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key)
 static int32_t
 ol_player_xmms2_get_dict_int (xmmsv_t *dict, const char *key)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (dict != NULL, 0);
   ol_assert_ret (key != NULL, 0);
   int32_t val = 0;
@@ -372,7 +372,7 @@ ol_player_xmms2_get_dict_int (xmmsv_t *dict, const char *key)
 static gboolean
 ol_player_xmms2_get_music_info (OlMusicInfo *info)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (info != NULL, FALSE);
   if (!ol_player_xmms2_ensure_connection ())
     return FALSE;
@@ -438,7 +438,7 @@ ol_player_xmms2_get_played_time (int *played_time)
 static gboolean
 ol_player_xmms2_get_music_length (int *len)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (len != NULL, FALSE);
   if (!ol_player_xmms2_ensure_connection ())
     return FALSE;

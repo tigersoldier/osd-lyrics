@@ -53,7 +53,7 @@ ol_player_moc_get_activated ()
 static gboolean
 ol_player_moc_get_music_info (OlMusicInfo *info)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (info != NULL, FALSE);
   if (!ol_player_moc_get_activated ())
     return FALSE;
@@ -102,16 +102,16 @@ ol_player_moc_get_music_info (OlMusicInfo *info)
       next = ol_split_a_line (current);
       info->uri = g_strdup (ol_trim_string (current));
     }
-    ol_debugf("  artist:%s\n"
-              "  title:%s\n"
-              "  album:%s\n"
-              "  track:%d\n"
-              "  uri:%s\n",
-              info->artist,
-              info->title,
-              info->album,
-              info->track_number,
-              info->uri);
+    /* ol_debugf("  artist:%s\n" */
+    /*           "  title:%s\n" */
+    /*           "  album:%s\n" */
+    /*           "  track:%d\n" */
+    /*           "  uri:%s\n", */
+    /*           info->artist, */
+    /*           info->title, */
+    /*           info->album, */
+    /*           info->track_number, */
+    /*           info->uri); */
   }
   if (output != NULL)
     g_free (output);

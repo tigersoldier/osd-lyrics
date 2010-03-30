@@ -50,7 +50,7 @@ static const char *ol_player_banshee_get_icon_path ();
 static gboolean
 ol_player_banshee_proxy_destroy_handler (gpointer userdata)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   g_object_unref (userdata);
   proxy = NULL;
   return FALSE;
@@ -59,7 +59,7 @@ ol_player_banshee_proxy_destroy_handler (gpointer userdata)
 static gboolean
 ol_player_banshee_get_music_info (OlMusicInfo *info)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
+  /* ol_log_func (); */
   if (info == NULL)
     return FALSE;
   GHashTable *data_list = NULL;
@@ -99,7 +99,7 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_banshee_get_music_length (int *len)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
+  /* ol_log_func (); */
   if (!len)
     return FALSE;
   if (proxy == NULL)
@@ -144,8 +144,7 @@ ol_player_banshee_get_played_time (int *played_time)
 static gboolean
 ol_player_banshee_get_activated ()
 {
-/*   printf ("%s\n", */
-/*           __FUNCTION__); */
+  /* ol_log_func (); */
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
@@ -156,8 +155,7 @@ ol_player_banshee_get_activated ()
 static gboolean
 ol_player_banshee_init_dbus ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  /* ol_log_func (); */
   DBusGConnection *connection = ol_dbus_get_connection ();
   if (connection == NULL)
   {
@@ -173,7 +171,7 @@ ol_player_banshee_init_dbus ()
     proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH2, INTERFACE2, &error);
     if (proxy == NULL)
     {
-      printf ("get proxy failed: %s\n", error->message);
+      ol_errorf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;
@@ -185,7 +183,7 @@ ol_player_banshee_init_dbus ()
     control_proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH, INTERFACE, &error);
     if (control_proxy == NULL)
     {
-      printf ("get proxy failed: %s\n", error->message);
+      ol_errorf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

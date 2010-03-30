@@ -44,15 +44,15 @@ static gboolean ol_player_amarok1_get_boolean (const char *cmd, gboolean *return
 static char*
 ol_player_amarok1_get_command (const char *cmd)
 {
-  g_return_val_if_fail (cmd != NULL, NULL);
+  ol_assert_ret (cmd != NULL, NULL);
   return g_strdup_printf ("dcop amarok player %s", cmd);
 }
 
 static gboolean
 ol_player_amarok1_get_string (const char *cmd, char **returnval)
 {
-  g_return_val_if_fail (cmd != NULL, FALSE);
-  g_return_val_if_fail (returnval != NULL, FALSE);
+  ol_assert_ret (cmd != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
   char *dcop_cmd = ol_player_amarok1_get_command (cmd);
   if (*returnval != NULL)
   {
@@ -67,8 +67,8 @@ ol_player_amarok1_get_string (const char *cmd, char **returnval)
 static gboolean
 ol_player_amarok1_get_uint (const char *cmd, guint *returnval)
 {
-  g_return_val_if_fail (cmd != NULL, FALSE);
-  g_return_val_if_fail (returnval != NULL, FALSE);
+  ol_assert_ret (cmd != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
   char *dcop_cmd = ol_player_amarok1_get_command (cmd);
   gboolean ret = ol_dcop_get_uint (dcop_cmd, returnval);
   g_free (dcop_cmd);
@@ -78,8 +78,8 @@ ol_player_amarok1_get_uint (const char *cmd, guint *returnval)
 static gboolean
 ol_player_amarok1_get_boolean (const char *cmd, gboolean *returnval)
 {
-  g_return_val_if_fail (cmd != NULL, FALSE);
-  g_return_val_if_fail (returnval != NULL, FALSE);
+  ol_assert_ret (cmd != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
   char *dcop_cmd = ol_player_amarok1_get_command (cmd);
   gboolean ret = ol_dcop_get_boolean (dcop_cmd, returnval);
   g_free (dcop_cmd);
@@ -89,7 +89,7 @@ ol_player_amarok1_get_boolean (const char *cmd, gboolean *returnval)
 static gboolean
 ol_player_amarok1_get_music_info (OlMusicInfo *info)
 {
-  g_return_val_if_fail (info != NULL, FALSE);
+  ol_assert_ret (info != NULL, FALSE);
   ol_music_info_clear (info);
   if (!ol_player_amarok1_get_string (TITLE_CMD, &info->title))
     return FALSE;
@@ -111,7 +111,7 @@ ol_player_amarok1_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_amarok1_get_played_time (int *played_time)
 {
-  g_return_val_if_fail (played_time != NULL, FALSE);
+  ol_assert_ret (played_time != NULL, FALSE);
   if (!ol_player_amarok1_get_uint (PLAYED_TIME_CMD, played_time))
     return FALSE;
   return TRUE;
@@ -120,7 +120,7 @@ ol_player_amarok1_get_played_time (int *played_time)
 static gboolean
 ol_player_amarok1_get_music_length (int *music_length)
 {
-  g_return_val_if_fail (music_length != NULL, FALSE);
+  ol_assert_ret (music_length != NULL, FALSE);
   if (!ol_player_amarok1_get_uint (MUSIC_LENGTH_CMD, music_length))
     return FALSE;
   *music_length *= 1000;

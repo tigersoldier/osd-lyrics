@@ -102,12 +102,12 @@ ol_player_exaile03_get_status ()
 static gboolean
 ol_player_exaile03_get_music_info (OlMusicInfo *info)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert (info != NULL);
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile03_init_dbus ())
     {
-      ol_logf (OL_ERROR, "Initialize dbus proxy failed\n");
+      ol_error ("Initialize dbus proxy failed\n");
       return FALSE;
     }
   gchar *buf;
@@ -148,17 +148,16 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
     {
       ol_error ("  Get track number failed");
     }
-    ol_logf (OL_DEBUG,
-             "%s\n"
-             "  title:%s\n"
-             "  artist:%s\n"
-             "  album:%s\n"
-             "  uri:%s\n",
-             __FUNCTION__,
-             info->title,
-             info->artist,
-             info->album,
-             info->uri);
+    /* ol_debugf ("%s\n" */
+    /*            "  title:%s\n" */
+    /*            "  artist:%s\n" */
+    /*            "  album:%s\n" */
+    /*            "  uri:%s\n", */
+    /*            __FUNCTION__, */
+    /*            info->title, */
+    /*            info->artist, */
+    /*            info->album, */
+    /*            info->uri); */
     return TRUE;
   }
   else if (status == OL_PLAYER_STOPPED)
@@ -167,7 +166,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
   }
   else
   {
-    ol_logf (OL_DEBUG, "  unknown status\n");
+    ol_errorf ("  unknown status\n");
     return FALSE;
   }
 }
@@ -221,8 +220,7 @@ ol_player_exaile03_get_played_time (int *played_time)
 static gboolean
 ol_player_exaile03_get_music_length (int *len)
 {
-  ol_logf ("%s\n",
-          __FUNCTION__);
+  /* ol_log_func (); */
   if (len == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
@@ -258,12 +256,10 @@ ol_player_exaile03_get_music_length (int *len)
 static gboolean
 ol_player_exaile03_get_activated ()
 {
-  ol_logf (OL_DEBUG, "%s\n",
-           __FUNCTION__);
+  /* ol_log_func (); */
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile03_init_dbus ())
       return FALSE;
-  ol_logf (OL_DEBUG, "  init dbus success\n");
   gchar *buf = NULL;
   if (ol_dbus_get_string (proxy, query, &buf))
   {
@@ -271,7 +267,7 @@ ol_player_exaile03_get_activated ()
   }
   else
   {
-    ol_logf (OL_INFO, "exaile 0.3  get activated failed\n");
+    ol_debugf ("exaile 0.3  get activated failed\n");
     return FALSE;
   }
 }
@@ -279,15 +275,14 @@ ol_player_exaile03_get_activated ()
 static gboolean
 ol_player_exaile03_init_dbus ()
 {
-  ol_logf (OL_DEBUG, "%s\n",
-           __FUNCTION__);
+  /* ol_log_func (); */
   if (connection == NULL)
   {
     connection = dbus_g_bus_get (DBUS_BUS_SESSION,
                                &error);
     if (connection == NULL)
     {
-      fprintf (stderr, "get connection failed: %s\n", error->message);
+      ol_errorf ("get connection failed: %s\n", error->message);
       g_error_free(error);
       error = NULL;
       return FALSE;
@@ -301,7 +296,7 @@ ol_player_exaile03_init_dbus ()
     proxy = dbus_g_proxy_new_for_name_owner (connection, service, path, interface, &error);
     if (proxy == NULL)
     {
-      fprintf (stderr, "get proxy failed: %s\n", error->message);
+      ol_errorf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

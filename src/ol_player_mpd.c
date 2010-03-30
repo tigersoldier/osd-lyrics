@@ -51,7 +51,7 @@ static const char *_get_icon_path (void);
 static gboolean
 ol_player_mpd_get_music_info (OlMusicInfo *info)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (info != NULL, FALSE);
   if (!ol_player_mpd_ensure_connection ())
     return FALSE;
@@ -71,16 +71,16 @@ ol_player_mpd_get_music_info (OlMusicInfo *info)
     /*   info->uri = g_strdup (song->file); */
     if (song->track)
       sscanf (song->track, "%d", &info->track_number);
-    ol_debugf("  artist:%s\n"
-              "  title:%s\n"
-              "  album:%s\n"
-              "  track:%d\n"
-              "  uri:%s\n",
-              info->artist,
-              info->title,
-              info->album,
-              info->track_number,
-              info->uri);
+    /* ol_debugf("  artist:%s\n" */
+    /*           "  title:%s\n" */
+    /*           "  album:%s\n" */
+    /*           "  track:%d\n" */
+    /*           "  uri:%s\n", */
+    /*           info->artist, */
+    /*           info->title, */
+    /*           info->album, */
+    /*           info->track_number, */
+    /*           info->uri); */
   }
   return TRUE;
 }
@@ -88,7 +88,7 @@ ol_player_mpd_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_mpd_get_music_length (int *len)
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   ol_assert_ret (len != NULL, FALSE);
   if (!ol_player_mpd_ensure_connection ())
     return FALSE;

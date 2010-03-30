@@ -5,6 +5,7 @@
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
 #include "ol_player_mpris.h"
+#include "ol_debug.h"
 
 static const char *SERVICE = "org.mpris.audacious";
 static const char *icon_paths[] = {
@@ -147,8 +148,7 @@ _get_icon_path ()
 struct OlPlayer*
 ol_player_audacious_get ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   struct OlPlayer *controller = ol_player_new ("Audacious");
   ol_player_set_cmd (controller, "audacious2");
   controller->get_music_info = ol_player_audacious_get_music_info;
