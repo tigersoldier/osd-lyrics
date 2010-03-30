@@ -1,3 +1,12 @@
+Version 0.3.20100330: 2010-03-30
+ * Download lyrics from MiniLyrics
+ * Player control on background panel of OSD Window
+ * Encoding detection of LRC files
+ - Display player icon in notification
+ - FIX: Can not hide OSD Window
+ - FIX: Advance/delay offset doesn't work from popup menu
+ - Some minor fixes
+
 Version 0.3.20100211: 2010-02-11
 Changes since 0.2.20100201
  * Choose which lyric to download if there are more than one candidates

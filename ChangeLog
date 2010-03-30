@@ -1,5 +1,7 @@
 2010-03-30  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* NEWS: New version release: 0.3.20100330
+
 	* src/ol_osd_window.c (ol_osd_window_set_lyric): FIX: Repaint lyrics window directly when settting lyric text
 
 	* src/ol_osd_module.c (ol_osd_module_set_lrc): FIX: Clear displaying lyrics if a NULL lrc is set
