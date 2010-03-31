@@ -11,6 +11,7 @@ INCLUDES = \
 	@XMMS2_CFLAGS@ \
 	@NOTIFY_CFLAGS@ \
 	@SQLITE_CFLAGS@ \
+	@X11_CFLAGS@ \
 	-I$(top_srcdir)/lib/chardetect/include
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
@@ -26,6 +27,7 @@ LDADD = \
 	@XMMS2_LIBS@ \
 	@NOTIFY_LIBS@ \
 	@SQLITE_LIBS@ \
+	@X11_LIBS@ \
 	$(top_srcdir)/lib/chardetect/chardetect.a \
 	-lstdc++
 

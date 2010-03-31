@@ -1,5 +1,7 @@
 2010-03-31  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* configure.ac: FIX: Add X11 lib dependency to fix issue 72
+
 	* src/ol_player_amarok1.h (ol_player_amarok1_get): FIX: Fix the declare of amarok1 player handler
 
 	* src/ol_osd_window.c (ol_osd_window_mouse_timer): FIX: Check the pointer relative to osd_window other than to the whole widget

@@ -87,6 +87,7 @@ AS_IF([test "x$enable_amarok1" != xno],
 
 # Checks for libraries.
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.12.0, gthread-2.0, gmodule-export-2.0])
+PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([NOTIFY], [libnotify])
