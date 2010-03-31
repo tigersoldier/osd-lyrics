@@ -139,14 +139,16 @@ static void ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_allocation (OlOsdWindow *osd);
 static void ol_osd_window_check_resize (GtkContainer *container);
-
-static GtkWidgetClass *parent_class = NULL;
-
+static void ol_osd_window_check_mouse_leave (OlOsdWindow *osd);
 static void _paint_rect (cairo_t *cr, GdkPixbuf *source,
                          double src_x, double src_y,
                          double src_w, double src_h,
                          double des_x, double des_y,
                          double dex_w, double des_h);
+static gboolean _point_in_rect (int x, int y, GdkRectangle *rect);
+
+static GtkWidgetClass *parent_class = NULL;
+
 
 static void
 _paint_rect (cairo_t *cr, GdkPixbuf *source,
@@ -378,24 +380,35 @@ ol_osd_window_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
   return FALSE;
 }
 
+static void
+ol_osd_window_check_mouse_leave (OlOsdWindow *osd)
+{
+  ol_assert (osd != NULL);
+  GtkWidget *widget = GTK_WIDGET (osd);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
+  if (!gdk_window_is_visible (widget->window))
+    return;
+  gint rel_x, rel_y;
+  gdk_window_get_pointer (widget->window, &rel_x, &rel_y, NULL);
+  GdkRectangle rect;
+  rect.x = 0; rect.y = 0;
+  rect.width = widget->allocation.width;
+  rect.height = widget->allocation.height;
+  if (!priv->pressed &&
+      !_point_in_rect (rel_x, rel_y, &rect))
+  {
+    ol_osd_window_unmap_bg (widget);
+  }
+}
+
 static gboolean
 ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
 {
   ol_log_func ();
   ol_debugf ("  (%0.0lf,%0.0lf)\n",
              event->x_root, event->y_root);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
-  if (!priv->pressed &&
-      event->window == widget->window &&
-      (event->x_root < widget->allocation.x ||
-       event->x_root >= widget->allocation.x + widget->allocation.width ||
-       event->y_root < widget->allocation.y ||
-       event->y_root >= widget->allocation.y + widget->allocation.height) &&
-      gdk_window_is_visible (widget->window))
-  {
-    ol_osd_window_unmap_bg (widget);
-  }
+  ol_osd_window_check_mouse_leave (osd);
   return FALSE;
 }
 
@@ -605,11 +618,21 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 }
 
 static gboolean
+_point_in_rect (int x, int y, GdkRectangle *rect)
+{
+  ol_assert_ret (rect != NULL, FALSE);
+  return x < rect->x + rect->width &&
+    y < rect->y + rect->height &&
+    x >= rect->x &&
+    y >= rect->y;
+}
+
+static gboolean
 ol_osd_window_mouse_timer (gpointer data)
 {
   /* ol_log_func (); */
-  g_return_val_if_fail (data != NULL, FALSE);
-  g_return_val_if_fail (OL_IS_OSD_WINDOW (data), FALSE);
+  ol_assert_ret (data != NULL, FALSE);
+  ol_assert_ret (OL_IS_OSD_WINDOW (data), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (data);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (GTK_WIDGET_REALIZED (osd))
@@ -617,7 +640,7 @@ ol_osd_window_mouse_timer (gpointer data)
     gint rel_x, rel_y;
     gint w, h;
     gboolean mouse_over = FALSE;
-    gtk_widget_get_pointer (GTK_WIDGET (osd), &rel_x, &rel_y);
+    gdk_window_get_pointer (osd->osd_window, &rel_x, &rel_y, NULL);
     /* ol_debugf ("pointer: %d %d\n", rel_x, rel_y); */
     int i;
     /* ol_debugf ("line count: %d\n", osd->line_count); */
@@ -627,10 +650,7 @@ ol_osd_window_mouse_timer (gpointer data)
       /*            i, */
       /*            osd->lyric_rects[i].x, osd->lyric_rects[i].y, */
       /*            osd->lyric_rects[i].width, osd->lyric_rects[i].height); */
-      if (rel_x < osd->lyric_rects[i].x + osd->lyric_rects[i].width &&
-          rel_y < osd->lyric_rects[i].y + osd->lyric_rects[i].height &&
-          rel_x >= osd->lyric_rects[i].x &&
-          rel_y >= osd->lyric_rects[i].y)
+      if (_point_in_rect (rel_x, rel_y, &osd->lyric_rects[i]))
       {
         mouse_over = TRUE;
         /* ol_debug ("mouse over"); */
@@ -642,9 +662,10 @@ ol_osd_window_mouse_timer (gpointer data)
       priv->mouse_over = mouse_over;
       gtk_widget_queue_draw (GTK_WIDGET (osd));
     }
-    if (priv->mouse_over && !priv->locked &&
-        !gdk_window_is_visible (GTK_WIDGET (osd)->window))
-      ol_osd_window_map_bg (GTK_WIDGET (osd));
+    ol_osd_window_check_mouse_leave (osd);
+    /* if (priv->mouse_over && !priv->locked && */
+    /*     !gdk_window_is_visible (GTK_WIDGET (osd)->window)) */
+    /*   ol_osd_window_map_bg (GTK_WIDGET (osd)); */
   }
   return TRUE;
 }

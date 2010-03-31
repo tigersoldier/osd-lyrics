@@ -1,3 +1,9 @@
+2010-03-31  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_amarok1.h (ol_player_amarok1_get): FIX: Fix the declare of amarok1 player handler
+
+	* src/ol_osd_window.c (ol_osd_window_mouse_timer): FIX: Check the pointer relative to osd_window other than to the whole widget
+
 2010-03-30  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* NEWS: New version release: 0.3.20100330

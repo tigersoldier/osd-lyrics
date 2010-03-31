@@ -17,7 +17,7 @@
  * 
  * @return The controller of AmarOK1.4. It's allocated by g_new, so use g_free to free the memory
  */
-OlPlayerController* ol_player_amarok1_get ();
+struct OlPlayer* ol_player_amarok1_get ();
 
 
 #endif /* _OL_PLAYER_AMAROK1_H_ */
