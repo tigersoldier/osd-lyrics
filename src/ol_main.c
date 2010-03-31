@@ -199,7 +199,7 @@ _on_music_changed ()
 static void
 _check_music_change ()
 {
-  ol_log_func ();
+  /* ol_log_func (); */
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
   /* fprintf (stderr, "%d-%d\n", previous_position, time); */

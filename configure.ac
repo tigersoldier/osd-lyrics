@@ -19,6 +19,7 @@ AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
 	Makefile
+	lib/Makefile
 	dailydeb.sh
 	src/Makefile
 	src/tests/Makefile

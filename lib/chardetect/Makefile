@@ -42,3 +42,4 @@ clean:
 check: all
 
 install: 
+distclean:
