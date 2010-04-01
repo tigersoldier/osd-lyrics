@@ -1,3 +1,7 @@
+2010-04-01  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_mouse_timer): FIX: Mouse translucent sometimes doesn't work
+
 2010-03-31  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* configure.ac: FIX: Add X11 lib dependency to fix issue 72

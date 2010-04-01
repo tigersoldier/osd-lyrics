@@ -660,7 +660,7 @@ ol_osd_window_mouse_timer (gpointer data)
     if (priv->mouse_over != mouse_over)
     {
       priv->mouse_over = mouse_over;
-      gtk_widget_queue_draw (GTK_WIDGET (osd));
+      ol_osd_window_paint (osd);
     }
     ol_osd_window_check_mouse_leave (osd);
     /* if (priv->mouse_over && !priv->locked && */
@@ -689,6 +689,7 @@ ol_osd_window_map (GtkWidget *widget)
     gdk_window_show (osd->osd_window);
   if (priv->mouse_timer_id == 0)
   {
+    ol_debugf ("add timer\n");
     priv->mouse_timer_id = g_timeout_add (MOUSE_TIMER_INTERVAL,
                                           (GSourceFunc) ol_osd_window_mouse_timer,
                                           widget);
