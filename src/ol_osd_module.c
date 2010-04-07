@@ -1,6 +1,8 @@
 #include "ol_osd_module.h"
 #include "ol_lrc.h"
 #include "ol_stock.h"
+#include "ol_menu.h"
+#include "ol_app.h"
 #include "ol_debug.h"
 
 const int MESSAGE_DURATION_MS = 3000;
@@ -19,6 +21,12 @@ static void ol_osd_module_update_next_lyric (OlOsdModule *module,
 static void ol_osd_module_init_osd (OlOsdModule *module);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
+static void ol_osd_button_release (OlOsdWindow *osd,
+                                   GdkEventButton *event,
+                                   gpointer data);
+static void ol_osd_scroll (OlOsdWindow *osd,
+                           GdkEventScroll *event,
+                           gpointer data);
 static gboolean hide_message (OlOsdModule *module);
 static void clear_lyrics (OlOsdModule *module);
 
@@ -32,6 +40,38 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
   printf ("%s(%lf, %lf)\n", __FUNCTION__, xalign, yalign);
   ol_config_set_double (config, "OSD", "xalign", xalign);
   ol_config_set_double (config, "OSD", "yalign", yalign);
+}
+
+static void
+ol_osd_button_release (OlOsdWindow *osd,
+                       GdkEventButton *event,
+                       gpointer data)
+{
+  if (event->button == 3)
+  {
+    gtk_menu_popup (GTK_MENU (ol_menu_get_popup ()),
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    event->button,
+                    event->time);
+  }
+}
+
+static void
+ol_osd_scroll (OlOsdWindow *osd,
+               GdkEventScroll *event,
+               gpointer data)
+{
+  int doffset;
+  if (event->direction == GDK_SCROLL_DOWN ||
+      event->direction == GDK_SCROLL_RIGHT)
+    doffset = -200;
+  else if (event->direction == GDK_SCROLL_UP ||
+           event->direction == GDK_SCROLL_LEFT)
+    doffset = 200;
+  ol_app_adjust_lyric_offset (doffset);
 }
 
 static void
@@ -215,6 +255,12 @@ ol_osd_module_init_osd (OlOsdModule *module)
   config_change_handler (config, "OSD", "outline-width", module);
   g_signal_connect (module->osd, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
+                    NULL);
+  g_signal_connect (module->osd, "button-release-event",
+                    G_CALLBACK (ol_osd_button_release),
+                    NULL);
+  g_signal_connect (module->osd, "scroll-event",
+                    G_CALLBACK (ol_osd_scroll),
                     NULL);
   g_signal_connect (config, "changed",
                     G_CALLBACK (config_change_handler),

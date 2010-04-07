@@ -92,7 +92,7 @@ ol_player_mpd_get_music_length (int *len)
     return FALSE;
   mpd_status_update (mpd);
   *len = mpd_status_get_total_song_time (mpd) * 1000;
-  ol_debugf ("  length = %dms\n", *len);
+  /* ol_debugf ("  length = %dms\n", *len); */
   return TRUE;
 }
 

@@ -62,31 +62,17 @@ void ol_menu_no_lyric (GtkWidget *widget, gpointer data);
 void ol_menu_assign_lrc (GtkWidget *widget, gpointer data);
 void ol_menu_advance_lrc (GtkWidget *widget, gpointer data);
 void ol_menu_delay_lrc (GtkWidget *widget, gpointer data);
-static void internal_adjust_lyric_offset (int offset_ms);
-
-static void
-internal_adjust_lyric_offset (int offset_ms)
-{
-  ol_log_func ();
-  struct OlLrc *lrc = ol_app_get_current_lyric ();
-  if (lrc == NULL)
-    return;
-  int old_offset = ol_lrc_get_offset (lrc);
-  int new_offset = old_offset - offset_ms;
-  ol_lrc_set_offset (lrc, new_offset);
-}
 
 void
 ol_menu_advance_lrc (GtkWidget *widget, gpointer data)
 {
-  internal_adjust_lyric_offset (-200);
+  ol_app_adjust_lyric_offset (-200);
 }
 
 void
 ol_menu_delay_lrc (GtkWidget *widget, gpointer data)
 {
-  ol_log_func ();
-  internal_adjust_lyric_offset (200);
+  ol_app_adjust_lyric_offset (200);
 }
 
 void

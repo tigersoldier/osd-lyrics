@@ -368,6 +368,19 @@ ol_app_get_current_music ()
   return &music_info;
 }
 
+void
+ol_app_adjust_lyric_offset (int offset_ms)
+{
+  ol_log_func ();
+  struct OlLrc *lrc = ol_app_get_current_lyric ();
+  if (lrc == NULL)
+    return;
+  int old_offset = ol_lrc_get_offset (lrc);
+  int new_offset = old_offset - offset_ms;
+  ol_lrc_set_offset (lrc, new_offset);
+}
+
+
 int
 main (int argc, char **argv)
 {

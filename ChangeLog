@@ -1,5 +1,8 @@
 2010-04-07  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_module.c: ADD: Pop up context menu when right click on OSD panel
+	ADD: Adjust delay of lyrics when mouse scroll on OSD panel
+
 	* src/ol_player_mpd.c: FIX: issue 74. Respect environment variable MPD_HOST and MPD_PORT
 
 	* src/ol_config_property.h (config_str): CHANGE: remove settings for MPD

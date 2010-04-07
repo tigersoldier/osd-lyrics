@@ -303,12 +303,15 @@ ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event)
       return TRUE;
   /* if (event->window == osd->event_window) */
   ol_log_func ();
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
-  priv->pressed = TRUE;
-  priv->old_x = priv->osd_allocation.x - BORDER_WIDTH;
-  priv->old_y = priv->osd_allocation.y - BORDER_WIDTH;
-  priv->mouse_x = event->x_root;
-  priv->mouse_y = event->y_root;
+  if (event->button == 1)
+  {
+    OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
+    priv->pressed = TRUE;
+    priv->old_x = priv->osd_allocation.x - BORDER_WIDTH;
+    priv->old_y = priv->osd_allocation.y - BORDER_WIDTH;
+    priv->mouse_x = event->x_root;
+    priv->mouse_y = event->y_root;
+  }
   return FALSE;
 }
 
@@ -321,16 +324,20 @@ ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
       return TRUE;
   /*   if (event->window == osd->event_window) */
   ol_log_func ();
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
-  priv->pressed = FALSE;
-  /* emit `moved' signal */
-  GValue params[1] = {0};
-  g_value_init (&params[0], G_OBJECT_TYPE (widget));
-  g_value_set_object (&params[0], G_OBJECT (widget));
-  g_signal_emitv (params,
-                  OL_OSD_WINDOW_GET_CLASS (widget)->signals[OSD_MOVED],
-                  0,
-                  NULL);
+  ol_debugf ("button: %d\n", event->button);
+  if (event->button == 1)
+  {
+    OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
+    priv->pressed = FALSE;
+    /* emit `moved' signal */
+    GValue params[1] = {0};
+    g_value_init (&params[0], G_OBJECT_TYPE (widget));
+    g_value_set_object (&params[0], G_OBJECT (widget));
+    g_signal_emitv (params,
+                    OL_OSD_WINDOW_GET_CLASS (widget)->signals[OSD_MOVED],
+                    0,
+                    NULL);
+  }
   return FALSE;
 }
 
