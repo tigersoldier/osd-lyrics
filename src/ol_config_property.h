@@ -33,10 +33,6 @@ enum {
   PROP_DOWNLOAD_ENGINE,
   PROP_LRC_PATH,
   PROP_LRC_FILENAME,
-#ifdef ENABLE_MPD
-  PROP_MPD_HOSTNAME,
-  PROP_MPD_PORT,
-#endif
   PROP_DOWNLOAD_FIRST_LYRIC,
   PROP_STARTUP_PLAYER,
   PROP_NOTIFY_MUSIC,
@@ -187,10 +183,6 @@ static const OlConfigBoolValue config_bool[] = {
 static const OlConfigIntValue config_int[] = {
   {PROP_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
   {PROP_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
-#ifdef ENABLE_MPD
-  {PROP_MPD_PORT, "mpd-port", "Player", "MPD Port", "The port of MPD service to connect", 1, 10000000, 6600},
-  {PROP_OUTLINE_WIDTH, "outline-width", "OSD", "Outline width of OSD", "The width of outline in OSD", 0, 10, 3},
-#endif
 };
 
 static const OlConfigDoubleValue config_double[] = {
@@ -220,11 +212,6 @@ static const OlConfigStringValue config_str[] = {
   {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
    "Download engine", "Select the source where LRC files are downloaded from",
    "MiniLyrics"},
-#ifdef ENABLE_MPD
-  {PROP_MPD_HOSTNAME, "mpd-hostname", "Player",
-   "Hostname of MPD", "The server to connect for MPD service",
-   "localhost"},
-#endif
   {PROP_STARTUP_PLAYER, "startup-player", "General",
    "Startup player", "Startup the player if no available player detected.",
    ""},

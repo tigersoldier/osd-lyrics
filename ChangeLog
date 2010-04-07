@@ -1,5 +1,9 @@
 2010-04-07  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_player_mpd.c: FIX: issue 74. Respect environment variable MPD_HOST and MPD_PORT
+
+	* src/ol_config_property.h (config_str): CHANGE: remove settings for MPD
+
 	* src/ol_option.c (ol_option_startup_player_changed): FIX: issue 78, the text entry of customize player startup command can is sensitive now
 
 2010-04-01  Tiger Soldier  <tigersoldi@gmail.com>
