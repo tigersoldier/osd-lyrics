@@ -157,6 +157,7 @@ ol_option_startup_player_changed (GtkComboBox *cb,
     return;
   GtkEntry *entry = GTK_ENTRY (options.startup_player);
   int index = gtk_combo_box_get_active (cb);
+  gtk_widget_set_sensitive (options.startup_player, FALSE);
   if (index == 0)
   {
     gtk_entry_set_text (entry, "");
@@ -165,8 +166,15 @@ ol_option_startup_player_changed (GtkComboBox *cb,
   {
     struct OlPlayer ** players = ol_player_get_players ();
     if (players[index - 1] != NULL)
+    {
       gtk_entry_set_text (entry,
                           ol_player_get_cmd (players[index - 1]));
+    }
+    else                        /* Customize */
+    {
+      gtk_widget_set_sensitive (options.startup_player, TRUE);
+      gtk_widget_grab_focus (options.startup_player);
+    }
   }
 }
 

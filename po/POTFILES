@@ -1,6 +1,7 @@
      ../src/ol_menu.c \
      ../src/ol_main.c \
      ../src/ol_trayicon.c \
+     ../src/ol_option.c \
      ../src/ol_lrc_fetch_qianqian.c \
      ../src/ol_lrc_fetch_sogou.c \
      ../src/ol_lrc_fetch_minilyrics.c \
