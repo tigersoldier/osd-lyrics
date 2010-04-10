@@ -3,6 +3,7 @@
 #include "ol_intl.h"
 #include "ol_about.h"
 #include "ol_gui.h"
+#include "ol_debug.h"
 
 void ol_about_close_clicked (GtkWidget *widget);
 void ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data);
@@ -10,7 +11,7 @@ void ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data)
 void
 ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data)
 {
-  fprintf (stderr, "%s:%d\n", __FUNCTION__, response_id);
+  ol_debugf ("response_id:%d\n", response_id);
   switch (response_id)
   {
   case GTK_RESPONSE_CANCEL:     /* Close button in about dialog */
@@ -22,7 +23,7 @@ ol_about_response (GtkDialog *dialog, gint response_id, gpointer user_data)
 void
 ol_about_close_clicked (GtkWidget *widget)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
   {
@@ -46,6 +47,6 @@ ol_about_show ()
                                  logo);
     }
   }
-  g_return_if_fail (window != NULL);
+  ol_assert (window != NULL);
   gtk_dialog_run (GTK_DIALOG (window));
 }

@@ -90,7 +90,6 @@ ol_player_exaile03_get_status ()
       else if (strstr (buf, "status:") != NULL)
       {
         sscanf (buf, "status: %[^,],", status);
-        /* fprintf (stderr, "status: %s\n", status); */
         ret = ol_player_exaile03_parse_status (status);
       }
       g_free (buf);
@@ -213,7 +212,6 @@ ol_player_exaile03_get_played_time (int *played_time)
   {
     *played_time = -1;
   }
-  /* fprintf (stderr, "  %d\n", *played_time); */
   return TRUE;
 }
 
@@ -239,7 +237,6 @@ ol_player_exaile03_get_music_length (int *len)
     {
       *len = sec * 1000 + usec / 1000000;
     }
-    /* fprintf (stderr, "  %d\n", *len); */
     g_free (buf);
     return TRUE;
   }

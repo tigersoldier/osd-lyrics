@@ -75,7 +75,7 @@ ol_path_alloc(void)
       }
       else
       {
-        fprintf(stderr, "pathconf error for _PC_PATH_MAX\n");
+        ol_debugf ("pathconf error for _PC_PATH_MAX\n");
         return NULL;
       }
     }
@@ -153,7 +153,6 @@ ol_lcs (const char *str1, const char *str2)
   for (i = 0; i < len[0]; i++)
     g_free (data[i]);
   g_free (data);
-  /* fprintf (stderr, "LCS (%s, %s) = %d\n", str1, str2, ret); */
   return ret;
 }
 

@@ -71,7 +71,6 @@ get_url_by_prefix (char *buf, size_t t_size, const char *html, const char *prefi
   if((ptr = strstr (html, prefix)) != NULL)
   {
     tp = strchr(ptr, '"');
-    /* while (*tp+1 */
     if(tp != NULL)
     {
       len = tp - ptr;
@@ -101,7 +100,6 @@ get_url_field (char *buf, size_t buflen, const char *url, const char *field)
       break;
     start++;
   }
-  /* fprintf (stderr, "field=%s ,start=%s, url=%s\n", field, start, url); */
   if (start == NULL)
     return NULL;
   start = strchr (start, '=');
@@ -132,19 +130,14 @@ ol_lrc_fetch_qianqian_get_frame (const OlMusicInfo *info,
   char frame_url[OL_URL_LEN_MAX];
   while(fgets(line_buf, BUFSIZE, fp) != NULL /* && count<TRY_MATCH_MAX */)
   {
-    /* fprintf (stderr, "%s\n", buf); */
     const char *line_pt = line_buf;
     while ((line_pt = get_url_by_prefix (url_buf,
                                          BUFSIZE - 1,
                                          line_pt,
                                          QIANQIAN_PREFIX_FRAME)) != NULL)
     {
-      /* fprintf (stderr, "frame: %s\n", url_buf); */
       if (get_url_field (field_buf, BUFSIZE - 1, url_buf, "qword") != NULL)
       {
-        /* fprintf (stderr, "qword %s\n", buf); */
-        /* fprintf (stderr, "html: %s\n", buf); */
-        /* snprintf (buf, BUFSIZE - 1, PREFIX_FRAME_QIANQIAN, buf2); */
         url_encoding (field_buf, strlen(field_buf), title_buf, BUFSIZE - 1, TRUE);
         snprintf (frame_url, OL_URL_LEN_MAX - 1, PREFIX_FRAME_QIANQIAN, title_buf);
         if (get_url_field (field_buf, BUFSIZE - 1, url_buf, "page") != NULL)
@@ -173,7 +166,6 @@ ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
 {
   if (frame_url == NULL || candidates == NULL || info == NULL)
     return 0;
-  /* fprintf (stderr, "%s:%s\n", __FUNCTION__, frame_url); */
   FILE *fp2 = NULL;
   char frame_tmp_file[] = "/tmp/tmplrc-XXXXXX";
   char buf[BUFSIZE], buf2[BUFSIZE];
@@ -188,7 +180,6 @@ ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
   {
     return 0;
   }
-  /* fprintf (stderr, "frame url:%s->%s\n", frame_url, frame_tmp_file); */
   if ((ret = fetch_into_file (frame_url, QIANQIAN_REFER, fp2)) < 0)
   {
     fclose (fp2);
@@ -202,23 +193,16 @@ ol_lrc_fetch_qianqian_get_candidates (const OlMusicInfo *info,
       OlLrcCandidate candidate;
       get_url_field (buf, BUFSIZE, buf2, "title");
       url_decoding (buf, strlen (buf), candidate.title, OL_TS_LEN_MAX);
-      /* fprintf (stderr, "title:%s\n", result[count].title); */
       get_url_field (buf, BUFSIZE, buf2, "artist");
       url_decoding (buf, strlen (buf), candidate.artist, OL_TS_LEN_MAX);
-      /* fprintf (stderr, "artist:%s\n", result[count].artist); */
       snprintf (candidate.url, OL_TS_LEN_MAX, PREFIX_LRC_QIANQIAN, buf2);
-      fprintf (stderr, "found: \'%s\' \'%s\'\n", candidate.title, candidate.artist);
+      ol_debugf ("found: \'%s\' \'%s\'\n", candidate.title, candidate.artist);
       count = ol_lrc_fetch_add_candidate (info,
                                           candidates,
                                           count,
                                           TRY_MATCH_MAX,
                                           &candidate);
                                           
-      /* if ((info->title == NULL || */
-      /*      ignore_case_strcmp(candidates[count].title, info->title, strlen(info->title))==0) && */
-      /*     (info->artist == NULL || */
-      /*      ignore_case_strcmp(candidates[count].artist, info->artist, strlen(info->artist))==0)) */
-        /* count++; */
     }
   }
   if (deep)
@@ -278,7 +262,7 @@ int
 ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const char *charset)
 {
   if (tsu == NULL) return;
-  fprintf (stderr, "%s:%s->%s\n", __FUNCTION__, tsu->url, pathname);
+  ol_debugf ("%s->%s\n", tsu->url, pathname);
   char *lrc_conv, *pathbuf;
   FILE *fp;
   int ret;
@@ -305,7 +289,6 @@ ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const 
   fclose(fp);
   free(pathbuf);
   free(lrc.mem_base);
-  /* free(lrc_conv); */
 
   return 0;
 }

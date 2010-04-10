@@ -48,7 +48,6 @@ ol_player_exaile02_get_status ()
   ol_dbus_get_string (proxy, get_status, &status);
   if (status != NULL)
   {
-    /* fprintf (stderr, "status: %s\n", status); */
     if (strcmp (status, "playing") == 0)
       ret = OL_PLAYER_PLAYING;
     else if (strcmp (status, "paused") == 0)
@@ -117,8 +116,6 @@ ol_player_exaile02_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_exaile02_get_played_time (int *played_time)
 {
-  /* printf ("%s\n", */
-  /*         __FUNCTION__); */
   guint8 percent;
   int duration;
   int exaile02_time;
@@ -161,8 +158,6 @@ ol_player_exaile02_get_played_time (int *played_time)
 static gboolean
 ol_player_exaile02_get_music_length (int *len)
 {
-  /* printf ("%s\n", */
-  /*         __FUNCTION__); */
   if (len == NULL)
     return FALSE;
   if (connection == NULL || proxy == NULL)
@@ -185,8 +180,7 @@ ol_player_exaile02_get_music_length (int *len)
 static gboolean
 ol_player_exaile02_get_activated ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile02_init_dbus ())
       return FALSE;
@@ -210,15 +204,14 @@ ol_player_exaile02_get_activated ()
 static gboolean
 ol_player_exaile02_init_dbus ()
 {
-  printf ("%s\n",
-          __FUNCTION__);
+  ol_log_func ();
   if (connection == NULL)
   {
     connection = dbus_g_bus_get (DBUS_BUS_SESSION,
                                &error);
     if (connection == NULL)
     {
-      printf ("get connection failed: %s\n", error->message);
+      ol_debugf ("get connection failed: %s\n", error->message);
       g_error_free(error);
       error = NULL;
       return FALSE;
@@ -232,7 +225,7 @@ ol_player_exaile02_init_dbus ()
     proxy = dbus_g_proxy_new_for_name_owner (connection, service, path, interface, &error);
     if (proxy == NULL)
     {
-      printf ("get proxy failed: %s\n", error->message);
+      ol_debugf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

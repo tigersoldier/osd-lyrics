@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "ol_elapse_emulator.h"
+#include "ol_debug.h"
 
 void
 ol_elapse_emulator_init (OlElapseEmulator *emulator,
@@ -22,8 +23,7 @@ ol_elapse_emulator_get_real_ms (OlElapseEmulator *emulator,
   if (emulator->first_time < 0 || emulator->prev_time - time > emulator->accuracy || time - emulator->last_time > 150)
   {
     /* reinitialize timer */
-    puts ("init1");
-    printf ("prev:%d, time:%d\n", emulator->prev_time, time);
+    ol_infof ("prev:%d, time:%d\n", emulator->prev_time, time);
     ol_elapse_emulator_init (emulator, time, emulator->accuracy);
   }
   else
@@ -35,8 +35,7 @@ ol_elapse_emulator_get_real_ms (OlElapseEmulator *emulator,
       (current_time.tv_usec - emulator->begin_time.tv_usec) / 1000;
     if (real_time - time > 2 * emulator->accuracy || time - real_time > emulator->accuracy )
     {
-      puts ("init2");
-      printf ("real_time: %d, time: %d\n", real_time, time);
+      ol_infof ("real_time: %d, time: %d\n", real_time, time);
       ol_elapse_emulator_init (emulator, time, emulator->accuracy);
     }
     else
@@ -56,7 +55,7 @@ ol_elapse_emulator_get_last_ms (OlElapseEmulator *emulator,
   if (emulator->first_time < 0 || emulator->last_time - time > emulator->accuracy || time - emulator->last_time > emulator->accuracy)
   {
     /* reinitialize timer */
-    printf ("prev:%d, time:%d\n", emulator->prev_time, time);
+    ol_debugf ("prev:%d, time:%d\n", emulator->prev_time, time);
     ol_elapse_emulator_init (emulator, time, emulator->accuracy);
   }
   return emulator->last_time;

@@ -52,7 +52,6 @@ ol_lrc_candidate_free (OlLrcCandidate *ptr)
 OlLrcFetchEngine *
 ol_lrc_fetch_get_engine (const char *name)
 {
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, name);
   if (engine_count == 0)
     return NULL;
   if (name == NULL)
@@ -61,7 +60,7 @@ ol_lrc_fetch_get_engine (const char *name)
   size_t len = strlen (name);
   for (i = 0; i < engine_count; i++)
   {
-    fprintf (stderr, "[%d]:%s\n", i, engines[i]->name);
+    ol_debugf ("[%d]:%s\n", i, engines[i]->name);
     if (ol_stricmp (name, engines[i]->name, len) == 0)
       return engines[i];
   }
@@ -79,7 +78,7 @@ ol_lrc_fetch_init ()
 static int
 ol_lrc_fetch_add_engine (OlLrcFetchEngine *engine)
 {
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, engine->name);
+  ol_debugf ("engine:%s\n", engine->name);
   if (engine_count >= OL_LRC_FETCH_ENGINE_MAX)
     return 0;
   int i;

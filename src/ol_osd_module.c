@@ -37,7 +37,6 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
   OlConfig *config = ol_config_get_instance ();
   double xalign, yalign;
   ol_osd_window_get_alignment (osd, &xalign, &yalign);
-  printf ("%s(%lf, %lf)\n", __FUNCTION__, xalign, yalign);
   ol_config_set_double (config, "OSD", "xalign", xalign);
   ol_config_set_double (config, "OSD", "yalign", yalign);
 }
@@ -123,7 +122,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
     return;
   if (strcmp (name, "locked") == 0)
   {
-    fprintf (stderr, "  locked: %d\n", ol_config_get_bool (config, "OSD", "locked"));
+    ol_debugf ("  locked: %d\n", ol_config_get_bool (config, "OSD", "locked"));
     ol_osd_window_set_locked (osd,
                               ol_config_get_bool (config, "OSD", "locked"));
   }
@@ -136,7 +135,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   else if (strcmp (name, "font-family") == 0)
   {
     gchar *font = ol_config_get_string (config, "OSD", "font-family");
-    g_return_if_fail (font != NULL);
+    ol_assert (font != NULL);
     ol_osd_window_set_font_family (osd, font);
     g_free (font);
   }
@@ -164,7 +163,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   {
     int len;
     char **color_str = ol_config_get_str_list (config, "OSD", name, &len);
-    printf ("len = %d\n", len);
+    ol_debugf ("len = %d\n", len);
     if (len != OL_LINEAR_COLOR_COUNT) return;
     if (color_str != NULL)
     {
@@ -178,7 +177,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
   {
     int len;
     char **color_str = ol_config_get_str_list (config, "OSD", name, &len);
-    printf ("len = %d\n", len);
+    ol_debugf ("len = %d\n", len);
     if (len != OL_LINEAR_COLOR_COUNT) return;
     if (color_str != NULL)
     {
@@ -239,7 +238,7 @@ ol_osd_module_init_osd (OlOsdModule *module)
   }
   module->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
-  g_return_if_fail (config != NULL);
+  ol_assert (config != NULL);
   config_change_handler (config, "OSD", "visible", module);
   config_change_handler (config, "OSD", "locked", module);
   config_change_handler (config, "OSD", "line-count", module);
@@ -300,7 +299,7 @@ void
 ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info)
 {
   ol_log_func ();
-  g_return_if_fail (music_info != NULL);
+  ol_assert (music_info != NULL);
   ol_music_info_copy (&module->music_info, music_info);
   clear_lyrics (module);
   hide_message (module);

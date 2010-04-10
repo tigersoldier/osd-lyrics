@@ -10,7 +10,6 @@ static gboolean ol_hide_accel (gpointer userdata);
 static gboolean
 ol_hide_accel (gpointer userdata)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
   return FALSE;
 }
   

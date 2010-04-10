@@ -163,7 +163,7 @@ void
 ol_menu_lock (GtkWidget *widget, gpointer data)
 {
   OlConfig *config = ol_config_get_instance ();
-  g_return_if_fail (config != NULL);
+  ol_assert (config != NULL);
   gboolean locked = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
   ol_config_set_bool (config, "OSD",  "locked", locked);
 }
@@ -172,7 +172,7 @@ void
 ol_menu_hide (GtkWidget *widget, gpointer data)
 {
   OlConfig *config = ol_config_get_instance ();
-  g_return_if_fail (config != NULL);
+  ol_assert (config != NULL);
   gboolean hide = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
   ol_config_set_bool (config, "General", "visible", !hide);
 }

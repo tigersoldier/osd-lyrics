@@ -48,7 +48,6 @@ ol_player_songbird_get_mpris ()
 static gboolean
 ol_player_songbird_get_music_info (OlMusicInfo *info)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   OlPlayerMpris *mpris = ol_player_songbird_get_mpris ();
   return ol_player_mpris_get_music_info (mpris, info);
 }
@@ -56,7 +55,6 @@ ol_player_songbird_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_songbird_get_played_time (int *played_time)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   OlPlayerMpris *mpris = ol_player_songbird_get_mpris ();
   return ol_player_mpris_get_played_time (mpris, played_time);
 }
@@ -64,7 +62,6 @@ ol_player_songbird_get_played_time (int *played_time)
 static gboolean
 ol_player_songbird_get_music_length (int *len)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   OlPlayerMpris *mpris = ol_player_songbird_get_mpris ();
   *len = 500000;
   return ol_player_mpris_get_music_length (mpris, len);
@@ -73,7 +70,6 @@ ol_player_songbird_get_music_length (int *len)
 static gboolean
 ol_player_songbird_get_activated ()
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   OlPlayerMpris *mpris = ol_player_songbird_get_mpris ();
   return ol_player_mpris_get_activated (mpris);
 }

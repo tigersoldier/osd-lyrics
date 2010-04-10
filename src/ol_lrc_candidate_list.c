@@ -63,7 +63,7 @@ ol_lrc_candidate_list_set_list (GtkTreeView *list,
                         ARTIST_COLUMN, candidates[i].artist,
                         URL_COLUMN, candidates[i].url,
                         -1);
-    /* fprintf (stderr, "  url: %s\n", candidates[i].url); */
+    /* ol_debugf ("  url: %s\n", candidates[i].url); */
     /* Select the first item */
     if (i == 0)
       gtk_tree_selection_select_iter (gtk_tree_view_get_selection (list),

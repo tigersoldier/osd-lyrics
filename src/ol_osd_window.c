@@ -255,7 +255,7 @@ static void
 ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
 {
   ol_log_func ();
-  g_return_if_fail (OL_IS_OSD_WINDOW (userdata));
+  ol_assert (OL_IS_OSD_WINDOW (userdata));
   GtkWidget *widget = GTK_WIDGET (userdata);
   OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
   gboolean mapped = GTK_WIDGET_MAPPED (widget);
@@ -363,7 +363,6 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 static gboolean
 ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (event->window == osd->osd_window)
@@ -431,7 +430,7 @@ static void
 ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd)
 {
   /* init shape pixmap */
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   if (!GTK_WIDGET_REALIZED (GTK_WIDGET (osd)))
     return;
   GtkWidget *widget = GTK_WIDGET (osd);
@@ -553,7 +552,7 @@ ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 
 static void ol_osd_window_unrealize (GtkWidget *widget)
 {
-  printf ("unrealize\n");
+  ol_debugf ("unrealize\n");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (osd->event_window)
   {
@@ -776,7 +775,7 @@ ol_osd_window_set_alignment (OlOsdWindow *osd, double xalign, double yalign)
 void
 ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   if (xalign == NULL && yalign == NULL)
     return;
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
@@ -789,7 +788,7 @@ ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign)
 void
 ol_osd_window_resize (OlOsdWindow *osd, gint width, gint height)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   if (width > 0)
     widget->allocation.width = width;
@@ -837,7 +836,7 @@ ol_osd_window_get_osd_size (OlOsdWindow *osd, gint *width, gint *height)
 void
 ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (priv->locked == locked)
     return;
@@ -941,8 +940,8 @@ ol_osd_window_compute_bg_allocation (OlOsdWindow *osd,
 static int
 ol_osd_window_compute_osd_height (OlOsdWindow *osd)
 {
-  g_return_val_if_fail (OL_IS_OSD_WINDOW (osd) && osd->render_context != NULL,
-                        DEFAULT_HEIGHT);
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd) && osd->render_context != NULL,
+                 DEFAULT_HEIGHT);
   int font_height = ol_osd_render_get_font_height (osd->render_context);
   int height = font_height * (osd->line_count + (osd->line_count - 1) * LINE_PADDING);
   return height;
@@ -1095,15 +1094,10 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   for (line = start; line < end; line++)
   {
     double percentage = osd->percentage[line];
-    /* printf ("paint %d:%lf\n", line, percentage); */
     if (osd->active_lyric_pixmap[line] != NULL && osd->inactive_lyric_pixmap[line])
     {
       gdk_drawable_get_size (osd->active_lyric_pixmap[line], &width, &height);
       xpos = ol_osd_window_calc_lyric_xpos (osd, line);
-      /* paint the lyric */
-      /* cairo_rectangle (cr, 0, 0, w, h); */
-      /* cairo_stroke (cr); */
-      /* ol_debugf ("paint: (%0.0lf, %0.0lf)\n", xpos, ypos, width, height); */
       cairo_save (cr);
       cairo_rectangle (cr, xpos, ypos, (double)width * percentage, height);
       cairo_clip (cr);
@@ -1124,7 +1118,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
 static void
 ol_osd_window_clear_cairo (cairo_t *cr)
 {
-  g_return_if_fail (cr != NULL);
+  ol_assert (cr != NULL);
   cairo_save (cr);
   cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0);
   cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE); // set drawing compositing operator
@@ -1136,7 +1130,6 @@ ol_osd_window_clear_cairo (cairo_t *cr)
 void
 ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage)
 {
-  /*   fprintf (stderr, "%s:%lf\n", __FUNCTION__, percentage); */
   if (line < 0 || line >= OL_OSD_WINDOW_MAX_LINE_COUNT)
     return;
   ol_assert (OL_IS_OSD_WINDOW (osd));
@@ -1174,18 +1167,13 @@ ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage)
 void
 ol_osd_window_set_current_percentage (OlOsdWindow *osd, double percentage)
 {
-  /*   fprintf (stderr, "%s:%lf\n", __FUNCTION__, percentage); */
   ol_osd_window_set_percentage (osd, osd->current_line, percentage);
-  /* g_return_if_fail (OL_IS_OSD_WINDOW (osd)); */
-  /* osd->percentage[osd->current_line] = percentage; */
-  /* ol_osd_window_paint (osd); */
-  /* gtk_widget_queue_draw (GTK_WIDGET (osd)); */
 }
 
 double
 ol_osd_window_get_current_percentage (OlOsdWindow *osd)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   return osd->percentage[osd->current_line];
 }
 
@@ -1341,7 +1329,7 @@ ol_osd_window_paint (OlOsdWindow *osd)
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  g_return_if_fail (GTK_WIDGET_REALIZED (widget));
+  ol_assert (GTK_WIDGET_REALIZED (widget));
   if (!GTK_WIDGET_VISIBLE (widget))
     return;
   cairo_t *cr;
@@ -1388,9 +1376,9 @@ static void
 ol_osd_window_set_input_shape_mask (OlOsdWindow *osd)
 {
   gint w, h;
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
-  g_return_if_fail (GTK_WIDGET_REALIZED (widget));
+  ol_assert (GTK_WIDGET_REALIZED (widget));
   gdk_drawable_get_size (osd->osd_window, &w, &h);
   GdkPixmap *input_mask = gdk_pixmap_new (NULL, w, h, 1);
   GdkGC *gc = gdk_gc_new (input_mask);
@@ -1699,7 +1687,7 @@ ol_osd_window_set_active_colors (OlOsdWindow *osd,
                                  OlColor middle_color,
                                  OlColor bottom_color)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   osd->active_colors[0] = top_color;
   osd->active_colors[1] = middle_color;
   osd->active_colors[2] = bottom_color;
@@ -1711,7 +1699,7 @@ ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
                                    OlColor middle_color,
                                    OlColor bottom_color)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd));
+  ol_assert (OL_IS_OSD_WINDOW (osd));
   osd->inactive_colors[0] = top_color;
   osd->inactive_colors[1] = middle_color;
   osd->inactive_colors[2] = bottom_color;
@@ -1721,8 +1709,8 @@ void
 ol_osd_window_set_line_count (OlOsdWindow *osd,
                               guint line_count)
 {
-  g_return_if_fail (OL_IS_OSD_WINDOW (osd)); 
-  g_return_if_fail (line_count >= 1 && line_count <= 2);
+  ol_assert (OL_IS_OSD_WINDOW (osd)); 
+  ol_assert (line_count >= 1 && line_count <= 2);
   osd->line_count = line_count;
   ol_osd_window_update_allocation (osd);
 }
@@ -1730,7 +1718,7 @@ ol_osd_window_set_line_count (OlOsdWindow *osd,
 guint
 ol_osd_window_get_line_count (OlOsdWindow *osd)
 {
-  g_return_val_if_fail (OL_IS_OSD_WINDOW (osd), 1);
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), 1);
   return osd->line_count;
 }
 

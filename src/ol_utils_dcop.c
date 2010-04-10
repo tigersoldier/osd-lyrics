@@ -2,6 +2,7 @@
 #include <string.h>
 #include <glib.h>
 #include "ol_utils_dcop.h"
+#include "ol_debug.h"
 
 enum {
   BUFFER_SIZE = 512,
@@ -10,9 +11,8 @@ enum {
 gboolean
 ol_dcop_get_string (const gchar *cmd, gchar **returnval)
 {
-  g_return_val_if_fail (cmd != NULL, FALSE);
-  g_return_val_if_fail (returnval != NULL, FALSE);
-/*   fprintf (stderr, "DCOP: %s\n", cmd); */
+  ol_assert_ret (cmd != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
   FILE *pPipe = popen (cmd, "r");
   if (!pPipe)
     return FALSE;
@@ -28,15 +28,14 @@ ol_dcop_get_string (const gchar *cmd, gchar **returnval)
     g_free (*returnval);
   }
   *returnval = g_strdup (buffer);
-/*   fprintf (stderr, "DCOP returns: %s\n", buffer); */
   return TRUE;
 }
 
 gboolean
 ol_dcop_get_uint (const gchar *cmd, guint *returnval)
 {
-  g_return_val_if_fail (cmd != NULL, FALSE);
-  g_return_val_if_fail (returnval != NULL, FALSE);
+  ol_assert_ret (cmd != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
   gchar *ret = NULL;
   if (!ol_dcop_get_string (cmd, &ret))
     return FALSE;
@@ -48,16 +47,14 @@ ol_dcop_get_uint (const gchar *cmd, guint *returnval)
 gboolean
 ol_dcop_get_boolean (const gchar *cmd, gboolean *returnval)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
-  g_return_val_if_fail (cmd != NULL, FALSE);
-  g_return_val_if_fail (returnval != NULL, FALSE);
+  ol_log_func ();
+  ol_assert_ret (cmd != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
   gchar *ret = NULL;
   if (!ol_dcop_get_string (cmd, &ret))
     return FALSE;
   *returnval = (strcmp (ret, "true") == 0);
-  printf ("returns %s\n", ret);
+  ol_debugf ("returns %s\n", ret);
   g_free (ret);
-  if (*returnval)
-    printf ("TRUE");
   return TRUE;
 }

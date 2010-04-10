@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include "ol_debug.h"
 
 OlColor
 ol_color_from_string (const char *color_str)
@@ -48,7 +49,7 @@ ol_color_to_string (OlColor color)
   g = color.g * 255;
   b = color.b * 255;
   snprintf (ret, 10, "#%02x%02x%02x", r, g, b);
-  fprintf (stderr, "%s:%s\n", __FUNCTION__, ret);
+  ol_debugf ("color:%s\n", ret);
   return ret;
 }
 
@@ -57,7 +58,7 @@ const OlColor ol_color_black = {0.0, 0.0, 0.0};
 OlColor*
 ol_color_from_str_list (const char **str_list, int *len)
 {
-  g_return_val_if_fail (str_list != NULL, NULL);
+  ol_assert_ret (str_list != NULL, NULL);
   int l = g_strv_length (str_list);
   OlColor *ret = g_new (OlColor, l);
   int i;
@@ -73,7 +74,7 @@ ol_color_from_str_list (const char **str_list, int *len)
 char**
 ol_color_to_str_list (const OlColor *colors, int len)
 {
-  g_return_val_if_fail (colors != NULL && len > 0, NULL);
+  ol_assert_ret (colors != NULL && len > 0, NULL);
   char **ret = g_new (char*, len + 1);
   ret[len] = NULL;
   int i;

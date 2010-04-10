@@ -150,7 +150,7 @@ ol_music_info_get_uri (const OlMusicInfo *music_info)
 void
 ol_music_info_destroy (OlMusicInfo *music_info)
 {
-  g_return_if_fail (music_info != NULL);
+  ol_assert (music_info != NULL);
   ol_music_info_clear (music_info);
   g_free (music_info);
 }

@@ -95,9 +95,9 @@ ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
                               int *width,
                               int *height)
 {
-  g_return_if_fail (context != NULL);
-  g_return_if_fail (text != NULL);
-  g_return_if_fail (width != NULL || height != NULL);
+  ol_assert (context != NULL);
+  ol_assert (text != NULL);
+  ol_assert (width != NULL || height != NULL);
   ol_osd_render_set_text (context, text);
   int w, h;
   pango_layout_get_pixel_size (context->pango_layout, &w, &h);
@@ -167,7 +167,6 @@ ol_osd_render_set_font_size (OlOsdRenderContext *context,
 int
 ol_osd_render_get_font_height (OlOsdRenderContext *context)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   ol_assert_ret (context != NULL, 0);
   PangoFontMetrics *metrics = pango_context_get_metrics (context->pango_context,
                                                          pango_layout_get_font_description (context->pango_layout), /* font desc */

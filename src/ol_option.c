@@ -191,14 +191,12 @@ ol_option_get_font_info (GtkFontButton *font,
 {
   const gchar *font_name = gtk_font_button_get_font_name (font);
   PangoFontDescription *font_desc = pango_font_description_from_string (font_name);
-  fprintf (stderr, "font: %s-%s %d\n", font_name, pango_font_description_get_family (font_desc), pango_font_description_get_size (font_desc));
   if (font_size != NULL)
   {
     *font_size = pango_font_description_get_size (font_desc);
     if (!pango_font_description_get_size_is_absolute (font_desc))
     {
       *font_size /= PANGO_SCALE;
-      fprintf (stderr, "font-size: %lf\n", *font_size);
     }
   }
   if (font_family)
@@ -333,7 +331,6 @@ void
 ol_option_lrc_filename_changed (GtkEditable *editable,
                                 gpointer user_data)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
   static char buffer[BUFFER_SIZE] = "";
   OlMusicInfo info;
   if (options.lrc_filename_sample == NULL)
@@ -399,7 +396,7 @@ ol_option_list_select_changed (GtkTreeSelection *selection, gpointer data)
 void
 ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
-  g_return_if_fail (options.font != NULL);
+  ol_assert (options.font != NULL);
   static const char *preview_text = "OSD Lyrics";
   cairo_t *cr = gdk_cairo_create (widget->window);
   gchar *font_family = NULL;
@@ -481,7 +478,7 @@ load_osd ()
 {
   int i;
   OlConfig *config = ol_config_get_instance ();
-  g_return_if_fail (config != NULL);
+  ol_assert (config != NULL);
   /* Updates font */
   GtkFontButton *font = GTK_FONT_BUTTON (options.font);
   if (font != NULL)
@@ -884,7 +881,6 @@ load_general ()
 void
 ol_option_ok_clicked (GtkWidget *widget)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
   save_osd ();
   save_download ();
   save_general ();
@@ -900,7 +896,6 @@ ol_option_ok_clicked (GtkWidget *widget)
 void
 ol_option_cancel_clicked (GtkWidget *widget)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
   {
@@ -1125,7 +1120,7 @@ ol_option_show ()
   if (window == NULL)
   {
     window = ol_gui_get_widget ("optiondialog");
-    g_return_if_fail (window != NULL);
+    ol_assert (window != NULL);
     g_signal_connect (window, "delete-event",
                       G_CALLBACK (gtk_widget_hide_on_delete),
                       NULL);

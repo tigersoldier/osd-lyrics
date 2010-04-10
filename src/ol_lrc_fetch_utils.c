@@ -28,19 +28,6 @@ convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen)
   char **output = &dest;
   memset(dest, 0, destlen);
 
-  /*
-    if(_LIBICONV_VERSION >= 0x0108) {
-    if(iconvctl(icv, ICONV_SET_TRANSLITERATE, (void *)1) < 0) {
-    fprintf(stderr, "can't enable transliteration in the conversion.\n");
-    return (size_t)-1;
-    }
-
-    if(iconvctl(icv, ICONV_SET_DISCARD_ILSEQ, (void *)1) < 0) {
-    fprintf(stderr, "can't enable illegal sequence discard and continue in the conversion.\n");
-    return (size_t)-1;
-    }
-    }
-  */
   ret = iconv(*icv, input, &srclen, output, &destlen);
   return ret;
 }
@@ -59,20 +46,6 @@ convert(const char *from_charset, const char *to_charset, char *src, size_t srcl
     ol_errorf ("  the conversion from %s to %s is not supported by the implementation.\n", from_charset, to_charset);
     return (size_t)-1;
   }
-
-  /*
-    if(_LIBICONV_VERSION >= 0x0108) {
-    if(iconvctl(cv, ICONV_SET_TRANSLITERATE, (void *)1) < 0) {
-    fprintf(stderr, "can't enable transliteration in the conversion.\n");
-    return (size_t)-1;
-    }
-
-    if(iconvctl(cv, ICONV_SET_DISCARD_ILSEQ, (void *)1) < 0) {
-    fprintf(stderr, "can't enable illegal sequence discard and continue in the conversion.\n");
-    return (size_t)-1;
-    }
-    }
-  */
 
   ret = iconv(cv, input, &srclen, output, &destlen);
   iconv_close(cv);
@@ -94,7 +67,7 @@ my_curl_init(CURL *curl,
   CURLcode code;
   CURL *curl_handler;
   if(curl_global_init(CURL_GLOBAL_ALL) != 0) {
-    fprintf(stderr, "curl_global_init error.\n");
+    ol_errorf ("curl_global_init error.\n");
     return NULL;
   }
 
@@ -194,7 +167,7 @@ fetch_into_file(const char *url, const char *refer, FILE *fp)
 
   code = curl_easy_perform(curl);
   if(code != CURLE_OK) {
-    fprintf(stderr, "failed to perform: [%s]\n", errbuf);
+    ol_errorf ("failed to perform: [%s]\n", errbuf);
     curl_easy_cleanup(curl);
     return -1;
   }
@@ -247,7 +220,7 @@ fetch_into_memory (const char *url,
 
   code = curl_easy_perform(curl);
   if(code != CURLE_OK) {
-    fprintf(stderr, "failed to perform: [%s]\n", errbuf);
+    ol_errorf ("failed to perform: [%s]\n", errbuf);
     return -1;
   }
   curl_easy_cleanup(curl);
@@ -396,7 +369,7 @@ curl_url_encoding(CURL *curl, char *input, char *output, size_t size)
 
   escp = curl_easy_escape(curl, input, 0);
   if(escp == NULL) {
-    fprintf(stderr, "curl_easy_escape error.\n");
+    ol_errorf ("curl_easy_escape error.\n");
     return -1;
   }
   if(strlen(escp) > size) {
@@ -424,7 +397,7 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
 
   unescp = curl_easy_unescape(curl, input, 0, NULL);
   if(unescp == NULL) {
-    fprintf(stderr, "curl_easy_unescape error.\n");
+    ol_errorf ("curl_easy_unescape error.\n");
     return -1;
   }
   if(strlen(unescp) > size) {

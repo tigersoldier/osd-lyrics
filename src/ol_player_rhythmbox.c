@@ -129,7 +129,7 @@ ol_player_rhythmbox_get_song_properties ()
     }
     else
     {
-      ol_logf (OL_DEBUG, "  failed, uri:%s\n", uri);
+      /* ol_logf (OL_DEBUG, "  failed, uri:%s\n", uri); */
       data_list = STOP_PROPERTIES;
     }
     g_free (uri);

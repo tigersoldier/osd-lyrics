@@ -118,7 +118,7 @@ ol_app_download_lyric (OlMusicInfo *music_info)
 {
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
-  fprintf (stderr, "Download engine: %s\n", name);
+  ol_debugf ("Download engine: %s\n", name);
   OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
   ol_lrc_fetch_begin_search (engine, 
                              music_info, 
@@ -199,10 +199,8 @@ _on_music_changed ()
 static void
 _check_music_change ()
 {
-  /* ol_log_func (); */
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
-  /* fprintf (stderr, "%d-%d\n", previous_position, time); */
   /* compares the previous title with current title */
   if (player && !ol_player_get_music_info (player, &music_info))
   {
@@ -229,7 +227,7 @@ _check_music_change ()
      comparison is commented out temporarily */
   /* if (previous_duration != duration) */
   /* { */
-  /*   printf ("change6:%d-%d\n", previous_duration, duration); */
+  /*   ol_debugf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
   /* } */
   previous_duration = duration;

@@ -44,7 +44,7 @@ ol_player_mpris_new (const char *service)
 static gboolean
 ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris)
 {
-  fprintf (stderr, "%s:%c\n", __FUNCTION__, *mpris->name);
+  ol_debugf ("name:%c\n", *mpris->name);
   g_object_unref (mpris->proxy);
   mpris->proxy = NULL;
   return FALSE;
@@ -57,7 +57,6 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
-  fprintf (stderr, "%s\n", __FUNCTION__);
   if (dbus_g_proxy_call (mpris->proxy,
                          GET_METADATA_METHOD,
                          NULL,G_TYPE_INVALID,
@@ -65,7 +64,6 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
                          &data_list,
                          G_TYPE_INVALID))
   {
-    fprintf (stderr, "%s succeed\n", __FUNCTION__);
     return data_list;
   }
   else
@@ -78,7 +76,6 @@ ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
   GHashTable *data_list = NULL;
   gboolean ret = TRUE;
   if (info == NULL)
@@ -150,7 +147,6 @@ ol_player_mpris_get_music_length (OlPlayerMpris *mpris, int *len)
 gboolean
 ol_player_mpris_get_activated (OlPlayerMpris *mpris)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
@@ -160,8 +156,6 @@ ol_player_mpris_get_activated (OlPlayerMpris *mpris)
 static gboolean
 ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
 {
-  fprintf (stderr, "%s:%0x\n",
-           __FUNCTION__, (int) mpris);
   DBusGConnection *connection = ol_dbus_get_connection ();
   GError *error = NULL;
   if (connection == NULL)
@@ -173,7 +167,7 @@ ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
     mpris->proxy = dbus_g_proxy_new_for_name_owner (connection, mpris->name, PATH, INTERFACE, &error);
     if (mpris->proxy == NULL)
     {
-      fprintf (stderr, "get proxy failed: %s\n", error->message);
+      ol_debugf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;
@@ -194,7 +188,7 @@ enum OlPlayerStatus
 ol_player_mpris_get_status (OlPlayerMpris *mpris)
 {
   GValueArray *status = NULL;
-  g_return_val_if_fail (mpris != NULL, OL_PLAYER_ERROR);
+  ol_assert_ret (mpris != NULL, OL_PLAYER_ERROR);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return OL_PLAYER_ERROR;
@@ -234,7 +228,7 @@ ol_player_mpris_get_status (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_play (OlPlayerMpris *mpris)
 {
-  g_return_val_if_fail (mpris != NULL, FALSE);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
@@ -244,7 +238,7 @@ ol_player_mpris_play (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_pause (OlPlayerMpris *mpris)
 {
-  g_return_val_if_fail (mpris != NULL, FALSE);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
@@ -254,7 +248,7 @@ ol_player_mpris_pause (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_stop (OlPlayerMpris *mpris)
 {
-  g_return_val_if_fail (mpris != NULL, FALSE);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
@@ -264,7 +258,7 @@ ol_player_mpris_stop (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_prev (OlPlayerMpris *mpris)
 {
-  g_return_val_if_fail (mpris != NULL, FALSE);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
@@ -274,7 +268,7 @@ ol_player_mpris_prev (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_next (OlPlayerMpris *mpris)
 {
-  g_return_val_if_fail (mpris != NULL, FALSE);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
@@ -284,7 +278,7 @@ ol_player_mpris_next (OlPlayerMpris *mpris)
 gboolean
 ol_player_mpris_seek (OlPlayerMpris *mpris, int pos_ms)
 {
-  g_return_val_if_fail (mpris != NULL, FALSE);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;

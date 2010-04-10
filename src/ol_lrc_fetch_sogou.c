@@ -6,6 +6,7 @@
 #include "ol_lrc_fetch_sogou.h"
 #include "ol_utils.h"
 #include "ol_intl.h"
+#include "ol_debug.h"
 
 #define PREFIX_PAGE_SOGOU "http://mp3.sogou.com/gecisearch.so?query="
 #define PREFIX_LRC_SOGOU "http://mp3.sogou.com/"
@@ -34,15 +35,12 @@ ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charse
 {
   if(info == NULL)
     return NULL;
-  fprintf (stderr,
-           "%s\n"
-           "  title: %s\n"
-           "  artist: %s\n"
-           "  album: %s\n",
-           __FUNCTION__,
-           info->title,
-           info->artist,
-           info->album);
+  ol_debugf ("  title: %s\n"
+             "  artist: %s\n"
+             "  album: %s\n",
+             info->title,
+             info->artist,
+             info->album);
   if (info->title == NULL && info->artist == NULL)
     return NULL;
   static OlLrcCandidate result[TRY_MATCH_MAX];
@@ -126,7 +124,7 @@ ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charse
 int 
 ol_lrc_fetch_sogou_download(OlLrcCandidate *tsu, const char *pathname, const char *charset)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
+  ol_log_func ();
   char *lrc_conv, *pathbuf;
   FILE *fp;
   int ret;
