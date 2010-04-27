@@ -1,3 +1,7 @@
+2010-04-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_render.c: Clean codes and change all printf debug info to ol_debug
+
 2010-04-07  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_module.c: ADD: Pop up context menu when right click on OSD panel
