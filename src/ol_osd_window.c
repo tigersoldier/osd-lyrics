@@ -1379,16 +1379,9 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd)
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   ol_assert (GTK_WIDGET_REALIZED (widget));
-  gdk_drawable_get_size (osd->osd_window, &w, &h);
-  GdkPixmap *input_mask = gdk_pixmap_new (NULL, w, h, 1);
-  GdkGC *gc = gdk_gc_new (input_mask);
-  GdkColor color;
-  color.pixel = 0;              /* black */
-  gdk_gc_set_foreground (gc, &color);
-  gdk_draw_rectangle (input_mask, gc, TRUE, 0, 0, w, h);
-  gdk_window_input_shape_combine_mask (osd->osd_window, input_mask, 0, 0);
-  g_object_unref (input_mask);
-  g_object_unref (gc);
+  GdkRegion *region = gdk_region_new ();
+  gdk_window_input_shape_combine_region (osd->osd_window, region, 0, 0);
+  gdk_region_destroy (region);
 }
 
 static void

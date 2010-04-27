@@ -1,3 +1,7 @@
+2010-04-27  Tiger Soldier  <tigersoldier@tigersoldier-desktop>
+
+	* src/ol_osd_window.c (ol_osd_window_set_input_shape_mask): FIX: issue 71, changed the method of setting input shape, the new method works in GTK 2.20
+
 2010-04-10  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_render.c: Clean codes and change all printf debug info to ol_debug
