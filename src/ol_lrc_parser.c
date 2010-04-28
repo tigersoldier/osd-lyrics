@@ -240,6 +240,10 @@ ol_lrc_parser_reset (struct OlLrcParser *parser)
 {
   ol_assert (parser != NULL);
   parser->offset = 0;
+  if (parser->buflen >= 3 &&
+      parser->buffer[0] == '\xef' && parser->buffer[1] == '\xbb' &&
+      parser->buffer[2] == '\xbf')
+    parser->offset += 3;        /* ignore utf-8 BOM */
 }
 
 union OlLrcToken *

@@ -106,7 +106,7 @@ ol_player_exaile03_get_music_info (OlMusicInfo *info)
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile03_init_dbus ())
     {
-      ol_error ("Initialize dbus proxy failed\n");
+      ol_debug ("Initialize dbus proxy failed\n");
       return FALSE;
     }
   gchar *buf;
@@ -279,7 +279,7 @@ ol_player_exaile03_init_dbus ()
                                &error);
     if (connection == NULL)
     {
-      ol_errorf ("get connection failed: %s\n", error->message);
+      ol_debugf ("get connection failed: %s\n", error->message);
       g_error_free(error);
       error = NULL;
       return FALSE;
@@ -293,7 +293,7 @@ ol_player_exaile03_init_dbus ()
     proxy = dbus_g_proxy_new_for_name_owner (connection, service, path, interface, &error);
     if (proxy == NULL)
     {
-      ol_errorf ("get proxy failed: %s\n", error->message);
+      ol_debugf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

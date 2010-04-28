@@ -171,7 +171,7 @@ ol_player_banshee_init_dbus ()
     proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH2, INTERFACE2, &error);
     if (proxy == NULL)
     {
-      ol_errorf ("get proxy failed: %s\n", error->message);
+      ol_debugf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;
@@ -183,7 +183,7 @@ ol_player_banshee_init_dbus ()
     control_proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH, INTERFACE, &error);
     if (control_proxy == NULL)
     {
-      ol_errorf ("get proxy failed: %s\n", error->message);
+      ol_debugf ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

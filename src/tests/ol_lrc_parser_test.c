@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "ol_lrc_parser.h"
+#include "ol_test_util.h"
 
 const char FILENAME[] = "lrc_gbk.lrc";
 
@@ -44,7 +45,20 @@ void test_file ()
   ol_lrc_parser_free (parser);
 }
 
+/* issue 80 */
+void test_bom ()
+{
+  const char *FILENAME = "lrc_bom.lrc";
+  struct OlLrcParser *parser = ol_lrc_parser_new_from_file (FILENAME);
+  union OlLrcToken *token = NULL;
+  ol_test_expect ((token = ol_lrc_parser_next_token (parser)) != NULL);
+  ol_test_expect (ol_lrc_token_get_type (token) == OL_LRC_TOKEN_TIME);
+  ol_lrc_token_free (token);
+  ol_lrc_parser_free (parser);
+}
+
 int main()
 {
   test_file ();
+  test_bom ();
 }
