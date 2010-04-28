@@ -21,9 +21,9 @@ static void ol_osd_module_update_next_lyric (OlOsdModule *module,
 static void ol_osd_module_init_osd (OlOsdModule *module);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
-static void ol_osd_button_release (OlOsdWindow *osd,
-                                   GdkEventButton *event,
-                                   gpointer data);
+static gboolean ol_osd_button_release (OlOsdWindow *osd,
+                                       GdkEventButton *event,
+                                       gpointer data);
 static void ol_osd_scroll (OlOsdWindow *osd,
                            GdkEventScroll *event,
                            gpointer data);
@@ -41,7 +41,7 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
   ol_config_set_double (config, "OSD", "yalign", yalign);
 }
 
-static void
+static gboolean
 ol_osd_button_release (OlOsdWindow *osd,
                        GdkEventButton *event,
                        gpointer data)
@@ -55,7 +55,9 @@ ol_osd_button_release (OlOsdWindow *osd,
                     NULL,
                     event->button,
                     event->time);
+    return TRUE;
   }
+  return FALSE;
 }
 
 static void

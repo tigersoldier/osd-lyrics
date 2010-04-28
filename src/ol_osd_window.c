@@ -159,11 +159,6 @@ _paint_rect (cairo_t *cr, GdkPixbuf *source,
 {
   ol_assert (cr != NULL);
   ol_assert (source != NULL);
-  /* ol_debugf ("source: (%.0lf, %.0lf, %.0lf, %.0lf)\n", */
-  /*            src_x, src_y, src_w, src_h); */
-  /* ol_debugf ("dest: (%.0lf, %.0lf, %.0lf, %.0lf)\n", */
-  /*            des_x, des_y, des_w, des_h); */
-  
   cairo_save (cr);
   double sw = des_w / src_w;
   double sh = des_h / src_h;
@@ -301,7 +296,6 @@ ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event)
   if (GTK_WIDGET_CLASS (parent_class)->button_press_event &&
       GTK_WIDGET_CLASS (parent_class)->button_press_event (widget, event))
       return TRUE;
-  /* if (event->window == osd->event_window) */
   ol_log_func ();
   if (event->button == 1)
   {
@@ -318,13 +312,11 @@ ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event)
 static gboolean
 ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
 {
+  ol_log_func ();
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (GTK_WIDGET_CLASS (parent_class)->button_release_event &&
       GTK_WIDGET_CLASS (parent_class)->button_release_event (widget, event))
       return TRUE;
-  /*   if (event->window == osd->event_window) */
-  ol_log_func ();
-  ol_debugf ("button: %d\n", event->button);
   if (event->button == 1)
   {
     OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);

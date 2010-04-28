@@ -1,5 +1,7 @@
 2010-04-28  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_osd_module.c (ol_osd_button_release): FIX: The default button release handler of OSD Windows works now. This fix issue 86 that the osd panel didn't hide if it is clicked.
+
 	* src/ol_main.c: ADD: Debug command argument
 
 	* src/ol_lrc_parser.c : FIX: issue 80, ignore utf8 BOM when parsing lrc files

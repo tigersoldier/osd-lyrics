@@ -16,7 +16,7 @@ enum OlDebugLevel {
                                                          __LINE__,     \
                                                          __FUNCTION__, \
                                                          __VA_ARGS__); } while (0)
-#define ol_log_func()                 do {ol_logf (OL_DEBUG, "%s\n", __FUNCTION__); } while (0)
+#define ol_log_func()                 do {ol_logf (OL_INFO, "%s\n", __FUNCTION__); } while (0)
 #define ol_debugf(...)                do {ol_logf (OL_DEBUG, __VA_ARGS__); } while (0)
 #define ol_debug(...)                 do {ol_logf (OL_DEBUG, "%s\n", __VA_ARGS__); } while (0)
 #define ol_errorf(...)                do {ol_logf (OL_ERROR, __VA_ARGS__); } while (0)
