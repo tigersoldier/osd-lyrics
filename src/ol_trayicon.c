@@ -1,14 +1,15 @@
+#include "config.h"
+#if HAVE_APP_INDICATOR
+#include <libappindicator/app-indicator.h>
+#endif  /* HAVE_APP_INDICATOR */
 #include "ol_trayicon.h"
 #include "ol_app.h"
 #include "ol_intl.h"
 #include "ol_menu.h"
 #include "ol_stock.h"
 #include "ol_player.h"
-#include "config.h"
 #include "ol_config.h"
 #include "ol_debug.h"
-
-static GtkStatusIcon *status_icon = NULL;
 
 static const char *UNKNOWN_TITLE = N_("Unknown title");
 static const char *UNKNOWN_ARTIST = N_("Unknown artist");
@@ -32,6 +33,11 @@ static gboolean internal_query_tooltip (GtkStatusIcon *status_icon,
                                         gboolean       keyboard_mode,
                                         GtkTooltip    *tooltip,
                                         gpointer       user_data);
+#if HAVE_APP_INDICATOR
+static AppIndicator *indicator = NULL;
+#else
+static GtkStatusIcon *status_icon = NULL;
+#endif
 
 static gboolean
 internal_query_tooltip (GtkStatusIcon *status_icon,
@@ -108,6 +114,18 @@ popup (GtkStatusIcon *status_icon,
 
 void ol_trayicon_inital ()
 {
+#if HAVE_APP_INDICATOR
+  if (indicator == NULL)
+  {
+    indicator = app_indicator_new (PACKAGE,
+                                   OL_STOCK_TRAYICON,
+                                   APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
+    app_indicator_set_attention_icon (indicator, OL_STOCK_TRAYICON);
+    app_indicator_set_menu (indicator, GTK_MENU (ol_menu_get_popup ()));
+  }
+#else
+
   if (status_icon == NULL)
   {
     status_icon = gtk_status_icon_new_from_stock (OL_STOCK_TRAYICON);
@@ -124,13 +142,22 @@ void ol_trayicon_inital ()
     g_signal_connect (G_OBJECT (status_icon), "activate",
                       G_CALLBACK (activate), NULL);
   }
+#endif  /* HAVE_APP_INDICATOR */
 }
 
 void ol_trayicon_free ()
 {
+#if HAVE_APP_INDICATOR
+  if (indicator != NULL)
+  {
+    g_object_unref (indicator);
+    indicator = NULL;
+  }
+#else
   if (status_icon != NULL)
   {
     g_object_unref (status_icon);
     status_icon = NULL;
   }
+#endif
 }

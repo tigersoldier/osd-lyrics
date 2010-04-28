@@ -13,6 +13,9 @@
 /* Define if compile to support XMMS2 */
 #undef ENABLE_XMMS2
 
+/* Have AppIndicator */
+#undef HAVE_APP_INDICATOR
+
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
 #undef HAVE_CFLOCALECOPYCURRENT

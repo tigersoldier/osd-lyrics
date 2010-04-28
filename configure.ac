@@ -32,13 +32,6 @@ AC_SUBST(OL_ICONDIR)
 OL_GUIDIR="$datadir/$PACKAGE"
 AC_SUBST(OL_GUIDIR)
 
-dnl debug_default="yes"
-dnl AC_ARG_ENABLE(debug, [  --enable-debug=[no/yes] turn on debugging
-dnl                        [default=$debug_default]],, enable_debug=$debug_default)
-dnl if test "x$enable_debug" = "xyes"; then
-dnl          CFLAGS="$CFLAGS -g -DDEBUG"
-dnl fi
-
 # gprof support
 AC_ARG_WITH(gprof-support,
 [  --with-gprof-support=DIR   Include gmon.out file renaming support 
@@ -67,6 +60,15 @@ AC_ARG_WITH(gprof-support,
   esac 
 ])
 
+dnl app indicators in Ubuntu
+APPINDICATOR_REQUIRED=0.0.7
+
+AC_ARG_ENABLE(appindicator,
+                        AS_HELP_STRING([--enable-appindicator[=@<:@no/auto/yes@:>@]],[Build support for application indicators ]),
+                        [enable_appindicator=$enableval],
+                        [enable_appindicator="auto"])
+
+dnl MPD support
 AC_ARG_ENABLE([mpd],
   [AS_HELP_STRING([--disable-mpd], [Disables MPD support. You won't need libmpd if you use this option])],
   [],
@@ -115,26 +117,8 @@ XMMS2_LIBS=
 AS_IF([test "x$enable_xmms2" != "xno"],
   [PKG_CHECK_MODULES([XMMS2], [xmms2-client],
     [AC_DEFINE([ENABLE_XMMS2], [1], [Define if compile to support XMMS2])
-    dnl OLD_CFLAGS="$CFLAGS"
-    dnl CFLAGS="$CFLAGS $XMMS2_CFLAGS"
-    #AC_DEFINE([XMMS2_MAIN_VERSION], 0, [The main version of XMMS2 client])
-    dnl AC_CHECK_HEADERS([xmmsc/xmmsv.h]) 
-    dnl AC_COMPILE_IFELSE([
-    dnl 	#include <xmmsclient/xmmsclient.h>
-    dnl 	void foo () {
-    dnl 		xmmsc_playback_seek_ms (NULL, 0, 0);
-    dnl 	}
-    dnl ], 
-    dnl [AC_DEFINE([XMMS_SEEK_WHENCE], [1], [Define if xmms_playback_seek_ms takes whence parameter])])
-    dnl CFLAGS="$OLD_CFLAGS"
-    dnl PKG_CHECK_EXISTS(
-    dnl 	[xmms2-client >= 0.6], 
-    dnl 	[AC_DEFINE([XMMS2_HAVE_XMMSV], 1, [Whether we can use xmmsv_t])])
-     #BUILD_XMMS2_SUPPORT=1
-    #AC_SUBST(xmms2_version)
     ],
     [enable_xmms2=no
-     #BUILD_XMMS2_SUPPORT=0
      AC_MSG_WARN(
        [xmms2-client is not available, use --disable-xmms2 to disable XMMS2 support])
     ])
@@ -146,6 +130,23 @@ AS_IF([test "x$enable_xmms2" != "xno"],
 )
 #AM_CONDITIONAL(BUILD_MPD_SUPPORT, [test "x$enable_mpd" != "xno"])
 #AC_SUBST(BUILD_MPD_SUPPORT)
+if test x$enable_appindicator = xauto ; then
+        PKG_CHECK_EXISTS([appindicator-0.1 >= $APPINDICATOR_REQUIRED],
+                         enable_appindicator="yes",
+                         enable_appindicator="no")
+fi
+
+if test x$enable_appindicator = xyes ; then
+        PKG_CHECK_EXISTS([appindicator-0.1 >= $APPINDICATOR_REQUIRED],,
+                         AC_MSG_ERROR([appindicator-0.1 is not installed]))
+        PKG_CHECK_MODULES(APP_INDICATOR,
+                        appindicator-0.1 >= $APPINDICATOR_REQUIRED)
+        AC_SUBST(APP_INDICATOR_CFLAGS)
+        AC_SUBST(APP_INDICATOR_LIBS)
+        AC_DEFINE(HAVE_APP_INDICATOR, 1, [Have AppIndicator])
+fi
+AM_CONDITIONAL(HAVE_APP_INDICATOR, test x"$enable_appindicator" = xyes)
+
 # i18n support from GNU gettext.
 AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])
