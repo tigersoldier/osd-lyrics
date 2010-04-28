@@ -46,6 +46,14 @@
 #define INFO_INTERVAL 500
 #define LRCDB_FILENAME "lrc.db"
 
+static char *debug_level = NULL;
+static GOptionEntry cmdargs[] =
+{
+  { "debug", 'd', 0, G_OPTION_ARG_STRING, &debug_level,
+    N_ ("The level of debug messages to log, can be 'none', 'error', 'debug', or 'info'"), "level" },
+  { NULL }
+};
+
 static gboolean first_run = TRUE;
 static guint refresh_source = 0;
 static guint info_timer = 0;
@@ -319,41 +327,6 @@ _refresh_music_info (gpointer data)
   return TRUE;
 }
 
-static void
-_initialize (int argc, char **argv)
-{
-#if ENABLE_NLS
-  /* Set the text message domain.  */
-  bindtextdomain (PACKAGE, LOCALEDIR);
-  bind_textdomain_codeset(PACKAGE, "UTF-8");
-  /* textdomain (PACKAGE); */
-#endif
-  /* Handler for SIGCHLD to wait lrc downloading process */
-  /* signal (SIGCHLD, child_handler); */
-  
-  g_thread_init(NULL);
-  gtk_init (&argc, &argv);
-  ol_stock_init ();
-  ol_player_init ();
-  module = ol_osd_module_new ();
-  ol_trayicon_inital ();
-  ol_notify_init ();
-  ol_keybinding_init ();
-  ol_lrc_fetch_module_init ();
-  char *lrcdb_file = g_strdup_printf ("%s/%s/%s",
-                                      g_get_user_config_dir (),
-                                      PACKAGE_NAME,
-                                      LRCDB_FILENAME);
-  if (!ol_lrclib_init (lrcdb_file))
-  {
-    ol_error ("Initialize lrclib failed");
-  }
-  g_free (lrcdb_file);
-  ol_lrc_fetch_add_async_download_callback (_download_callback);
-  refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
-  info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
-}
-
 struct OlPlayer*
 ol_app_get_player ()
 {
@@ -378,6 +351,69 @@ ol_app_adjust_lyric_offset (int offset_ms)
   ol_lrc_set_offset (lrc, new_offset);
 }
 
+static void
+_parse_cmd_args (int *argc, char ***argv)
+{
+  GError *error = NULL;
+  GOptionContext *context;
+
+  context = g_option_context_new ("- Display your lyrics");
+  g_option_context_add_main_entries (context, cmdargs, PACKAGE);
+  g_option_context_add_group (context, gtk_get_option_group (TRUE));
+  if (!g_option_context_parse (context, argc, argv, &error))
+  {
+    ol_errorf ("option parsing failed: %s\n", error->message);
+  }
+  if (debug_level != NULL)
+  {
+    if (strcmp (debug_level, "none") == 0)
+      ol_log_set_level (OL_LOG_NONE);
+    else if (strcmp (debug_level, "error") == 0)
+      ol_log_set_level (OL_ERROR);
+    else if (strcmp (debug_level, "debug") == 0)
+      ol_log_set_level (OL_DEBUG);
+    else if (strcmp (debug_level, "info") == 0)
+      ol_log_set_level (OL_INFO);
+    g_free (debug_level);
+  }
+}
+
+
+static void
+_initialize (int argc, char **argv)
+{
+#if ENABLE_NLS
+  /* Set the text message domain.  */
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(PACKAGE, "UTF-8");
+  /* textdomain (PACKAGE); */
+#endif
+  /* Handler for SIGCHLD to wait lrc downloading process */
+  /* signal (SIGCHLD, child_handler); */
+  
+  g_thread_init(NULL);
+  gtk_init (&argc, &argv);
+  _parse_cmd_args (&argc, &argv);
+  ol_stock_init ();
+  ol_player_init ();
+  module = ol_osd_module_new ();
+  ol_trayicon_inital ();
+  ol_notify_init ();
+  ol_keybinding_init ();
+  ol_lrc_fetch_module_init ();
+  char *lrcdb_file = g_strdup_printf ("%s/%s/%s",
+                                      g_get_user_config_dir (),
+                                      PACKAGE_NAME,
+                                      LRCDB_FILENAME);
+  if (!ol_lrclib_init (lrcdb_file))
+  {
+    ol_error ("Initialize lrclib failed");
+  }
+  g_free (lrcdb_file);
+  ol_lrc_fetch_add_async_download_callback (_download_callback);
+  refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
+  info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
+}
 
 int
 main (int argc, char **argv)

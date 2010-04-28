@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-03-29 14:46+0800\n"
+"POT-Creation-Date: 2010-04-28 15:41+0800\n"
 "PO-Revision-Date: 2009-12-23 22:28+0000\n"
 "Last-Translator: morphine <maledettopc@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
@@ -17,31 +17,37 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-03-25 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:121
+#: src/ol_menu.c:105
 msgid "LRC files"
 msgstr ""
 
-#: src/ol_menu.c:127
+#: src/ol_menu.c:111
 msgid "Choose LRC file to assign"
 msgstr ""
 
-#: src/ol_main.c:82
+#: src/ol_main.c:53
+msgid ""
+"The level of debug messages to log, can be 'none', 'error', 'debug', or "
+"'info'"
+msgstr ""
+
+#: src/ol_main.c:90
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:97
+#: src/ol_main.c:105
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:112
+#: src/ol_main.c:120
 msgid "Lyrics not found"
 msgstr "Testi non trovato"
 
-#: src/ol_main.c:128
+#: src/ol_main.c:136
 msgid "Searching lyrics"
 msgstr "Ricerca testi"
 
-#: src/ol_main.c:291
+#: src/ol_main.c:297
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Nessun lettore supportato sta andando, uscita\n"
@@ -58,11 +64,23 @@ msgstr ""
 msgid "OSD Lyrics"
 msgstr "Testi OSD"
 
-#: src/ol_lrc_fetch_qianqian.c:314
+#: src/ol_option.c:1105
+msgid "None"
+msgstr ""
+
+#: src/ol_option.c:1113
+msgid "Customize"
+msgstr "Personalizza"
+
+#: src/ol_option.c:1174
+msgid "Select a folder"
+msgstr ""
+
+#: src/ol_lrc_fetch_qianqian.c:297
 msgid "Qianqian"
 msgstr "Qianqian"
 
-#: src/ol_lrc_fetch_sogou.c:165
+#: src/ol_lrc_fetch_sogou.c:163
 msgid "Sogou"
 msgstr "Sogou"
 
@@ -409,6 +427,3 @@ msgstr ""
 
 #~ msgid "_Lock"
 #~ msgstr "Blocca"
-
-#~ msgid "Customize"
-#~ msgstr "Personalizza"

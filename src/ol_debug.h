@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 enum OlDebugLevel {
+  OL_LOG_NONE = -1,
   OL_ERROR = 0,
   OL_DEBUG = 1,
   OL_INFO = 2,
@@ -33,4 +34,25 @@ enum OlDebugLevel {
 
 void ol_log_printf (int level, const char *file, int line, const char *funcname,
                     const char *fmt, ...);
+
+/** 
+ * @brief Sets the message level to be logged
+ *
+ * @param level The level of message to be logged. There are 4 levels:<br />
+ *                OL_LOG_NONE: Log nothing
+ *                OL_ERROR: Log only messages with OL_ERROR
+ *                OL_DEBUG: Log messages with OL_ERROR and OL_DEBUG
+ *                OL_INFO: Log all messages
+ */
+void ol_log_set_level (enum OlDebugLevel level);
+
+/** 
+ * @brief Sets the file to store log messages.
+ * 
+ * @param logfile The filename of the log file. if logfile is "-", it represents
+ *                standard output
+ * @return Return 1 if succeeded, or 0 if failed.
+ */
+int ol_log_set_file (const char *logfile);
+
 #endif /* _OL_DEBUG_H_ */

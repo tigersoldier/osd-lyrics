@@ -1,5 +1,7 @@
 2010-04-28  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_main.c: ADD: Debug command argument
+
 	* src/ol_lrc_parser.c : FIX: issue 80, ignore utf8 BOM when parsing lrc files
 
 	* src/ol_menu.c (ol_menu_assign_lrc): FIX: issue 85, create filter every time file chooser dialog popup.

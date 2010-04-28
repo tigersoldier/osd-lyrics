@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-03-29 14:46+0800\n"
-"PO-Revision-Date: 2010-03-29 14:46+0800\n"
+"POT-Creation-Date: 2010-04-28 15:41+0800\n"
+"PO-Revision-Date: 2010-04-28 15:42+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,31 +17,37 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-03-25 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/ol_menu.c:121
+#: src/ol_menu.c:105
 msgid "LRC files"
 msgstr "LRC文件"
 
-#: src/ol_menu.c:127
+#: src/ol_menu.c:111
 msgid "Choose LRC file to assign"
 msgstr "选择要关联的LRC文件"
 
-#: src/ol_main.c:82
+#: src/ol_main.c:53
+msgid ""
+"The level of debug messages to log, can be 'none', 'error', 'debug', or "
+"'info'"
+msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'info"
+
+#: src/ol_main.c:90
 msgid "Download failed"
 msgstr "下载失败"
 
-#: src/ol_main.c:97
+#: src/ol_main.c:105
 msgid "Cannot create the lyric directory"
 msgstr "无法创建歌词目录"
 
-#: src/ol_main.c:112
+#: src/ol_main.c:120
 msgid "Lyrics not found"
 msgstr "找不到匹配的歌词"
 
-#: src/ol_main.c:128
+#: src/ol_main.c:136
 msgid "Searching lyrics"
 msgstr "正在搜索歌词"
 
-#: src/ol_main.c:291
+#: src/ol_main.c:297
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "没有检测到支持的播放器，程序自动退出。\n"
@@ -58,11 +64,23 @@ msgstr "未知歌手"
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
-#: src/ol_lrc_fetch_qianqian.c:314
+#: src/ol_option.c:1105
+msgid "None"
+msgstr "无"
+
+#: src/ol_option.c:1113
+msgid "Customize"
+msgstr "自定义"
+
+#: src/ol_option.c:1174
+msgid "Select a folder"
+msgstr "选择文件夹"
+
+#: src/ol_lrc_fetch_qianqian.c:297
 msgid "Qianqian"
 msgstr "千千"
 
-#: src/ol_lrc_fetch_sogou.c:165
+#: src/ol_lrc_fetch_sogou.c:163
 msgid "Sogou"
 msgstr "搜狗"
 
@@ -408,9 +426,6 @@ msgstr "下载自(_F):"
 
 #~ msgid "gtk-ok"
 #~ msgstr "gtk-ok"
-
-#~ msgid "Customize"
-#~ msgstr "自定义"
 
 #~ msgid "TODO: Add options here"
 #~ msgstr "TODO: Add options here"

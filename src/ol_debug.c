@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include "ol_debug.h"
 
 #define COLOR_BOLD                    "\033[1m"
@@ -20,21 +21,23 @@ static const char *LEVEL_MSG[] = {
 
 static FILE *flog = NULL;
 static int debug_level = OL_ERROR;
-static void _endure_flog ();
+static int _endure_flog ();
 
-static void
+static int
 _ensure_flog ()
 {
   if (flog == NULL)
-    flog = stdout;
+    return ol_log_set_file ("-");
+  return 1;
 }
 
 void
 ol_log_printf (int level, const char *file, int line, const char *funcname,
                const char *fmt, ...)
 {
-  _ensure_flog ();
+  ol_assert (_ensure_flog ());
   ol_assert (flog != NULL);
+  ol_assert (level >= 0);
   ol_assert (level < OL_N_LEVELS);
   if (level > debug_level)
     return;
@@ -45,4 +48,35 @@ ol_log_printf (int level, const char *file, int line, const char *funcname,
            LEVEL_MSG[level], funcname, file, line);
   vfprintf (flog, fmt, ap);
   va_end (ap);
+}
+
+void
+ol_log_set_level (enum OlDebugLevel level)
+{
+  ol_assert (level >= -1);
+  ol_assert (level < OL_N_LEVELS);
+  debug_level = level;
+}
+
+int
+ol_log_set_file (const char *logfile)
+{
+  ol_assert_ret (logfile != NULL, 0);
+  if (flog != NULL)
+  {
+    fclose (flog);
+    flog = NULL;
+  }
+  if (strcmp (logfile, "-") == 0)
+  {
+    int stdoutfd;
+    if (dup2 (STDOUT_FILENO, stdoutfd) == -1)
+      return 0;
+    flog = fdopen (stdoutfd, "w");
+  }
+  else
+  {
+    flog = fopen (logfile, "w");
+  }
+  return flog != NULL;
 }
