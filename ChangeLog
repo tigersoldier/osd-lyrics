@@ -1,3 +1,7 @@
+2010-04-28  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_menu.c (ol_menu_assign_lrc): FIX: issue 85, create filter every time file chooser dialog popup.
+
 2010-04-27  Tiger Soldier  <tigersoldier@tigersoldier-desktop>
 
 	* src/ol_osd_window.c (ol_osd_window_set_input_shape_mask): FIX: issue 71, changed the method of setting input shape, the new method works in GTK 2.20

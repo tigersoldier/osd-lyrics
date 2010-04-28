@@ -100,15 +100,13 @@ ol_menu_assign_lrc (GtkWidget *widget, gpointer data)
 {
   static char *prev_path = NULL;
   OlMusicInfo *info = ol_app_get_current_music ();
-  static GtkFileFilter *lrc_filter = NULL;
-  if (lrc_filter == NULL)
-  {
-    lrc_filter = gtk_file_filter_new ();
-    gtk_file_filter_set_name (lrc_filter, _("LRC files"));
-    gtk_file_filter_add_pattern (lrc_filter, "*.lrc");
-  }
+  GtkFileFilter *lrc_filter = NULL;
+  lrc_filter = gtk_file_filter_new ();
+  gtk_file_filter_set_name (lrc_filter, _("LRC files"));
+  gtk_file_filter_add_pattern (lrc_filter, "*.lrc");
   if (info != NULL)
   {
+    ol_errorf ("prev_path: %s\n", prev_path);
     GtkWidget *dialog = NULL;
     dialog = gtk_file_chooser_dialog_new (_("Choose LRC file to assign"),
                                           NULL,
