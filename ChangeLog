@@ -1,3 +1,7 @@
+2010-04-30  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_singleton.c: ADD: Singleton support
+
 2010-04-28  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_trayicon.c: ADD: App Indicator support for Ubuntu 10.04

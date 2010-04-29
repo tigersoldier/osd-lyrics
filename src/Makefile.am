@@ -36,6 +36,7 @@ LDADD = \
 osd_lyrics_SOURCES = \
 	ol_debug.c \
 	ol_main.c \
+	ol_singleton.c \
 	ol_config.c \
 	ol_gui.c \
 	ol_about.c \

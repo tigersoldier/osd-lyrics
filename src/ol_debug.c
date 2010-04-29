@@ -27,7 +27,8 @@ static int
 _ensure_flog ()
 {
   if (flog == NULL)
-    return ol_log_set_file ("-");
+    /* return ol_log_set_file ("-"); */
+    flog = stdout;
   return 1;
 }
 

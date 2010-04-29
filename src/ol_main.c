@@ -41,6 +41,7 @@
 #include "ol_notify.h"
 #include "ol_lrclib.h"
 #include "ol_debug.h"
+#include "ol_singleton.h"
 
 #define REFRESH_INTERVAL 100
 #define INFO_INTERVAL 500
@@ -390,10 +391,15 @@ _initialize (int argc, char **argv)
 #endif
   /* Handler for SIGCHLD to wait lrc downloading process */
   /* signal (SIGCHLD, child_handler); */
-  
+
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
   _parse_cmd_args (&argc, &argv);
+  if (ol_is_running ())
+  {
+    printf ("%s\n", _("Another OSD Lyrics is running, exit."));
+    exit (0);
+  }
   ol_stock_init ();
   ol_player_init ();
   module = ol_osd_module_new ();
