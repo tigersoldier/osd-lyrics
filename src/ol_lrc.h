@@ -106,9 +106,9 @@ const struct OlLrcItem *ol_lrc_get_item (struct OlLrc *lrc, int id);
  * @param music_duration The duration of the song, in milliseconds.
  *                 It's necessary because we don't know the end time of the
  *                 last lyric.
- * @param lyric The return location of lyric text at the given time.
- *              If the lyric is not found, the value will be set to NULL.
- *              It should be freed with g_free.
+ * @param text The return location of lyric text at the given time, or NULL.
+ *             If the lyric is not found, the value will be set to NULL.
+ *             It should be freed with g_free.
  * @param percentage The progress of the lyric at the given time, in percent.
  * @param id The id of the lyric. If it's an invalid lyric, its id is -1
  */

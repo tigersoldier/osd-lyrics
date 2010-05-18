@@ -314,13 +314,12 @@ ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
   /* ol_log_func (); */
   if (module->lrc != NULL && module->osd != NULL)
   {
-    char *current_lrc = NULL;
     double percentage;
     int id, lyric_id;
     ol_lrc_get_lyric_by_time (module->lrc,
                               played_time,
                               module->duration,
-                              &current_lrc,
+                              NULL,
                               &percentage,
                               &lyric_id);
     const struct OlLrcItem *info = ol_lrc_get_item (module->lrc, lyric_id);

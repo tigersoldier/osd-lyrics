@@ -1,3 +1,7 @@
+2010-05-18  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_module.c (ol_osd_module_set_played_time): FIX: A memory leak in OSD module on getting current lyric text.
+
 2010-04-30  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_singleton.c: ADD: Singleton support
