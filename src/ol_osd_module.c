@@ -457,8 +457,9 @@ static gboolean
 hide_message (OlOsdModule *module)
 {
   ol_log_func ();
-  ol_assert (module != NULL);
-  ol_assert (module->lrc == NULL);
+  ol_assert_ret (module != NULL, FALSE);
+  if (module->lrc != NULL)
+    return FALSE;
   ol_osd_window_set_lyric (module->osd, 0, NULL);
   /* gtk_widget_hide (GTK_WIDGET (module->osd)); */
   module->message_source = 0;
