@@ -32,16 +32,19 @@ ol_fork_watch_callback (GPid pid,
   struct ForkData *source = (struct ForkData*) data;
   do
   {
-    source->ret_size += read (source->fd,
-                              source->ret_data + source->ret_size,
-                              source->buf_len - source->ret_size);
-    if (source->ret_size < source->buf_len)
+    ssize_t nread = read (source->fd,
+                          source->ret_data + source->ret_size,
+                          source->buf_len - source->ret_size);
+    source->ret_size += nread;
+    if (nread == 0)
     {
       source->ret_data[source->ret_size] = 0;
       break;
     }
-    else
+    if (source->ret_size >= source->buf_len)
     {
+      if (source->ret_size > source->buf_len)
+        ol_error ("The returned data exceeds the length of the buffer");
       source->buf_len *= 2;
       char *newdata = g_new (char, source->buf_len);
       memcpy (newdata, source->ret_data, source->ret_size);

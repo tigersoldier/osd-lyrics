@@ -1,3 +1,7 @@
+2010-05-19  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_lrc_fetch_module.c: CHANGE: flush pipe before exit search and download child process. Hope this will fix issue 66.
+
 2010-05-18  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: CHANGE: Remove gtkprivate.h dependency in OSD Window

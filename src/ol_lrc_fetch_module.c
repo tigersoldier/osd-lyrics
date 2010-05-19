@@ -199,6 +199,8 @@ ol_lrc_fetch_begin_search (OlLrcFetchEngine* _engine,
                data) == 0)
   {
     internal_search (search_result);
+    fflush (fret);
+    fclose (fret);
     exit (0);
   }
   return search_id;
@@ -229,7 +231,10 @@ ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
   
   if (ol_fork (internal_download_callback, result) == 0)
   {
-    exit (internal_download (engine, candidate, pathname));
+    int ret = internal_download (engine, candidate, pathname);
+    fflush (fret);
+    fclose (fret);
+    exit (ret);
   }
 }
 
