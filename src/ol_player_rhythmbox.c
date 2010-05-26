@@ -1,6 +1,4 @@
 /* http://git.gnome.org/cgit/rhythmbox/tree/shell/rb-shell-player.xml */
-#include <stdio.h>
-#include <sys/time.h>
 #include "ol_player_rhythmbox.h"
 #include "ol_utils_dbus.h"
 #include "ol_utils.h"
@@ -239,7 +237,7 @@ ol_player_rhythmbox_init_dbus ()
     proxy_player = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH_PLAYER, INTERFACE_PLAYER, &error);
     if (proxy_player == NULL)
     {
-      ol_errorf ("get proxy failed: %s\n", error->message);
+      ol_infof ("get proxy failed: %s\n", error->message);
       g_error_free (error);
       error = NULL;
       return FALSE;

@@ -21,6 +21,7 @@
 #include "ol_player_moc.h"
 #include "ol_player_quodlibet.h"
 #include "ol_player_qmmp.h"
+#include "ol_player_juk.h"
 
 static GArray *players = NULL;
 
@@ -49,6 +50,7 @@ ol_player_init ()
     ol_player_register (ol_player_moc_get ());
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_qmmp_get ());
+    ol_player_register (ol_player_juk_get ());
   }
 }
 
@@ -88,7 +90,7 @@ ol_player_get_active_player ()
   for (i = 0; i < players->len; i++)
   {
     struct OlPlayer *controller = g_array_index (players, struct OlPlayer*, i);
-    ol_debugf ("trying player %d\n", i);
+    ol_debugf ("trying %s\n", controller->name);
     if (controller && controller->get_activated ())
     {
       return controller;
