@@ -23,6 +23,10 @@ static const char PAUSE[] = "pause";
 static const char STOP[] = "stop";
 static const char NEXT[] = "forward";
 static const char PREV[] = "back";
+static const char *icon_paths[] = {
+  "/usr/share/icons/hicolor/64x64/apps/juk.png",
+  "/usr/local/share/icons/hicolor/64x64/apps/juk.png",
+};
 
 static DBusGProxy *proxy = NULL;
 static OlElapseEmulator *elapse_emulator = NULL;
@@ -42,6 +46,7 @@ static gboolean _pause (void);
 static gboolean _stop (void);
 static gboolean _prev (void);
 static gboolean _next (void);
+static const char *_get_icon_path (void);
 
 static void
 _ensure_elapse (int elapsed_time)
@@ -247,6 +252,18 @@ _ensure_dbus ()
   return TRUE;
 }
 
+static const char *
+_get_icon_path ()
+{
+  int i;
+  for (i = 0; i < ol_get_array_len (icon_paths); i++)
+  {
+    if (ol_path_is_file (icon_paths[i]))
+      return icon_paths[i];
+  }
+  return NULL;
+}
+
 struct OlPlayer*
 ol_player_juk_get ()
 {
@@ -265,7 +282,7 @@ ol_player_juk_get ()
   controller->next = _next;
   /* controller->seek = _seek; */
   controller->stop = _stop;
-  /* controller->get_icon_path = _get_icon_path; */
+  controller->get_icon_path = _get_icon_path;
   return controller;
 }
 
