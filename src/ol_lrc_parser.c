@@ -215,11 +215,13 @@ ol_lrc_parser_set_buffer (struct OlLrcParser *parser,
       else
       {
         size_t inlen = buflen;
-        size_t outlen = buflen * 2;
+        size_t outlen = buflen * 3;
         outbuf = g_new (char, outlen + 1);
         char *in = inbuf, *out = outbuf;
         outbuf[0] = '\0';
         iconv (cd, &in, &inlen, &out, &outlen);
+        if (outlen > 0)
+          *out = '\0';
         g_free (inbuf);
         iconv_close (cd);
       }

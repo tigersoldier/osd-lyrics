@@ -169,7 +169,24 @@ char** ol_config_get_str_list (OlConfig *config,
                                const char *name,
                                int *len);
 
+/** 
+ * @brief Flush config value into config file
+ * 
+ * @param config 
+ */
 void ol_config_save (OlConfig *config);
+
+/** 
+ * @brief Load config value from config file
+ * 
+ * @param config 
+ */
 void ol_config_load (OlConfig *config);
+
+/** 
+ * @brief Unload config module
+ * 
+ */
+void ol_config_unload ();
 
 #endif /* _OL_CONFIG_H_ */

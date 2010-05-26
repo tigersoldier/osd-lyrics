@@ -229,6 +229,7 @@ ol_osd_module_init_osd (OlOsdModule *module)
                                             0,
                                             NULL);
   ol_osd_window_set_bg (module->osd, bg);
+  g_object_unref (bg);
   /* ol_osd_window_resize (osd, 1024, 100); */
   /* gtk_widget_show (GTK_WIDGET (module->osd)); */
   module->toolbar = OL_OSD_TOOLBAR (ol_osd_toolbar_new ());

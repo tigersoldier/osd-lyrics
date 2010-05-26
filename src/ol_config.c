@@ -211,6 +211,12 @@ ol_config_despose (GObject *obj)
 static void
 ol_config_finalize (GObject *object)
 {
+  OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (OL_CONFIG (object));
+  if (priv->config != NULL)
+  {
+    g_key_file_free (priv->config);
+    priv->config = NULL;
+  }
   G_OBJECT_CLASS (ol_config_parent_class)->finalize (object);
 }
 
@@ -219,15 +225,18 @@ ol_config_emit_change (OlConfig *config,
                        const char *group,
                        const char *name)
 {
+  int i;
   GValue params[3] = {0};
   g_value_init (&params[0], G_OBJECT_TYPE (config));
   g_value_set_object (&params[0], G_OBJECT (config));
   g_value_init (&params[1], G_TYPE_STRING);
-  g_value_set_string (&params[1], g_strdup (group));
+  g_value_set_string (&params[1], group);
   g_value_init (&params[2], G_TYPE_STRING);
-  g_value_set_string (&params[2], g_strdup (name));
+  g_value_set_string (&params[2], name);
   g_signal_emitv (params, OL_CONFIG_GET_CLASS (config)->signals[CHANGED],
                   0, NULL);
+  for (i = 0; i < 3; i++)
+    g_value_reset (&params[i]);
 }
  
 static OlConfig*
@@ -240,7 +249,10 @@ OlConfig*
 ol_config_get_instance ()
 {
   if (instance == NULL)
+  {
     instance = ol_config_new ();
+    g_object_ref_sink (instance);
+  }
   return instance;
 }
 
@@ -389,3 +401,8 @@ void ol_config_save (OlConfig *config)
   g_file_set_contents (ol_config_get_path (), file_content, len, NULL);
 }
 
+void ol_config_unload ()
+{
+  if (instance == NULL)
+    g_object_unref (instance);
+}

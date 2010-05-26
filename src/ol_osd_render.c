@@ -217,4 +217,5 @@ ol_osd_render_update_font (OlOsdRenderContext *context)
   ol_debugf ("%s\n", font_string);
   g_free (font_string);
   pango_layout_set_font_description (context->pango_layout, font_desc);
+  pango_font_description_free (font_desc);
 }

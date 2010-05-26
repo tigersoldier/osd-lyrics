@@ -364,6 +364,8 @@ _parse_cmd_args (int *argc, char ***argv)
   if (!g_option_context_parse (context, argc, argv, &error))
   {
     ol_errorf ("option parsing failed: %s\n", error->message);
+    g_error_free (error);
+    error = NULL;
   }
   if (debug_level != NULL)
   {
@@ -432,5 +434,6 @@ main (int argc, char **argv)
   module = NULL;
   ol_trayicon_free ();
   ol_lrclib_unload ();
+  ol_config_unload ();
   return 0;
 }

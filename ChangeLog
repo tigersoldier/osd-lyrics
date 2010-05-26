@@ -1,3 +1,9 @@
+2010-05-21  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_render.c (ol_osd_render_update_font): FIX: Memory leak when setting font for renderer of OSD Window
+
+	* src/ol_config.c (ol_config_emit_change): FIX: Memory leak when emitting signals
+
 2010-05-19  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_lrc_fetch_module.c: CHANGE: flush pipe before exit search and download child process. Hope this will fix issue 66.
