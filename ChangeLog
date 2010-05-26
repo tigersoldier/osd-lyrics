@@ -1,3 +1,8 @@
+2010-05-26  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c (ol_osd_window_reset_shape_pixmap): FIX: Memory leak when change width of OSD Window
+	(ol_osd_window_set_percentage): FIX: Issue 93. The shape of the OSD Window will be updated correctly when needed.
+
 2010-05-21  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_render.c (ol_osd_render_update_font): FIX: Memory leak when setting font for renderer of OSD Window
