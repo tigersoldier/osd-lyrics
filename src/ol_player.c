@@ -20,6 +20,7 @@
 #endif  /* ENABLE_MPD */
 #include "ol_player_moc.h"
 #include "ol_player_quodlibet.h"
+#include "ol_player_qmmp.h"
 
 static GArray *players = NULL;
 
@@ -47,6 +48,7 @@ ol_player_init ()
 #endif  /* ENABLE_MPD */
     ol_player_register (ol_player_moc_get ());
     ol_player_register (ol_player_quodlibet_get ());
+    ol_player_register (ol_player_qmmp_get ());
   }
 }
 

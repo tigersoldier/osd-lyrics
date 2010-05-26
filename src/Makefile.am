@@ -58,6 +58,7 @@ osd_lyrics_SOURCES = \
 	ol_player_songbird.c \
 	ol_player_xmms2.c \
 	ol_player_rhythmbox.c \
+	ol_player_qmmp.c \
 	ol_player_moc.c \
 	ol_player_mpd.c \
 	ol_elapse_emulator.c \

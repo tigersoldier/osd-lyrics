@@ -1,5 +1,7 @@
 2010-05-26  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_player_qmmp.c: ADD: Qmmp support. Close part of Issue 92.
+
 	* src/ol_osd_window.c (ol_osd_window_reset_shape_pixmap): FIX: Memory leak when change width of OSD Window
 	(ol_osd_window_set_percentage): FIX: Issue 93. The shape of the OSD Window will be updated correctly when needed.
 
