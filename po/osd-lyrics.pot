@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.3.20100330\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
-"POT-Creation-Date: 2010-04-28 15:41+0800\n"
+"POT-Creation-Date: 2010-05-27 10:27+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,42 +24,46 @@ msgstr ""
 msgid "Choose LRC file to assign"
 msgstr ""
 
-#: src/ol_main.c:53
+#: src/ol_main.c:54
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
 msgstr ""
 
-#: src/ol_main.c:90
+#: src/ol_main.c:91
 msgid "Download failed"
 msgstr ""
 
-#: src/ol_main.c:105
+#: src/ol_main.c:106
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: src/ol_main.c:120
+#: src/ol_main.c:121
 msgid "Lyrics not found"
 msgstr ""
 
-#: src/ol_main.c:136
+#: src/ol_main.c:137
 msgid "Searching lyrics"
 msgstr ""
 
-#: src/ol_main.c:297
+#: src/ol_main.c:298
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
 
-#: src/ol_trayicon.c:13
-msgid "Unknown title"
+#: src/ol_main.c:402
+msgid "Another OSD Lyrics is running, exit."
 msgstr ""
 
 #: src/ol_trayicon.c:14
+msgid "Unknown title"
+msgstr ""
+
+#: src/ol_trayicon.c:15
 msgid "Unknown artist"
 msgstr ""
 
-#: src/ol_trayicon.c:49 src/ol_trayicon.c:115
+#: src/ol_trayicon.c:55 src/ol_trayicon.c:133
 msgid "OSD Lyrics"
 msgstr ""
 

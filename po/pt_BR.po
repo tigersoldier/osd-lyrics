@@ -1,16 +1,16 @@
-# Russian translation for osd-lyrics
-# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# Brazilian Portuguese translation for osd-lyrics
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the osd-lyrics package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/osd-lyrics/issues/list\n"
 "POT-Creation-Date: 2010-05-27 10:27+0800\n"
-"PO-Revision-Date: 2009-11-30 17:37+0000\n"
-"Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
-"Language-Team: Russian <ru@li.org>\n"
+"PO-Revision-Date: 2010-05-03 15:45+0000\n"
+"Last-Translator: Pedro Folha <pedrovi@hotmail.com>\n"
+"Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,11 +19,11 @@ msgstr ""
 
 #: src/ol_menu.c:105
 msgid "LRC files"
-msgstr ""
+msgstr "Arquivo LRC"
 
 #: src/ol_menu.c:111
 msgid "Choose LRC file to assign"
-msgstr ""
+msgstr "Escolha o arquivo LRC para atribuir"
 
 #: src/ol_main.c:54
 msgid ""
@@ -33,52 +33,53 @@ msgstr ""
 
 #: src/ol_main.c:91
 msgid "Download failed"
-msgstr ""
+msgstr "Falha ao baixar"
 
 #: src/ol_main.c:106
 msgid "Cannot create the lyric directory"
-msgstr ""
+msgstr "Não é possível criar a pasta da letra"
 
 #: src/ol_main.c:121
 msgid "Lyrics not found"
-msgstr ""
+msgstr "Letras não encontradas"
 
 #: src/ol_main.c:137
 msgid "Searching lyrics"
-msgstr ""
+msgstr "Pesquisando letras"
 
 #: src/ol_main.c:298
 #, c-format
 msgid "No supported player is running, exit.\n"
-msgstr ""
+msgstr "Player em execução não suportado, sair.\n"
 
 #: src/ol_main.c:402
+#, fuzzy
 msgid "Another OSD Lyrics is running, exit."
-msgstr ""
+msgstr "Player em execução não suportado, sair.\n"
 
 #: src/ol_trayicon.c:14
 msgid "Unknown title"
-msgstr ""
+msgstr "Título desconhecido"
 
 #: src/ol_trayicon.c:15
 msgid "Unknown artist"
-msgstr ""
+msgstr "Artista desconhecido"
 
 #: src/ol_trayicon.c:55 src/ol_trayicon.c:133
 msgid "OSD Lyrics"
-msgstr "OSD Lyrics"
+msgstr "Letras OSD (exibição na tela)"
 
 #: src/ol_option.c:1105
 msgid "None"
-msgstr ""
+msgstr "Nenhuma"
 
 #: src/ol_option.c:1113
 msgid "Customize"
-msgstr "Личные предпочтения"
+msgstr "Personalize"
 
 #: src/ol_option.c:1174
 msgid "Select a folder"
-msgstr ""
+msgstr "Selecione uma pasta"
 
 #: src/ol_lrc_fetch_qianqian.c:297
 msgid "Qianqian"
@@ -90,41 +91,41 @@ msgstr "Sogou"
 
 #: src/ol_lrc_fetch_minilyrics.c:305
 msgid "MiniLyrics"
-msgstr ""
+msgstr "MiniLyrics"
 
 #: src/ol_lrc_candidate_list.c:25
 msgid "Title"
-msgstr "Название"
+msgstr "Título"
 
 #: src/ol_lrc_candidate_list.c:30
 msgid "Artist"
-msgstr "Исполнитель"
+msgstr "Artista"
 
 #: src/ol_search_dialog.c:12
 #, c-format
 msgid "Searching lyrics from %s..."
-msgstr ""
+msgstr "Procurando por letras de %s..."
 
 #: src/ol_search_dialog.c:13
 msgid "Ooops, no lyric found :("
-msgstr ""
+msgstr "Ops, nada encontrado :("
 
 #: src/ol_search_dialog.c:14
 #, c-format
 msgid "%d lyrics found :)"
-msgstr ""
+msgstr "%d letras encontradas :)"
 
 #: data/dialogs.glade:9
 msgid "Copyright 2009 The OSD Lyrics project."
-msgstr "Copyright 2009 Проект OSD Lyrics."
+msgstr ""
 
 #: data/dialogs.glade:10
 msgid ""
 "An OSD lyric show compatible with various media players and supports lyrics "
 "downloading.\n"
 msgstr ""
-"Вывод текста песен на экран (OSD) совместим с различными медиа-"
-"проигрывателями и поддерживает загрузку текстов из сети.\n"
+"Um mostrador de letras de música OSD compatível com vários reprodutores, que "
+"suporta baixar letras.\n"
 
 #: data/dialogs.glade:13
 msgid "http://code.google.com/p/osd-lyrics/"
@@ -138,115 +139,113 @@ msgstr "GPL v3"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  Alexey Kotlyarov https://launchpad.net/~koterpillar\n"
-"  Klim https://launchpad.net/~klim\n"
-"  Nkolay Parukhin https://launchpad.net/~parukhin\n"
-"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
-"  Vitaly Antonov https://launchpad.net/~legidium"
+"  Douglas Santos https://launchpad.net/~douglasrpg\n"
+"  Pedro Folha https://launchpad.net/~pedrovi\n"
+"  Sam Samuels https://launchpad.net/~gemini-sam-samuels"
 
 #: data/dialogs.glade:75
 msgid "Preferences"
-msgstr "Настройки"
+msgstr "Preferências"
 
 #: data/dialogs.glade:97 data/dialogs.glade:111
 msgid "If no player detected, launch the given player"
-msgstr ""
+msgstr "Se não for encontrado nenhum palyer, abrir o padrão"
 
 #: data/dialogs.glade:99
 msgid "Auto la_unch player:"
-msgstr ""
+msgstr "Abrir player automaticamente:"
 
 #: data/dialogs.glade:137 data/dialogs.glade:152
 msgid "The command of player to launch"
-msgstr ""
+msgstr "O comando para abrir o player"
 
 #: data/dialogs.glade:139
 msgid "Pla_yer command:"
-msgstr ""
+msgstr "Comando do pla_yer:"
 
 #: data/dialogs.glade:167
 msgid "_Display notification"
-msgstr ""
+msgstr "_Mostrar notificação"
 
 #: data/dialogs.glade:184
 msgid "_General"
-msgstr "_Общие"
+msgstr "_Geral"
 
 #: data/dialogs.glade:205
 msgid "_Font:"
-msgstr "_Шрифт:"
+msgstr "_Fonte:"
 
 #: data/dialogs.glade:231
 msgid "_Width:"
-msgstr "Ширина:"
+msgstr "_Largura:"
 
 #: data/dialogs.glade:260
 msgid "Lyric lines:"
-msgstr "Строки текста произведения"
+msgstr "Linhas da letra:"
 
 #: data/dialogs.glade:274
 msgid "Si_ngle line"
-msgstr "Одинарня линия"
+msgstr "Ú_nica linha"
 
 #: data/dialogs.glade:288
 msgid "_Double lines"
-msgstr "Двойные линии"
+msgstr "_Duas linhas"
 
 #: data/dialogs.glade:313
 msgid "Out_line:"
-msgstr ""
+msgstr "Cont_orno"
 
 #: data/dialogs.glade:346
 msgid "T_ranslucent on mouse over"
-msgstr "Полупрозрачный при наведением курсором мышки"
+msgstr "T_ransparente quando o mouse estiver em cima"
 
 #: data/dialogs.glade:378
 msgid "F_irst line:"
-msgstr "_Первая строка:"
+msgstr "P_rimeira linha:"
 
 #: data/dialogs.glade:404
 msgid "_Second line:"
-msgstr "_Вторая строка:"
+msgstr "_Segunda linha:"
 
 #: data/dialogs.glade:436
 msgid "<b>Lyric _Alignment</b>"
-msgstr "<b>_Выравнивание лирики</b>"
+msgstr "<b>_Alinhamento da Linha</b>"
 
 #: data/dialogs.glade:469
 msgid "Color _Theme:"
-msgstr "Цветовая _тема:"
+msgstr "_Tema de Cores:"
 
 #: data/dialogs.glade:497
 msgid "C_ustomize colors"
-msgstr "_Настроить цвета"
+msgstr "P_ersonalisa as cores"
 
 #: data/dialogs.glade:526
 msgid "Acti_ve lyrics:"
-msgstr "_Активная лирика:"
+msgstr "Ati_var letras:"
 
 #: data/dialogs.glade:546 data/dialogs.glade:616
 msgid "top"
-msgstr "сверху"
+msgstr "em cima"
 
 #: data/dialogs.glade:556 data/dialogs.glade:643
 msgid "middle"
-msgstr "по середине"
+msgstr "meio"
 
 #: data/dialogs.glade:580 data/dialogs.glade:670
 msgid "bottom"
-msgstr "снизу"
+msgstr "em baixo"
 
 #: data/dialogs.glade:605
 msgid "Inactiv_e lyrics:"
-msgstr "_Неактивная лирика:"
+msgstr "Letras inati_vas:"
 
 #: data/dialogs.glade:706
 msgid "<b>Lyric _Color</b>"
-msgstr "<b>_Цвет лирики</b>"
+msgstr "<b>_Cor da letra</b>"
 
 #: data/dialogs.glade:740
 msgid "<b>Preview</b>"
-msgstr "<b>Предварительный просмотр</b>"
+msgstr "<b>Pré-visualização</b>"
 
 #: data/dialogs.glade:757
 msgid "_OSD"
@@ -255,11 +254,11 @@ msgstr "_OSD"
 #: data/dialogs.glade:870
 msgid "A single \"%\" means the directory where the playing music is."
 msgstr ""
-"Просто \"%\" означает каталог, в котором расположена играющая сейчас музыка."
+"Um único \"%\" significa a pasta onde se encontra a música que está tocando"
 
 #: data/dialogs.glade:884
 msgid "<b>_Path</b>"
-msgstr "<b>_Путь</b>"
+msgstr "<b>_Pasta</b>"
 
 #: data/dialogs.glade:933
 msgid ""
@@ -269,174 +268,164 @@ msgid ""
 "  %n - Track number\n"
 "  %f - File name (without extension)"
 msgstr ""
-"  %t - Название\n"
-"  %p - Исполнитель\n"
-"  %a - Альбом\n"
-"  %n - Номер дорожки\n"
-"  %f - Имя файла (без расширения)"
+"  %t - Título\n"
+"  %p - Artista\n"
+"  %a - Álbum\n"
+"  %n - Numero da faxa\n"
+"  %f - Nome do aquivo (sem extenção)"
 
 #: data/dialogs.glade:1012
 msgid "<b>_Filename</b>"
-msgstr "<b>Имя _файла</b>"
+msgstr "<b>_Nome do arquivo</b>"
 
 #: data/dialogs.glade:1031
 msgid "_Lyric Location"
-msgstr "Распо_ложение текста"
+msgstr "_Local da letra"
 
 #: data/dialogs.glade:1049 data/dialogs.glade:1064
 msgid "Choose witch site you want to download from."
-msgstr ""
+msgstr "Escolha o site do qual as letras serão baixadas."
 
 #: data/dialogs.glade:1052
 msgid "Download _engine:"
-msgstr "Система для поиска текстов:"
+msgstr "_Motor de busca:"
 
 #: data/dialogs.glade:1086
 msgid "Do_wnload the first candidate"
-msgstr ""
+msgstr "Bai_xar o primeiro candidato"
 
 #: data/dialogs.glade:1090 data/dialogs.glade:1386
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
 msgstr ""
+"Se houver mas de um arquivo de letra de música que corresponda à condição da "
+"pesquisa, baixar a primeira da lista sem perguntar ao usuário."
 
 #: data/dialogs.glade:1110 data/dialogs.glade:1401 data/dialogs.glade:1694
 msgid "_Download"
-msgstr "_Скачать"
+msgstr "_Baixar"
 
 #: data/dialogs.glade:1196
 msgid "If locked, you can't move OSD window by mouse"
-msgstr "Когда окно OSD закрепленно, вы не можете перемещать его мышкой"
+msgstr "Se travado, você não poderá mover a janela OSD pelo mouse"
 
 #: data/dialogs.glade:1197
 msgid "_Lock Position"
-msgstr ""
+msgstr "_Travar Posição"
 
 #: data/dialogs.glade:1205
 msgid "Hide the OSD Window"
-msgstr "Скрыть OSD"
+msgstr "Ocultar a janela OSD"
 
 #: data/dialogs.glade:1206
 msgid "_Hide"
-msgstr "_Скрыть"
+msgstr "_Ocultar"
 
 #: data/dialogs.glade:1218
 msgid "_Search lyric..."
-msgstr ""
+msgstr "_Pesquisar letra..."
 
 #: data/dialogs.glade:1220
 msgid "Search lyrics from Internet"
-msgstr ""
+msgstr "Pesquisar letras da internet"
 
 #: data/dialogs.glade:1229
 msgid "_Assign lyric..."
-msgstr ""
+msgstr "_Atribuir letra..."
 
 #: data/dialogs.glade:1231
 msgid "Assign local LRC file to current music"
-msgstr ""
+msgstr "Atribuir arquivo LRC local a musica em execução"
 
 #: data/dialogs.glade:1240
 msgid "_No lyric"
-msgstr ""
+msgstr "_Nenhuma letra"
 
 #: data/dialogs.glade:1242
 msgid "Don't assign lyric to this music"
-msgstr ""
+msgstr "Não atribuir letra para a musica em execução"
 
 #: data/dialogs.glade:1251
 msgid "Lyric delay -"
-msgstr ""
+msgstr "Atraso da letra -"
 
 #: data/dialogs.glade:1253
 msgid "Adjust lyrics delay by -0.2 s"
-msgstr ""
+msgstr "Ajusta o atraso da letra em -0.2 s"
 
 #: data/dialogs.glade:1261
 msgid "Lyric delay +"
-msgstr ""
+msgstr "Atraso da letra +"
 
 #: data/dialogs.glade:1263
 msgid "Adjust lyric delay by +0.2 s"
-msgstr ""
+msgstr "Ajusta o atraso da letra em +0.2 s"
 
 #: data/dialogs.glade:1354
 msgid "Choose LRC file to download"
-msgstr "Выберите LRC-файл для загрузки"
+msgstr "Escolha o arquivo LRC para baixar"
 
 #: data/dialogs.glade:1382
 msgid "D_on't ask me again"
-msgstr ""
+msgstr "Nã_o perguntar novamente"
 
 #: data/dialogs.glade:1448
 msgid "The title of the current track"
-msgstr ""
+msgstr "O título da faixa em execução"
 
 #: data/dialogs.glade:1449
 msgid "%t - Title"
-msgstr ""
+msgstr "%t - Título"
 
 #: data/dialogs.glade:1457
 msgid "The artist of the current track"
-msgstr ""
+msgstr "O artista da faixa em execução"
 
 #: data/dialogs.glade:1458
 msgid "%p - Artist"
-msgstr ""
+msgstr "%p - Artista"
 
 #: data/dialogs.glade:1466
 msgid "The title of album of the current track"
-msgstr ""
+msgstr "O título do album da faixa em execução"
 
 #: data/dialogs.glade:1467
 msgid "%a - Album"
-msgstr ""
+msgstr "%a - Álbum"
 
 #: data/dialogs.glade:1475
 msgid "The number of the current track"
-msgstr ""
+msgstr "O numero da faixa em execução"
 
 #: data/dialogs.glade:1476
 msgid "%n - Track number"
-msgstr ""
+msgstr "%n - Numero da faixa"
 
 #: data/dialogs.glade:1484
 msgid "The filename of the current track"
-msgstr ""
+msgstr "O nome do aquivo da faixa em execução"
 
 #: data/dialogs.glade:1485
 msgid "%f - Filename"
-msgstr ""
+msgstr "%f - Nome do arquivo"
 
 #: data/dialogs.glade:1523
 msgid "Search lyrics"
-msgstr ""
+msgstr "Pesquisar letras"
 
 #: data/dialogs.glade:1541
 msgid "_Title:"
-msgstr ""
+msgstr "_Título:"
 
 #: data/dialogs.glade:1554
 msgid "_Artist:"
-msgstr ""
+msgstr "_Artista:"
 
 #: data/dialogs.glade:1590
 msgid "_Search"
-msgstr ""
+msgstr "Pe_squisar"
 
 #: data/dialogs.glade:1610
 msgid "_From:"
-msgstr ""
-
-#~ msgid "_Lock"
-#~ msgstr "_Заблокировать"
-
-#~ msgid "gtk-cancel"
-#~ msgstr "Отмена"
-
-#~ msgid "gtk-ok"
-#~ msgstr "ОК"
-
-#~ msgid "TODO: Add options here"
-#~ msgstr "TODO: Добавить сюда параметры"
+msgstr "_De:"
