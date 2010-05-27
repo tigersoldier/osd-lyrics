@@ -1,3 +1,7 @@
+2010-05-27  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_trayicon.c: FIX: The player control items in the popup menu of app indicator will be changed according to the player status
+
 2010-05-26  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_juk.c: ADD: Juk support.

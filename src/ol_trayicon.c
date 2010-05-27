@@ -145,7 +145,8 @@ void ol_trayicon_inital ()
 #endif  /* HAVE_APP_INDICATOR */
 }
 
-void ol_trayicon_free ()
+void
+ol_trayicon_free ()
 {
 #if HAVE_APP_INDICATOR
   if (indicator != NULL)
@@ -160,4 +161,16 @@ void ol_trayicon_free ()
     status_icon = NULL;
   }
 #endif
+}
+
+void
+ol_trayicon_status_changed (enum OlPlayerStatus status)
+{
+#if HAVE_APP_INDICATOR
+  if (indicator != NULL)
+    app_indicator_set_menu (indicator, GTK_MENU (ol_menu_get_popup ()));
+#else
+  /* Do nothing */
+#endif
+  
 }

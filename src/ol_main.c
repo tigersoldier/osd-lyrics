@@ -256,6 +256,7 @@ _update_player_status (enum OlPlayerStatus status)
     {
       ol_osd_module_set_status (module, status);
     }
+    ol_trayicon_status_changed (status);
   }
 }
 
