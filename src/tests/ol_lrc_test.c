@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "ol_lrc.h"
 #include "ol_test_util.h"
 
@@ -83,11 +84,39 @@ void no_newline_test ()
   ol_lrc_free (lrc);
 }
 
+/* Issue 99 */
+void begin_with_timestamp_test ()
+{
+  const char *DATAFILE = "lrc_tail.lrc";
+  struct OlLrc *lrc = ol_lrc_new (DATAFILE);
+  const struct OlLrcItem *item = ol_lrc_get_item (lrc, 0);
+  ol_test_expect (ol_lrc_item_get_time (item) == 10000);
+  ol_lrc_free (lrc);
+}
+
+void tail_test ()
+{
+  const char *DATAFILE = "lrc_tail.lrc";
+  struct OlLrc *lrc = ol_lrc_new (DATAFILE);
+  double per = 0;
+  char *lyric = NULL;
+  ol_lrc_get_lyric_by_time (lrc,
+                            40000,
+                            60000,
+                            &lyric,
+                            &per,
+                            (int*)NULL);
+  ol_test_expect (fabsl (per - 0.33333333) < 1e-6);
+  ol_lrc_free (lrc);
+}
+
 int main ()
 {
   basic_test ();
   gbk_test ();
   offset_test ();
   no_newline_test ();
+  begin_with_timestamp_test ();
+  tail_test ();
   return 0;
 }

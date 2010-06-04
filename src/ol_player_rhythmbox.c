@@ -204,7 +204,7 @@ ol_player_rhythmbox_get_music_length (int *len)
   }
   else
   {
-    *len = ol_get_int_from_hash_table (data_list, "duration");
+    *len = ol_get_uint_from_hash_table (data_list, "duration") * 1000;
     g_hash_table_destroy (data_list);
   }
   return TRUE;

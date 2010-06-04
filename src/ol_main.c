@@ -215,7 +215,7 @@ _check_music_change ()
   {
     player = NULL;
   }
-  guint duration = 0;
+  int duration = 0;
   if (player && !ol_player_get_music_length (player, &duration))
   {
     player = NULL;
@@ -239,7 +239,12 @@ _check_music_change ()
   /*   ol_debugf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
   /* } */
-  previous_duration = duration;
+  if (previous_duration != duration)
+  {
+    previous_duration = duration;
+    if (module != NULL)
+      ol_osd_module_set_duration (module, duration);
+  }
   if (changed)
   {
     _on_music_changed ();

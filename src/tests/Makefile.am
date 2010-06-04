@@ -63,6 +63,8 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
 	$(top_srcdir)/src/ol_player_songbird.c \
 	$(top_srcdir)/src/ol_player_quodlibet.c \
+	$(top_srcdir)/src/ol_player_juk.c \
+	$(top_srcdir)/src/ol_player_qmmp.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \

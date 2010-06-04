@@ -7,6 +7,7 @@
 
 gchar* ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *name);
 gint ol_get_int_from_hash_table (GHashTable *hash_table, const gchar *name);
+guint ol_get_uint_from_hash_table (GHashTable *hash_table, const gchar *name);
 
 /** 
  * @brief Checks if a string is empty

@@ -1,3 +1,9 @@
+2010-06-04  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_player_rhythmbox.c (ol_player_rhythmbox_get_music_length): FIX: The duration returned by rhythmbox is right now.
+
+	* src/ol_lrc_parser.c (_parse_tag): FIX: Issue 99, Crash when loading a lyric file begin with a time stamp
+
 2010-05-27  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_trayicon.c: FIX: The player control items in the popup menu of app indicator will be changed according to the player status

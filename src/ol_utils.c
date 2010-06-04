@@ -36,6 +36,19 @@ ol_get_int_from_hash_table (GHashTable *hash_table, const gchar *key)
     return -1;
 }
 
+guint
+ol_get_uint_from_hash_table (GHashTable *hash_table, const gchar *key)
+{
+  if (!hash_table)
+    return 0;
+  GValue *value;
+  value = (GValue *) g_hash_table_lookup(hash_table, key);
+  if (value != NULL && G_VALUE_HOLDS_UINT(value))
+    return  g_value_get_uint (value);
+  else
+    return 0;
+}
+
 gboolean
 ol_is_string_empty (const char *str)
 {

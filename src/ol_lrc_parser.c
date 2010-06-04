@@ -57,7 +57,7 @@ _parse_tag (struct OlLrcParser *parser,
             size_t begin, size_t end)
 {
   int istime = 1;
-  size_t i;
+  ssize_t i;
   begin++; end--;
   for (i = begin; i < end; i++)
   {
@@ -76,7 +76,8 @@ _parse_tag (struct OlLrcParser *parser,
     double timepar[3] = {0.0, 0.0, 0.0}; /* hour, min, sec */
     i = end - 1;
     int idx = 0;
-    while (i >= begin && idx < 3)
+    while (i >= (ssize_t)begin && idx < 3) 
+    /* Issue 99, convert begin to ssize_t to avoid comparing fail when i < 0 */
     {
       while (i > begin && parser->buffer[i - 1] != ':')
         i--;
