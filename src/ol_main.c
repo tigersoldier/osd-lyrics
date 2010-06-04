@@ -23,7 +23,6 @@
 #include <signal.h>
 #include <pwd.h>
 #include "config.h"
-#include "ol_osd_window.h"
 #include "ol_lrc.h"
 #include "ol_player.h"
 #include "ol_utils.h"
@@ -33,6 +32,7 @@
 #include "ol_intl.h"
 #include "ol_config.h"
 #include "ol_osd_module.h"
+#include "ol_sdm_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_lyric_manage.h"
@@ -67,7 +67,8 @@ static enum OlPlayerStatus previous_status = OL_PLAYER_UNKNOWN;
 static gint previous_duration = 0;
 static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
-static OlOsdModule *module = NULL;
+//static OlOsdModule *module = NULL;
+static OlClassicModule *module = NULL;
 static int fetch_id = 0;
 
 static void _initialize (int argc, char **argv);
@@ -85,10 +86,12 @@ static void _download_callback (struct OlLrcDownloadResult *result);
 static void
 _download_callback (struct OlLrcDownloadResult *result)
 {
+  ol_log_func ();
   if (result->filepath != NULL)
     ol_app_assign_lrcfile (result->info, result->filepath, TRUE);
-  else
-    ol_osd_module_download_fail_message (module, _("Download failed"));
+  //else
+    //ol_osd_module_download_fail_message (module, _("Download failed"));
+    //ol_classic_module_download_fail_message (module, _("Download failed"));
 }
 
 static void
@@ -103,12 +106,14 @@ _search_callback (struct OlLrcFetchResult *result,
     char *filename = ol_lyric_download_path (&result->info);
     if (filename == NULL)
     {
-      ol_osd_module_download_fail_message (module, _("Cannot create the lyric directory"));
+      //ol_osd_module_download_fail_message (module, _("Cannot create the lyric directory"));
+      //ol_classic_module_download_fail_message (module, _("Cannot create the lyric directory"));
     }
     else
     {
-      if (module != NULL)
-        ol_osd_module_clear_message (module);
+      if (module != NULL){}
+        //ol_osd_module_clear_message (module);
+	//ol_classic_module_clear_message (module);
       ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
                             &result->info,
                             filename);
@@ -117,14 +122,16 @@ _search_callback (struct OlLrcFetchResult *result,
   }
   else
   {
-    if (module != NULL)
-      ol_osd_module_search_fail_message (module, _("Lyrics not found"));
+    //if (module != NULL)
+      //ol_osd_module_search_fail_message (module, _("Lyrics not found"));
+      //ol_classic_module_search_fail_message (module, _("Lyrics not found"));
   }
 }
 
 gboolean
 ol_app_download_lyric (OlMusicInfo *music_info)
 {
+  ol_log_func ();
   OlConfig *config = ol_config_get_instance ();
   char *name = ol_config_get_string (config, "Download", "download-engine");
   ol_debugf ("Download engine: %s\n", name);
@@ -133,13 +140,15 @@ ol_app_download_lyric (OlMusicInfo *music_info)
                              music_info, 
                              _search_callback,
                              NULL);
-  if (module != NULL)
-    ol_osd_module_search_message (module, _("Searching lyrics"));
+  //if (module != NULL)
+    //ol_osd_module_search_message (module, _("Searching lyrics"));
+    //ol_classic_module_search_message (module, _("Searching lyrics"));
 }
 
 struct OlLrc *
 ol_app_get_current_lyric ()
 {
+  ol_log_func ();
   return lrc_file;
 }
 
@@ -148,8 +157,10 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
                        const char *filepath,
                        gboolean update)
 {
+  ol_log_func ();
   ol_assert_ret (info != NULL, FALSE);
   ol_assert_ret (filepath == NULL || ol_path_is_file (filepath), FALSE);
+  printf ("%s\n",filepath);
   if (update)
   {
     ol_lrclib_assign_lyric (info, filepath);
@@ -163,7 +174,8 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
     }
     if (filepath != NULL)
       lrc_file = ol_lrc_new (filepath);
-    ol_osd_module_set_lrc (module, lrc_file);
+    //ol_osd_module_set_lrc (module, lrc_file);
+    ol_classic_module_set_lrc (module, lrc_file);
   }
   return TRUE;
 }
@@ -171,6 +183,7 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
 static gboolean
 _check_lyric_file ()
 {
+  ol_log_func ();
   gboolean ret = TRUE;
   char *filename = NULL;
   int code = ol_lrclib_find (&music_info, &filename);
@@ -191,13 +204,22 @@ _check_lyric_file ()
 static void
 _on_music_changed ()
 {
+  //printf ("_update_player_status:successful\n");
   ol_log_func ();
   if (module != NULL)
   {
-    ol_osd_module_set_music_info (module, &music_info);
-    ol_osd_module_set_duration (module, previous_duration);
+    
+    //ol_osd_module_set_music_info (module, &music_info);
+    ol_classic_module_set_music_info (module, &music_info);
+    //ol_error ("asdf\n");
+    //ol_osd_module_set_duration (module, previous_duration);
+    ol_classic_module_set_duration (module, previous_duration);
+    ol_error ("asdf\n");
+    
+    
   }
-  ol_osd_module_set_lrc (module, NULL);
+  //ol_osd_module_set_lrc (module, NULL);
+  ol_classic_module_set_lrc (module, NULL);
   if (!_check_lyric_file ())
     ol_app_download_lyric (&music_info);
   OlConfig *config = ol_config_get_instance ();
@@ -208,6 +230,7 @@ _on_music_changed ()
 static void
 _check_music_change ()
 {
+  ol_log_func ();
   /* checks whether the music has been changed */
   gboolean changed = FALSE;
   /* compares the previous title with current title */
@@ -215,7 +238,7 @@ _check_music_change ()
   {
     player = NULL;
   }
-  int duration = 0;
+  guint duration = 0;
   if (player && !ol_player_get_music_length (player, &duration))
   {
     player = NULL;
@@ -239,12 +262,7 @@ _check_music_change ()
   /*   ol_debugf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
   /* } */
-  if (previous_duration != duration)
-  {
-    previous_duration = duration;
-    if (module != NULL)
-      ol_osd_module_set_duration (module, duration);
-  }
+  previous_duration = duration;
   if (changed)
   {
     _on_music_changed ();
@@ -254,20 +272,23 @@ _check_music_change ()
 static void
 _update_player_status (enum OlPlayerStatus status)
 {
+  ol_log_func ();
   if (previous_status != status)
   {
     previous_status = status;
     if (module != NULL)
     {
-      ol_osd_module_set_status (module, status);
+      //ol_osd_module_set_status (module, status);
+      //ol_classic_module_set_status (module, status);
     }
-    ol_trayicon_status_changed (status);
   }
 }
 
 static gint
 _refresh_player_info (gpointer data)
 {
+  ol_log_func ();
+  //printf ("_refresh_player_info:successful\n");
   if (player != NULL)
   {
     if (ol_player_get_capacity (player) & OL_PLAYER_STATUS)
@@ -280,6 +301,8 @@ _refresh_player_info (gpointer data)
 static gboolean
 _get_active_player (void)
 {
+  ol_log_func ();
+  //printf ("_get_active_player:successful\n");
   player = ol_player_get_active_player ();
   if (player == NULL)
   {
@@ -305,7 +328,8 @@ _get_active_player (void)
       gtk_main_quit ();
     }
   }
-  ol_osd_module_set_player (module, player);
+  //ol_osd_module_set_player (module, player);
+  //ol_classic_module_set_player (module, player);
   first_run = FALSE;
   return player != NULL;
 }
@@ -313,6 +337,8 @@ _get_active_player (void)
 static gint
 _refresh_music_info (gpointer data)
 {
+  ol_log_func ();
+  //printf ("_refresh_music_info:successful\n");
   /* ol_log_func (); */
   if (player == NULL && !_get_active_player ())
     return TRUE;
@@ -330,7 +356,9 @@ _refresh_music_info (gpointer data)
     previous_position = -1;
     return TRUE;
   }
-  ol_osd_module_set_played_time (module, time);
+  //ol_osd_module_set_played_time (module, time);
+  printf ("time:%u", time);
+  ol_classic_module_set_played_time (module, time);
   return TRUE;
 }
 
@@ -361,6 +389,7 @@ ol_app_adjust_lyric_offset (int offset_ms)
 static void
 _parse_cmd_args (int *argc, char ***argv)
 {
+  ol_log_func ();
   GError *error = NULL;
   GOptionContext *context;
 
@@ -370,8 +399,6 @@ _parse_cmd_args (int *argc, char ***argv)
   if (!g_option_context_parse (context, argc, argv, &error))
   {
     ol_errorf ("option parsing failed: %s\n", error->message);
-    g_error_free (error);
-    error = NULL;
   }
   if (debug_level != NULL)
   {
@@ -391,6 +418,7 @@ _parse_cmd_args (int *argc, char ***argv)
 static void
 _initialize (int argc, char **argv)
 {
+  ol_log_func ();
 #if ENABLE_NLS
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, LOCALEDIR);
@@ -410,7 +438,11 @@ _initialize (int argc, char **argv)
   }
   ol_stock_init ();
   ol_player_init ();
-  module = ol_osd_module_new ();
+  //module = ol_osd_module_new ();
+  module = ol_classic_module_new ();
+
+  printf("ol_classic_new:successful!\n");
+
   ol_trayicon_inital ();
   ol_notify_init ();
   ol_keybinding_init ();
@@ -436,10 +468,10 @@ main (int argc, char **argv)
   gtk_main ();
   ol_player_unload ();
   ol_notify_unload ();
-  ol_osd_module_destroy (module);
+  //ol_osd_module_destroy (module);
+  ol_classic_module_destroy (module);
   module = NULL;
   ol_trayicon_free ();
   ol_lrclib_unload ();
-  ol_config_unload ();
   return 0;
 }
