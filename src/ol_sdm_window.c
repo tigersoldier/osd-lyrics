@@ -212,6 +212,9 @@ ol_classic_window_paint (OlClassicWindow *classic)
   PangoLayout *layout = pango_cairo_create_layout (cr);
   gchar *font_string = g_strdup_printf ("%s %0.0lf", priv->font_family, priv->font_size);
   PangoFontDescription *desc = pango_font_description_from_string (font_string);
+  pango_font_description_set_style (desc, PANGO_STYLE_OBLIQUE);
+  pango_font_description_set_weight (desc, PANGO_WEIGHT_BOLD);
+  //pango_font_description_set_variant (desc, PANGO_STRETCH_SEMI_EXPANDED);
   pango_layout_set_font_description (layout, desc);
   pango_font_description_free (desc);
  
