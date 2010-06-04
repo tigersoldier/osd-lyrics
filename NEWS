@@ -1,3 +1,14 @@
+Version 0.3.20100604: 2010-06-04
+ * Add Juk and Qmmp support
+ - Add app indicator support for Ubuntu 10.04
+ - Add singleton detection
+ - Honor MPD_HOST and MPD_PORT environment variables for MPD
+ * The `mouse click through' feature is back for GTK+ 2.20 users
+ * The appearance under a window manager without compositing support is correct now
+ - It won't crash now when you open the lyric assign dialog more than once
+ - The first line of lyric will not be lost when there is a BOM of utf-8 in the file.
+ - Fix that the last lyric doesn't get its progress with Rhythmbox.
+
 Version 0.3.20100330: 2010-03-30
  * Download lyrics from MiniLyrics
  * Player control on background panel of OSD Window
