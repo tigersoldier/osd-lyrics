@@ -2,7 +2,7 @@
 #define _OL_CLASSIC_MODULE_H_
 
 #include "ol_music_info.h"
-#include "ol_sdm_window.h"
+#include "ol_scroll_window.h"
 
 typedef struct _OlClassicModule OlClassicModule;
 

@@ -32,7 +32,7 @@
 #include "ol_intl.h"
 #include "ol_config.h"
 #include "ol_osd_module.h"
-#include "ol_sdm_module.h"
+#include "ol_scroll_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_lyric_manage.h"

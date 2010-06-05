@@ -1,5 +1,5 @@
 #include <gtk/gtkprivate.h>
-#include "ol_sdm_window.h"
+#include "ol_scroll_window.h"
 #include <pango/pangocairo.h>
 #include <glib.h>
 #include <ol_color.h>
@@ -200,7 +200,7 @@ ol_classic_window_paint (OlClassicWindow *classic)
   int count = ol_classic_window_compute_line_count (classic);
   //int count = 12;
   double percentage = classic->percentage;
-  cairo_set_source_rgb(cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g);
+  cairo_set_source_rgba(cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g, 0.5);
   cairo_rectangle(cr, 0, 0, priv->width, priv->height);
   cairo_fill(cr);
   /*clip the disply area*/

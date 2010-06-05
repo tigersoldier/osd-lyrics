@@ -41,8 +41,8 @@ osd_lyrics_SOURCES = \
 	ol_gui.c \
 	ol_about.c \
 	ol_option.c \
-	ol_sdm_window.c \
-	ol_sdm_module.c \
+	ol_scroll_window.c \
+	ol_scroll_module.c \
 	ol_osd_window.c \
 	ol_osd_toolbar.c \
 	ol_osd_render.c \
