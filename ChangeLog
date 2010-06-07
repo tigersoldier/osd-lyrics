@@ -1,3 +1,7 @@
+2010-06-07  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_window.c: Use the queue drawing mechanism of gtk instead of painting the lyrics directly in OSD Window.
+
 2010-06-04  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_rhythmbox.c (ol_player_rhythmbox_get_music_length): FIX: The duration returned by rhythmbox is right now.

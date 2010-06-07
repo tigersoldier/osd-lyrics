@@ -358,10 +358,10 @@ ol_osd_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
-  if (event->window == osd->osd_window)
-    ol_osd_window_paint (OL_OSD_WINDOW (widget));
-  else
+  if (event->window == widget->window)
     ol_osd_window_bg_expose (widget, event);
+  else if (event->window == osd->osd_window)
+    ol_osd_window_paint (osd);
   return FALSE;
 }
 
@@ -666,7 +666,7 @@ ol_osd_window_mouse_timer (gpointer data)
     if (priv->mouse_over != mouse_over)
     {
       priv->mouse_over = mouse_over;
-      ol_osd_window_paint (osd);
+      gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
     }
     ol_osd_window_check_mouse_leave (osd);
     /* if (priv->mouse_over && !priv->locked && */
@@ -966,6 +966,7 @@ ol_osd_window_update_allocation (OlOsdWindow *osd)
                                        &priv->child_allocation);
   gtk_widget_size_allocate (GTK_WIDGET (osd), &allocation);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
+  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }
 
 static void
@@ -1145,8 +1146,7 @@ ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage)
     if (old_x != new_x)
       ol_osd_window_update_shape (osd, line);
   }
-  ol_osd_window_paint (osd);
-  /* gtk_widget_queue_draw (GTK_WIDGET (osd));   */
+  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }
 
 void
@@ -1290,7 +1290,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
   }
   ol_osd_window_update_lyric_pixmap (osd, line);
   ol_osd_window_update_shape (osd, line);
-  ol_osd_window_paint (osd);
+  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }
 
 void
@@ -1307,7 +1307,7 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
   osd->line_alignment[line] = alignment;
   ol_osd_window_update_lyric_rect (osd, line);
   ol_osd_window_update_shape (osd, line);
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
+  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }
 
 static void
@@ -1602,7 +1602,7 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
     ol_osd_window_update_lyric_pixmap (osd, i);
   ol_osd_window_update_allocation (osd);
   ol_osd_window_update_shape (osd, 0);
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
+  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }
 
 char*
@@ -1625,7 +1625,7 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
     ol_osd_window_update_lyric_pixmap (osd, i);
   ol_osd_window_update_allocation (osd);
   ol_osd_window_update_shape (osd, 0);
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
+  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }
 
 double
