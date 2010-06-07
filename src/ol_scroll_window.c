@@ -1,14 +1,16 @@
 #include <gtk/gtkprivate.h>
 #include "ol_scroll_window.h"
+#include <ol_debug.h>
 #include <pango/pangocairo.h>
 #include <glib.h>
 #include <ol_color.h>
 
 
-#define OL_CLASSIC_WINDOW_GET_PRIVATE(obj)    (G_TYPE_INSTANCE_GET_PRIVATE \
+
+#define OL_SCROLL_WINDOW_GET_PRIVATE(obj)    (G_TYPE_INSTANCE_GET_PRIVATE \
                                                  ((obj),                        \
-                                                 ol_classic_window_get_type (),\
-                                                  OlClassicWindowPrivate))
+                                                 ol_scroll_window_get_type (),\
+                                                  OlScrollWindowPrivate))
 
 /*************default setting******************/
 static const gint DEFAULT_WIDTH = 600;
@@ -24,8 +26,8 @@ static const gint DEFAULT_OUTLINE_WIDTH = 10;
 /**********************************************/
 
 
-typedef struct __OlClassicWindowPrivate OlClassicWindowPrivate;
-struct __OlClassicWindowPrivate
+typedef struct __OlScrollWindowPrivate OlScrollWindowPrivate;
+struct __OlScrollWindowPrivate
 {
   gint width;                      /*窗体宽度*/
   gint height;                     /*窗体高度*/
@@ -41,67 +43,56 @@ struct __OlClassicWindowPrivate
 };
 
 
-static void ol_classic_window_init (OlClassicWindow *self);
-static void ol_classic_window_class_init (OlClassicWindowClass *klass);
-static void ol_classic_window_destroy (GtkObject *object);
+static void ol_scroll_window_init (OlScrollWindow *self);
+static void ol_scroll_window_class_init (OlScrollWindowClass *klass);
+static void ol_scroll_window_destroy (GtkObject *object);
+static gboolean ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event);
 
-
-//static void ol_classic_window_show (GtkWidget *widget);
-static gboolean ol_classic_window_expose (GtkWidget *widget, GdkEventExpose *event);
-
-//void ol_classic_window_resize (OlClassicWindow *classic, gint width, gint height);
-
-static void ol_classic_window_paint (OlClassicWindow *classic);
-
-//static void ol_classic_window_paint_lyrics (OlClassicWindow *classic, cairo_t *cr);
-
-static void ol_classic_window_set_paint_lyrics (OlClassicWindow *classic);
-
-static int ol_classic_window_compute_line_count (OlClassicWindow *classic);
-static int ol_classic_window_get_font_height (OlClassicWindow *classic);
+static void ol_scroll_window_paint (OlScrollWindow *scroll);
+static void ol_scroll_window_set_paint_lyrics (OlScrollWindow *scroll);
+static int ol_scroll_window_compute_line_count (OlScrollWindow *scroll);
+static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
 
 
 static GtkWidgetClass *parent_class = NULL;
 
 
 GType
-ol_classic_window_get_type (void)
+ol_scroll_window_get_type (void)
 {
-  static GType ol_classic_type = 0;
-  if (!ol_classic_type)
+  static GType ol_scroll_type = 0;
+  if (!ol_scroll_type)
   {
-    static const GTypeInfo ol_classic_info =
+    static const GTypeInfo ol_scroll_info =
       {
-        sizeof (OlClassicWindowClass),
+        sizeof (OlScrollWindowClass),
         NULL,                   /* base_init */
         NULL,                   /* base_finalize */
-        (GClassInitFunc) ol_classic_window_class_init,
+        (GClassInitFunc) ol_scroll_window_class_init,
         NULL,                   /* class_finalize */
         NULL,                   /* class_data */
-        sizeof (OlClassicWindow),
+        sizeof (OlScrollWindow),
         16,                     /* n_preallocs */
-        (GInstanceInitFunc) ol_classic_window_init,
+        (GInstanceInitFunc) ol_scroll_window_init,
       };
-    ol_classic_type = g_type_register_static (GTK_TYPE_WINDOW, "OlClassicWindow",
-                                          &ol_classic_info, 0);
+    ol_scroll_type = g_type_register_static (GTK_TYPE_WINDOW, "OlScrollWindow",
+                                          &ol_scroll_info, 0);
   }
-  return ol_classic_type;
+  return ol_scroll_type;
 }
 
 
 GtkWidget*
-ol_classic_window_new ()
+ol_scroll_window_new ()
 {
-  printf ("classic window new\n");
-  OlClassicWindow *classic;
-  classic = g_object_new (ol_classic_window_get_type (), NULL);
-  return GTK_WIDGET (classic);
+  OlScrollWindow *scroll;
+  scroll = g_object_new (ol_scroll_window_get_type (), NULL);
+  return GTK_WIDGET (scroll);
 }
 
 static void
-ol_classic_window_init (OlClassicWindow *self)
+ol_scroll_window_init (OlScrollWindow *self)
 {
-  printf ("classic window init\n");
   /*basic*/
   self->paint_lyrics = NULL;
   self->percentage = 0.0;
@@ -109,7 +100,7 @@ ol_classic_window_init (OlClassicWindow *self)
   self->whole_lyrics_len = 0;
   self->current_lyric_id = -1;
   /*privat data*/
-  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (self);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (self);
   priv->width = DEFAULT_WIDTH;
   priv->height = DEFAULT_HEIGHT;
   priv->line_count = DEFAULT_LINE_COUNT;
@@ -125,9 +116,9 @@ ol_classic_window_init (OlClassicWindow *self)
 }
 
 static void
-ol_classic_window_class_init (OlClassicWindowClass *klass)
+ol_scroll_window_class_init (OlScrollWindowClass *klass)
 {
-  printf("classic window class_init\n");
+  printf("scroll window class_init\n");
   GObjectClass *gobject_class;
   GtkObjectClass *object_class;
   GtkWidgetClass *widget_class;
@@ -135,77 +126,71 @@ ol_classic_window_class_init (OlClassicWindowClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   object_class = (GtkObjectClass*) klass;
   widget_class = (GtkWidgetClass*) klass;
-  widget_class->expose_event = ol_classic_window_expose;
-  /*add private variables into OlClassicWindow*/
-  g_type_class_add_private (gobject_class, sizeof (OlClassicWindowPrivate));
+  widget_class->expose_event = ol_scroll_window_expose;
+  /*add private variables into OlScrollWindow*/
+  g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
   
 }
 
 static void
-ol_classic_window_destroy (GtkObject *object)
+ol_scroll_window_destroy (GtkObject *object)
 {
-  OlClassicWindow *classic = OL_CLASSIC_WINDOW (object);
-  if (classic->current_lyric_id!= -1)
+  OlScrollWindow *scroll = OL_SCROLL_WINDOW (object);
+  if (scroll->current_lyric_id!= -1)
   {
-    //g_free (classic->lyric);
-    classic->current_lyric_id = -1;
+    scroll->current_lyric_id = -1;
   }
   GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }
 
 
 static gboolean
-ol_classic_window_expose (GtkWidget *widget, GdkEventExpose *event)
+ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
-  /* fprintf (stderr, "%s\n", __FUNCTION__); */
-  ol_classic_window_paint (OL_CLASSIC_WINDOW (widget));
+  ol_scroll_window_paint (OL_SCROLL_WINDOW (widget));
   return FALSE;
 }
 
 void 
-ol_classic_window_set_whole_lyrics(OlClassicWindow *classic, GPtrArray *whole_lyrics, gint whole_lyrics_len)
+ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll, GPtrArray *whole_lyrics, gint whole_lyrics_len)
 {
   ol_log_func ();
-  g_return_if_fail (classic != NULL);
+  g_return_if_fail (scroll != NULL);
   if (whole_lyrics == NULL) {
-    classic->whole_lyrics = NULL;
+    scroll->whole_lyrics = NULL;
   }
   else {
     int i;
-    classic->whole_lyrics = g_ptr_array_new_with_free_func (g_free);
+    scroll->whole_lyrics = g_ptr_array_new_with_free_func (g_free);
     for (i = 0; i < whole_lyrics_len; i++) {
-      g_ptr_array_add (classic->whole_lyrics, g_strdup (g_ptr_array_index (whole_lyrics, i)));
+      g_ptr_array_add (scroll->whole_lyrics, g_strdup (g_ptr_array_index (whole_lyrics, i)));
     }
   }
-  classic->whole_lyrics_len = whole_lyrics_len;
-  int i;
-  for (i = 0; i < classic->whole_lyrics_len; i++)
-    printf ("lyric:%s\n", g_ptr_array_index (classic->whole_lyrics, i));
+  scroll->whole_lyrics_len = whole_lyrics_len;
 }
 
 
 static void
-ol_classic_window_paint (OlClassicWindow *classic)
+ol_scroll_window_paint (OlScrollWindow *scroll)
 {
   ol_log_func ();
-  g_return_if_fail (classic != NULL);
-  GtkWidget *widget = GTK_WIDGET (classic);
+  g_return_if_fail (scroll != NULL);
+  GtkWidget *widget = GTK_WIDGET (scroll);
   if (!GTK_WIDGET_REALIZED (widget))
     gtk_widget_realize (widget);
   
   cairo_t *cr;
   cr = gdk_cairo_create (widget->window);
-  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
-  int line_height = ol_classic_window_get_font_height (classic) + priv->outline_width;
-  int count = ol_classic_window_compute_line_count (classic);
-  //int count = 12;
-  double percentage = classic->percentage;
-  cairo_set_source_rgba(cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g, 0.5);
-  cairo_rectangle(cr, 0, 0, priv->width, priv->height);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  int line_height = ol_scroll_window_get_font_height (scroll) + priv->outline_width;
+  int count = ol_scroll_window_compute_line_count (scroll);
+  double percentage = scroll->percentage;
+  cairo_set_source_rgb (cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g);
+  cairo_rectangle (cr, 0, 0, priv->width, priv->height);
   cairo_fill(cr);
   /*clip the disply area*/
-  cairo_set_source_rgb(cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g);
-  cairo_rectangle(cr, 0,line_height/2 , priv->width, line_height*(count-1)+line_height/2);
+  cairo_set_source_rgb (cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g);
+  cairo_rectangle (cr, 0,line_height/2 , priv->width, line_height*(count-1)+line_height/2);
   cairo_clip (cr);
   
   /* set the font */
@@ -221,11 +206,11 @@ ol_classic_window_paint (OlClassicWindow *classic)
   /* paint the lyrics*/
   int i;
   cairo_set_source_rgb(cr, priv->inactive_color.r, priv->inactive_color.g, priv->inactive_color.b);
-  if (classic->paint_lyrics != NULL) {
+  if (scroll->paint_lyrics != NULL) {
     for (i = 0; i < count; i++) {
-      pango_layout_set_text (layout, g_strdup (g_ptr_array_index (classic->paint_lyrics, i)), -1);
+      pango_layout_set_text (layout, g_strdup (g_ptr_array_index (scroll->paint_lyrics, i)), -1);
       cairo_save (cr);
-      if (i == count/2||(i == count/2+1&&classic->percentage >= 0.6))
+      if (i == count/2||(i == count/2+1&&scroll->percentage >= 0.6))
 	cairo_set_source_rgb (cr, priv->active_color.r, priv->active_color.g, priv->active_color.b);
       cairo_move_to (cr, 0, line_height*(1-percentage) + i*line_height);
       pango_cairo_update_layout (cr, layout);
@@ -241,33 +226,30 @@ ol_classic_window_paint (OlClassicWindow *classic)
   
 
 void
-ol_classic_window_set_lyric (OlClassicWindow *classic, const int lyric_id)
+ol_scroll_window_set_lyric (OlScrollWindow *scroll, const int lyric_id)
 {
   ol_log_func ();
-  g_return_if_fail (OL_IS_CLASSIC_WINDOW (classic));
-  classic->current_lyric_id = lyric_id; 
-  ol_classic_window_set_paint_lyrics (classic);
+  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  scroll->current_lyric_id = lyric_id; 
+  ol_scroll_window_set_paint_lyrics (scroll);
 }
 
 void
-ol_classic_window_set_current_percentage (OlClassicWindow *classic, double percentage)
+ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percentage)
 {
-  /*   fprintf (stderr, "%s:%lf\n", __FUNCTION__, percentage); */
-  g_return_if_fail (OL_IS_CLASSIC_WINDOW (classic));
-  classic->percentage = percentage;
-  ol_classic_window_paint (classic);
+  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  scroll->percentage = percentage;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
 }
 
 static void
-ol_classic_window_set_paint_lyrics (OlClassicWindow *classic)
+ol_scroll_window_set_paint_lyrics (OlScrollWindow *scroll)
 {
   int tag,i,k;
-  int current_id = classic->current_lyric_id;
-  int whole_lyrics_len = classic->whole_lyrics_len;
-  int count = ol_classic_window_compute_line_count (classic);
-  //int count = 12;
-  printf ("count:%d:\n",count);
-  classic->paint_lyrics = g_ptr_array_new_with_free_func (g_free);
+  int current_id = scroll->current_lyric_id;
+  int whole_lyrics_len = scroll->whole_lyrics_len;
+  int count = ol_scroll_window_compute_line_count (scroll);
+  scroll->paint_lyrics = g_ptr_array_new_with_free_func (g_free);
   /*the whole lyrics lenth are bigger than the paint lyrics count*/
   if (whole_lyrics_len >= count) {
     if (current_id < 0)
@@ -281,22 +263,22 @@ ol_classic_window_set_paint_lyrics (OlClassicWindow *classic)
     switch (tag) {
     case 0:
       for (i = 0; i < count; i++)
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
       break;
     case 1:
       k = 0;
       for (i = 0; i < count/2-current_id; i++)
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
     
       for (i = count/2-current_id; i < count; i++) {
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (g_ptr_array_index (classic->whole_lyrics, k)));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (g_ptr_array_index (scroll->whole_lyrics, k)));
 	k++;
       }
       break;
     case 2:
       k = current_id - count/2;;
       for (i = 0; i < count; i++) {
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (g_ptr_array_index (classic->whole_lyrics, k)));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (g_ptr_array_index (scroll->whole_lyrics, k)));
 	k++;
       }
       break;
@@ -304,11 +286,11 @@ ol_classic_window_set_paint_lyrics (OlClassicWindow *classic)
       k = current_id - count/2;
       for (i = 0; i < count; i++) {
 	if (k < whole_lyrics_len) {
-	  g_ptr_array_add (classic->paint_lyrics, g_strdup (g_ptr_array_index (classic->whole_lyrics, k)));
+	  g_ptr_array_add (scroll->paint_lyrics, g_strdup (g_ptr_array_index (scroll->whole_lyrics, k)));
 	  k++;
 	}
 	else
-	  g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	  g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
       }
       break;
     }
@@ -328,38 +310,38 @@ ol_classic_window_set_paint_lyrics (OlClassicWindow *classic)
     switch (tag) {
     case 0:
       for (i = 0; i < count; i++)
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
       break;
     case 1:
       k = 0;
       for (i = 0; i < count/2-current_id; i++)
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
     
       for (i = count/2-current_id; i < count; i++) {
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (g_ptr_array_index (classic->whole_lyrics, k)));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (g_ptr_array_index (scroll->whole_lyrics, k)));
 	k++;
       }
       break;
     case 2:
       k = 0;
       for (i = 0; i < count/2-current_id; i++)
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
       for (i = count/2-current_id; i < whole_lyrics_len; i++) {
-	g_ptr_array_add (classic->paint_lyrics, g_strdup (g_ptr_array_index (classic->whole_lyrics, k)));
+	g_ptr_array_add (scroll->paint_lyrics, g_strdup (g_ptr_array_index (scroll->whole_lyrics, k)));
 	k++;
       }
       for (i = whole_lyrics_len; i < count; i++)
-        g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+        g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
       break;
     case 3:
       k = current_id - count/2;
       for (i = 0; i < count; i++) {
 	if (k < whole_lyrics_len) {
-	  g_ptr_array_add (classic->paint_lyrics, g_strdup (g_ptr_array_index (classic->whole_lyrics, k)));
+	  g_ptr_array_add (scroll->paint_lyrics, g_strdup (g_ptr_array_index (scroll->whole_lyrics, k)));
 	  k++;
 	}
 	else
-	  g_ptr_array_add (classic->paint_lyrics, g_strdup (""));
+	  g_ptr_array_add (scroll->paint_lyrics, g_strdup (""));
       }
       break;
     }
@@ -367,22 +349,21 @@ ol_classic_window_set_paint_lyrics (OlClassicWindow *classic)
 }
 
 static int
-ol_classic_window_compute_line_count (OlClassicWindow *classic)
+ol_scroll_window_compute_line_count (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_CLASSIC_WINDOW (classic));
-  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
-  int font_height = ol_classic_window_get_font_height (classic) + priv->outline_width;
-  printf ("font_height:%d\n", font_height);
+  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  int font_height = ol_scroll_window_get_font_height (scroll) + priv->outline_width;
   int line_count = priv->height/font_height;
   return line_count;
 }
 
 
 static int
-ol_classic_window_get_font_height (OlClassicWindow *classic)
+ol_scroll_window_get_font_height (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_CLASSIC_WINDOW (classic));
-  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
+  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   
   PangoContext *pango_context = gdk_pango_context_get ();
   PangoLayout *pango_layout = pango_layout_new (pango_context);
@@ -409,28 +390,28 @@ ol_classic_window_get_font_height (OlClassicWindow *classic)
 }
 
 int 
-ol_classic_window_get_current_lyric_id (OlClassicWindow *classic)
+ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_CLASSIC_WINDOW (classic));
-  return classic->current_lyric_id;
+  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  return scroll->current_lyric_id;
 }
 
 void
-ol_classic_window_set_font_family (OlClassicWindow *classic,
+ol_scroll_window_set_font_family (OlScrollWindow *scroll,
                                const char *font_family)
 {
-  if (classic == NULL || font_family == NULL)
+  if (scroll == NULL || font_family == NULL)
     return;
-  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   priv->font_family = font_family;
-  gtk_widget_show(GTK_WIDGET (classic));
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
 }
 
 char*
-ol_classic_window_get_font_family (OlClassicWindow *classic)
+ol_scroll_window_get_font_family (OlScrollWindow *scroll)
 {
-  if (classic == NULL)
+  if (scroll == NULL)
     return NULL;
-  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   return priv->font_family;
 }

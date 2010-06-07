@@ -1,11 +1,11 @@
 /**
- * @file   ol_classic_window.h
+ * @file   ol_scroll_window.h
  * @author Sarlmol Apple <sarlmolapple@gmail.com>
  * @date   Mon May 17 14:16:52 2010
  * 
  * @brief  The definition of an OlOsdWindow widget
  * 
- * Copyright (C) 2009  Tiger Soldier
+ * Copyright (C) 2009  Sarlmol Apple
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -23,21 +23,21 @@
  * Boston, MA 02111-1307, USA.
  * 
  */
-#ifndef __CLASSIC_WINDOW_H_
-#define __CLASSIC_WINDOW_H_
+#ifndef __SCROLL_WINDOW_H_
+#define __SCROLL_WINDOW_H_
 
 #include <gtk/gtk.h>
 #include <ol_debug.h>
 
-#define OL_CLASSIC_WINDOW(obj)                   GTK_CHECK_CAST (obj, ol_classic_window_get_type (), OlClassicWindow)
-#define OL_CLASSIC_WINDOW_CLASS(klass)           GTK_CHECK_CLASS_CAST (klass, ol_classic_window_get_type (), OlClassicWindowClass)
-#define OL_IS_CLASSIC_WINDOW(obj)                GTK_CHECK_TYPE (obj, ol_classic_window_get_type ())
-#define OL_CLASSIC_WINDOW_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), ol_classic_window_get_type (), OlClassicWindowClass))
+#define OL_SCROLL_WINDOW(obj)                   GTK_CHECK_CAST (obj, ol_scroll_window_get_type (), OlScrollWindow)
+#define OL_SCROLL_WINDOW_CLASS(klass)           GTK_CHECK_CLASS_CAST (klass, ol_scroll_window_get_type (), OlScrollWindowClass)
+#define OL_IS_SCROLL_WINDOW(obj)                GTK_CHECK_TYPE (obj, ol_scroll_window_get_type ())
+#define OL_SCROLL_WINDOW_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), ol_scroll_window_get_type (), OlScrollWindowClass))
 
-typedef struct _OlClassicWindow                  OlClassicWindow;
-typedef struct _OlClassicWindowClass             OlClassicWindowClass;
+typedef struct _OlScrollWindow                  OlScrollWindow;
+typedef struct _OlScrollWindowClass             OlScrollWindowClass;
 
-struct _OlClassicWindow
+struct _OlScrollWindow
 {
   /*basic*/
   GtkWindow widget;
@@ -49,73 +49,63 @@ struct _OlClassicWindow
 };
 
 
-struct _OlClassicWindowClass
+struct _OlScrollWindowClass
 {
   GtkWindowClass parent_class;
 };
 
-GtkType ol_classic_window_get_type (void);
+GtkType ol_scroll_window_get_type (void);
 
 /** 
- * @brief create a new Classic Window. 
- * To destroy the Classic Window, use g_object_unref
+ * @brief create a new Scroll Window. 
+ * To destroy the Scroll Window, use g_object_unref
  */
 
-GtkWidget* ol_classic_window_new (void);
+GtkWidget* ol_scroll_window_new (void);
 
 /** 
  * @brief Set the lyric of certain line
  * If a line of lyric is set, it will changes to the lyric.
- * @param classic An OlClassicWindow
- * @param line The line whose lyric will be set. Can be 0 or 1.
- * @param lyric The lyric of the line. NULL means the line has no lyric currently.
+ * @param scroll An OlScrollWindow
+ * @param lyric_id The lyric_line which is currenty being displayed. -1  means the line has no lyric currently.
  */
-void ol_classic_window_set_lyric (OlClassicWindow *classic, const int lyric_id);
+void ol_scroll_window_set_lyric (OlScrollWindow *scroll, const int lyric_id);
 /** 
  * @brief Set the whole lyric of a song
  * If music changes,the whole lyrics of window will be changed.
- * @param classic An OlClassicWindow
- * @param whole_lyric The lyrics of a song. NULL means the line has no lyric currently.
+ * @param scroll An OlScrollWindow
+ * @param whole_lyrics The lyrics of a song. NULL means the line has no lyric currently.
+ * @param whole_lyrics_len The lyrics number of a song
  */
-void ol_classic_window_set_whole_lyrics(OlClassicWindow *classic, GPtrArray *whole_lyrics, gint whole_lyrics_len);
+void ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll, GPtrArray *whole_lyrics, gint whole_lyrics_len);
 /** 
  * @brief Sets the progress of the current lyric line
- * The color of the left part of the current lyric line will be changed, which makes the lyric KaraOK-like.
- * @param classic An OlClassicWindow
+ * @param scroll An OlScrollWindow
  * @param percentage The width percentage of the left part whose color is changed
  */
-void ol_classic_window_set_current_percentage (OlClassicWindow *classic, double percentage);
+void ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percentage);
+
 
 /** 
- * @brief Resizes an CLASSIC window
- * 
- * @param classic An OlClassicWindow
- * @param width The width of the window
- * @param height The height of the window
- */
-void ol_classic_window_resize (OlClassicWindow *classic, gint width, gint height);
-/** 
- * @brief Sets the current line number
- * The current line is the lyric which is playing currently. The current lyric's color will be affected by
- * the current percentage set by ol_osd_window_set_current_percentage
- * @param classic An OlClassicWindow
+ * @brief Gets the current line number
+ * The current line is the lyric which is playing currently. 
+ * @param scroll An OlScrollWindow
  * @param line The line number of the current lyric, can be 0 or 1. 0 is the upper line and 1 is the lower
  */
-int ol_classic_window_get_current_lyric_id (OlClassicWindow *classic);
-
+int ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll);
 /** 
- * @brief Sets the font family for an ClASSIC Window
+ * @brief Sets the font family for an SCROLL Window
  * 
- * @param osd An OlClassicWindow;
+ * @param scroll An OlScrollWindow;
  * @param font_family Font family, must not be NULL
  */
-void ol_classic_window_set_font_family (OlClassicWindow *classic,
+void ol_scroll_window_set_font_family (OlScrollWindow *scroll,
                                     const char *font_family);
 /** 
- * @brief Gets the font family for an CLASSIC Window
+ * @brief Gets the font family for an SCROLL Window
  * 
- * @param osd An OlClassicWindow
+ * @param scroll An OlScrollWindow
  * @return The font family
  */
-char* ol_classic_window_get_font_family (OlClassicWindow *classic);
-#endif /* __OL_OSD_WINDOW_H__ */
+char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
+#endif /* __OL_SCROLL_WINDOW_H__ */
