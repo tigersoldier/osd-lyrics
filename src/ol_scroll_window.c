@@ -414,3 +414,23 @@ ol_classic_window_get_current_lyric_id (OlClassicWindow *classic)
   g_return_if_fail (OL_IS_CLASSIC_WINDOW (classic));
   return classic->current_lyric_id;
 }
+
+void
+ol_classic_window_set_font_family (OlClassicWindow *classic,
+                               const char *font_family)
+{
+  if (classic == NULL || font_family == NULL)
+    return;
+  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
+  priv->font_family = font_family;
+  gtk_widget_show(GTK_WIDGET (classic));
+}
+
+char*
+ol_classic_window_get_font_family (OlClassicWindow *classic)
+{
+  if (classic == NULL)
+    return NULL;
+  OlClassicWindowPrivate *priv = OL_CLASSIC_WINDOW_GET_PRIVATE (classic);
+  return priv->font_family;
+}

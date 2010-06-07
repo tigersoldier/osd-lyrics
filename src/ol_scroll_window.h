@@ -98,10 +98,24 @@ void ol_classic_window_resize (OlClassicWindow *classic, gint width, gint height
  * @brief Sets the current line number
  * The current line is the lyric which is playing currently. The current lyric's color will be affected by
  * the current percentage set by ol_osd_window_set_current_percentage
- * @param osd An OlOsdWindow
+ * @param classic An OlClassicWindow
  * @param line The line number of the current lyric, can be 0 or 1. 0 is the upper line and 1 is the lower
  */
-void ol_osd_window_get_current_lyric_id (OlClassicWindow *classic);
+int ol_classic_window_get_current_lyric_id (OlClassicWindow *classic);
 
-
+/** 
+ * @brief Sets the font family for an ClASSIC Window
+ * 
+ * @param osd An OlClassicWindow;
+ * @param font_family Font family, must not be NULL
+ */
+void ol_classic_window_set_font_family (OlClassicWindow *classic,
+                                    const char *font_family);
+/** 
+ * @brief Gets the font family for an CLASSIC Window
+ * 
+ * @param osd An OlClassicWindow
+ * @return The font family
+ */
+char* ol_classic_window_get_font_family (OlClassicWindow *classic);
 #endif /* __OL_OSD_WINDOW_H__ */
