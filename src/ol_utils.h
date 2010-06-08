@@ -30,11 +30,12 @@ char* ol_path_alloc(void);
  * 
  * @param str1
  * @param str2
- * @param count
+ * @param count The number of characters to be compared with, or -1 to compare
+ *              the whole strings
  * 
  * @return the same with the function: strcmp in <string.h>
  */
-int ol_stricmp(const char *str1, const char *str2, const size_t count);
+int ol_stricmp(const char *str1, const char *str2, const ssize_t count);
 
 /** 
  * @brief Copy the source string to the destination string
