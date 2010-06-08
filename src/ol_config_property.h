@@ -36,6 +36,7 @@ enum {
   PROP_DOWNLOAD_FIRST_LYRIC,
   PROP_STARTUP_PLAYER,
   PROP_NOTIFY_MUSIC,
+  PROP_DISPLAY_MODE,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -215,6 +216,9 @@ static const OlConfigStringValue config_str[] = {
   {PROP_STARTUP_PLAYER, "startup-player", "General",
    "Startup player", "Startup the player if no available player detected.",
    ""},
+  {PROP_DISPLAY_MODE, "display-mode", "General",
+   "Display Mode", "The means of displaying lyrics, either OSD or scroll.",
+   "OSD"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */

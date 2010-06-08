@@ -66,6 +66,7 @@ static enum OlPlayerStatus previous_status = OL_PLAYER_UNKNOWN;
 static gint previous_duration = 0;
 static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
+static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
 static int fetch_id = 0;
 
@@ -416,8 +417,11 @@ _initialize (int argc, char **argv)
   }
   ol_stock_init ();
   ol_player_init ();
+  /* Initialize display modules */
   ol_display_module_init ();
-  module = ol_display_module_new ("scroll");
+  OlConfig *config = ol_config_get_instance ();
+  display_mode = ol_config_get_string (config, "General", "display-mode");
+  module = ol_display_module_new (display_mode);
 
   ol_trayicon_inital ();
   ol_notify_init ();
@@ -445,8 +449,10 @@ main (int argc, char **argv)
   ol_player_unload ();
   ol_notify_unload ();
   ol_display_module_free (module);
-  ol_display_module_unload ();
+  if (display_mode != NULL) g_free (display_mode);
+  display_mode = NULL;
   module = NULL;
+  ol_display_module_unload ();
   ol_trayicon_free ();
   ol_lrclib_unload ();
   return 0;

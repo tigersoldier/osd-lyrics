@@ -1,5 +1,7 @@
 2010-06-08  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_config_property.h (config_str): ADD: Add config options for display mode
+
 	* src/ol_scroll_module.c: CHANGE: Refactor scroll module to be an instance of display module
 
 	* src/ol_osd_module.c: CHANGE: Refactor OSD module to be an instance of display module

@@ -79,8 +79,9 @@ void ol_display_module_unload ();
  * 
  * @param name The name of the type of display module, case insensitive
  * 
- * @return The new display module, or NULL if not exists. Must be freed with
- *         ol_display_module_free
+ * @return The new display module. If the display module with the given name
+ *         not exists, a default display module is returned. The returned module
+ *         must be freed with ol_display_module_free.
  */
 struct OlDisplayModule *ol_display_module_new (const char *name);
 
