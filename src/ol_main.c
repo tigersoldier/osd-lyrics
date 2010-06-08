@@ -31,8 +31,7 @@
 #include "ol_trayicon.h"
 #include "ol_intl.h"
 #include "ol_config.h"
-#include "ol_osd_module.h"
-#include "ol_scroll_module.h"
+#include "ol_display_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_lyric_manage.h"
@@ -67,8 +66,8 @@ static enum OlPlayerStatus previous_status = OL_PLAYER_UNKNOWN;
 static gint previous_duration = 0;
 static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
-//static OlOsdModule *module = NULL;
-static OlScrollModule *module = NULL;
+static char *display_mode = NULL;
+static struct OlDisplayModule *module = NULL;
 static int fetch_id = 0;
 
 static void _initialize (int argc, char **argv);
@@ -89,9 +88,8 @@ _download_callback (struct OlLrcDownloadResult *result)
   ol_log_func ();
   if (result->filepath != NULL)
     ol_app_assign_lrcfile (result->info, result->filepath, TRUE);
-  //else
-    //ol_osd_module_download_fail_message (module, _("Download failed"));
-    //ol_scroll_module_download_fail_message (module, _("Download failed"));
+  else
+    ol_display_module_download_fail_message (module, _("Download failed"));
 }
 
 static void
@@ -106,14 +104,14 @@ _search_callback (struct OlLrcFetchResult *result,
     char *filename = ol_lyric_download_path (&result->info);
     if (filename == NULL)
     {
-      //ol_osd_module_download_fail_message (module, _("Cannot create the lyric directory"));
-      //ol_scroll_module_download_fail_message (module, _("Cannot create the lyric directory"));
+      ol_display_module_download_fail_message (module, _("Cannot create the lyric directory"));
     }
     else
     {
-      if (module != NULL){}
-        //ol_osd_module_clear_message (module);
-	//ol_scroll_module_clear_message (module);
+      if (module != NULL) {
+        ol_display_module_clear_message (module);
+	ol_display_module_clear_message (module);
+      }
       ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
                             &result->info,
                             filename);
@@ -122,9 +120,8 @@ _search_callback (struct OlLrcFetchResult *result,
   }
   else
   {
-    //if (module != NULL)
-      //ol_osd_module_search_fail_message (module, _("Lyrics not found"));
-      //ol_scroll_module_search_fail_message (module, _("Lyrics not found"));
+    if (module != NULL)
+      ol_display_module_search_fail_message (module, _("Lyrics not found"));
   }
 }
 
@@ -140,9 +137,8 @@ ol_app_download_lyric (OlMusicInfo *music_info)
                              music_info, 
                              _search_callback,
                              NULL);
-  //if (module != NULL)
-    //ol_osd_module_search_message (module, _("Searching lyrics"));
-    //ol_scroll_module_search_message (module, _("Searching lyrics"));
+  if (module != NULL)
+    ol_display_module_search_message (module, _("Searching lyrics"));
 }
 
 struct OlLrc *
@@ -173,8 +169,7 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
     }
     if (filepath != NULL)
       lrc_file = ol_lrc_new (filepath);
-    //ol_osd_module_set_lrc (module, lrc_file);
-    ol_scroll_module_set_lrc (module, lrc_file);
+    ol_display_module_set_lrc (module, lrc_file);
   }
   return TRUE;
 }
@@ -206,13 +201,10 @@ _on_music_changed ()
   ol_log_func ();
   if (module != NULL)
   {
-    //ol_osd_module_set_music_info (module, &music_info);
-    ol_scroll_module_set_music_info (module, &music_info);
-    //ol_osd_module_set_duration (module, previous_duration);
-    ol_scroll_module_set_duration (module, previous_duration);
+    ol_display_module_set_music_info (module, &music_info);
+    ol_display_module_set_duration (module, previous_duration);
   }
-  //ol_osd_module_set_lrc (module, NULL);
-  ol_scroll_module_set_lrc (module, NULL);
+  ol_display_module_set_lrc (module, NULL);
   if (!_check_lyric_file ())
     ol_app_download_lyric (&music_info);
   OlConfig *config = ol_config_get_instance ();
@@ -271,8 +263,7 @@ _update_player_status (enum OlPlayerStatus status)
     previous_status = status;
     if (module != NULL)
     {
-      //ol_osd_module_set_status (module, status);
-      //ol_scroll_module_set_status (module, status);
+      ol_display_module_set_status (module, status);
     }
   }
 }
@@ -319,8 +310,7 @@ _get_active_player (void)
       gtk_main_quit ();
     }
   }
-  //ol_osd_module_set_player (module, player);
-  //ol_scroll_module_set_player (module, player);
+  ol_display_module_set_player (module, player);
   first_run = FALSE;
   return player != NULL;
 }
@@ -347,8 +337,7 @@ _refresh_music_info (gpointer data)
     previous_position = -1;
     return TRUE;
   }
-  //ol_osd_module_set_played_time (module, time);
-  ol_scroll_module_set_played_time (module, time);
+  ol_display_module_set_played_time (module, time);
   return TRUE;
 }
 
@@ -428,10 +417,11 @@ _initialize (int argc, char **argv)
   }
   ol_stock_init ();
   ol_player_init ();
-  //module = ol_osd_module_new ();
-  module = ol_scroll_module_new ();
-
-  printf("ol_scroll_new:successful!\n");
+  /* Initialize display modules */
+  ol_display_module_init ();
+  OlConfig *config = ol_config_get_instance ();
+  display_mode = ol_config_get_string (config, "General", "display-mode");
+  module = ol_display_module_new (display_mode);
 
   ol_trayicon_inital ();
   ol_notify_init ();
@@ -458,9 +448,11 @@ main (int argc, char **argv)
   gtk_main ();
   ol_player_unload ();
   ol_notify_unload ();
-  //ol_osd_module_destroy (module);
-  ol_scroll_module_destroy (module);
+  ol_display_module_free (module);
+  if (display_mode != NULL) g_free (display_mode);
+  display_mode = NULL;
   module = NULL;
+  ol_display_module_unload ();
   ol_trayicon_free ();
   ol_lrclib_unload ();
   return 0;
