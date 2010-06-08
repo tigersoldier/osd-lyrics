@@ -54,6 +54,8 @@ static struct _OptionWidgets
   GtkWidget *filename_menu;
   GtkWidget *startup_player;
   GtkWidget *startup_player_cb;
+  GtkWidget *display_mode_osd;
+  GtkWidget *display_mode_scroll;
 } options;
 
 static struct ListExtraWidgets
@@ -783,6 +785,18 @@ save_general ()
                           "startup-player",
                           gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
   }
+  /* Display mode */
+  gboolean is_scroll = FALSE;
+  if (options.display_mode_scroll != NULL)
+  {
+    is_scroll = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+                                              (options.display_mode_scroll));
+  }
+  const char *display_mode = is_scroll ? "scroll" : "OSD";
+  ol_config_set_string (config,
+                        "General",
+                        "display-mode",
+                        display_mode);
 }
 
 static void
@@ -876,6 +890,18 @@ load_general ()
                         player_cmd);
   }
   g_free (player_cmd);
+
+  char *display_mode = ol_config_get_string (config,
+                                             "General",
+                                             "display-mode");
+  if (options.display_mode_scroll != NULL &&
+      ol_stricmp (display_mode, "scroll", -1) == 0)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.display_mode_scroll),
+                                  TRUE);
+  else if (options.display_mode_osd != NULL)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.display_mode_osd),
+                                  TRUE);
+  g_free (display_mode);
 }
 
 void
@@ -1124,6 +1150,8 @@ ol_option_show ()
     g_signal_connect (window, "delete-event",
                       G_CALLBACK (gtk_widget_hide_on_delete),
                       NULL);
+    options.display_mode_osd = ol_gui_get_widget ("display-mode-osd");
+    options.display_mode_scroll = ol_gui_get_widget ("display-mode-scroll");
     options.ok = ol_gui_get_widget ("optionok");
     options.cancel = ol_gui_get_widget ("optioncancel");
     options.font = ol_gui_get_widget ("osd-font");

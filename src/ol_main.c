@@ -81,6 +81,32 @@ static gboolean _get_active_player (void);
 static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
 static void _download_callback (struct OlLrcDownloadResult *result);
+static void _on_config_changed (OlConfig *config,
+                                gchar *group,
+                                gchar *name,
+                                gpointer userdata);
+
+static void
+_on_config_changed (OlConfig *config,
+                    gchar *group,
+                    gchar *name,
+                    gpointer userdata)
+{
+  if (strcmp (name, "display-mode") == 0)
+  {
+    char *mode = ol_config_get_string (config, group, name);
+    if (display_mode == NULL ||
+        ol_stricmp (mode, display_mode, -1) != 0)
+    {
+      if (display_mode != NULL)
+        g_free (display_mode);
+      display_mode = g_strdup (mode);
+      ol_display_module_free (module);
+      module = ol_display_module_new (display_mode);
+    }
+    g_free (mode);
+  }
+}
 
 static void
 _download_callback (struct OlLrcDownloadResult *result)
@@ -247,7 +273,12 @@ _check_music_change ()
   /*   ol_debugf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
   /* } */
-  previous_duration = duration;
+  if (previous_duration != duration)
+  {
+    previous_duration = duration;
+    if (module != NULL)
+      ol_display_module_set_duration (module, duration);
+  }
   if (changed)
   {
     _on_music_changed ();
@@ -265,6 +296,7 @@ _update_player_status (enum OlPlayerStatus status)
     {
       ol_display_module_set_status (module, status);
     }
+    ol_trayicon_status_changed (status);
   }
 }
 
@@ -422,6 +454,9 @@ _initialize (int argc, char **argv)
   OlConfig *config = ol_config_get_instance ();
   display_mode = ol_config_get_string (config, "General", "display-mode");
   module = ol_display_module_new (display_mode);
+  g_signal_connect (config, "changed",
+                    G_CALLBACK (_on_config_changed),
+                    NULL);
 
   ol_trayicon_inital ();
   ol_notify_init ();
