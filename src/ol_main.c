@@ -417,7 +417,7 @@ _initialize (int argc, char **argv)
   ol_stock_init ();
   ol_player_init ();
   ol_display_module_init ();
-  module = ol_display_module_new ("OSD");
+  module = ol_display_module_new ("scroll");
 
   ol_trayicon_inital ();
   ol_notify_init ();

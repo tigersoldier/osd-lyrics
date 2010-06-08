@@ -343,7 +343,7 @@ ol_osd_module_free (struct OlDisplayModule *module)
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   if (priv->osd != NULL)
   {
@@ -360,7 +360,7 @@ ol_osd_module_set_music_info (struct OlDisplayModule *module, OlMusicInfo *music
   ol_log_func ();
   ol_assert (music_info != NULL);
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   ol_music_info_copy (&priv->music_info, music_info);
   clear_lyrics (priv);
@@ -373,7 +373,7 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module, int played_time)
   /* updates the time and lyrics */
   /* ol_log_func (); */
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   if (priv->lrc != NULL && priv->osd != NULL)
   {
@@ -456,7 +456,7 @@ ol_osd_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file)
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   priv->lrc = lrc_file;
   if (lrc_file != NULL && priv->message_source != 0)
@@ -476,7 +476,7 @@ ol_osd_module_set_duration (struct OlDisplayModule *module, int duration)
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   priv->duration = duration;
 }
@@ -488,7 +488,7 @@ ol_osd_module_set_message (struct OlDisplayModule *module,
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   ol_assert (message != NULL);
   ol_assert (priv->osd != NULL);
@@ -558,7 +558,7 @@ ol_osd_module_clear_message (struct OlDisplayModule *module)
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   if (priv->message_source != 0)
   {
@@ -573,7 +573,7 @@ ol_osd_module_set_player (struct OlDisplayModule *module, struct OlPlayer *playe
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   if (priv->toolbar != NULL)
     ol_osd_toolbar_set_player (priv->toolbar, player);
@@ -584,7 +584,7 @@ ol_osd_module_set_status (struct OlDisplayModule *module, enum OlPlayerStatus st
 {
   ol_log_func ();
   ol_assert (module != NULL);
-  OlOsdModule *priv = module->data;
+  OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   if (priv->toolbar != NULL)
     ol_osd_toolbar_set_status (priv->toolbar, status);

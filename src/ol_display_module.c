@@ -2,6 +2,7 @@
 #include "ol_player.h"
 #include "ol_display_module.h"
 #include "ol_osd_module.h"
+#include "ol_scroll_module.h"
 #include "ol_utils.h"
 #include "ol_debug.h"
 
@@ -28,6 +29,7 @@ ol_display_module_init ()
   {
     classes = g_ptr_array_new_with_free_func ((GDestroyNotify)_class_free);
     _register_class (ol_osd_module_get_class ());
+    _register_class (ol_scroll_module_get_class ());
   }
 }
 

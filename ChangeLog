@@ -1,5 +1,7 @@
 2010-06-08  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_scroll_module.c: CHANGE: Refactor scroll module to be an instance of display module
+
 	* src/ol_osd_module.c: CHANGE: Refactor OSD module to be an instance of display module
 
 	* src/ol_display_module.c: ADD: Extract display module interfaces
