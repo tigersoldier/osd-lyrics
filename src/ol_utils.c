@@ -102,19 +102,19 @@ ol_path_alloc(void)
     ol_debugf ("malloc error for pathname");
     return NULL;
   }
-
   return ptr;
 }
 
 int 
-ol_stricmp(const char *str1, const char *str2, const size_t count)
+ol_stricmp (const char *str1, const char *str2, const ssize_t count)
 {
   const char *ptr1 = str1;
   const char *ptr2 = str2;
   int len1 = strlen(str1);
   int len2 = strlen(str2);
   int min = len1 > len2 ? len2 : len1;
-  min = min > count ? count : min;
+  if (count >= 0 && count < min)
+    min = count;
 
   while((ptr1 < str1+min) && (ptr2 < str2+min)) {
     if(isalpha(*ptr1) && isalpha(*ptr2)) {

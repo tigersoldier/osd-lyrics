@@ -1,3 +1,9 @@
+2010-06-08  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_osd_module.c: CHANGE: Refactor OSD module to be an instance of display module
+
+	* src/ol_display_module.c: ADD: Extract display module interfaces
+
 2010-06-07  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_osd_window.c: Use the queue drawing mechanism of gtk instead of painting the lyrics directly in OSD Window.

@@ -1,3 +1,7 @@
+#include "ol_music_info.h"
+#include "ol_config.h"
+#include "ol_osd_window.h"
+#include "ol_osd_toolbar.h"
 #include "ol_osd_module.h"
 #include "ol_lrc.h"
 #include "ol_stock.h"
@@ -6,6 +10,55 @@
 #include "ol_debug.h"
 
 const int MESSAGE_DURATION_MS = 3000;
+typedef struct _OlOsdModule OlOsdModule;
+
+struct OlLrc;
+
+struct _OlOsdModule
+{
+  OlMusicInfo music_info;
+  gint lrc_id;
+  gint lrc_next_id;
+  gint current_line;
+  gint duration;
+  gint line_count;
+  struct OlLrc *lrc;
+  gboolean display;
+  OlOsdWindow *osd;
+  OlOsdToolbar *toolbar;
+  guint message_source;
+};
+
+struct OlPlayer;
+
+/** interfaces */
+static OlOsdModule* ol_osd_module_new (struct OlDisplayModule *module);
+static void ol_osd_module_free (struct OlDisplayModule *module);
+static void ol_osd_module_set_music_info (struct OlDisplayModule *module,
+                                          OlMusicInfo *music_info);
+static void ol_osd_module_set_player (struct OlDisplayModule *module,
+                                      struct OlPlayer *player);
+static void ol_osd_module_set_status (struct OlDisplayModule *module,
+                                      enum OlPlayerStatus status);
+static void ol_osd_module_set_played_time (struct OlDisplayModule *module,
+                                           int played_time);
+static void ol_osd_module_set_lrc (struct OlDisplayModule *module,
+                                   struct OlLrc *lrc_file);
+static void ol_osd_module_set_duration (struct OlDisplayModule *module,
+                                        int duration);
+static void ol_osd_module_set_message (struct OlDisplayModule *module,
+                                       const char *message,
+                                       int duration_ms);
+static void ol_osd_module_search_message (struct OlDisplayModule *module,
+                                          const char *message);
+static void ol_osd_module_search_fail_message (struct OlDisplayModule *module,
+                                               const char *message);
+static void ol_osd_module_download_fail_message (struct OlDisplayModule *module,
+                                                 const char *message);
+static void ol_osd_module_clear_message (struct OlDisplayModule *module);
+
+/** internal functions */
+
 /** 
  * @brief Gets the real lyric of the given lyric
  * A REAL lyric is the nearest lyric to the given lyric, whose text is not empty
@@ -269,96 +322,105 @@ ol_osd_module_init_osd (OlOsdModule *module)
                     module);
 }
 
-OlOsdModule*
-ol_osd_module_new ()
+static OlOsdModule*
+ol_osd_module_new (struct OlDisplayModule *module)
 {
   ol_log_func ();
-  OlOsdModule *module = g_new (OlOsdModule, 1);
-  module->osd = NULL;
-  module->lrc = NULL;
-  module->lrc_id = -1;
-  module->lrc_next_id = -1;
-  module->current_line = 0;
-  module->message_source = 0;
-  ol_music_info_init (&module->music_info);
-  ol_osd_module_init_osd (module);
-  return module;
+  OlOsdModule *data = g_new (OlOsdModule, 1);
+  data->osd = NULL;
+  data->lrc = NULL;
+  data->lrc_id = -1;
+  data->lrc_next_id = -1;
+  data->current_line = 0;
+  data->message_source = 0;
+  ol_music_info_init (&data->music_info);
+  ol_osd_module_init_osd (data);
+  return data;
 }
 
-void
-ol_osd_module_destroy (OlOsdModule *module)
+static void
+ol_osd_module_free (struct OlDisplayModule *module)
 {
   ol_log_func ();
-  if (module->osd != NULL)
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  if (priv->osd != NULL)
   {
-    g_object_unref (module->osd);
-    module->osd = NULL;
+    g_object_unref (priv->osd);
+    priv->osd = NULL;
   }
-  ol_music_info_clear (&module->music_info);
-  g_free (module);
+  ol_music_info_clear (&priv->music_info);
+  g_free (priv);
 }
 
-void
-ol_osd_module_set_music_info (OlOsdModule *module, OlMusicInfo *music_info)
+static void
+ol_osd_module_set_music_info (struct OlDisplayModule *module, OlMusicInfo *music_info)
 {
   ol_log_func ();
   ol_assert (music_info != NULL);
-  ol_music_info_copy (&module->music_info, music_info);
-  clear_lyrics (module);
-  hide_message (module);
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  ol_music_info_copy (&priv->music_info, music_info);
+  clear_lyrics (priv);
+  hide_message (priv);
 }
 
-void
-ol_osd_module_set_played_time (OlOsdModule *module, int played_time)
+static void
+ol_osd_module_set_played_time (struct OlDisplayModule *module, int played_time)
 {
   /* updates the time and lyrics */
   /* ol_log_func (); */
-  if (module->lrc != NULL && module->osd != NULL)
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  if (priv->lrc != NULL && priv->osd != NULL)
   {
     double percentage;
     int id, lyric_id;
-    ol_lrc_get_lyric_by_time (module->lrc,
+    ol_lrc_get_lyric_by_time (priv->lrc,
                               played_time,
-                              module->duration,
+                              priv->duration,
                               NULL,
                               &percentage,
                               &lyric_id);
-    const struct OlLrcItem *info = ol_lrc_get_item (module->lrc, lyric_id);
+    const struct OlLrcItem *info = ol_lrc_get_item (priv->lrc, lyric_id);
     info = ol_osd_module_get_real_lyric (info);
     if (info == NULL)
       id = -1;
     else
       id = ol_lrc_item_get_id (info);
-    if (module->lrc_id != id)
+    if (priv->lrc_id != id)
     {
       if (id == -1)
       {
-        clear_lyrics (module);
+        clear_lyrics (priv);
         return;
       }
-      if (id != module->lrc_next_id)
+      if (id != priv->lrc_next_id)
       {
-        module->current_line = 0;
+        priv->current_line = 0;
         if (ol_lrc_item_get_lyric (info) != NULL)
-          ol_osd_window_set_lyric (module->osd, module->current_line,
+          ol_osd_window_set_lyric (priv->osd, priv->current_line,
                                    ol_lrc_item_get_lyric (info));
         if (id != lyric_id)
-          ol_osd_window_set_current_percentage (module->osd, 0.0);
-        ol_osd_module_update_next_lyric (module, info);
+          ol_osd_window_set_current_percentage (priv->osd, 0.0);
+        ol_osd_module_update_next_lyric (priv, info);
       }
       else
       {
-        ol_osd_window_set_percentage (module->osd, module->current_line, 1.0);
-        module->current_line = 1 - module->current_line;
+        ol_osd_window_set_percentage (priv->osd, priv->current_line, 1.0);
+        priv->current_line = 1 - priv->current_line;
       } /* if (id != module->lrc_next_id) */
-      module->lrc_id = id;
-      ol_osd_window_set_current_line (module->osd, module->current_line);
+      priv->lrc_id = id;
+      ol_osd_window_set_current_line (priv->osd, priv->current_line);
     } /* if (module->lrc_id != id) */
     if (id == lyric_id && percentage > 0.5)
-      ol_osd_module_update_next_lyric (module, info);
+      ol_osd_module_update_next_lyric (priv, info);
     if (id == lyric_id)
     {
-      ol_osd_window_set_current_percentage (module->osd, percentage);
+      ol_osd_window_set_current_percentage (priv->osd, percentage);
     }
     /* if (!module->display) */
     /* { */
@@ -389,67 +451,75 @@ ol_osd_module_get_real_lyric (const struct OlLrcItem *lrc)
   return lrc;
 }
 
-void
-ol_osd_module_set_lrc (OlOsdModule *module, struct OlLrc *lrc_file)
+static void
+ol_osd_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file)
 {
   ol_log_func ();
-  module->lrc = lrc_file;
-  if (lrc_file != NULL && module->message_source != 0)
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  priv->lrc = lrc_file;
+  if (lrc_file != NULL && priv->message_source != 0)
   {
     ol_osd_module_clear_message (module);
   }
-  if (lrc_file == NULL && module->message_source == 0)
+  if (lrc_file == NULL && priv->message_source == 0)
   {
-    clear_lyrics (module);
+    clear_lyrics (priv);
   }
   /* if (lrc_file != NULL) */
   /*   module->display = TRUE; */
 }
 
-void
-ol_osd_module_set_duration (OlOsdModule *module, int duration)
+static void
+ol_osd_module_set_duration (struct OlDisplayModule *module, int duration)
 {
   ol_log_func ();
-  module->duration = duration;
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  priv->duration = duration;
 }
 
-void
-ol_osd_module_set_message (OlOsdModule *module,
+static void
+ol_osd_module_set_message (struct OlDisplayModule *module,
                            const char *message,
                            int duration_ms)
 {
   ol_log_func ();
   ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
   ol_assert (message != NULL);
-  ol_assert (module->osd != NULL);
-  if (module->lrc != NULL)
+  ol_assert (priv->osd != NULL);
+  if (priv->lrc != NULL)
     return;
   ol_debugf ("  message:%s\n", message);
-  ol_osd_window_set_current_line (module->osd, 0);
-  ol_osd_window_set_current_percentage (module->osd, 1.0);
-  ol_osd_window_set_lyric (module->osd, 0, message);
-  ol_osd_window_set_lyric (module->osd, 1, NULL);
-  if (module->message_source != 0)
-    g_source_remove (module->message_source);
-  module->message_source = g_timeout_add (duration_ms,
-                                          (GSourceFunc) hide_message,
-                                          (gpointer) module);
+  ol_osd_window_set_current_line (priv->osd, 0);
+  ol_osd_window_set_current_percentage (priv->osd, 1.0);
+  ol_osd_window_set_lyric (priv->osd, 0, message);
+  ol_osd_window_set_lyric (priv->osd, 1, NULL);
+  if (priv->message_source != 0)
+    g_source_remove (priv->message_source);
+  priv->message_source = g_timeout_add (duration_ms,
+                                        (GSourceFunc) hide_message,
+                                        (gpointer) module);
 }
 
-void
-ol_osd_module_search_message (OlOsdModule *module, const char *message)
+static void
+ol_osd_module_search_message (struct OlDisplayModule *module, const char *message)
 {
   ol_osd_module_set_message (module, message, -1);
 }
 
-void
-ol_osd_module_search_fail_message (OlOsdModule *module, const char *message)
+static void
+ol_osd_module_search_fail_message (struct OlDisplayModule *module, const char *message)
 {
   ol_osd_module_set_message (module, message, MESSAGE_DURATION_MS);
 }
 
-void
-ol_osd_module_download_fail_message (OlOsdModule *module, const char *message)
+static void
+ol_osd_module_download_fail_message (struct OlDisplayModule *module, const char *message)
 {
   ol_osd_module_set_message (module, message, MESSAGE_DURATION_MS);
 }
@@ -483,30 +553,59 @@ clear_lyrics (OlOsdModule *module)
   module->lrc_next_id = -1;
 }
 
-void
-ol_osd_module_clear_message (OlOsdModule *module)
+static void
+ol_osd_module_clear_message (struct OlDisplayModule *module)
 {
   ol_log_func ();
-  if (module->message_source != 0)
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  if (priv->message_source != 0)
   {
-    g_source_remove (module->message_source);
-    hide_message (module);
+    g_source_remove (priv->message_source);
+    hide_message (priv);
   }
   ol_debug ("  clear message done");
 }
 
-void
-ol_osd_module_set_player (OlOsdModule *module, struct OlPlayer *player)
+static void
+ol_osd_module_set_player (struct OlDisplayModule *module, struct OlPlayer *player)
 {
   ol_log_func ();
-  if (module->toolbar != NULL)
-    ol_osd_toolbar_set_player (module->toolbar, player);
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  if (priv->toolbar != NULL)
+    ol_osd_toolbar_set_player (priv->toolbar, player);
 }
 
-void
-ol_osd_module_set_status (OlOsdModule *module, enum OlPlayerStatus status)
+static void
+ol_osd_module_set_status (struct OlDisplayModule *module, enum OlPlayerStatus status)
 {
   ol_log_func ();
-  if (module->toolbar != NULL)
-    ol_osd_toolbar_set_status (module->toolbar, status);
+  ol_assert (module != NULL);
+  OlOsdModule *priv = module->data;
+  ol_assert (priv != NULL);
+  if (priv->toolbar != NULL)
+    ol_osd_toolbar_set_status (priv->toolbar, status);
+}
+
+struct OlDisplayClass*
+ol_osd_module_get_class ()
+{
+  struct OlDisplayClass *klass = ol_display_class_new ("OSD",
+                                                       ol_osd_module_new,
+                                                       ol_osd_module_free);
+  klass->clear_message = ol_osd_module_clear_message;
+  klass->download_fail_message = ol_osd_module_download_fail_message;
+  klass->search_fail_message = ol_osd_module_search_fail_message;
+  klass->search_message = ol_osd_module_search_message;
+  klass->set_duration = ol_osd_module_set_duration;
+  klass->set_lrc = ol_osd_module_set_lrc;
+  klass->set_message = ol_osd_module_set_message;
+  klass->set_music_info = ol_osd_module_set_music_info;
+  klass->set_played_time = ol_osd_module_set_played_time;
+  klass->set_player = ol_osd_module_set_player;
+  klass->set_status = ol_osd_module_set_status;
+  return klass;
 }
