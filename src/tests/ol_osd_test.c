@@ -76,7 +76,11 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
 /*   gtk_widget_show_all (window); */
   GtkWidget *ol_osd = init_osd ();
+  g_object_ref_sink (ol_osd);
   gtk_container_add (GTK_CONTAINER (ol_osd), init_toolbar ());
+  g_timeout_add (5000, gtk_main_quit, NULL);
   gtk_main ();
+  printf ("unrefing..\n");
+  g_object_unref (ol_osd);
   return 0;
 }

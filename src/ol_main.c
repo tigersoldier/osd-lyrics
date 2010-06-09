@@ -103,6 +103,11 @@ _on_config_changed (OlConfig *config,
       display_mode = g_strdup (mode);
       ol_display_module_free (module);
       module = ol_display_module_new (display_mode);
+      ol_display_module_set_music_info (module, &music_info);
+      ol_display_module_set_duration (module, previous_duration);
+      ol_display_module_set_lrc (module, lrc_file);
+      ol_display_module_set_player (module, player);
+      ol_display_module_set_status (module, previous_status);
     }
     g_free (mode);
   }

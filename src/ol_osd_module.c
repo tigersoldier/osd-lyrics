@@ -24,9 +24,10 @@ struct _OlOsdModule
   gint line_count;
   struct OlLrc *lrc;
   gboolean display;
-  OlOsdWindow *osd;
+  OlOsdWindow *window;
   OlOsdToolbar *toolbar;
   guint message_source;
+  gulong config_signal;
 };
 
 struct OlPlayer;
@@ -69,9 +70,9 @@ static void ol_osd_module_clear_message (struct OlDisplayModule *module);
  * @return The real lyric of the lrc. returns NULL if not available
  */
 static const struct OlLrcItem* ol_osd_module_get_real_lyric (const struct OlLrcItem *lrc);
-static void ol_osd_module_update_next_lyric (OlOsdModule *module,
+static void ol_osd_module_update_next_lyric (OlOsdModule *osd,
                                              const struct OlLrcItem *current_lrc);
-static void ol_osd_module_init_osd (OlOsdModule *module);
+static void ol_osd_module_init_osd (OlOsdModule *osd);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
 static gboolean ol_osd_button_release (OlOsdWindow *osd,
@@ -80,8 +81,8 @@ static gboolean ol_osd_button_release (OlOsdWindow *osd,
 static void ol_osd_scroll (OlOsdWindow *osd,
                            GdkEventScroll *event,
                            gpointer data);
-static gboolean hide_message (OlOsdModule *module);
-static void clear_lyrics (OlOsdModule *module);
+static gboolean hide_message (OlOsdModule *osd);
+static void clear_lyrics (OlOsdModule *osd);
 
 static void
 ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
@@ -129,89 +130,92 @@ ol_osd_scroll (OlOsdWindow *osd,
 }
 
 static void
-ol_osd_module_update_next_lyric (OlOsdModule *module, const struct OlLrcItem *current_lrc)
+ol_osd_module_update_next_lyric (OlOsdModule *osd, const struct OlLrcItem *current_lrc)
 {
-  if (module->line_count == 1)
+  if (osd->line_count == 1)
   {
-    module->lrc_next_id = -1;
+    osd->lrc_next_id = -1;
     return;
   }
   const struct OlLrcItem *info = ol_lrc_item_next (current_lrc);
   info = ol_osd_module_get_real_lyric (info);
   if (info == NULL)
   {
-    if (module->lrc_next_id == -1)
+    if (osd->lrc_next_id == -1)
     {
       return;
     }
     else
     {
-      module->lrc_next_id = -1;
-      ol_osd_window_set_lyric (module->osd, 1 - module->current_line, "");
+      osd->lrc_next_id = -1;
+      ol_osd_window_set_lyric (osd->window, 1 - osd->current_line, "");
     }
   }
   else
   {
-    if (module->lrc_next_id == ol_lrc_item_get_id (info))
+    if (osd->lrc_next_id == ol_lrc_item_get_id (info))
       return;
     if (info != NULL)
     {
-      module->lrc_next_id = ol_lrc_item_get_id (info);
-      ol_osd_window_set_lyric (module->osd, 1 - module->current_line,
+      osd->lrc_next_id = ol_lrc_item_get_id (info);
+      ol_osd_window_set_lyric (osd->window, 1 - osd->current_line,
                                ol_lrc_item_get_lyric (info));
     }
   }
-  ol_osd_window_set_percentage (module->osd, 1 - module->current_line, 0.0);
+  ol_osd_window_set_percentage (osd->window, 1 - osd->current_line, 0.0);
 }
 
 static void
-config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata)
+config_change_handler (OlConfig *config,
+                       gchar *group,
+                       gchar *name,
+                       gpointer userdata)
 {
   ol_debugf ("%s:[%s]%s\n", __FUNCTION__, group, name);
-  OlOsdModule *module = (OlOsdModule*) userdata;
-  if (module == NULL)
+  OlOsdModule *osd = (OlOsdModule*) userdata;
+  if (osd == NULL)
     return;
-  OlOsdWindow *osd = module->osd;
+  OlOsdWindow *window = osd->window;
   /* OlOsdWindow *osd = OL_OSD_WINDOW (userdata); */
-  if (osd == NULL || !OL_IS_OSD_WINDOW (osd))
+  if (window == NULL || !OL_IS_OSD_WINDOW (window))
     return;
   if (strcmp (name, "locked") == 0)
   {
     ol_debugf ("  locked: %d\n", ol_config_get_bool (config, "OSD", "locked"));
-    ol_osd_window_set_locked (osd,
+    ol_osd_window_set_locked (window,
                               ol_config_get_bool (config, "OSD", "locked"));
   }
   else if (strcmp (name, "xalign") == 0 || strcmp (name, "yalign") == 0)
   {
     double xalign = ol_config_get_double (config, "OSD", "xalign");
     double yalign = ol_config_get_double (config, "OSD", "yalign");
-    ol_osd_window_set_alignment (osd, xalign, yalign);
+    ol_osd_window_set_alignment (window, xalign, yalign);
   }
   else if (strcmp (name, "font-family") == 0)
   {
     gchar *font = ol_config_get_string (config, "OSD", "font-family");
     ol_assert (font != NULL);
-    ol_osd_window_set_font_family (osd, font);
+    ol_osd_window_set_font_family (window, font);
     g_free (font);
   }
   else if (strcmp (name, "font-size") == 0)
   {
-    ol_osd_window_set_font_size (osd,
+    ol_osd_window_set_font_size (window,
                                  ol_config_get_double (config, "OSD", "font-size"));
   }
   else if (strcmp (name, "width") == 0)
   {
-    ol_osd_window_set_width (osd,
+    ol_osd_window_set_width (window,
                              ol_config_get_int (config, "OSD", "width"));
   }
   else if (strcmp (name, "lrc-align-0") == 0)
   {
-    ol_osd_window_set_line_alignment (osd, 0,
+    ol_osd_window_set_line_alignment (window, 0,
                                       ol_config_get_double (config, "OSD", name));
   }
   else if (strcmp (name, "lrc-align-1") == 0)
   {
-    ol_osd_window_set_line_alignment (osd, 1,
+    ol_osd_window_set_line_alignment (window, 1,
                                       ol_config_get_double (config, "OSD", name));
   }
   else if (strcmp (name, "active-lrc-color") == 0)
@@ -223,7 +227,7 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
     if (color_str != NULL)
     {
       OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
-      ol_osd_window_set_active_colors (osd, colors[0], colors[1], colors[2]);
+      ol_osd_window_set_active_colors (window, colors[0], colors[1], colors[2]);
       g_free (colors);
       g_strfreev (color_str);
     }
@@ -237,43 +241,43 @@ config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer use
     if (color_str != NULL)
     {
       OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
-      ol_osd_window_set_inactive_colors (osd, colors[0], colors[1], colors[2]);
+      ol_osd_window_set_inactive_colors (window, colors[0], colors[1], colors[2]);
       g_free (colors);
       g_strfreev (color_str);
     }
   }
   else if (strcmp (name, "line-count") == 0)
   {
-    module->line_count = ol_config_get_int (config, "OSD", name);
-    ol_osd_window_set_line_count (osd, module->line_count);
+    osd->line_count = ol_config_get_int (config, "OSD", name);
+    ol_osd_window_set_line_count (window, osd->line_count);
   }
   else if (strcmp (name, "visible") == 0)
   {
     gboolean visible = ol_config_get_bool (config, "General", name);
     if (visible)
     {
-      gtk_widget_show (GTK_WIDGET (module->osd));
+      gtk_widget_show (GTK_WIDGET (osd->window));
     }
     else
     {
-      gtk_widget_hide (GTK_WIDGET (module->osd));
+      gtk_widget_hide (GTK_WIDGET (osd->window));
     }
   }
   else if (strcmp (name, "translucent-on-mouse-over") == 0)
   {
-    ol_osd_window_set_translucent_on_mouse_over (osd, ol_config_get_bool (config, "OSD", name));
+    ol_osd_window_set_translucent_on_mouse_over (window, ol_config_get_bool (config, "OSD", name));
   }
   else if (strcmp (name, "outline-width") == 0)
   {
-    ol_osd_window_set_outline_width (osd, ol_config_get_int (config, "OSD", name));
+    ol_osd_window_set_outline_width (window, ol_config_get_int (config, "OSD", name));
   }
 }
 
 static void
-ol_osd_module_init_osd (OlOsdModule *module)
+ol_osd_module_init_osd (OlOsdModule *osd)
 {
-  module->osd = OL_OSD_WINDOW (ol_osd_window_new ());
-  if (module->osd == NULL)
+  osd->window = OL_OSD_WINDOW (ol_osd_window_new ());
+  if (osd->window == NULL)
     return;
   GtkIconTheme *icontheme = gtk_icon_theme_get_default ();
   GdkPixbuf *bg = gtk_icon_theme_load_icon (icontheme,
@@ -281,45 +285,44 @@ ol_osd_module_init_osd (OlOsdModule *module)
                                             32,
                                             0,
                                             NULL);
-  ol_osd_window_set_bg (module->osd, bg);
+  ol_osd_window_set_bg (osd->window, bg);
   g_object_unref (bg);
-  /* ol_osd_window_resize (osd, 1024, 100); */
-  /* gtk_widget_show (GTK_WIDGET (module->osd)); */
-  module->toolbar = OL_OSD_TOOLBAR (ol_osd_toolbar_new ());
-  if (module->toolbar != NULL)
+  osd->toolbar = OL_OSD_TOOLBAR (ol_osd_toolbar_new ());
+  if (osd->toolbar != NULL)
   {
-    gtk_container_add (GTK_CONTAINER (module->osd),
-                       GTK_WIDGET (module->toolbar));
-    gtk_widget_show_all (GTK_WIDGET (module->toolbar));
+    gtk_container_add (GTK_CONTAINER (osd->window),
+                       GTK_WIDGET (osd->toolbar));
+    gtk_widget_show_all (GTK_WIDGET (osd->toolbar));
+    g_object_ref (osd->toolbar);
   }
-  module->display = FALSE;
+  osd->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
   ol_assert (config != NULL);
-  config_change_handler (config, "OSD", "visible", module);
-  config_change_handler (config, "OSD", "locked", module);
-  config_change_handler (config, "OSD", "line-count", module);
-  config_change_handler (config, "OSD", "xalign", module);
-  config_change_handler (config, "OSD", "font-family", module);
-  config_change_handler (config, "OSD", "font-size", module);
-  config_change_handler (config, "OSD", "width", module);
-  config_change_handler (config, "OSD", "lrc-align-0", module);
-  config_change_handler (config, "OSD", "lrc-align-1", module);
-  config_change_handler (config, "OSD", "active-lrc-color", module);
-  config_change_handler (config, "OSD", "inactive-lrc-color", module);
-  config_change_handler (config, "OSD", "translucent-on-mouse-over", module);
-  config_change_handler (config, "OSD", "outline-width", module);
-  g_signal_connect (module->osd, "moved",
+  config_change_handler (config, "OSD", "visible", osd);
+  config_change_handler (config, "OSD", "locked", osd);
+  config_change_handler (config, "OSD", "line-count", osd);
+  config_change_handler (config, "OSD", "xalign", osd);
+  config_change_handler (config, "OSD", "font-family", osd);
+  config_change_handler (config, "OSD", "font-size", osd);
+  config_change_handler (config, "OSD", "width", osd);
+  config_change_handler (config, "OSD", "lrc-align-0", osd);
+  config_change_handler (config, "OSD", "lrc-align-1", osd);
+  config_change_handler (config, "OSD", "active-lrc-color", osd);
+  config_change_handler (config, "OSD", "inactive-lrc-color", osd);
+  config_change_handler (config, "OSD", "translucent-on-mouse-over", osd);
+  config_change_handler (config, "OSD", "outline-width", osd);
+  g_signal_connect (osd->window, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);
-  g_signal_connect (module->osd, "button-release-event",
+  g_signal_connect (osd->window, "button-release-event",
                     G_CALLBACK (ol_osd_button_release),
                     NULL);
-  g_signal_connect (module->osd, "scroll-event",
+  g_signal_connect (osd->window, "scroll-event",
                     G_CALLBACK (ol_osd_scroll),
                     NULL);
-  g_signal_connect (config, "changed",
-                    G_CALLBACK (config_change_handler),
-                    module);
+  osd->config_signal = g_signal_connect (config, "changed",
+                                         G_CALLBACK (config_change_handler),
+                                         osd);
 }
 
 static OlOsdModule*
@@ -327,7 +330,7 @@ ol_osd_module_new (struct OlDisplayModule *module)
 {
   ol_log_func ();
   OlOsdModule *data = g_new (OlOsdModule, 1);
-  data->osd = NULL;
+  data->window = NULL;
   data->lrc = NULL;
   data->lrc_id = -1;
   data->lrc_next_id = -1;
@@ -345,11 +348,18 @@ ol_osd_module_free (struct OlDisplayModule *module)
   ol_assert (module != NULL);
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
-  if (priv->osd != NULL)
+  if (priv->toolbar)
   {
-    g_object_unref (priv->osd);
-    priv->osd = NULL;
+    g_object_unref (priv->toolbar);
+    priv->toolbar = NULL;
   }
+  if (priv->window != NULL)
+  {
+    g_object_unref (priv->window);
+    priv->window = NULL;
+  }
+  OlConfig *config = ol_config_get_instance ();
+  g_signal_handler_disconnect (config, priv->config_signal);
   ol_music_info_clear (&priv->music_info);
   g_free (priv);
 }
@@ -375,7 +385,7 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module, int played_time)
   ol_assert (module != NULL);
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
-  if (priv->lrc != NULL && priv->osd != NULL)
+  if (priv->lrc != NULL && priv->window != NULL)
   {
     double percentage;
     int id, lyric_id;
@@ -402,36 +412,36 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module, int played_time)
       {
         priv->current_line = 0;
         if (ol_lrc_item_get_lyric (info) != NULL)
-          ol_osd_window_set_lyric (priv->osd, priv->current_line,
+          ol_osd_window_set_lyric (priv->window, priv->current_line,
                                    ol_lrc_item_get_lyric (info));
         if (id != lyric_id)
-          ol_osd_window_set_current_percentage (priv->osd, 0.0);
+          ol_osd_window_set_current_percentage (priv->window, 0.0);
         ol_osd_module_update_next_lyric (priv, info);
       }
       else
       {
-        ol_osd_window_set_percentage (priv->osd, priv->current_line, 1.0);
+        ol_osd_window_set_percentage (priv->window, priv->current_line, 1.0);
         priv->current_line = 1 - priv->current_line;
       } /* if (id != module->lrc_next_id) */
       priv->lrc_id = id;
-      ol_osd_window_set_current_line (priv->osd, priv->current_line);
+      ol_osd_window_set_current_line (priv->window, priv->current_line);
     } /* if (module->lrc_id != id) */
     if (id == lyric_id && percentage > 0.5)
       ol_osd_module_update_next_lyric (priv, info);
     if (id == lyric_id)
     {
-      ol_osd_window_set_current_percentage (priv->osd, percentage);
+      ol_osd_window_set_current_percentage (priv->window, percentage);
     }
     /* if (!module->display) */
     /* { */
     /*   module->display = TRUE; */
     /*   if (ol_config_get_bool (ol_config_get_instance (), "General", "visible")) */
-    /*     gtk_widget_show (GTK_WIDGET (module->osd)); */
+    /*     gtk_widget_show (GTK_WIDGET (module->window)); */
     /* } */
-  } /* if (module->lrc_file != NULL && module->osd != NULL) */
+  } /* if (module->lrc_file != NULL && module->window != NULL) */
   else
   {
-    /* if (module->osd != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->osd))) */
+    /* if (module->window != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->window))) */
     /* { */
     /*   ol_debug ("-1"); */
     /*   clear_lyrics (module); */
@@ -491,14 +501,14 @@ ol_osd_module_set_message (struct OlDisplayModule *module,
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
   ol_assert (message != NULL);
-  ol_assert (priv->osd != NULL);
+  ol_assert (priv->window != NULL);
   if (priv->lrc != NULL)
     return;
   ol_debugf ("  message:%s\n", message);
-  ol_osd_window_set_current_line (priv->osd, 0);
-  ol_osd_window_set_current_percentage (priv->osd, 1.0);
-  ol_osd_window_set_lyric (priv->osd, 0, message);
-  ol_osd_window_set_lyric (priv->osd, 1, NULL);
+  ol_osd_window_set_current_line (priv->window, 0);
+  ol_osd_window_set_current_percentage (priv->window, 1.0);
+  ol_osd_window_set_lyric (priv->window, 0, message);
+  ol_osd_window_set_lyric (priv->window, 1, NULL);
   if (priv->message_source != 0)
     g_source_remove (priv->message_source);
   priv->message_source = g_timeout_add (duration_ms,
@@ -525,32 +535,32 @@ ol_osd_module_download_fail_message (struct OlDisplayModule *module, const char 
 }
 
 static gboolean
-hide_message (OlOsdModule *module)
+hide_message (OlOsdModule *osd)
 {
   ol_log_func ();
-  ol_assert_ret (module != NULL, FALSE);
-  if (module->lrc != NULL)
+  ol_assert_ret (osd != NULL, FALSE);
+  if (osd->lrc != NULL)
     return FALSE;
-  ol_osd_window_set_lyric (module->osd, 0, NULL);
-  /* gtk_widget_hide (GTK_WIDGET (module->osd)); */
-  module->message_source = 0;
+  ol_osd_window_set_lyric (osd->window, 0, NULL);
+  /* gtk_widget_hide (GTK_WIDGET (module->window)); */
+  osd->message_source = 0;
   return FALSE;
 }
 
 static void
-clear_lyrics (OlOsdModule *module)
+clear_lyrics (OlOsdModule *osd)
 {
   ol_log_func ();
-  if (module->osd != NULL && module->message_source == 0)
+  if (osd->window != NULL && osd->message_source == 0)
   {
-    module->display = FALSE;
-    /* gtk_widget_hide (GTK_WIDGET (module->osd)); */
-    ol_osd_window_set_lyric (module->osd, 0, NULL);
-    ol_osd_window_set_lyric (module->osd, 1, NULL);
+    osd->display = FALSE;
+    /* gtk_widget_hide (GTK_WIDGET (module->window)); */
+    ol_osd_window_set_lyric (osd->window, 0, NULL);
+    ol_osd_window_set_lyric (osd->window, 1, NULL);
   }
-  module->current_line = 0;
-  module->lrc_id = -1;
-  module->lrc_next_id = -1;
+  osd->current_line = 0;
+  osd->lrc_id = -1;
+  osd->lrc_next_id = -1;
 }
 
 static void
@@ -594,7 +604,7 @@ struct OlDisplayClass*
 ol_osd_module_get_class ()
 {
   struct OlDisplayClass *klass = ol_display_class_new ("OSD",
-                                                       ol_osd_module_new,
+                                                       (OlDisplayInitFunc) ol_osd_module_new,
                                                        ol_osd_module_free);
   klass->clear_message = ol_osd_module_clear_message;
   klass->download_fail_message = ol_osd_module_download_fail_message;

@@ -59,6 +59,7 @@ struct __OlOsdWindowPrivate
   gboolean locked;
   gboolean pressed;
   gboolean composited;          /* whether the screen is composited */
+  gulong composited_signal;
   gint mouse_x;
   gint mouse_y;
   gint old_x;
@@ -120,6 +121,8 @@ static double ol_osd_window_calc_lyric_xpos (OlOsdWindow *osd,
                                              int line,
                                              double percentage);
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
+static void ol_osd_window_update_osd (OlOsdWindow *osd);
+
 /** 
  * @brief Paint the layout to be OSD style
  *
@@ -469,9 +472,9 @@ ol_osd_window_realize (GtkWidget *widget)
   {
     osd->screen = gdk_screen_get_default ();
   }
-  g_signal_connect (osd->screen, "composited-changed",
-                    G_CALLBACK (ol_osd_window_screen_composited_changed),
-                    osd);
+  priv->composited_signal =  g_signal_connect (osd->screen, "composited-changed",
+                                               G_CALLBACK (ol_osd_window_screen_composited_changed),
+                                               osd);
   /* sets rgba colormap */
   GdkColormap* colormap = gdk_screen_get_rgba_colormap (osd->screen);
   if (colormap == NULL)
@@ -552,8 +555,8 @@ ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 
 static void ol_osd_window_unrealize (GtkWidget *widget)
 {
-  ol_debugf ("unrealize\n");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (osd->event_window)
   {
     gdk_window_set_user_data (osd->event_window, NULL);
@@ -565,6 +568,11 @@ static void ol_osd_window_unrealize (GtkWidget *widget)
     gdk_window_set_user_data (osd->osd_window, NULL);
     gdk_window_destroy (osd->osd_window);
     osd->osd_window = NULL;
+  }
+  if (priv->composited_signal != 0)
+  {
+    g_signal_handler_disconnect (osd->screen, priv->composited_signal);
+    priv->composited_signal = 0;
   }
   GTK_WIDGET_CLASS(parent_class)->unrealize (widget);
 }
@@ -666,7 +674,7 @@ ol_osd_window_mouse_timer (gpointer data)
     if (priv->mouse_over != mouse_over)
     {
       priv->mouse_over = mouse_over;
-      gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+      ol_osd_window_update_osd (osd);
     }
     ol_osd_window_check_mouse_leave (osd);
     /* if (priv->mouse_over && !priv->locked && */
@@ -966,7 +974,7 @@ ol_osd_window_update_allocation (OlOsdWindow *osd)
                                        &priv->child_allocation);
   gtk_widget_size_allocate (GTK_WIDGET (osd), &allocation);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
-  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+  ol_osd_window_update_osd (osd);
 }
 
 static void
@@ -1146,7 +1154,7 @@ ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage)
     if (old_x != new_x)
       ol_osd_window_update_shape (osd, line);
   }
-  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+  ol_osd_window_update_osd (osd);
 }
 
 void
@@ -1290,7 +1298,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
   }
   ol_osd_window_update_lyric_pixmap (osd, line);
   ol_osd_window_update_shape (osd, line);
-  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+  ol_osd_window_update_osd (osd);
 }
 
 void
@@ -1307,7 +1315,7 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
   osd->line_alignment[line] = alignment;
   ol_osd_window_update_lyric_rect (osd, line);
   ol_osd_window_update_shape (osd, line);
-  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+  ol_osd_window_update_osd (osd);
 }
 
 static void
@@ -1538,6 +1546,7 @@ ol_osd_window_init (OlOsdWindow *self)
   priv->mouse_timer_id = 0;
   priv->mouse_over = FALSE;
   priv->toolbar_pos = GDK_WINDOW_EDGE_SOUTH;
+  priv->composited_signal = 0;
 }
 
 GtkWidget*
@@ -1602,7 +1611,7 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
     ol_osd_window_update_lyric_pixmap (osd, i);
   ol_osd_window_update_allocation (osd);
   ol_osd_window_update_shape (osd, 0);
-  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+  ol_osd_window_update_osd (osd);
 }
 
 char*
@@ -1625,7 +1634,7 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
     ol_osd_window_update_lyric_pixmap (osd, i);
   ol_osd_window_update_allocation (osd);
   ol_osd_window_update_shape (osd, 0);
-  gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
+  ol_osd_window_update_osd (osd);
 }
 
 double
@@ -1742,4 +1751,13 @@ ol_osd_window_update_background (OlOsdWindow *osd)
   /*   else */
   /*     gdk_window_set_opacity (widget->window, 1.0); */
   /* } */
+}
+
+static void
+ol_osd_window_update_osd (OlOsdWindow *osd)
+{
+  ol_assert (osd != NULL);
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  if (osd->osd_window != NULL)
+    gdk_window_invalidate_rect (osd->osd_window, NULL, FALSE);
 }

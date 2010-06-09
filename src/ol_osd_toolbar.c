@@ -174,7 +174,7 @@ ol_osd_toolbar_init (OlOsdToolbar *toolbar)
   toolbar->pause_button = _add_button (toolbar, &btn_spec[BTN_PAUSE]);
   toolbar->stop_button = _add_button (toolbar, &btn_spec[BTN_STOP]);
   toolbar->next_button = _add_button (toolbar, &btn_spec[BTN_NEXT]);
-  
+
   priv->player = NULL;
   ol_osd_toolbar_set_status (toolbar, OL_PLAYER_UNKNOWN);
   _update_capacity (toolbar, 0);
@@ -183,9 +183,9 @@ ol_osd_toolbar_init (OlOsdToolbar *toolbar)
 GtkWidget *
 ol_osd_toolbar_new (void)
 {
-  OlOsdToolbar *button;
-  button = g_object_new (ol_osd_toolbar_get_type (), NULL);
-  return GTK_WIDGET (button);
+  OlOsdToolbar *toolbar;
+  toolbar = g_object_new (ol_osd_toolbar_get_type (), NULL);
+  return GTK_WIDGET (toolbar);
 }
 
 void

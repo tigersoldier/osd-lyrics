@@ -1,3 +1,9 @@
+2010-06-09  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_main.c (_on_config_changed): FIX: The player info is now set when switching between display modes.
+
+	* src/ol_image_button.c (ol_image_button_destroy): FIX: Partially fix the bug that cause the image of image button be freed twice.
+
 2010-06-08  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_option.c: ADD: Options for display modes
