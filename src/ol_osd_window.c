@@ -1678,6 +1678,10 @@ ol_osd_window_set_active_colors (OlOsdWindow *osd,
   osd->active_colors[0] = top_color;
   osd->active_colors[1] = middle_color;
   osd->active_colors[2] = bottom_color;
+  int i;
+  for (i = 0; i < osd->line_count; i++)
+    ol_osd_window_update_lyric_pixmap (osd, i);
+  ol_osd_window_update_osd (osd);
 }
 
 void
@@ -1690,6 +1694,10 @@ ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
   osd->inactive_colors[0] = top_color;
   osd->inactive_colors[1] = middle_color;
   osd->inactive_colors[2] = bottom_color;
+  int i;
+  for (i = 0; i < osd->line_count; i++)
+    ol_osd_window_update_lyric_pixmap (osd, i);
+  ol_osd_window_update_osd (osd);
 }
 
 void

@@ -1,5 +1,11 @@
 2010-06-09  Tiger Soldier  <tigersoldi@gmail.com>
 
+	* src/ol_about.c: CHANGE: Apply changes in preference immediately, the OK button is removed
+
+	* src/ol_osd_window.c: FIX: The color changes of OSD Window will be applied immediately.
+
+	* src/ol_option.c: CHANGE: Do not show preference dialog as modal.
+
 	* src/ol_main.c (_on_config_changed): FIX: The player info is now set when switching between display modes.
 
 	* src/ol_image_button.c (ol_image_button_destroy): FIX: Partially fix the bug that cause the image of image button be freed twice.

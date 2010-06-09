@@ -48,5 +48,5 @@ ol_about_show ()
     }
   }
   ol_assert (window != NULL);
-  gtk_dialog_run (GTK_DIALOG (window));
+  gtk_widget_show (GTK_WIDGET (window));
 }

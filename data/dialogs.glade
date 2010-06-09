@@ -101,11 +101,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                             <property name="n_columns">2</property>
                             <child>
                               <object class="GtkImage" id="osd-mode-image">
+                                <property name="width_request">200</property>
                                 <property name="stock">gtk-missing-image</property>
                               </object>
                             </child>
                             <child>
                               <object class="GtkImage" id="scroll-mode-image">
+                                <property name="width_request">200</property>
                                 <property name="stock">gtk-missing-image</property>
                               </object>
                               <packing>
@@ -121,6 +123,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                 <property name="receives_default">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
+                                <property name="group">display-mode-scroll</property>
+                                <signal name="toggled" handler="ol_option_display_mode_changed"/>
                               </object>
                               <packing>
                                 <property name="top_attach">1</property>
@@ -138,6 +142,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">display-mode-osd</property>
+                                <signal name="toggled" handler="ol_option_display_mode_changed"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -165,26 +170,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox9">
+                  <object class="GtkTable" id="table6">
                     <property name="visible">True</property>
-                    <child>
-                      <object class="GtkLabel" id="label24">
-                        <property name="visible">True</property>
-                        <property name="tooltip_text" translatable="yes">If no player detected, launch the given player</property>
-                        <property name="xpad">5</property>
-                        <property name="label" translatable="yes">Auto la_unch player:</property>
-                        <property name="use_underline">True</property>
-                        <property name="mnemonic_widget">startup-player-cb</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
+                    <property name="n_rows">2</property>
+                    <property name="n_columns">2</property>
                     <child>
                       <object class="GtkComboBox" id="startup-player-cb">
                         <property name="visible">True</property>
-                        <property name="tooltip_text" translatable="yes">If no player detected, launch the given player</property>
                         <property name="model">liststore4</property>
                         <signal name="changed" handler="ol_option_startup_player_changed"/>
                         <child>
@@ -195,47 +187,60 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         </child>
                       </object>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="y_options"></property>
                       </packing>
                     </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox10">
-                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label24">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Auto la_unch player:</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">startup-player-cb</property>
+                      </object>
+                      <packing>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
                     <child>
                       <object class="GtkLabel" id="label25">
                         <property name="visible">True</property>
-                        <property name="tooltip_text" translatable="yes">The command of player to launch</property>
+                        <property name="xalign">1</property>
                         <property name="xpad">5</property>
                         <property name="label" translatable="yes">Pla_yer command:</property>
                         <property name="use_underline">True</property>
                         <property name="mnemonic_widget">startup-player</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="position">0</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="startup-player">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="tooltip_text" translatable="yes">The command of player to launch</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <signal name="focus_out_event" handler="ol_option_save_startup_player"/>
                       </object>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="y_options"></property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">2</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -246,10 +251,11 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="ol_option_notify_music_changed"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">3</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -292,6 +298,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="receives_default">True</property>
                         <property name="use_font">True</property>
                         <signal name="font_set" handler="ol_option_update_preview"/>
+                        <signal name="font_set" handler="ol_option_font_changed"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -319,6 +326,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">adjustment4</property>
+                        <signal name="value_changed" handler="ol_option_osd_width_changed"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -353,6 +361,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">line-count-2</property>
+                            <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -367,6 +376,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">line-count-1</property>
+                            <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
                           </object>
                           <packing>
                             <property name="position">1</property>
@@ -402,6 +412,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">adjustment3</property>
                         <signal name="changed" handler="ol_option_update_preview"/>
+                        <signal name="changed" handler="ol_option_osd_outline_changed"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -425,6 +436,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     <property name="use_underline">True</property>
                     <property name="yalign">0.55000001192092896</property>
                     <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="ol_option_mouseover_changed"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -465,6 +477,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">adjustment2</property>
                                 <property name="value_pos">right</property>
+                                <signal name="value_changed" handler="ol_option_osd_alignment_changed"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -493,6 +506,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">adjustment1</property>
                                 <property name="value_pos">right</property>
+                                <signal name="value_changed" handler="ol_option_osd_alignment_changed"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -608,6 +622,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="receives_default">True</property>
                                     <property name="color">#666626260000</property>
                                     <signal name="color_set" handler="ol_option_update_preview"/>
+                                    <signal name="color_set" handler="ol_option_osd_color_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">2</property>
@@ -642,6 +657,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="receives_default">True</property>
                                     <property name="color">#ffffffff0000</property>
                                     <signal name="color_set" handler="ol_option_update_preview"/>
+                                    <signal name="color_set" handler="ol_option_osd_color_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -665,6 +681,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="receives_default">True</property>
                                     <property name="color">#ffff80800000</property>
                                     <signal name="color_set" handler="ol_option_update_preview"/>
+                                    <signal name="color_set" handler="ol_option_osd_color_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">6</property>
@@ -703,6 +720,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="receives_default">True</property>
                                     <property name="color">#9999ffffffff</property>
                                     <signal name="color_set" handler="ol_option_update_preview"/>
+                                    <signal name="color_set" handler="ol_option_osd_color_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">2</property>
@@ -730,6 +748,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="receives_default">True</property>
                                     <property name="color">#00000000ffff</property>
                                     <signal name="color_set" handler="ol_option_update_preview"/>
+                                    <signal name="color_set" handler="ol_option_osd_color_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -757,6 +776,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="receives_default">True</property>
                                     <property name="color">#9999ffffffff</property>
                                     <signal name="color_set" handler="ol_option_update_preview"/>
+                                    <signal name="color_set" handler="ol_option_osd_color_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">6</property>
@@ -1133,6 +1153,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="visible">True</property>
                         <property name="tooltip_text" translatable="yes">Choose witch site you want to download from.</property>
                         <property name="model">liststore1</property>
+                        <signal name="changed" handler="ol_option_download_engine_changed"/>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext1"/>
                           <attributes>
@@ -1160,6 +1181,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     <property name="tooltip_text" translatable="yes">If there are more than one lrc files matched with the search condition, download the first one without prompting the user.</property>
                     <property name="use_underline">True</property>
                     <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="ol_option_download_first_changed"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1195,13 +1217,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="optioncancel">
-                <property name="label">gtk-cancel</property>
+              <object class="GtkButton" id="option-close">
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="ol_option_cancel_clicked"/>
+                <signal name="clicked" handler="ol_option_close_clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1210,19 +1232,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="optionok">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="ol_option_ok_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
               <object class="GtkButton" id="option-aboug">
@@ -1240,9 +1250,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="secondary">True</property>
               </packing>
             </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -1253,8 +1260,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">optioncancel</action-widget>
-      <action-widget response="0">optionok</action-widget>
+      <action-widget response="0">option-close</action-widget>
       <action-widget response="0">option-aboug</action-widget>
     </action-widgets>
   </object>
