@@ -273,7 +273,7 @@ ol_scroll_window_paint (OlScrollWindow *scroll)
     for (i = begin; i < end; i++) {
       ypos += line_height;
       if (i < 0) continue;
-      if (i > scroll->whole_lyrics->len)
+      if (i >= scroll->whole_lyrics->len)
         break;
       pango_layout_set_text (layout,
                              g_strdup (g_ptr_array_index (scroll->whole_lyrics, i)),

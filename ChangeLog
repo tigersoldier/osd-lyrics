@@ -1,3 +1,7 @@
+2010-06-10  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_scroll_window.c (ol_scroll_window_paint): FIX:Crash out when end of a song
+
 2010-06-10  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_scroll_window.c (ol_scroll_window_paint): CHANGE: Refactor scroll window, get rid of active_lyrics array
