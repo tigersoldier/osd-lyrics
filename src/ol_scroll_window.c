@@ -14,7 +14,7 @@
 
 /*************default setting******************/
 static const gint DEFAULT_WIDTH = 600;
-static const gint DEFAULT_HEIGHT = 400;
+static const gint DEFAULT_HEIGHT = 600;
 static const gint DEFAULT_LINE_COUNT = 20;
 static const OlColor DEFAULT_ACTIVE_COLOR = {1,1,1};
 static const OlColor DEFAULT_INACTIVE_COLOR = {1,0,0};
@@ -52,6 +52,8 @@ static void ol_scroll_window_paint (OlScrollWindow *scroll);
 static void ol_scroll_window_set_paint_lyrics (OlScrollWindow *scroll);
 static int ol_scroll_window_compute_line_count (OlScrollWindow *scroll);
 static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
+
+static void ol_scroll_window_resize (OlScrollWindow *scroll);
 
 
 static GtkWidgetClass *parent_class = NULL;
@@ -112,9 +114,23 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->alignment = DEFAULT_ALIGNMENT;
   priv->outline_width = DEFAULT_OUTLINE_WIDTH;
   /*set allocation*/
-  gtk_window_resize(GTK_WINDOW(self), DEFAULT_WIDTH, DEFAULT_HEIGHT);
-}
+  gtk_window_resize(GTK_WINDOW(self), priv->width, priv->height);
+  gtk_signal_connect (GTK_OBJECT (self), "size-allocate",
+                            GTK_SIGNAL_FUNC (ol_scroll_window_resize), self);
 
+}
+static void
+ol_scroll_window_resize (OlScrollWindow *scroll)
+{
+  g_return_if_fail (scroll != NULL);
+  gint width,height;
+  gtk_window_get_size (GTK_WINDOW (scroll), &width, &height);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->width = width;
+  priv->height = height;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+  
+}
 static void
 ol_scroll_window_class_init (OlScrollWindowClass *klass)
 {
@@ -245,6 +261,7 @@ ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percenta
 static void
 ol_scroll_window_set_paint_lyrics (OlScrollWindow *scroll)
 {
+  ol_log_func ();
   int tag,i,k;
   int current_id = scroll->current_lyric_id;
   int whole_lyrics_len = scroll->whole_lyrics_len;
