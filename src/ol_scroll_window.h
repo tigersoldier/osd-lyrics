@@ -41,7 +41,6 @@ struct _OlScrollWindow
 {
   /*basic*/
   GtkWindow widget;
-  GPtrArray *paint_lyrics;
   double percentage;
   GPtrArray *whole_lyrics;
   gint whole_lyrics_len;
@@ -100,12 +99,12 @@ int ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll);
  * @param font_family Font family, must not be NULL
  */
 void ol_scroll_window_set_font_family (OlScrollWindow *scroll,
-                                    const char *font_family);
+                                       const char *font_family);
 /** 
  * @brief Gets the font family for an SCROLL Window
  * 
  * @param scroll An OlScrollWindow
  * @return The font family
  */
-char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
+const char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */
