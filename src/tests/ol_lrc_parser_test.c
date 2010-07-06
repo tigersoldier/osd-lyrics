@@ -57,8 +57,24 @@ void test_bom ()
   ol_lrc_parser_free (parser);
 }
 
+/* issue 113 */
+void test_no_newline ()
+{
+  const char *FILENAME = "lrc_no_newline.lrc";
+  struct OlLrcParser *parser = ol_lrc_parser_new_from_file (FILENAME);
+  union OlLrcToken *token = NULL;
+  while ((token = ol_lrc_parser_next_token (parser)) != NULL)
+  {
+    if (ol_lrc_token_get_type (token) == OL_LRC_TOKEN_TEXT)
+      ol_test_expect (strcmp (token->text.text, "lyric") == 0);
+    ol_lrc_token_free (token);
+  }
+  ol_lrc_parser_free (parser);
+}
+
 int main()
 {
   test_file ();
   test_bom ();
+  test_no_newline ();
 }
