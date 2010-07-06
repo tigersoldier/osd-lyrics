@@ -148,8 +148,11 @@ fi
 AM_CONDITIONAL(HAVE_APP_INDICATOR, test x"$enable_appindicator" = xyes)
 
 # i18n support from GNU gettext.
-AM_GNU_GETTEXT_VERSION([0.17])
-AM_GNU_GETTEXT([external])
+GETTEXT_PACKAGE=osd-lyrics
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
+IT_PROG_INTLTOOL([0.35.0])
+AM_GLIB_GNU_GETTEXT
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
@@ -159,5 +162,3 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 # Checks for library functions.
 
 AC_OUTPUT
-
-chmod +x dailydeb.sh
