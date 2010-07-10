@@ -22,6 +22,7 @@
 #include "ol_player_quodlibet.h"
 #include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
+#include "ol_player_muine.h"
 
 static GArray *players = NULL;
 
@@ -51,6 +52,7 @@ ol_player_init ()
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_qmmp_get ());
     ol_player_register (ol_player_juk_get ());
+    ol_player_register (ol_player_muine_get ());
   }
 }
 

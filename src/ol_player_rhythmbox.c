@@ -75,7 +75,7 @@ ol_player_rhythmbox_get_real_ms (int time)
   if (ol_player_rhythmbox_get_status () != OL_PLAYER_PLAYING)
   {
     int real_time = ol_elapse_emulator_get_last_ms (&elapse, time);
-    /* reset timer to current time to avoid error on resume playing*/
+    /* reset timer to current time to avoid error on resume playing */
     ol_elapse_emulator_init (&elapse, real_time, elapse.accuracy);
     return real_time;
   }

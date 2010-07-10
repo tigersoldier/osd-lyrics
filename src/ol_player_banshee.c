@@ -36,7 +36,7 @@ static gboolean ol_player_banshee_get_played_time (int *played_time);
 static gboolean ol_player_banshee_get_music_length (int *len);
 static gboolean ol_player_banshee_init_dbus ();
 static gboolean ol_player_banshee_get_activated ();
-static gboolean ol_player_banshee_proxy_destroy_handler (gpointer userdata);
+static gboolean ol_player_banshee_proxy_destroy_handler (DBusGProxy *proxy, gpointer userdata);
 static enum OlPlayerStatus ol_player_banshee_get_status ();
 static int ol_player_banshee_get_capacity ();
 static gboolean ol_player_banshee_play ();
@@ -48,10 +48,10 @@ static gboolean ol_player_banshee_seek (int pos_ms);
 static const char *ol_player_banshee_get_icon_path ();
 
 static gboolean
-ol_player_banshee_proxy_destroy_handler (gpointer userdata)
+ol_player_banshee_proxy_destroy_handler (DBusGProxy *_proxy, gpointer userdata)
 {
   ol_log_func ();
-  g_object_unref (userdata);
+  g_object_unref (proxy);
   proxy = NULL;
   return FALSE;
 }
