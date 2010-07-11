@@ -55,7 +55,15 @@ static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
 static void ol_scroll_window_resize (OlScrollWindow *scroll);
 static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 
+static gboolean ol_scroll_window_button_press (GtkWidget * widget,  GdkEventButton * event);
+static gboolean ol_scroll_window_button_release (GtkWidget * widget, GdkEventButton * event);
+static gboolean ol_scroll_window_motion_notify (GtkWidget * widget,  GdkEventButton * event);
+
 static GtkWidgetClass *parent_class = NULL;
+
+static gboolean drag = FALSE;
+static int nX = 0;
+static int nY = 0;
 
 
 GType
@@ -88,6 +96,8 @@ ol_scroll_window_new ()
 {
   OlScrollWindow *scroll;
   scroll = g_object_new (ol_scroll_window_get_type (), NULL);
+  gtk_window_set_decorated (GTK_WINDOW(scroll),FALSE);
+  gtk_window_set_opacity(GTK_WINDOW(scroll), 1.0);
   return GTK_WIDGET (scroll);
 }
 
@@ -115,7 +125,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   gtk_window_resize(GTK_WINDOW(self), priv->width, priv->height);
   gtk_signal_connect (GTK_OBJECT (self), "size-allocate",
                             GTK_SIGNAL_FUNC (ol_scroll_window_resize), self);
-
+  gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK|GDK_POINTER_MOTION_MASK);
 }
 static void
 ol_scroll_window_resize (OlScrollWindow *scroll)
@@ -141,6 +151,11 @@ ol_scroll_window_class_init (OlScrollWindowClass *klass)
   object_class = (GtkObjectClass*) klass;
   widget_class = (GtkWidgetClass*) klass;
   widget_class->expose_event = ol_scroll_window_expose;
+  
+  widget_class->button_press_event = ol_scroll_window_button_press;
+  widget_class->button_release_event = ol_scroll_window_button_release;
+  widget_class->motion_notify_event = ol_scroll_window_motion_notify;
+
   /*add private variables into OlScrollWindow*/
   g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
   
@@ -212,7 +227,7 @@ _get_cairo (OlScrollWindow *scroll)
   cairo_set_source_rgb (cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g);
   gint width, height;
   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
-                         &width, &height);
+			 &width, &height);
   cairo_rectangle (cr, 0, 0, width, height);
   cairo_fill(cr);
   /*clip the disply area*/
@@ -382,3 +397,36 @@ ol_scroll_window_get_font_family (OlScrollWindow *scroll)
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   return priv->font_family;
 }
+
+static gboolean 
+ol_scroll_window_button_press (GtkWidget * widget, 
+			      GdkEventButton * event)
+{
+  if (event->button == 1) {
+    drag = TRUE;
+    nX = event->x;
+    nY = event->y;
+  }
+  return TRUE;
+}
+
+static gboolean
+ol_scroll_window_button_release (GtkWidget * widget, 
+				GdkEventButton * event)
+{
+  if (event->button == 1)
+    drag = FALSE;
+  return TRUE;
+}
+
+static gboolean
+ol_scroll_window_motion_notify (GtkWidget * widget, 
+			      GdkEventButton * event)
+{
+  if (drag) {
+    int x, y;
+    gtk_window_get_position ((GtkWindow *) widget, &x, &y);
+    gtk_window_move((GtkWindow *) widget, x + event->x - nX, y + event->y - nY);
+  }
+  return TRUE;
+} 
