@@ -125,7 +125,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   gtk_window_resize(GTK_WINDOW(self), priv->width, priv->height);
   gtk_signal_connect (GTK_OBJECT (self), "size-allocate",
                             GTK_SIGNAL_FUNC (ol_scroll_window_resize), self);
-  gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK|GDK_POINTER_MOTION_MASK);
+  gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK|GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK);
 }
 static void
 ol_scroll_window_resize (OlScrollWindow *scroll)

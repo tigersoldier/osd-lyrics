@@ -1,6 +1,7 @@
 2010-07-11  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_scroll_window.c (ol_scroll_window_button_release): ADD:Drag the mouse for no-frame window(Gtkwindow shield events:button-press,button-release and motion-notify, so we should add the events for scroll_window in ol_scroll_window_new())
+	FIX:make the window move smoothly(add events:GDK_POINTER_MOTION_HINT_MASK)
 
 2010-06-10  Sarlmol Apple  <sarlmolapple@gmail.com>
 
