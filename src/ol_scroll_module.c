@@ -39,6 +39,7 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   {
     return;
   }
+  gtk_window_set_opacity(GTK_WINDOW(module->scroll), 0.7); 
   gtk_widget_show(GTK_WIDGET (module->scroll));
 }
 

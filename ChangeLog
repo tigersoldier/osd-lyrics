@@ -1,3 +1,7 @@
+2010-07-12  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_scroll_window.c (_draw_destory_button): ADD:draw the destory button
+
 2010-07-11  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_scroll_window.c (ol_scroll_window_button_release): ADD:Drag the mouse for no-frame window(Gtkwindow shield events:button-press,button-release and motion-notify, so we should add the events for scroll_window in ol_scroll_window_new())

@@ -16,8 +16,8 @@
 static const gint DEFAULT_WIDTH = 600;
 static const gint DEFAULT_HEIGHT = 600;
 static const gint DEFAULT_LINE_COUNT = 20;
-static const OlColor DEFAULT_ACTIVE_COLOR = {1,1,1};
-static const OlColor DEFAULT_INACTIVE_COLOR = {1,0,0};
+static const OlColor DEFAULT_ACTIVE_COLOR = {0.89,0.81,0};
+static const OlColor DEFAULT_INACTIVE_COLOR = {0.98,0.92,0.84};
 static const OlColor DEFAULT_BG_COLOR = {0,0,0};
 static const char *DEFAULT_FONT_FAMILY = "serif";
 static const double DEFAULT_FONT_SIZE = 13.0;
@@ -59,6 +59,8 @@ static gboolean ol_scroll_window_button_press (GtkWidget * widget,  GdkEventButt
 static gboolean ol_scroll_window_button_release (GtkWidget * widget, GdkEventButton * event);
 static gboolean ol_scroll_window_motion_notify (GtkWidget * widget,  GdkEventButton * event);
 
+static void _draw_destory_button (OlScrollWindow *scroll, cairo_t *cr, double size);
+
 static GtkWidgetClass *parent_class = NULL;
 
 static gboolean drag = FALSE;
@@ -97,7 +99,7 @@ ol_scroll_window_new ()
   OlScrollWindow *scroll;
   scroll = g_object_new (ol_scroll_window_get_type (), NULL);
   gtk_window_set_decorated (GTK_WINDOW(scroll),FALSE);
-  gtk_window_set_opacity(GTK_WINDOW(scroll), 1.0);
+  gtk_window_set_opacity(GTK_WINDOW(scroll), 0.1);
   return GTK_WIDGET (scroll);
 }
 
@@ -257,6 +259,24 @@ _get_active_color_ratio (OlScrollWindow *scroll, int line)
   return ratio;
 }
 
+static void 
+_draw_destory_button (OlScrollWindow *scroll, cairo_t *cr, double size)
+{
+   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+   ol_assert (cr != NULL);
+   gint width, height;
+   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
+			 &width, &height);
+   cairo_move_to (cr, width-size-3.0, 3.0);
+   cairo_line_to (cr, width-3.0, size+3.0);
+
+   cairo_move_to (cr, width-size-3.0, size+3.0);
+   cairo_line_to (cr, width-3.0, 3.0);
+   cairo_set_source_rgb (cr, 1, 1, 1);
+   cairo_set_line_width (cr, 2.0);
+   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
+   cairo_stroke (cr);
+}
 static void
 ol_scroll_window_paint (OlScrollWindow *scroll)
 {
@@ -275,6 +295,8 @@ ol_scroll_window_paint (OlScrollWindow *scroll)
   cairo_t *cr = _get_cairo (scroll);
   /* set the font */
   PangoLayout *layout = _get_pango (scroll, cr);
+  /* paint the destory button*/
+  _draw_destory_button (scroll, cr, 10);
   /* paint the lyrics*/
   int i;
   int begin = scroll->current_lyric_id - count / 2;
