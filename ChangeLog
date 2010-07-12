@@ -1,6 +1,7 @@
 2010-07-12  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_scroll_window.c (_draw_destory_button): ADD:draw the destory button
+	ADD:add destory-event handle for destory button
 
 2010-07-11  Sarlmol Apple  <sarlmolapple@gmail.com>
 

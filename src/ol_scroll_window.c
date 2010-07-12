@@ -127,7 +127,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   gtk_window_resize(GTK_WINDOW(self), priv->width, priv->height);
   gtk_signal_connect (GTK_OBJECT (self), "size-allocate",
                             GTK_SIGNAL_FUNC (ol_scroll_window_resize), self);
-  gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK|GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK);
+  gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK|GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK|GDK_DESTROY);
 }
 static void
 ol_scroll_window_resize (OlScrollWindow *scroll)
@@ -264,9 +264,9 @@ _draw_destory_button (OlScrollWindow *scroll, cairo_t *cr, double size)
 {
    ol_assert (OL_IS_SCROLL_WINDOW (scroll));
    ol_assert (cr != NULL);
-   gint width, height;
+   gint width;
    gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
-			 &width, &height);
+			 &width, NULL);
    cairo_move_to (cr, width-size-3.0, 3.0);
    cairo_line_to (cr, width-3.0, size+3.0);
 
@@ -436,6 +436,12 @@ static gboolean
 ol_scroll_window_button_release (GtkWidget * widget, 
 				GdkEventButton * event)
 {
+  gint width;
+  gdk_drawable_get_size (gtk_widget_get_window (widget),
+			 &width, NULL);
+  if (event->x <= width-3 &&event->x >= width-13 && event->y >= 3 && event->y <= 13) {
+    gtk_widget_destroy (widget);
+  }
   if (event->button == 1)
     drag = FALSE;
   return TRUE;
