@@ -382,6 +382,7 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module, int played_time)
 {
   /* updates the time and lyrics */
   /* ol_log_func (); */
+  //ol_debugf ("fuck here!!\n");
   ol_assert (module != NULL);
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);

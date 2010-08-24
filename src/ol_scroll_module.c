@@ -88,7 +88,6 @@ ol_scroll_module_set_music_info (struct OlDisplayModule *module, OlMusicInfo *mu
 void
 ol_scroll_module_set_played_time (struct OlDisplayModule *module, int played_time)
 {
-  ol_log_func();
   ol_assert (module != NULL);
   ol_assert (module != NULL);
   OlScrollModule *priv = ol_display_module_get_data (module);
@@ -114,6 +113,7 @@ ol_scroll_module_set_played_time (struct OlDisplayModule *module, int played_tim
       /*change to the next lyric line*/
       if (lyric_id != ol_scroll_window_get_current_lyric_id (priv->scroll))
       {
+	ol_debugf ("lyris:%s\n",ol_lrc_item_get_lyric(info));
         ol_scroll_window_set_lyric (priv->scroll, ol_lrc_item_get_id (info));
       }
       /*set the percentage of the current lyric line*/
@@ -122,8 +122,9 @@ ol_scroll_module_set_played_time (struct OlDisplayModule *module, int played_tim
     }
     
   }
-  else
+  else {
     ol_scroll_window_set_lyric (priv->scroll, -1);
+  }
 }
 
 

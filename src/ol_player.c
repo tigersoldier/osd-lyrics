@@ -23,6 +23,7 @@
 #include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
+#include "ol_player_guayadeque02.h"
 
 static GArray *players = NULL;
 
@@ -53,6 +54,7 @@ ol_player_init ()
     ol_player_register (ol_player_qmmp_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
+    ol_player_register (ol_player_guayadeque02_get ());
   }
 }
 
@@ -115,7 +117,14 @@ ol_player_get_music_info (struct OlPlayer *player, OlMusicInfo *info)
 {
   if (player == NULL)
     return FALSE;
-  return player->get_music_info (info);
+  gboolean s =player->get_music_info (info);
+  /*ol_debugf ("title:%s\n", info->title);
+  ol_debugf ("artist:%s\n", info->artist);
+  ol_debugf ("album:%s\n", info->album);
+  ol_debugf ("track_number:%d\n", info->track_number);
+  ol_debugf ("uri:%s\n", info->uri);*/
+
+  return s;
 }
 
 gboolean
@@ -131,7 +140,9 @@ ol_player_get_played_time (struct OlPlayer *player, int *played_time)
 {
   if (player == NULL)
     return FALSE;
-  return player->get_played_time (played_time);
+  gboolean s = player->get_played_time (played_time);
+  ol_debugf ("played-time:%d\n", *played_time);
+  return s;
 }
 
 gboolean
@@ -149,6 +160,7 @@ ol_player_get_status (struct OlPlayer *player)
     return OL_PLAYER_ERROR;
   if (player->get_status == NULL)
     return OL_PLAYER_ERROR;
+  ol_debugf ("status:%d\n",player->get_status());
   return player->get_status ();
 }
 

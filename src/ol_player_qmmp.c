@@ -160,6 +160,7 @@ _get_icon_path ()
     if (ol_path_is_file (icon_paths[i]))
       return icon_paths[i];
   }
+  
   return NULL;
 }
 

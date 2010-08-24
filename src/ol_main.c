@@ -214,6 +214,7 @@ _check_lyric_file ()
   int code = ol_lrclib_find (&music_info, &filename);
   if (code == 0)
     filename = ol_lyric_find (&music_info);
+ 
   if (filename != NULL)
   {
     ret = ol_app_assign_lrcfile (&music_info, filename, code == 0);
@@ -221,6 +222,7 @@ _check_lyric_file ()
   }
   else
   {
+    ol_debugf("filename;%s\n", filename);
     if (code == 0) ret = FALSE;
   }
   return ret;
@@ -229,7 +231,7 @@ _check_lyric_file ()
 static void
 _on_music_changed ()
 {
-  ol_log_func ();
+  ol_debugf("on music change\n");
   if (module != NULL)
   {
     ol_display_module_set_music_info (module, &music_info);

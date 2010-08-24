@@ -135,6 +135,7 @@ void
 ol_display_module_set_music_info (struct OlDisplayModule *module,
                                   OlMusicInfo *music_info)
 {
+  ol_log_func ();
   ol_assert (module != NULL);
   call (module->klass->set_music_info, module, music_info);
 }
@@ -175,6 +176,7 @@ void
 ol_display_module_set_duration (struct OlDisplayModule *module,
                                 int duration)
 {
+  ol_log_func ();
   ol_assert (module != NULL);
   call (module->klass->set_duration, module, duration);
 }
