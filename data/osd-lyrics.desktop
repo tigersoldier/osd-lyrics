@@ -9,6 +9,6 @@ Icon=osd-lyrics
 StartupNotify=true
 Terminal=false
 Type=Application
-Categories=GTK;GNOME;AudioVideo;Audio;Music;Player;X-Ximian-Main;X-Novell-Main;X-Red-Hat-Base;
+Categories=GTK;AudioVideo;Education;Audio;Music;Player;X-Ximian-Main;X-Novell-Main;X-Red-Hat-Base;
 MimeType=
 X-Ubuntu-Gettext-Domain=osd-lyrics
