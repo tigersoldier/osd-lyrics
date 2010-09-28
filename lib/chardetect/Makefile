@@ -17,7 +17,7 @@ $(TARGET):
 	    $(MAKE) -C $$mdir ; \
 	  fi; \
 	done
-	libtool --mode=compile $(CXX) $(CXXFLAGS) src/entry/impl.cpp
+	libtool --tag=CC --mode=compile $(CXX) $(CXXFLAGS) src/entry/impl.cpp
 	libtool --tag=CC --mode=link gcc -O2 -o $(TARGET) \
 		impl.lo src/*.lo \
 	        -avoid-version -module \
