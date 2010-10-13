@@ -70,6 +70,7 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
     cairo_stroke (cr);
   }
   cairo_restore (cr);
+  cairo_save (cr);
   cairo_new_path (cr);
   /* creates the linear pattern */
   cairo_pattern_t *pattern = cairo_pattern_create_linear (xpos, ypos, xpos, ypos + height);
@@ -83,10 +84,12 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
                                      context->linear_colors[i].b);
   }
   cairo_set_source (cr, pattern);
+  cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
   /* draws the text */
   cairo_move_to (cr, xpos, ypos);
   pango_cairo_show_layout (cr, context->pango_layout);
   cairo_pattern_destroy (pattern);
+  cairo_restore (cr);
 }
 
 void
