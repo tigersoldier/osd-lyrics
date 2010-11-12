@@ -355,7 +355,7 @@ ol_osd_module_free (struct OlDisplayModule *module)
   }
   if (priv->window != NULL)
   {
-    g_object_unref (priv->window);
+    gtk_widget_destroy (priv->window);
     priv->window = NULL;
   }
   OlConfig *config = ol_config_get_instance ();

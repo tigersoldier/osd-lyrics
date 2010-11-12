@@ -1,5 +1,5 @@
 check_PROGRAMS = \
-	ol_osd_test \
+	ol_osd_window_test \
 	ol_player_test\
 	ol_lrc_parser_test\
 	ol_lrc_test \
@@ -39,7 +39,7 @@ ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c
 
-ol_osd_test_SOURCES = ol_osd_test.c \
+ol_osd_window_test_SOURCES = ol_osd_window_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
 	$(top_srcdir)/src/ol_osd_render.c \
 	$(top_srcdir)/src/ol_debug.c \
@@ -58,6 +58,8 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_exaile03.c \
 	$(top_srcdir)/src/ol_player_audacious.c \
 	$(top_srcdir)/src/ol_player_rhythmbox.c \
+	$(top_srcdir)/src/ol_player_guayadeque02.c \
+	$(top_srcdir)/src/ol_player_muine.c \
 	$(top_srcdir)/src/ol_player_mpd.c \
 	$(top_srcdir)/src/ol_player_moc.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
