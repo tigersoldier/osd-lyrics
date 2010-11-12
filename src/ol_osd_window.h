@@ -47,8 +47,6 @@ enum OlOsdWindowSingals {
 struct _OlOsdWindow
 {
   GtkWindow parent;
-  GdkWindow *event_window;
-  GdkWindow *osd_window;
   GdkPixbuf *bg_pixbuf;
   GdkScreen *screen;
   gchar *lyrics[OL_OSD_WINDOW_MAX_LINE_COUNT];
