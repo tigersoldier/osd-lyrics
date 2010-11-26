@@ -1,3 +1,7 @@
+2010-11-26  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_player.c (ol_player_init): ADD:Supports clementine
+
 2010-08-23  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_guayadeque02.c : ADD: Guayadeque0.2.5 support

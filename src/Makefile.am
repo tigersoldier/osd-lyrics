@@ -67,6 +67,7 @@ osd_lyrics_SOURCES = \
 	ol_player_mpd.c \
 	ol_player_muine.c \
 	ol_player_guayadeque02.c \
+	ol_player_clementine.c    \
 	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include "config.h"
 #include "ol_player.h"
@@ -11,6 +12,7 @@
 #include "ol_player_amarok2.h"
 #include "ol_player_audacious.h"
 #include "ol_player_songbird.h"
+#include "ol_player_clementine.h"
 #ifdef ENABLE_XMMS2
 #include "ol_player_xmms2.h"
 #endif  /* ENABLE_XMMS2 */
@@ -41,7 +43,8 @@ ol_player_init ()
     ol_player_register (ol_player_exaile02_get ());
     ol_player_register (ol_player_exaile03_get ());
     ol_player_register (ol_player_audacious_get ());
-    ol_player_register (ol_player_songbird_get ()); 
+    ol_player_register (ol_player_songbird_get ());
+    ol_player_register (ol_player_clementine_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
@@ -55,6 +58,7 @@ ol_player_init ()
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
     ol_player_register (ol_player_guayadeque02_get ());
+
   }
 }
 
