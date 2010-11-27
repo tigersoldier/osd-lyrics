@@ -63,8 +63,8 @@ ol_scroll_module_free (struct OlDisplayModule *module)
     return;
   if (priv->scroll != NULL)
   {
-    g_object_unref (priv->scroll);
-    priv->scroll = NULL;
+      gtk_widget_destroy (priv->scroll);
+      priv->scroll = NULL;
   }
   ol_music_info_clear (&priv->music_info);
   g_free (priv);

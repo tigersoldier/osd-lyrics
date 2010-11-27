@@ -1,3 +1,7 @@
+2010-11-27  Sarlmol Apple  <sarlmolapple@gmail.com>
+	FIXED: Issue 151(2), Cant close the scroll windows while swithing the display mode. 
+	* src/ol_scroll_module.c (ol_scroll_module_free): 
+
 2010-11-26  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player.c (ol_player_init): ADD:Supports clementine
