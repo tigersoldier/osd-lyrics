@@ -1,3 +1,7 @@
+2010-11-29  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/Makefile.am (osd_lyrics_SOURCES): ADD:Supports Listen Music Player.
+
 2010-11-27  Sarlmol Apple  <sarlmolapple@gmail.com>
 	FIXED: Issue 151(2), Cant close the scroll windows while swithing the display mode. 
 	* src/ol_scroll_module.c (ol_scroll_module_free): 

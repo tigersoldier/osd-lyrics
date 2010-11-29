@@ -6,6 +6,7 @@
 #include "ol_player_banshee.h"
 #include "ol_player_exaile02.h"
 #include "ol_player_exaile03.h"
+#include "ol_player_listen.h"
 #ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
 #endif  /* ENABLE_AMAROK1 */
@@ -45,6 +46,7 @@ ol_player_init ()
     ol_player_register (ol_player_audacious_get ());
     ol_player_register (ol_player_songbird_get ());
     ol_player_register (ol_player_clementine_get ());
+    ol_player_register (ol_player_listen_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
@@ -170,6 +172,7 @@ ol_player_get_status (struct OlPlayer *player)
 
 int
 ol_player_get_capacity (struct OlPlayer *player)
+    
 {
   if (player == NULL)
     return -1;
