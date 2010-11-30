@@ -1,5 +1,10 @@
 2010-11-29  Sarlmol Apple  <sarlmolapple@gmail.com>
 
+	* src/ol_player-mpris.c (osd_lyrics_SOURCES): MERGE:Merge asyn-dbus branch r390:r401 into trunk
+
+
+2010-11-29  Sarlmol Apple  <sarlmolapple@gmail.com>
+
 	* src/Makefile.am (osd_lyrics_SOURCES): ADD:Supports Listen Music Player.
 
 2010-11-27  Sarlmol Apple  <sarlmolapple@gmail.com>

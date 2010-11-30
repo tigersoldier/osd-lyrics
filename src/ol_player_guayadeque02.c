@@ -22,7 +22,7 @@ static const char *icon_paths[] = {
 };
 
 static OlPlayerMpris *mpris = NULL;
-//static OlElapseEmulator *elapse_emulator = NULL;
+static OlElapseEmulator *elapse_emulator = NULL;
 
 static OlPlayerMpris* ol_player_guayadeque02_get_mpris ();
 
@@ -38,11 +38,11 @@ static gboolean ol_player_guayadeque02_stop ();
 static gboolean ol_player_guayadeque02_prev ();
 static gboolean ol_player_guayadeque02_next ();
 static gboolean ol_player_guayadeque02_seek (int pos_ms);
-//static void ol_player_guayadeque02_ensure_elapse (int elapsed_time);
+static void ol_player_guayadeque02_ensure_elapse (int elapsed_time);
 static const char *ol_player_guayadeque02_get_icon_path ();
 static const char *_get_icon_path (void);
 
-/*static void
+static void
 ol_player_guayadeque02_ensure_elapse (int elapsed_time)
 {
   if (elapse_emulator == NULL)
@@ -51,7 +51,7 @@ ol_player_guayadeque02_ensure_elapse (int elapsed_time)
     if (elapse_emulator != NULL)
       ol_elapse_emulator_init (elapse_emulator, elapsed_time, 1000);
   }
-  }*/
+}
 
 static OlPlayerMpris*
 ol_player_guayadeque02_get_mpris ()
@@ -74,25 +74,25 @@ static gboolean
 ol_player_guayadeque02_get_played_time (int *played_time)
 {
   OlPlayerMpris *mpris = ol_player_guayadeque02_get_mpris ();
-  return ol_player_mpris_get_played_time (mpris, played_time);
-  /*int amarok_time = 0;
-  if (!ol_player_mpris_get_played_time (mpris, &amarok_time))
+  //return ol_player_mpris_get_played_time (mpris, played_time);
+  int guayadeque_time = 0;
+  if (!ol_player_mpris_get_played_time (mpris, &guayadeque_time))
     return FALSE;
-  ol_player_guayadeque02_ensure_elapse (amarok_time);
+  ol_player_guayadeque02_ensure_elapse (guayadeque_time);
 
   if (0)
   {
     enum OlPlayerStatus status = ol_player_guayadeque02_get_status ();
     if (status == OL_PLAYER_PLAYING)
-      *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, amarok_time);
+      *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, guayadeque_time);
     else
-      *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, amarok_time);
+      *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, guayadeque_time);
   }
   else
   {
-    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, amarok_time);
-    }
-    return TRUE;*/
+    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, guayadeque_time);
+  }
+  return TRUE;
 }
 
 static gboolean

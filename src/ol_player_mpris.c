@@ -30,112 +30,181 @@ static const char *SET_POSITION_METHOD = "PositionSet";
 
 static gboolean ol_player_mpris_init_dbus (OlPlayerMpris *mpris);
 static gboolean ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris);
-static GHashTable* ol_player_mpris_get_metadata (OlPlayerMpris *mpris);
+static gboolean ol_player_mpris_update_metadata (OlPlayerMpris *mpris);
+static void _clear_str (gchar **str);
+static void _get_played_time_cb(DBusGProxy *proxy,
+                                DBusGProxyCall *call_id,
+                                OlPlayerMpris *mpris);
+static void _get_metadata_cb(DBusGProxy *proxy,
+                             DBusGProxyCall *call_id,
+                             OlPlayerMpris *mpris);
+static void _get_status_cb(DBusGProxy *proxy,
+                           DBusGProxyCall *call_id,
+                           OlPlayerMpris *mpris);
 
 OlPlayerMpris*
 ol_player_mpris_new (const char *service)
 {
-  OlPlayerMpris *mpris = g_new (OlPlayerMpris, 1);
+  OlPlayerMpris *mpris = g_new0 (OlPlayerMpris, 1);
   mpris->name = g_strdup (service);
   mpris->proxy = NULL;
   return mpris;
 }
 
+static void
+_clear_str (gchar **str)
+{
+  if (str != NULL && *str != NULL)
+  {
+    g_free (*str);
+    *str = NULL;
+  }
+}
+
 static gboolean
 ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris)
 {
-  ol_debugf ("name:%c\n", *mpris->name);
+  ol_assert_ret (mpris != NULL, FALSE);
   g_object_unref (mpris->proxy);
+  if (mpris->call_id)
+    dbus_g_proxy_cancel_call (proxy, mpris->call_id);
+  if (mpris->metadata_call_id)
+    dbus_g_proxy_cancel_call (proxy, mpris->metadata_call_id);
+  _clear_str (&mpris->title);
+  _clear_str (&mpris->artist);
+  _clear_str (&mpris->album);
+  _clear_str (&mpris->uri);
+  mpris->music_len = -1;
+  mpris->played_time = -1;
   mpris->proxy = NULL;
   return FALSE;
 }
 
-static GHashTable*
-ol_player_mpris_get_metadata (OlPlayerMpris *mpris)
+static void _get_metadata_cb(DBusGProxy *proxy,
+                             DBusGProxyCall *call_id,
+                             OlPlayerMpris *mpris)
 {
-  GHashTable *data_list = NULL;
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  if (dbus_g_proxy_call (mpris->proxy,
-                         GET_METADATA_METHOD,
-                         NULL,G_TYPE_INVALID,
-                         dbus_g_type_get_map ("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
-                         &data_list,
-                         G_TYPE_INVALID))
+  ol_assert (proxy != NULL);
+  ol_assert (mpris != NULL);
+  if (call_id == mpris->metadata_call_id)
   {
-    return data_list;
+    mpris->metadata_call_id = NULL;
+    GHashTable *data_list = NULL;
+    if (dbus_g_proxy_end_call (mpris->proxy,
+                               call_id,
+                               NULL,
+                               dbus_g_type_get_map ("GHashTable",
+                                                    G_TYPE_STRING,
+                                                    G_TYPE_VALUE),
+                               &data_list,
+                               G_TYPE_INVALID))
+    {
+      g_free (mpris->artist);
+      mpris->artist = g_strdup (ol_get_string_from_hash_table (data_list, "artist"));
+      g_free (mpris->album);
+      mpris->album = g_strdup (ol_get_string_from_hash_table (data_list, "album"));
+      g_free (mpris->title);
+      mpris->title = g_strdup (ol_get_string_from_hash_table (data_list, "title"));
+      g_free (mpris->uri);
+      mpris->uri = g_strdup (ol_get_string_from_hash_table (data_list, "location"));
+
+      gchar *track_number_str = NULL;
+      track_number_str = ol_get_string_from_hash_table (data_list, "tracknumber");
+      if (track_number_str != NULL)
+      {
+        sscanf (track_number_str, "%d", &mpris->track_number);
+      }
+      g_hash_table_destroy (data_list);
+    }
   }
-  else
-  {
-    return NULL;
-  }
-  return NULL;
+}
+
+static gboolean
+ol_player_mpris_update_metadata (OlPlayerMpris *mpris)
+{
+  ol_assert(mpris != NULL);
+  if (mpris->proxy == NULL && !ol_player_mpris_init_dbus (mpris))
+    return FALSE;
+  if (mpris->metadata_call_id != NULL)
+    return TRUE;
+  mpris->metadata_call_id = dbus_g_proxy_begin_call (mpris->proxy,
+                                                     GET_METADATA_METHOD,
+                                                     (DBusGProxyCallNotify)_get_metadata_cb,
+                                                     mpris,
+                                                     NULL,
+                                                     G_TYPE_INVALID);
+  return mpris->metadata_call_id != NULL;
 }
 
 gboolean
 ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
 {
-  GHashTable *data_list = NULL;
+  ol_assert_ret (mpris != NULL, FALSE);
+  ol_assert_ret (info != NULL, FALSE);
   gboolean ret = TRUE;
-  if (info == NULL)
-    return FALSE;
-  if ((data_list = ol_player_mpris_get_metadata (mpris)) != NULL)
+  if (ol_player_mpris_update_metadata (mpris))
   {
     ol_music_info_clear (info);
-    info->artist = g_strdup (ol_get_string_from_hash_table (data_list, "artist"));
-    info->album = g_strdup (ol_get_string_from_hash_table (data_list, "album"));
-    info->title = g_strdup (ol_get_string_from_hash_table (data_list, "title"));
-    info->uri = g_strdup (ol_get_string_from_hash_table (data_list, "location"));
-
-    gchar *track_number_str = NULL;
-    track_number_str = ol_get_string_from_hash_table (data_list, "tracknumber");
-    if (track_number_str != NULL)
-    {
-      sscanf (track_number_str, "%d", &info->track_number);
-    }
-    g_hash_table_destroy (data_list);
+    ol_music_info_set_artist (info, mpris->artist);
+    ol_music_info_set_album (info, mpris->album);
+    ol_music_info_set_title (info, mpris->title);
+    ol_music_info_set_uri (info, mpris->uri);
+    ol_music_info_set_track_number (info, mpris->track_number);
+    return TRUE;
+  } else {
+    return FALSE;
   }
-  else
-  {
-    ret = FALSE;
-  }
-  return ret;
 }
 
+static void
+_get_played_time_cb(DBusGProxy *proxy, DBusGProxyCall *call_id, OlPlayerMpris *mpris)
+{
+    mpris->call_id =NULL;
+    GError *error = NULL;
+    dbus_g_proxy_end_call (proxy,
+                           call_id,
+                           &error,
+                           G_TYPE_INT,
+                           &mpris->played_time,
+                           G_TYPE_INVALID);
+    if(error != NULL){ 
+        g_print("Error in method call : %s\n", error->message); 
+        g_error_free(error);
+    }else{ 
+        g_print("SUCCESS,it is now %d\n", mpris->played_time);
+        
+    }
+}
+      
 gboolean
 ol_player_mpris_get_played_time (OlPlayerMpris *mpris, int *played_time)
 {
-  if (!played_time)
-    return FALSE;
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
-  if (ol_dbus_get_int (mpris->proxy,
-                       GET_POSITION_METHOD,
-                       played_time))
-  {
-  }
-  else
-  {
-    return FALSE;
-  }
+  if (mpris->call_id == NULL)
+    mpris->call_id = dbus_g_proxy_begin_call (mpris->proxy,
+                                              GET_POSITION_METHOD,
+                                              (DBusGProxyCallNotify)_get_played_time_cb,
+                                              mpris,
+                                              NULL,
+                                              G_TYPE_INVALID);
+  *played_time = mpris->played_time;
   return TRUE;
 }
+
 
 gboolean
 ol_player_mpris_get_music_length (OlPlayerMpris *mpris, int *len)
 {
-  if (!len)
-    return FALSE;
+  ol_assert_ret (mpris != NULL, FALSE);
+  ol_assert_ret (len != NULL, FALSE);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return FALSE;
-  GHashTable *metadata = NULL;
-  if ((metadata = ol_player_mpris_get_metadata (mpris)) != NULL)
+  if (ol_player_mpris_update_metadata (mpris))
   {
-    *len = ol_get_int_from_hash_table (metadata, "mtime");
-    g_hash_table_destroy (metadata);
+    *len = mpris->music_len;
   }
   else
   {
@@ -184,45 +253,61 @@ ol_player_mpris_get_capacity (OlPlayerMpris *mpris)
     OL_PLAYER_STOP | OL_PLAYER_PREV | OL_PLAYER_NEXT | OL_PLAYER_SEEK;
 }
 
+static void
+_get_status_cb(DBusGProxy *proxy,
+               DBusGProxyCall *call_id,
+               OlPlayerMpris *mpris)
+{
+  static const enum OlPlayerStatus status_map[] =
+    {OL_PLAYER_PLAYING, OL_PLAYER_PAUSED, OL_PLAYER_STOPPED};
+  ol_assert (mpris != NULL);
+
+  GValueArray *status = NULL;
+  if (call_id == mpris->status_call_id)
+  {
+    mpris->status_call_id = NULL;
+    if (dbus_g_proxy_end_call (mpris->proxy,
+                               call_id,
+                               NULL,
+                               dbus_g_type_get_struct("GValueArray",
+                                                      G_TYPE_INT,
+                                                      G_TYPE_INT,
+                                                      G_TYPE_INT,
+                                                      G_TYPE_INT,
+                                                      G_TYPE_INVALID),
+                               &status,
+                               G_TYPE_INVALID))
+    {
+      GValue *value = g_value_array_get_nth (status, 0);
+      gint stat = g_value_get_int (value);
+      if (stat >= 0 && stat < ol_get_array_len (status_map))
+        mpris->status = status_map[stat];
+      else
+        mpris->status = OL_PLAYER_UNKNOWN;
+      g_value_array_free (status);
+    }
+    else
+    {
+      mpris->status = OL_PLAYER_ERROR;
+    }
+  }
+}
+
 enum OlPlayerStatus
 ol_player_mpris_get_status (OlPlayerMpris *mpris)
 {
-  GValueArray *status = NULL;
   ol_assert_ret (mpris != NULL, OL_PLAYER_ERROR);
   if (mpris->proxy == NULL)
     if (!ol_player_mpris_init_dbus (mpris))
       return OL_PLAYER_ERROR;
-  if (dbus_g_proxy_call (mpris->proxy,
-                         GET_STATUS_METHOD,
-                         NULL,G_TYPE_INVALID,
-                         dbus_g_type_get_struct("GValueArray",
-                                                G_TYPE_INT,
-                                                G_TYPE_INT,
-                                                G_TYPE_INT,
-                                                G_TYPE_INT,
-                                                G_TYPE_INVALID),
-                         &status,
-                         G_TYPE_INVALID))
-  {
-    GValue *value = g_value_array_get_nth (status, 0);
-    gint stat = g_value_get_int (value);
-    switch (stat)
-    {
-    case 0:
-      return OL_PLAYER_PLAYING;
-    case 1:
-      return OL_PLAYER_PAUSED;
-    case 2:
-      return OL_PLAYER_STOPPED;
-    default:
-      return OL_PLAYER_UNKNOWN;
-    }
-    g_value_array_free (status);
-  }
-  else
-  {
-    return OL_PLAYER_ERROR;
-  }
+  if (mpris->status_call_id == NULL)
+    mpris->status_call_id = dbus_g_proxy_begin_call (mpris->proxy,
+                                                     GET_STATUS_METHOD,
+                                                     (DBusGProxyCallNotify)_get_status_cb,
+                                                     mpris,
+                                                     NULL,
+                                                     G_TYPE_INVALID);
+  return mpris->status;
 }
 
 gboolean
