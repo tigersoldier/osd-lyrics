@@ -1,4 +1,4 @@
-// Time-stamp: <2010-11-26 00:05:18 Friday by sarlmolapple>
+// Time-stamp: <2010-12-06 06:48:56 Monday by sarlmolapple>
 
 /**
  * @file ol_player_clementine.c
@@ -75,19 +75,11 @@ ol_player_clementine_get_played_time (int *played_time)
   if (!ol_player_mpris_get_played_time (mpris, &clementine_time))
     return FALSE;
   ol_player_clementine_ensure_elapse (clementine_time);
-
-  if (0)
-  {
-    enum OlPlayerStatus status = ol_player_clementine_get_status ();
-    if (status == OL_PLAYER_PLAYING)
+  enum OlPlayerStatus status = ol_player_clementine_get_status ();
+  if (status == OL_PLAYER_PLAYING)
       *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, clementine_time);
-    else
-      *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, clementine_time);
-  }
   else
-  {
-    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, clementine_time);
-  }
+      *played_time = -1;
   return TRUE;
 }
 

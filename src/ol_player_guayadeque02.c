@@ -74,24 +74,16 @@ static gboolean
 ol_player_guayadeque02_get_played_time (int *played_time)
 {
   OlPlayerMpris *mpris = ol_player_guayadeque02_get_mpris ();
-  //return ol_player_mpris_get_played_time (mpris, played_time);
   int guayadeque_time = 0;
   if (!ol_player_mpris_get_played_time (mpris, &guayadeque_time))
     return FALSE;
   ol_player_guayadeque02_ensure_elapse (guayadeque_time);
 
-  if (0)
-  {
-    enum OlPlayerStatus status = ol_player_guayadeque02_get_status ();
-    if (status == OL_PLAYER_PLAYING)
+  enum OlPlayerStatus status = ol_player_guayadeque02_get_status ();
+  if (status == OL_PLAYER_PLAYING)
       *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, guayadeque_time);
-    else
-      *played_time = ol_elapse_emulator_get_last_ms (elapse_emulator, guayadeque_time);
-  }
   else
-  {
-    *played_time = ol_elapse_emulator_get_real_ms (elapse_emulator, guayadeque_time);
-  }
+      *played_time = -1;
   return TRUE;
 }
 

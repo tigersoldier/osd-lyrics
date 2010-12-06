@@ -7,13 +7,14 @@
 #include "ol_player_exaile02.h"
 #include "ol_player_exaile03.h"
 #include "ol_player_listen.h"
+#include "ol_player_clementine.h"
+#include "ol_player_guayadeque02.h"
 #ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
 #endif  /* ENABLE_AMAROK1 */
 #include "ol_player_amarok2.h"
 #include "ol_player_audacious.h"
 #include "ol_player_songbird.h"
-#include "ol_player_clementine.h"
 #ifdef ENABLE_XMMS2
 #include "ol_player_xmms2.h"
 #endif  /* ENABLE_XMMS2 */
@@ -26,7 +27,7 @@
 #include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
-#include "ol_player_guayadeque02.h"
+
 
 static GArray *players = NULL;
 
@@ -47,6 +48,7 @@ ol_player_init ()
     ol_player_register (ol_player_songbird_get ());
     ol_player_register (ol_player_clementine_get ());
     ol_player_register (ol_player_listen_get ());
+    ol_player_register (ol_player_guayadeque02_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
@@ -59,7 +61,7 @@ ol_player_init ()
     ol_player_register (ol_player_qmmp_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
-    ol_player_register (ol_player_guayadeque02_get ());
+
 
   }
 }

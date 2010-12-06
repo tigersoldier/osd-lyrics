@@ -1,3 +1,7 @@
+2010-12-06  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_player_guayadeque02.c (ol_player_guayadeque02_get_played_time): FIXED:repeats playing the same line when the player is paused.
+
 2010-11-29  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player-mpris.c (osd_lyrics_SOURCES): MERGE:Merge asyn-dbus branch r390:r401 into trunk

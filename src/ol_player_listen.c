@@ -1,6 +1,6 @@
 /* -*- c -*- */
 
-// Time-stamp: <2010-11-29 13:31:56 Monday by sarlmolapple>
+// Time-stamp: <2010-12-06 06:50:11 Monday by sarlmolapple>
 
 /**
  * @file 
@@ -8,7 +8,6 @@
  */
 
 #include "ol_player_listen.h"
-#include "ol_player.h"
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
