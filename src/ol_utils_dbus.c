@@ -269,6 +269,22 @@ ol_dbus_set_uint8 (DBusGProxy *proxy,
                             G_TYPE_INVALID,
                             G_TYPE_INVALID);
 }
+gboolean
+ol_dbus_get_double (DBusGProxy *proxy,
+                   const gchar *method,
+                   gdouble *returnval)
+{
+  ol_assert_ret (proxy != NULL, FALSE);
+  ol_assert_ret (method != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
+  return dbus_g_proxy_call (proxy,
+                            method,
+                            NULL,
+                            G_TYPE_INVALID,
+                            G_TYPE_DOUBLE,
+                            returnval,
+                            G_TYPE_INVALID);
+}
 
 gboolean
 ol_dbus_get_bool (DBusGProxy *proxy, const gchar *method, gboolean *returnval)
@@ -313,6 +329,19 @@ ol_dbus_invoke (DBusGProxy *proxy, const gchar *method)
                             G_TYPE_INVALID);
 }
 
+gboolean
+ol_dbus_invoke_with_str_arg (DBusGProxy *proxy, const gchar *method, const gchar *arg)
+{
+  ol_assert_ret (proxy != NULL, FALSE);
+  ol_assert_ret (method != NULL, FALSE);
+  return dbus_g_proxy_call (proxy,
+                            method,
+                            NULL,
+                            G_TYPE_STRING,
+                            arg,
+                            G_TYPE_INVALID,
+                            G_TYPE_INVALID);
+}
 gboolean
 ol_dbus_connect (const gchar *service,
                  const gchar *path,

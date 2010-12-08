@@ -1,3 +1,11 @@
+2010-12-08  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_player_gmusicbrowser.c (ol_player_deciber_get_played_time): ADD:Supports Gmusicbrowser Audio Player.
+	
+2010-12-06  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_player_deciber.c (ol_player_deciber_get_played_time): ADD:Supports Deciber Audio Player.
+	
 2010-12-06  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_guayadeque02.c (ol_player_guayadeque02_get_played_time): FIXED:repeats playing the same line when the player is paused.
