@@ -1,3 +1,7 @@
+2010-12-17  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_player_vlc.c : ADD:Supports vlc.
+	
 2010-12-08  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_gmusicbrowser.c (ol_player_deciber_get_played_time): ADD:Supports Gmusicbrowser Audio Player.

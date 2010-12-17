@@ -11,6 +11,7 @@
 #include "ol_player_guayadeque02.h"
 #include "ol_player_deciber.h"
 #include "ol_player_gmusicbrowser.h"
+#include "ol_player_vlc.h"
 #ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
 #endif  /* ENABLE_AMAROK1 */
@@ -29,7 +30,6 @@
 #include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
-
 
 static GArray *players = NULL;
 
@@ -53,6 +53,7 @@ ol_player_init ()
     ol_player_register (ol_player_guayadeque02_get ());
     ol_player_register (ol_player_deciber_get ());
     ol_player_register (ol_player_gmusicbrowser_get ());
+    ol_player_register (ol_player_vlc_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
@@ -86,6 +87,7 @@ ol_player_get_players ()
   struct OlPlayer **ret = g_new0 (struct OlPlayer *,
                                   players->len + 1);
   int i;
+  
   for (i = 0; i < players->len; i++)
   {
     ret[i] = g_array_index (players, struct OlPlayer*, i);
@@ -135,7 +137,6 @@ ol_player_get_music_info (struct OlPlayer *player, OlMusicInfo *info)
   ol_debugf ("album:%s\n", info->album);
   ol_debugf ("track_number:%d\n", info->track_number);
   ol_debugf ("uri:%s\n", info->uri);*/
-
   return s;
 }
 
