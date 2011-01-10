@@ -104,6 +104,9 @@ static gboolean ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing 
 static gboolean ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event);
 static gboolean ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event);
+static gboolean ol_osd_window_configure_event (GtkWindow *window,
+                                               GdkEventConfigure *event,
+                                               gpointer user_data);
 static void ol_osd_window_compute_osd_allocation (OlOsdWindow *osd,
                                                   GtkAllocation *allocation);
 static gboolean ol_osd_window_has_lyrics (OlOsdWindow *osd);
@@ -322,6 +325,18 @@ ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
   return FALSE;
 }
 
+static gboolean ol_osd_window_configure_event (GtkWindow *window,
+                                               GdkEventConfigure *event,
+                                               gpointer user_data) {
+  ol_assert_ret (OL_IS_OSD_WINDOW (window), FALSE);
+  OlOsdWindow *osd = OL_OSD_WINDOW (window);
+  gdouble xalign, yalign;
+  ol_osd_window_compute_alignment (osd, event->x, event->y, &xalign, &yalign);
+  ol_osd_window_set_alignment (osd, xalign, yalign);
+  ol_errorf ("align: %lf, %lf\n", xalign, yalign);
+  return FALSE;
+}
+
 static gboolean
 ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 {
@@ -403,7 +418,7 @@ ol_osd_window_check_mouse_leave (OlOsdWindow *osd)
   rect.x = 0; rect.y = 0;
   rect.width = widget->allocation.width;
   rect.height = widget->allocation.height;
-  if (!priv->pressed &&
+  if (/* !priv->pressed && */
       !_point_in_rect (rel_x, rel_y, &rect))
   {
     priv->mouse_over = FALSE;
@@ -1331,6 +1346,8 @@ ol_osd_window_init (OlOsdWindow *self)
                     G_CALLBACK (ol_osd_window_button_release), self);
   g_signal_connect (G_OBJECT (self), "expose-event",
                     G_CALLBACK (ol_osd_window_expose_before), self);
+  g_signal_connect (G_OBJECT (self), "configure-event",
+                    G_CALLBACK (ol_osd_window_configure_event), self);
   g_signal_connect_after (G_OBJECT (self), "expose-event",
                           G_CALLBACK (ol_osd_window_expose_after), self);
   ol_osd_window_screen_composited_changed (NULL, self);
