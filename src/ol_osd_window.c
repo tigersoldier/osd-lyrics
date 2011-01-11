@@ -367,11 +367,13 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
       widget->allocation.y != event->y ||
       width_changed) {
     ol_osd_window_compute_alignment (osd, event->x, event->y, &xalign, &yalign);
+    /* ol_errorf ("old align: %lf, %lf, new: %lf, %lf\n", */
+    /*            priv->xalign, priv->yalign, xalign, yalign); */
     priv->xalign = xalign;
     priv->yalign = yalign;
     /* ol_osd_window_emit_move (osd); */
   }
-  ol_errorf ("x: %d, y: %d, w: %d\n", event->x, event->y, event->width);
+  /* ol_errorf ("x: %d, y: %d, w: %d\n", event->x, event->y, event->width); */
   return FALSE;
 }
 
@@ -889,8 +891,7 @@ ol_osd_window_compute_alignment (OlOsdWindow *osd,
   if (xalign)
   {
     gint screen_width = gdk_screen_get_width (osd->screen);
-    *xalign = (double) x / (screen_width - priv->osd_allocation.width -
-                            BORDER_WIDTH * 2);
+    *xalign = (double) x / (screen_width - priv->width);
     if (*xalign < 0.0)
       *xalign = 0;
     else if (*xalign > 1.0)
