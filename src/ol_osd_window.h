@@ -44,6 +44,11 @@ enum OlOsdWindowSingals {
   OSD_SINGAL_COUNT,
 };
 
+enum OlOsdWindowType {
+  OL_OSD_WINDOW_NORMAL,
+  OL_OSD_WINDOW_DOCK,
+};
+
 struct _OlOsdWindow
 {
   GtkWindow parent;
@@ -333,4 +338,6 @@ gboolean ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd);
  * 
  */
 void ol_osd_window_set_bg (OlOsdWindow *osd, GdkPixbuf *bg);
+
+void ol_osd_window_set_type (OlOsdWindow *osd, enum OlOsdWindowType type);
 #endif // __OSD_WINDOW_H__

@@ -71,6 +71,7 @@ struct __OlOsdWindowPrivate
   GdkWindowEdge toolbar_pos;
   GtkAllocation osd_allocation;
   GtkAllocation child_allocation;
+  enum OlOsdWindowType type;
 };
 
 struct OsdLrc
@@ -111,7 +112,7 @@ static void ol_osd_window_compute_osd_allocation (OlOsdWindow *osd,
                                                   GtkAllocation *allocation);
 static gboolean ol_osd_window_has_lyrics (OlOsdWindow *osd);
 static void ol_osd_window_compute_bg_allocation (OlOsdWindow *osd,
-                                                 GtkAllocation *osd_alloc,
+                                                 const GtkAllocation *osd_alloc,
                                                  GtkAllocation *allocation,
                                                  GtkAllocation *child_alloc);
 static void ol_osd_window_compute_alignment (OlOsdWindow *osd, gint x, gint y,
@@ -122,6 +123,10 @@ static double ol_osd_window_calc_lyric_xpos (OlOsdWindow *osd,
                                              double percentage);
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
 static void ol_osd_window_update_osd (OlOsdWindow *osd);
+static void ol_osd_window_emit_move (OlOsdWindow *osd);
+static GdkWindowEdge ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
+                                                           gint x,
+                                                           gint y);
 
 /** 
  * @brief Paint the layout to be OSD style
@@ -287,17 +292,42 @@ ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event)
   if (event->button == 1 && !priv->locked)
   {
     priv->pressed = TRUE;
-    priv->old_x = priv->osd_allocation.x - BORDER_WIDTH;
-    priv->old_y = priv->osd_allocation.y - BORDER_WIDTH;
+    priv->old_x = widget->allocation.x - BORDER_WIDTH;
+    priv->old_y = widget->allocation.y - BORDER_WIDTH;
     priv->mouse_x = event->x_root;
     priv->mouse_y = event->y_root;
-    gtk_window_begin_move_drag (GTK_WINDOW (widget),
+    int edge = ol_osd_window_get_edge_on_point (osd, event->x, event->y);
+    switch (edge) {
+    case GDK_WINDOW_EDGE_EAST:
+    case GDK_WINDOW_EDGE_WEST:
+      gtk_window_begin_resize_drag (GTK_WINDOW (widget),
+                                    edge,
+                                    event->button,
+                                    event->x_root,
+                                    event->y_root,
+                                    event->time);
+      break;
+    default:
+      gtk_window_begin_move_drag (GTK_WINDOW (widget),
                                 event->button,
                                 event->x_root,
                                 event->y_root,
                                 event->time);
+    }
   }
   return FALSE;
+}
+
+static void
+ol_osd_window_emit_move (OlOsdWindow *osd)
+{
+  GValue params[1] = {0};
+  g_value_init (&params[0], G_OBJECT_TYPE (osd));
+  g_value_set_object (&params[0], G_OBJECT (osd));
+  g_signal_emitv (params,
+                  OL_OSD_WINDOW_GET_CLASS (osd)->signals[OSD_MOVED],
+                  0,
+                  NULL);
 }
 
 static gboolean
@@ -314,13 +344,7 @@ ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
     OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
     priv->pressed = FALSE;
     /* emit `moved' signal */
-    GValue params[1] = {0};
-    g_value_init (&params[0], G_OBJECT_TYPE (widget));
-    g_value_set_object (&params[0], G_OBJECT (widget));
-    g_signal_emitv (params,
-                    OL_OSD_WINDOW_GET_CLASS (widget)->signals[OSD_MOVED],
-                    0,
-                    NULL);
+    ol_osd_window_emit_move (osd);
   }
   return FALSE;
 }
@@ -329,12 +353,43 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
                                                GdkEventConfigure *event,
                                                gpointer user_data) {
   ol_assert_ret (OL_IS_OSD_WINDOW (window), FALSE);
+  GtkWidget *widget = GTK_WIDGET (window);
   OlOsdWindow *osd = OL_OSD_WINDOW (window);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   gdouble xalign, yalign;
-  ol_osd_window_compute_alignment (osd, event->x, event->y, &xalign, &yalign);
-  ol_osd_window_set_alignment (osd, xalign, yalign);
-  ol_errorf ("align: %lf, %lf\n", xalign, yalign);
+  gboolean width_changed = FALSE;
+  if (priv->width != event->width) {
+    priv->width = event->width;
+    width_changed = TRUE;
+    /* ol_osd_window_set_width (osd, event->width); */
+  }
+  if (widget->allocation.x != event->x ||
+      widget->allocation.y != event->y ||
+      width_changed) {
+    ol_osd_window_compute_alignment (osd, event->x, event->y, &xalign, &yalign);
+    priv->xalign = xalign;
+    priv->yalign = yalign;
+    /* ol_osd_window_emit_move (osd); */
+  }
+  ol_errorf ("x: %d, y: %d, w: %d\n", event->x, event->y, event->width);
   return FALSE;
+}
+
+static GdkWindowEdge
+ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
+                                 gint x,
+                                 gint y) {
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  gint width = widget->allocation.width;
+  gint height = widget->allocation.height;
+  if (y >= 0 && y <= height) {
+    if (x >= 0 && x < BORDER_WIDTH)
+      return GDK_WINDOW_EDGE_WEST;
+    if (x >= width - BORDER_WIDTH && x < width)
+      return GDK_WINDOW_EDGE_EAST;
+  }
+  return -1;
 }
 
 static gboolean
@@ -342,15 +397,32 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 {
   ol_log_func ();
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
-  /* if (priv->pressed && !priv->locked) */
-  /* { */
-  /*   int x = priv->old_x + (event->x_root - priv->mouse_x); */
-  /*   int y = priv->old_y + (event->y_root - priv->mouse_y); */
-  /*   gdouble xalign, yalign; */
-  /*   OlOsdWindow *osd = OL_OSD_WINDOW (widget); */
-  /*   ol_osd_window_compute_alignment (osd, x, y, &xalign, &yalign); */
-  /*   ol_osd_window_set_alignment (osd, xalign, yalign); */
-  /* } */
+  OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  if (priv->type == OL_OSD_WINDOW_DOCK && priv->pressed && !priv->locked)
+  {
+    int x = priv->old_x + (event->x_root - priv->mouse_x);
+    int y = priv->old_y + (event->y_root - priv->mouse_y);
+    gdouble xalign, yalign;
+    ol_osd_window_compute_alignment (osd, x, y, &xalign, &yalign);
+    ol_osd_window_set_alignment (osd, xalign, yalign);
+  } else {
+    int edge = ol_osd_window_get_edge_on_point (osd,
+                                                event->x,
+                                                event->y);
+    GdkCursor *cursor = NULL;
+    switch (edge) {
+    case GDK_WINDOW_EDGE_EAST:
+      cursor = gdk_cursor_new (GDK_RIGHT_SIDE);
+      break;
+    case GDK_WINDOW_EDGE_WEST:
+      cursor = gdk_cursor_new (GDK_LEFT_SIDE);
+      break;
+    }
+    gdk_window_set_cursor (widget->window,
+                           cursor);
+    if (cursor)
+      gdk_cursor_unref (cursor);
+  }
   if (GTK_WIDGET_CLASS (ol_osd_window_parent_class)->motion_notify_event)
     return GTK_WIDGET_CLASS (ol_osd_window_parent_class)->motion_notify_event (widget,
                                                                                event);
@@ -418,7 +490,7 @@ ol_osd_window_check_mouse_leave (OlOsdWindow *osd)
   rect.x = 0; rect.y = 0;
   rect.width = widget->allocation.width;
   rect.height = widget->allocation.height;
-  if (/* !priv->pressed && */
+  if ((priv->type != OL_OSD_WINDOW_DOCK || !priv->pressed) &&
       !_point_in_rect (rel_x, rel_y, &rect))
   {
     priv->mouse_over = FALSE;
@@ -712,27 +784,16 @@ ol_osd_window_compute_osd_allocation (OlOsdWindow *osd, GtkAllocation *alloc)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   alloc->width = priv->width - BORDER_WIDTH * 2;
   alloc->height = ol_osd_window_compute_osd_height (osd);
-  if (osd->screen != NULL)
-  {
-    gint screen_width, screen_height;
-    screen_width = gdk_screen_get_width (osd->screen);
-    screen_height = gdk_screen_get_height (osd->screen);
-    OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-    ol_debugf ("  xalign: %f, yalign: %f\n", priv->xalign, priv->yalign);
-    alloc->x = BORDER_WIDTH;
-    alloc->y = BORDER_WIDTH;
-    if (priv->toolbar_pos == GDK_WINDOW_EDGE_NORTH)
-      alloc->y += priv->child_allocation.height;
-  }
-  else
-  {
-    alloc->x = alloc->y = BORDER_WIDTH;
-  }
+  ol_debugf ("  xalign: %f, yalign: %f\n", priv->xalign, priv->yalign);
+  alloc->x = BORDER_WIDTH;
+  alloc->y = BORDER_WIDTH;
+  if (priv->toolbar_pos == GDK_WINDOW_EDGE_NORTH)
+    alloc->y += priv->child_allocation.height;
 }
 
 static void
 ol_osd_window_compute_bg_allocation (OlOsdWindow *osd, 
-                                     GtkAllocation *osd_alloc,
+                                     const GtkAllocation *osd_alloc,
                                      GtkAllocation *alloc,
                                      GtkAllocation *child_alloc)
 {
@@ -1283,13 +1344,6 @@ ol_osd_window_init (OlOsdWindow *self)
   ol_log_func ();
   GtkWindow *window = GTK_WINDOW (self);
   gtk_window_set_decorated (window, FALSE);
-  /* window->type = GTK_WINDOW_POPUP; */
-  /* gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_DOCK); */
-  gtk_window_set_keep_above (window, TRUE);
-  gtk_window_stick (window);
-  gtk_window_set_skip_pager_hint (window, TRUE);
-  gtk_window_set_decorated (window, FALSE);
-  /* gtk_window_set_has_frame (window, TRUE); */
   gtk_widget_set_app_paintable (GTK_WIDGET (self), TRUE);
   self->screen = NULL;
   self->current_line = 0;
@@ -1336,6 +1390,7 @@ ol_osd_window_init (OlOsdWindow *self)
                                                G_CALLBACK (ol_osd_window_screen_composited_changed),
                                                self);
   priv->composited_signal = 0;
+  ol_osd_window_set_type (self, OL_OSD_WINDOW_NORMAL);
   gtk_widget_add_events(GTK_WIDGET(self),
                         GDK_BUTTON_PRESS_MASK |
                         GDK_BUTTON_RELEASE_MASK |
@@ -1344,6 +1399,8 @@ ol_osd_window_init (OlOsdWindow *self)
                     G_CALLBACK (ol_osd_window_button_press), self);
   g_signal_connect (G_OBJECT (self), "button-release-event",
                     G_CALLBACK (ol_osd_window_button_release), self);
+  g_signal_connect (G_OBJECT (self), "motion-notify-event",
+                    G_CALLBACK (ol_osd_window_motion_notify), self);
   g_signal_connect (G_OBJECT (self), "expose-event",
                     G_CALLBACK (ol_osd_window_expose_before), self);
   g_signal_connect (G_OBJECT (self), "configure-event",
@@ -1568,4 +1625,32 @@ ol_osd_window_update_osd (OlOsdWindow *osd)
   ol_assert (osd != NULL);
   ol_assert (OL_IS_OSD_WINDOW (osd));
   gtk_widget_queue_draw (GTK_WIDGET (osd));
+}
+
+void
+ol_osd_window_set_type (OlOsdWindow *osd, enum OlOsdWindowType type)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  GtkWindow *window = GTK_WINDOW (osd);
+  GtkWidget *widget = GTK_WIDGET (osd);
+  if (type == priv->type)
+    return;
+  gboolean realized = GTK_WIDGET_REALIZED (widget);
+  if (realized)
+    gtk_widget_unrealize (widget);
+  switch (type)
+  {
+  case OL_OSD_WINDOW_NORMAL:
+    gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_NORMAL);
+    break;
+  case OL_OSD_WINDOW_DOCK:
+    gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_DOCK);
+    break;
+  default:
+    ol_errorf ("Invalid OSD Window type %d\n", type);
+  }
+  priv->type = type;
+  if (realized)
+    gtk_widget_realize (widget);
 }
