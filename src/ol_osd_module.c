@@ -89,10 +89,6 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
 {
   ol_log_func ();
   OlConfig *config = ol_config_get_instance ();
-  double xalign, yalign;
-  ol_osd_window_get_alignment (osd, &xalign, &yalign);
-  ol_config_set_double (config, "OSD", "xalign", xalign);
-  ol_config_set_double (config, "OSD", "yalign", yalign);
 }
 
 static gboolean
@@ -187,9 +183,10 @@ config_change_handler (OlConfig *config,
   }
   else if (strcmp (name, "xalign") == 0 || strcmp (name, "yalign") == 0)
   {
-    double xalign = ol_config_get_double (config, "OSD", "xalign");
-    double yalign = ol_config_get_double (config, "OSD", "yalign");
-    ol_osd_window_set_alignment (window, xalign, yalign);
+    /* TODO: monitor x and y instead of xalign yalign */
+    /* double xalign = ol_config_get_double (config, "OSD", "xalign"); */
+    /* double yalign = ol_config_get_double (config, "OSD", "yalign"); */
+    /* ol_osd_window_set_alignment (window, xalign, yalign); */
   }
   else if (strcmp (name, "font-family") == 0)
   {
@@ -355,7 +352,7 @@ ol_osd_module_free (struct OlDisplayModule *module)
   }
   if (priv->window != NULL)
   {
-    gtk_widget_destroy (priv->window);
+    gtk_widget_destroy (GTK_WIDGET (priv->window));
     priv->window = NULL;
   }
   OlConfig *config = ol_config_get_instance ();
