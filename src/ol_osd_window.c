@@ -366,7 +366,7 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
   if (priv->width != event->width) {
     priv->width = event->width;
     width_changed = TRUE;
-    gtk_widget_size_allocate (
+    //gtk_widget_size_allocate (
     /* ol_osd_window_set_width (osd, event->width); */
   }
   ol_osd_window_fit_screen (osd);
@@ -1599,6 +1599,9 @@ ol_osd_window_set_type (OlOsdWindow *osd, enum OlOsdWindowType type)
   if (type == priv->type)
     return;
   gboolean realized = GTK_WIDGET_REALIZED (widget);
+  gboolean mapped = GTK_WIDGET_MAPPED (widget);
+  if (mapped)
+    gtk_widget_unmap (widget);
   if (realized)
     gtk_widget_unrealize (widget);
   switch (type)
@@ -1616,6 +1619,8 @@ ol_osd_window_set_type (OlOsdWindow *osd, enum OlOsdWindowType type)
   priv->type = type;
   if (realized)
     gtk_widget_realize (widget);
+  if (mapped)
+    gtk_widget_map (widget);
 }
 
 enum OlOsdWindowType
