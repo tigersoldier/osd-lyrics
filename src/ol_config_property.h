@@ -37,6 +37,7 @@ enum {
   PROP_STARTUP_PLAYER,
   PROP_NOTIFY_MUSIC,
   PROP_DISPLAY_MODE,
+  PROP_OSD_WINDOW_MODE,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -219,6 +220,9 @@ static const OlConfigStringValue config_str[] = {
   {PROP_DISPLAY_MODE, "display-mode", "General",
    "Display Mode", "The means of displaying lyrics, either OSD or scroll.",
    "OSD"},
+  {PROP_OSD_WINDOW_MODE, "osd-window-mode", "OSD",
+   "OSD window mode", "The display mode of OSD Window, either dock or normal.",
+   "dock"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */

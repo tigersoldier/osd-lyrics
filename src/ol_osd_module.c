@@ -268,6 +268,16 @@ config_change_handler (OlConfig *config,
   {
     ol_osd_window_set_outline_width (window, ol_config_get_int (config, "OSD", name));
   }
+  else if (strcmp (name, "osd-window-mode") == 0)
+  {
+    gchar *mode = ol_config_get_string (config, group, name);
+    ol_errorf ("mode is: %s\n", mode);
+    if (strcmp (mode, "dock") == 0)
+      ol_osd_window_set_type (window, OL_OSD_WINDOW_DOCK);
+    else
+      ol_osd_window_set_type (window, OL_OSD_WINDOW_NORMAL);
+    g_free (mode);
+  }
 }
 
 static void
@@ -308,6 +318,7 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   config_change_handler (config, "OSD", "inactive-lrc-color", osd);
   config_change_handler (config, "OSD", "translucent-on-mouse-over", osd);
   config_change_handler (config, "OSD", "outline-width", osd);
+  config_change_handler (config, "OSD", "osd-window-mode", osd);
   g_signal_connect (osd->window, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);

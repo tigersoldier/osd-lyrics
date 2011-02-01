@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
@@ -73,7 +73,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences</property>
     <property name="window_position">center-on-parent</property>
-    <property name="type_hint">normal</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -226,7 +226,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                       <object class="GtkEntry" id="startup-player">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                         <signal name="focus_out_event" handler="ol_option_save_startup_player"/>
                       </object>
                       <packing>
@@ -274,10 +274,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               <object class="GtkVBox" id="vbox1">
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkTable" id="table1">
+                  <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
-                    <property name="n_rows">4</property>
-                    <property name="n_columns">2</property>
                     <child>
                       <object class="GtkLabel" id="label4">
                         <property name="visible">True</property>
@@ -288,7 +286,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="mnemonic_widget">osd-font</property>
                       </object>
                       <packing>
-                        <property name="x_options">GTK_FILL</property>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -301,10 +300,17 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <signal name="font_set" handler="ol_option_font_changed"/>
                       </object>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox11">
+                    <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label5">
                         <property name="visible">True</property>
@@ -315,79 +321,22 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="mnemonic_widget">osd-width</property>
                       </object>
                       <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkSpinButton" id="osd-width">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="max_length">4</property>
+                        <property name="invisible_char">•</property>
+                        <property name="xalign">1</property>
                         <property name="adjustment">adjustment4</property>
                         <signal name="value_changed" handler="ol_option_osd_width_changed"/>
                       </object>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label20">
-                        <property name="visible">True</property>
-                        <property name="xalign">1</property>
-                        <property name="xpad">5</property>
-                        <property name="label" translatable="yes">Lyric lines:</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
-                        <property name="x_options">GTK_FILL</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHBox" id="hbox2">
-                        <property name="visible">True</property>
-                        <child>
-                          <object class="GtkRadioButton" id="line-count-1">
-                            <property name="label" translatable="yes">Si_ngle line</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="draw_indicator">True</property>
-                            <property name="group">line-count-2</property>
-                            <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
-                          </object>
-                          <packing>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkRadioButton" id="line-count-2">
-                            <property name="label" translatable="yes">_Double lines</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="draw_indicator">True</property>
-                            <property name="group">line-count-1</property>
-                            <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
-                          </object>
-                          <packing>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -400,31 +349,130 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="mnemonic_widget">outline-width</property>
                       </object>
                       <packing>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
-                        <property name="x_options">GTK_FILL</property>
+                        <property name="expand">False</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkSpinButton" id="outline-width">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="max_length">2</property>
+                        <property name="invisible_char">•</property>
+                        <property name="xalign">1</property>
                         <property name="adjustment">adjustment3</property>
                         <signal name="changed" handler="ol_option_update_preview"/>
                         <signal name="changed" handler="ol_option_osd_outline_changed"/>
                       </object>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox10">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label-osd-lyric-lines">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Lyric lines:</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="line-count-1">
+                        <property name="label" translatable="yes">Si_ngle line</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_indicator">True</property>
+                        <property name="group">line-count-2</property>
+                        <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="line-count-2">
+                        <property name="label" translatable="yes">_Double lines</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox9">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label-osd-window-mode">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Mode:</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="osd-window-mode-dock">
+                        <property name="label" translatable="yes">Dock</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="ol_option_osd_mode_changed"/>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="osd-window-mode-normal">
+                        <property name="label" translatable="yes">Normal</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                        <property name="group">osd-window-mode-dock</property>
+                        <signal name="toggled" handler="ol_option_osd_mode_changed"/>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -440,7 +488,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">1</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -531,7 +579,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">2</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -806,7 +854,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">3</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -837,7 +885,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
               </object>
@@ -897,7 +945,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   <object class="GtkEntry" id="lrc-path-text">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="position">0</property>
@@ -1026,7 +1074,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   %a - Album
   %n - Track number
   %f - File name (without extension)</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                     <signal name="changed" handler="ol_option_lrc_filename_changed"/>
                                   </object>
                                   <packing>
@@ -1139,7 +1187,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="tooltip_text" translatable="yes">Choose witch site you want to download from.</property>
                         <property name="xalign">1</property>
                         <property name="xpad">5</property>
-                        <property name="label" translatable="yes">Download _engine:</property>
+                        <property name="label" translatable="yes">_Site:</property>
                         <property name="use_underline">True</property>
                       </object>
                       <packing>
@@ -1429,7 +1477,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Choose LRC file to download</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
@@ -1597,7 +1644,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Search lyrics</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox5">
         <property name="visible">True</property>
@@ -1639,7 +1685,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               <object class="GtkEntry" id="search-title">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1650,7 +1696,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               <object class="GtkEntry" id="search-artist">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1830,5 +1876,19 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="visible">True</property>
     <property name="stock">gtk-open</property>
     <property name="icon-size">1</property>
+  </object>
+  <object class="GtkSizeGroup" id="group-osd-label">
+    <widgets>
+      <widget name="label12"/>
+      <widget name="label8"/>
+      <widget name="label7"/>
+      <widget name="lrc-align-1-label"/>
+      <widget name="lrc-align-0-label"/>
+      <widget name="label17"/>
+      <widget name="label4"/>
+      <widget name="label5"/>
+      <widget name="label-osd-lyric-lines"/>
+      <widget name="label-osd-window-mode"/>
+    </widgets>
   </object>
 </interface>

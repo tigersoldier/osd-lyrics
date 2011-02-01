@@ -47,6 +47,8 @@ static struct _OptionWidgets
   GtkWidget *lrc_align[2];
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
+  GtkWidget *osd_mode_dock;
+  GtkWidget *osd_mode_normal;
   GtkWidget *osd_preview;
   GtkWidget *line_count[2];
   GtkWidget *download_engine;
@@ -114,6 +116,8 @@ void ol_option_osd_alignment_changed (GtkRange *range,
                                       gpointer user_data);
 void ol_option_osd_color_changed (GtkColorButton *widget,
                                   gpointer user_data);
+void ol_option_osd_mode_changed (GtkToggleButton *togglebutton,
+                                 gpointer user_data);
 /* Path options */
 void ol_option_save_path_pattern ();
 void ol_option_save_file_pattern ();
@@ -446,6 +450,19 @@ ol_option_osd_color_changed (GtkColorButton *widget,
                             OL_LINEAR_COLOR_COUNT);
     g_strfreev (lrc_color_str);
   }
+}
+
+void
+ol_option_osd_mode_changed (GtkToggleButton *togglebutton,
+                            gpointer user_data)
+{
+  const char *mode = "dock";
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (options.osd_mode_normal)))
+    mode = "normal";
+  ol_config_set_string (ol_config_get_instance (),
+                        "OSD",
+                        "osd-window-mode",
+                        mode);
 }
 
 /* Path options */
@@ -814,6 +831,18 @@ load_osd ()
   {
     GtkToggleButton *line_count_widget = GTK_TOGGLE_BUTTON (options.line_count[line_count]);
     gtk_toggle_button_set_active (line_count_widget, TRUE);
+  }
+  /* OSD Window Mode */
+  if (options.osd_mode_dock && options.osd_mode_normal)
+  {
+    char *mode = ol_config_get_string (config, "OSD", "osd-window-mode");
+    if (strcmp (mode, "dock") == 0)
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.osd_mode_dock),
+                                    TRUE);
+    else
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.osd_mode_normal),
+                                    TRUE);
+    g_free (mode);
   }
 }
 
@@ -1274,6 +1303,8 @@ ol_option_show ()
     options.inactive_lrc_color[0] = ol_gui_get_widget ("inactive-lrc-color-0");
     options.inactive_lrc_color[1] = ol_gui_get_widget ("inactive-lrc-color-1");
     options.inactive_lrc_color[2] = ol_gui_get_widget ("inactive-lrc-color-2");
+    options.osd_mode_dock = ol_gui_get_widget ("osd-window-mode-dock");
+    options.osd_mode_normal = ol_gui_get_widget ("osd-window-mode-normal");
     options.osd_preview = ol_gui_get_widget ("osd-preview");
     options.line_count[0] = ol_gui_get_widget ("line-count-1");
     options.line_count[1] = ol_gui_get_widget ("line-count-2");
