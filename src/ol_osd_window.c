@@ -274,7 +274,7 @@ static void
 ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
 {
   ol_log_func ();
-  ol_assert (OL_IS_OSD_WINDOW (userdata));
+  /* ol_assert (OL_IS_OSD_WINDOW (userdata)); */
   GtkWidget *widget = GTK_WIDGET (userdata);
   OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
   gboolean mapped = GTK_WIDGET_MAPPED (widget);
@@ -1362,7 +1362,7 @@ ol_osd_window_init (OlOsdWindow *osd)
   g_signal_connect (G_OBJECT (osd), "unmap-event",
                     G_CALLBACK (ol_osd_window_unmap_cb), osd);
   ol_osd_window_screen_composited_changed (gtk_widget_get_screen (GTK_WIDGET (osd)),
-                                           NULL);
+                                           osd);
 }
 
 GtkWidget*
