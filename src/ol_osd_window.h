@@ -44,7 +44,7 @@ enum OlOsdWindowSingals {
   OSD_SINGAL_COUNT,
 };
 
-enum OlOsdWindowType {
+enum OlOsdWindowMode {
   OL_OSD_WINDOW_NORMAL,
   OL_OSD_WINDOW_DOCK,
 };
@@ -53,7 +53,6 @@ struct _OlOsdWindow
 {
   GtkWindow parent;
   GdkPixbuf *bg_pixbuf;
-  GdkScreen *screen;
   gchar *lyrics[OL_OSD_WINDOW_MAX_LINE_COUNT];
   double line_alignment[OL_OSD_WINDOW_MAX_LINE_COUNT];
   guint current_line;           /* which line is playing currently */
@@ -304,9 +303,9 @@ gboolean ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd);
  */
 void ol_osd_window_set_bg (OlOsdWindow *osd, GdkPixbuf *bg);
 
-void ol_osd_window_set_type (OlOsdWindow *osd, enum OlOsdWindowType type);
+void ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode);
 
-enum OlOsdWindowType ol_osd_window_type (OlOsdWindow *osd);
+enum OlOsdWindowMode ol_osd_window_get_mode (OlOsdWindow *osd);
 /** 
  * Moves osd window
  *

@@ -273,9 +273,9 @@ config_change_handler (OlConfig *config,
     gchar *mode = ol_config_get_string (config, group, name);
     ol_errorf ("mode is: %s\n", mode);
     if (strcmp (mode, "dock") == 0)
-      ol_osd_window_set_type (window, OL_OSD_WINDOW_DOCK);
+      ol_osd_window_set_mode (window, OL_OSD_WINDOW_DOCK);
     else
-      ol_osd_window_set_type (window, OL_OSD_WINDOW_NORMAL);
+      ol_osd_window_set_mode (window, OL_OSD_WINDOW_NORMAL);
     g_free (mode);
   }
 }
