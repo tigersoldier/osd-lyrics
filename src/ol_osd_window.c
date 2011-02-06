@@ -78,7 +78,6 @@ struct __OlOsdWindowPrivate
   guint drag_timer_id;
   gboolean mouse_over;
   gboolean mouse_over_lyrics;
-  GdkWindowEdge toolbar_pos;
   GtkRequisition child_requisition;
   enum OlOsdWindowMode mode;
   enum DragState drag_state;
@@ -131,7 +130,6 @@ static void ol_osd_window_compute_bg_allocation (OlOsdWindow *osd,
                                                  GtkAllocation *child_alloc);
 static int ol_osd_window_compute_osd_height (OlOsdWindow *osd);
 static int ol_osd_window_compute_window_height (OlOsdWindow *osd);
-static GdkWindowEdge ol_osd_window_compute_toolbar_pos (OlOsdWindow *osd);
 static double ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd,
                                                 int line,
                                                 double percentage);
@@ -543,11 +541,9 @@ static gboolean
 ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
-  ol_error ("leave");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   ol_osd_window_check_mouse_leave (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
-  /* ol_osd_window_update_child_visibility (osd); */
   return FALSE;
 }
 
@@ -582,6 +578,7 @@ ol_osd_window_unmap_cb (GtkWidget *widget,
 static void
 ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
+  ol_errorf ("size request: %dx%d\n", allocation->width, allocation->height);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   widget->allocation = *allocation;
@@ -615,7 +612,6 @@ ol_osd_window_update_layout (OlOsdWindow *osd)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   priv->osd_height = ol_osd_window_compute_osd_height (osd);
   ol_osd_window_update_child_size_requisition (osd);
-  priv->toolbar_pos = ol_osd_window_compute_toolbar_pos (osd);
 }
 
 static gboolean
@@ -730,26 +726,6 @@ ol_osd_window_update_child_size_requisition (OlOsdWindow *osd)
   }
 }
 
-static GdkWindowEdge
-ol_osd_window_compute_toolbar_pos (OlOsdWindow *osd)
-{
-  ol_assert_ret (OL_IS_OSD_WINDOW (osd), GDK_WINDOW_EDGE_SOUTH);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  if (priv->mode == OL_OSD_WINDOW_NORMAL)
-    return GDK_WINDOW_EDGE_SOUTH;
-  GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (osd));
-  if (screen == NULL)
-    return GDK_WINDOW_EDGE_SOUTH;
-  gint screen_width, screen_height;
-  screen_width = gdk_screen_get_width (screen);
-  screen_height = gdk_screen_get_height (screen);
-  int height = ol_osd_window_compute_window_height (osd);
-  if (priv->raw_y + height > screen_height && height < screen_height)
-    return GDK_WINDOW_EDGE_NORTH;
-  else
-    return GDK_WINDOW_EDGE_SOUTH;
-}
-
 /** 
  * Computes the height of the OSD Window
  *
@@ -765,9 +741,12 @@ ol_osd_window_compute_window_height (OlOsdWindow *osd)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (osd));
+  int sh = gdk_screen_get_height (screen);
   int height = BORDER_WIDTH * 2;
   height += priv->osd_height;
-  height += priv->child_requisition.height;
+  height = MAX (height, MIN (height + priv->child_requisition.height,
+                             sh - priv->raw_y));
   return height;
 }
 
@@ -802,21 +781,11 @@ ol_osd_window_update_child_allocation (OlOsdWindow *osd)
     ol_debugf ("set child allocation\n");
     GtkAllocation alloc;
     alloc.x = (widget->allocation.width - priv->child_requisition.width) / 2;
-    alloc.y = BORDER_WIDTH;
     alloc.width = priv->child_requisition.width;
     alloc.height = priv->child_requisition.height;
-    switch (priv->toolbar_pos)
-    {
-    case GDK_WINDOW_EDGE_SOUTH:
-      alloc.y = widget->allocation.height
-        - BORDER_WIDTH
-        - priv->child_requisition.height;
-      break;
-    case GDK_WINDOW_EDGE_NORTH:
-      break;
-    default:
-      ol_errorf ("Unknown toolbar pos: %d\n", (int)priv->toolbar_pos);
-    }
+    alloc.y = widget->allocation.height
+      - BORDER_WIDTH
+      - priv->child_requisition.height;
     gtk_widget_size_allocate (bin->child, &alloc);
   }
 }
@@ -879,8 +848,6 @@ ol_osd_window_compute_lyric_ypos (OlOsdWindow *osd)
   ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int y = BORDER_WIDTH;
-  if (priv->toolbar_pos == GDK_WINDOW_EDGE_NORTH)
-    y += priv->child_requisition.height;
   return y;
 }
 
@@ -1143,44 +1110,6 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd, gboolean disable_input)
   }
 }
 
-static void
-ol_osd_window_compute_raw_pos(OlOsdWindow *osd,
-                              int real_x,
-                              int real_y,
-                              int *raw_x,
-                              int *raw_y)
-{
-  ol_assert (OL_IS_OSD_WINDOW (osd));
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  if (raw_x)
-    *raw_x = real_x;
-  if (raw_y)
-  {
-    *raw_y = real_y;
-    if (priv->toolbar_pos == GDK_WINDOW_EDGE_NORTH)
-      *raw_y += priv->child_requisition.height;
-  }
-}
-
-static void
-ol_osd_window_compute_real_pos(OlOsdWindow *osd,
-                               int raw_x,
-                               int raw_y,
-                               int *real_x,
-                               int *real_y)
-{
-  ol_assert (OL_IS_OSD_WINDOW (osd));
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  if (real_x)
-    *real_x = raw_x;
-  if (real_y)
-  {
-    *real_y = raw_y;
-    if (priv->toolbar_pos == GDK_WINDOW_EDGE_NORTH)
-      *real_y -= priv->child_requisition.height;
-  }
-}
-
 void
 ol_osd_window_move (OlOsdWindow *osd, int raw_x, int raw_y)
 {
@@ -1191,32 +1120,31 @@ ol_osd_window_move (OlOsdWindow *osd, int raw_x, int raw_y)
   priv->raw_x = raw_x;
   priv->raw_y = raw_y;
   int x, y;
+  x = raw_x;
+  y = raw_y;
   if (ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK)
   {
-    GdkWindowEdge toolbar_pos = ol_osd_window_compute_toolbar_pos (osd);
-    if (toolbar_pos != priv->toolbar_pos)
-    {
-      priv->toolbar_pos = toolbar_pos;
-      ol_osd_window_update_child_allocation (osd);
-    }
-    ol_osd_window_compute_real_pos (osd, raw_x, raw_y, &x, &y);
     GdkScreen *screen = gtk_widget_get_screen (widget);
     int sw = gdk_screen_get_width (screen);
     int sh = gdk_screen_get_height (screen);
-    if (x + widget->allocation.width >= sw)
-      x = sw - widget->allocation.width;
-    if (x < 0)
-      x = 0;
-    if (y + widget->allocation.height >= sh)
-      y = sh - widget->allocation.height;
-    if (y < 0)
-      y = 0;
-    ol_osd_window_compute_raw_pos (osd, x, y, &priv->raw_x, &priv->raw_y);
-  }
-  else
-  {
-    x = raw_x;
-    y = raw_y;
+    /* Since the height might change when getting close to the bottom of
+       screen, we need to compute it. */
+    int h = ol_osd_window_compute_window_height (osd);
+    x = MAX (0, MIN (x, sw - widget->allocation.width));
+    y = MAX (0, MIN (y, sh- h));
+    if (h != widget->allocation.height)
+    {
+      /* gtk_window_resize and gtk_widget_queue_resize don't work,
+         so we have to specify allocation explicitly*/
+      GtkAllocation alloc = {
+        .x = widget->allocation.x,
+        .y = widget->allocation.y,
+        .width = widget->allocation.width,
+        .height = h,
+      };
+      gtk_widget_size_allocate (widget, &alloc);
+      gtk_widget_queue_draw (widget);
+    }
   }
   gtk_window_move (GTK_WINDOW (osd), x, y);
   if (priv->raw_x != old_raw_x || priv->raw_y != old_raw_y)
@@ -1341,7 +1269,6 @@ ol_osd_window_init (OlOsdWindow *osd)
   priv->child_requisition.width = 0;
   priv->child_requisition.height = 0;
   priv->mouse_over_lyrics = FALSE;
-  priv->toolbar_pos = GDK_WINDOW_EDGE_SOUTH;
   priv->composited_signal =  g_signal_connect (gtk_widget_get_screen (GTK_WIDGET (osd)),
                                                "composited-changed",
                                                G_CALLBACK (ol_osd_window_screen_composited_changed),
