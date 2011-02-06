@@ -274,7 +274,7 @@ static void
 ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
 {
   ol_log_func ();
-  /* ol_assert (OL_IS_OSD_WINDOW (userdata)); */
+  ol_assert (OL_IS_OSD_WINDOW (userdata));
   GtkWidget *widget = GTK_WIDGET (userdata);
   OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
   gboolean mapped = GTK_WIDGET_MAPPED (widget);
@@ -371,14 +371,15 @@ static gboolean
 ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
 {
   /* ol_log_func (); */
-  /* OlOsdWindow *osd = OL_OSD_WINDOW (widget); */
+  OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
+  priv->drag_state = DRAG_NONE;
   /* if (GTK_WIDGET_CLASS (ol_osd_window_parent_class)->button_release_event && */
   /*     GTK_WIDGET_CLASS (ol_osd_window_parent_class)->button_release_event (widget, */
   /*                                                                          event)) */
   /*     return TRUE; */
   /* if (event->button == 1) */
   /* { */
-  /*   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget); */
   /*   priv->pressed = FALSE; */
   /*   /\* emit `moved' signal *\/ */
   /*   ol_osd_window_emit_move (osd); */
@@ -431,21 +432,26 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
   ol_log_func ();
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
-  /* if (priv->mode == OL_OSD_WINDOW_DOCK && priv->pressed && !priv->locked) */
-  /* { */
-  /*   int x = priv->old_x + (event->x_root - priv->mouse_x); */
-  /*   int y = priv->old_y + (event->y_root - priv->mouse_y); */
-  /*   ol_osd_window_move (osd, x, y); */
-  /* } else { */
-  if (priv->drag_state == DRAG_NONE) {
+  switch (priv->drag_state)
+  {
+  case DRAG_MOVE:
+  {
+    ol_error ("drag move");
+    int x = priv->old_x + (event->x_root - priv->mouse_x);
+    int y = priv->old_y + (event->y_root - priv->mouse_y);
+    ol_osd_window_move (osd, x, y);
+    break;
+  }
+  case DRAG_NONE:
+  {
     int edge = ol_osd_window_get_edge_on_point (osd,
                                                 event->x,
                                                 event->y);
     GdkCursor *cursor = NULL;
     switch (edge) {
     case GDK_WINDOW_EDGE_EAST:
-      cursor = gdk_cursor_new (GDK_RIGHT_SIDE);
-      break;
+        cursor = gdk_cursor_new (GDK_RIGHT_SIDE);
+        break;
     case GDK_WINDOW_EDGE_WEST:
       cursor = gdk_cursor_new (GDK_LEFT_SIDE);
       break;
@@ -454,6 +460,10 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
                            cursor);
     if (cursor)
       gdk_cursor_unref (cursor);
+    break;
+  }
+  default:
+    break;
   }
   return FALSE;
 }
