@@ -141,6 +141,11 @@ static GdkWindowEdge ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
                                                            gint y);
 static void ol_osd_window_update_child_size_requisition (OlOsdWindow *osd);
 static void ol_osd_window_update_layout (OlOsdWindow *osd);
+static void ol_osd_window_move_resize (OlOsdWindow *osd,
+                                       int raw_x,
+                                       int raw_y,
+                                       int width,
+                                       enum DragState drag_type);
 /** 
  * @brief Paint the layout to be OSD style
  *
@@ -430,16 +435,23 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
   ol_log_func ();
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
+  int x = priv->old_x + (event->x_root - priv->mouse_x);
+  int y = priv->old_y + (event->y_root - priv->mouse_y);
   switch (priv->drag_state)
   {
   case DRAG_MOVE:
-  {
-    ol_error ("drag move");
-    int x = priv->old_x + (event->x_root - priv->mouse_x);
-    int y = priv->old_y + (event->y_root - priv->mouse_y);
     ol_osd_window_move (osd, x, y);
     break;
-  }
+  case DRAG_EAST:
+    ol_osd_window_move_resize (osd, priv->old_x, priv->old_y,
+                               priv->old_width + (event->x_root - priv->mouse_x),
+                               DRAG_EAST);
+    break;
+  case DRAG_WEST:
+    ol_osd_window_move_resize (osd, x, priv->old_y,
+                               priv->old_width + priv->old_x - x, DRAG_WEST);
+                               
+    break;
   case DRAG_NONE:
   {
     int edge = ol_osd_window_get_edge_on_point (osd,
@@ -578,10 +590,11 @@ ol_osd_window_unmap_cb (GtkWidget *widget,
 static void
 ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
-  ol_errorf ("size request: %dx%d\n", allocation->width, allocation->height);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   widget->allocation = *allocation;
+  int h = ol_osd_window_compute_window_height (osd);
+  widget->allocation.height = h;
 
   /* priv->width = allocation->width; */
   if (GTK_WIDGET_REALIZED (widget))
@@ -1110,8 +1123,23 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd, gboolean disable_input)
   }
 }
 
-void
-ol_osd_window_move (OlOsdWindow *osd, int raw_x, int raw_y)
+/** 
+ * Move and resize the OSD Window.
+ *
+ * The coordinations and size are raw values, which means does not honor the size
+ * of the child widget.
+ * 
+ * @param osd 
+ * @param raw_x 
+ * @param raw_y 
+ * @param width
+ */
+static void
+ol_osd_window_move_resize (OlOsdWindow *osd,
+                           int raw_x,
+                           int raw_y,
+                           int width,
+                           enum DragState drag_type)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
@@ -1130,16 +1158,34 @@ ol_osd_window_move (OlOsdWindow *osd, int raw_x, int raw_y)
     /* Since the height might change when getting close to the bottom of
        screen, we need to compute it. */
     int h = ol_osd_window_compute_window_height (osd);
-    x = MAX (0, MIN (x, sw - widget->allocation.width));
+    int w = width;
+    if (drag_type == DRAG_MOVE)
+      w = widget->allocation.width;
+    if (w < priv->child_requisition.width)
+      w = priv->child_requisition.width;
+    if (drag_type == DRAG_EAST)
+    {
+      x = MAX (0, x);
+      w = MIN (w, sw - x);
+    }
+    else if (drag_type == DRAG_WEST)
+    {
+      w = MIN (w, x + w);
+      x = MAX (0, MIN (x, width + raw_x - w));
+    }
+    else
+    {
+      x = MAX (0, MIN (x, sw - w));
+    }
     y = MAX (0, MIN (y, sh- h));
-    if (h != widget->allocation.height)
+    if (h != widget->allocation.height || w != widget->allocation.width)
     {
       /* gtk_window_resize and gtk_widget_queue_resize don't work,
          so we have to specify allocation explicitly*/
       GtkAllocation alloc = {
         .x = widget->allocation.x,
         .y = widget->allocation.y,
-        .width = widget->allocation.width,
+        .width = w,
         .height = h,
       };
       gtk_widget_size_allocate (widget, &alloc);
@@ -1149,6 +1195,12 @@ ol_osd_window_move (OlOsdWindow *osd, int raw_x, int raw_y)
   gtk_window_move (GTK_WINDOW (osd), x, y);
   if (priv->raw_x != old_raw_x || priv->raw_y != old_raw_y)
     ol_osd_window_emit_move (osd);
+}
+
+void
+ol_osd_window_move (OlOsdWindow *osd, int x, int y)
+{
+  ol_osd_window_move_resize (osd, x, y, -1, DRAG_MOVE);
 }
 
 static void
