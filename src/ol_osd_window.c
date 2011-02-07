@@ -124,10 +124,6 @@ static gboolean ol_osd_window_unmap_cb (GtkWidget *widget,
                                         gpointer   user_data);
 
 static gboolean ol_osd_window_has_lyrics (OlOsdWindow *osd);
-static void ol_osd_window_compute_bg_allocation (OlOsdWindow *osd,
-                                                 const GtkAllocation *osd_alloc,
-                                                 GtkAllocation *allocation,
-                                                 GtkAllocation *child_alloc);
 static int ol_osd_window_compute_osd_height (OlOsdWindow *osd);
 static int ol_osd_window_compute_window_height (OlOsdWindow *osd);
 static double ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd,
@@ -405,10 +401,9 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
   if (priv->width != event->width) {
     priv->width = event->width;
     width_changed = TRUE;
-    //gtk_widget_size_allocate (
     /* ol_osd_window_set_width (osd, event->width); */
   }
-  ol_errorf ("x: %d, y: %d, w: %d\n", event->x, event->y, event->width);
+  /* ol_errorf ("x: %d, y: %d, w: %d\n", event->x, event->y, event->width); */
   return FALSE;
 }
 
@@ -611,6 +606,7 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 static void
 ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
+  ol_errorf ("size request\n");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   ol_osd_window_update_layout (osd);
@@ -777,9 +773,18 @@ static void
 ol_osd_window_check_resize (GtkContainer *container)
 {
   ol_assert (OL_IS_OSD_WINDOW (container));
+  GtkWidget *widget = GTK_WIDGET (container);
   OlOsdWindow *osd = OL_OSD_WINDOW (container);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   ol_osd_window_update_layout (osd);
-  ol_osd_window_update_child_allocation (osd);
+  GtkAllocation alloc = {
+    .x = widget->allocation.x,
+    .y = widget->allocation.y,
+    .width = priv->width,
+    .height = ol_osd_window_compute_osd_height (osd),
+  };
+  gtk_widget_size_allocate (widget, &alloc);
+  gtk_widget_queue_draw (widget);
 }
 
 static void
@@ -1283,6 +1288,7 @@ ol_osd_window_init (OlOsdWindow *osd)
 {
   ol_log_func ();
   GtkWindow *window = GTK_WINDOW (osd);
+  window->type = GTK_WINDOW_TOPLEVEL;
   gtk_window_set_decorated (window, FALSE);
   gtk_widget_set_app_paintable (GTK_WIDGET (osd), TRUE);
   osd->current_line = 0;
@@ -1576,11 +1582,9 @@ ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode)
   {
   case OL_OSD_WINDOW_NORMAL:
     gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_NORMAL);
-    window->type = GTK_WINDOW_TOPLEVEL;
     break;
   case OL_OSD_WINDOW_DOCK:
     gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_DOCK);
-    window->type = GTK_WINDOW_POPUP;
     break;
   default:
     ol_errorf ("Invalid OSD Window type %d\n", mode);
