@@ -41,6 +41,7 @@ typedef struct _OlOsdWindowClass            OlOsdWindowClass;
 enum OlOsdWindowSingals {
   OSD_INVALID_SIGNAL = 0,
   OSD_MOVED,
+  OSD_RESIZE,
   OSD_SINGAL_COUNT,
 };
 
@@ -90,6 +91,7 @@ GtkWidget* ol_osd_window_new (void);
  * @param width The width of the window
  */
 void ol_osd_window_set_width (OlOsdWindow *osd, gint width);
+int ol_osd_window_get_width (OlOsdWindow *osd);
 /** 
  * @brief Gets the size of an OSD window
  * 
@@ -317,4 +319,5 @@ enum OlOsdWindowMode ol_osd_window_get_mode (OlOsdWindow *osd);
  * @param y 
  */
 void ol_osd_window_move (OlOsdWindow *osd, int x, int y);
+void ol_osd_window_get_pos (OlOsdWindow *osd, int *x, int *y);
 #endif // __OSD_WINDOW_H__

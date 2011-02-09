@@ -267,6 +267,18 @@ ol_config_set_bool (OlConfig *config, const char *group, const char *name, gbool
 }
 
 gboolean
+ol_config_set_int_no_emit (OlConfig *config,
+                           const char *group,
+                           const char *name,
+                           int value)
+{
+  ol_assert_ret (config != NULL, FALSE);
+  ol_assert_ret (name != NULL && group != NULL, FALSE);
+  g_key_file_set_integer (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value);
+  ol_config_save (config);
+}
+
+gboolean
 ol_config_set_int (OlConfig *config, const char *group, const char *name, int value)
 {
   ol_assert_ret (config != NULL, FALSE);

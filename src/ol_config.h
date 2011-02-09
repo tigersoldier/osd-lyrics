@@ -72,6 +72,11 @@ gboolean ol_config_set_bool (OlConfig *config, const char *group, const char *na
  */
 gboolean ol_config_set_int (OlConfig *config, const char *group, const char *name, int value);
 
+gboolean ol_config_set_int_no_emit (OlConfig *config,
+                                    const char *group,
+                                    const char *name,
+                                    int value);
+
 /** 
  * @brief Sets a double property of the config
  * 

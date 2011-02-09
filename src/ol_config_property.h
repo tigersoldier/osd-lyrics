@@ -30,6 +30,8 @@ enum {
   PROP_LINE_COUNT,
   PROP_TOTAL_COUNT,
   PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER,
+  PROP_OSD_X,
+  PROP_OSD_Y,
   PROP_DOWNLOAD_ENGINE,
   PROP_LRC_PATH,
   PROP_LRC_FILENAME,
@@ -185,6 +187,8 @@ static const OlConfigBoolValue config_bool[] = {
 static const OlConfigIntValue config_int[] = {
   {PROP_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
   {PROP_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
+  {PROP_OSD_X, "x", "OSD", "OSD X position", "The horizontal position of OSD", 0, 10000, 0},
+  {PROP_OSD_Y, "y", "OSD", "OSD Y position", "The vertical position of OSD", 0, 10000, 0},
 };
 
 static const OlConfigDoubleValue config_double[] = {

@@ -123,7 +123,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                 <property name="receives_default">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <property name="group">display-mode-scroll</property>
                                 <signal name="toggled" handler="ol_option_display_mode_changed"/>
                               </object>
                               <packing>
@@ -332,7 +331,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="max_length">4</property>
                         <property name="invisible_char">•</property>
                         <property name="xalign">1</property>
-                        <property name="adjustment">adjustment4</property>
+                        <property name="adjustment">adj-osd-width</property>
                         <signal name="value_changed" handler="ol_option_osd_width_changed"/>
                       </object>
                       <packing>
@@ -360,7 +359,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="max_length">2</property>
                         <property name="invisible_char">•</property>
                         <property name="xalign">1</property>
-                        <property name="adjustment">adjustment3</property>
+                        <property name="adjustment">adj-osd-outline</property>
                         <signal name="changed" handler="ol_option_update_preview"/>
                         <signal name="changed" handler="ol_option_osd_outline_changed"/>
                       </object>
@@ -398,7 +397,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="receives_default">False</property>
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
-                        <property name="group">line-count-2</property>
                         <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
                       </object>
                       <packing>
@@ -414,6 +412,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <property name="group">line-count-1</property>
                         <signal name="toggled" handler="ol_option_osd_line_count_changed"/>
                       </object>
                       <packing>
@@ -1625,18 +1624,16 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="step_increment">0.01</property>
     <property name="page_increment">0.10000000000000001</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment3">
+  <object class="GtkAdjustment" id="adj-osd-outline">
     <property name="upper">10</property>
     <property name="step_increment">1</property>
     <property name="page_increment">3</property>
-    <property name="page_size">10</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment4">
+  <object class="GtkAdjustment" id="adj-osd-width">
     <property name="value">1024</property>
     <property name="upper">10000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
   <object class="GtkAccelGroup" id="accelgroup1"/>
   <object class="GtkDialog" id="search-dialog">
@@ -1879,16 +1876,16 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   </object>
   <object class="GtkSizeGroup" id="group-osd-label">
     <widgets>
-      <widget name="label12"/>
-      <widget name="label8"/>
-      <widget name="label7"/>
-      <widget name="lrc-align-1-label"/>
-      <widget name="lrc-align-0-label"/>
-      <widget name="label17"/>
-      <widget name="label4"/>
-      <widget name="label5"/>
-      <widget name="label-osd-lyric-lines"/>
       <widget name="label-osd-window-mode"/>
+      <widget name="label-osd-lyric-lines"/>
+      <widget name="label5"/>
+      <widget name="label4"/>
+      <widget name="label17"/>
+      <widget name="lrc-align-0-label"/>
+      <widget name="lrc-align-1-label"/>
+      <widget name="label7"/>
+      <widget name="label8"/>
+      <widget name="label12"/>
     </widgets>
   </object>
 </interface>

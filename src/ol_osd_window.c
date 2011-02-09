@@ -132,6 +132,7 @@ static double ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd,
 static int ol_osd_window_compute_lyric_ypos (OlOsdWindow *osd);
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
 static void ol_osd_window_emit_move (OlOsdWindow *osd);
+static void ol_osd_window_emit_resize (OlOsdWindow *osd);
 static GdkWindowEdge ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
                                                            gint x,
                                                            gint y);
@@ -366,23 +367,31 @@ ol_osd_window_emit_move (OlOsdWindow *osd)
                   NULL);
 }
 
+static void
+ol_osd_window_emit_resize (OlOsdWindow *osd)
+{
+  ol_errorf ("resize\n");
+  GValue params[1] = {0};
+  g_value_init (&params[0], G_OBJECT_TYPE (osd));
+  g_value_set_object (&params[0], G_OBJECT (osd));
+  g_signal_emitv (params,
+                  OL_OSD_WINDOW_GET_CLASS (osd)->signals[OSD_RESIZE],
+                  0,
+                  NULL);
+}
+
 static gboolean
 ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
 {
   /* ol_log_func (); */
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
+  if (priv->drag_state != DRAG_NONE)
+  {
+    ol_osd_window_emit_move (osd);
+    ol_osd_window_emit_resize (osd);
+  }
   priv->drag_state = DRAG_NONE;
-  /* if (GTK_WIDGET_CLASS (ol_osd_window_parent_class)->button_release_event && */
-  /*     GTK_WIDGET_CLASS (ol_osd_window_parent_class)->button_release_event (widget, */
-  /*                                                                          event)) */
-  /*     return TRUE; */
-  /* if (event->button == 1) */
-  /* { */
-  /*   priv->pressed = FALSE; */
-  /*   /\* emit `moved' signal *\/ */
-  /*   ol_osd_window_emit_move (osd); */
-  /* } */
   return FALSE;
 }
 
@@ -401,9 +410,17 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
   if (priv->width != event->width) {
     priv->width = event->width;
     width_changed = TRUE;
+    if (priv->drag_state == DRAG_NONE)
+      ol_osd_window_emit_resize (osd);
     /* ol_osd_window_set_width (osd, event->width); */
   }
-  /* ol_errorf ("x: %d, y: %d, w: %d\n", event->x, event->y, event->width); */
+  if (priv->raw_x != event->x || priv->raw_y != event->y)
+  {
+    priv->raw_x = event->x;
+    priv->raw_y = event->y;
+    if (priv->drag_state == DRAG_NONE)
+      ol_osd_window_emit_move (osd);
+  }
   return FALSE;
 }
 
@@ -559,6 +576,7 @@ ol_osd_window_map_cb (GtkWidget *widget,
                       GdkEvent  *event,
                       gpointer   user_data) {
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
+  OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   if (priv->mouse_timer_id == 0)
   {
@@ -606,7 +624,6 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 static void
 ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
-  ol_errorf ("size request\n");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   ol_osd_window_update_layout (osd);
@@ -671,11 +688,20 @@ ol_osd_window_mouse_timer (gpointer data)
 void
 ol_osd_window_set_width (OlOsdWindow *osd, gint width)
 {
+  ol_errorf ("set width: %d\n", width);
   ol_assert (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   priv->width = width;
   gtk_widget_queue_resize (GTK_WIDGET (osd));
   gtk_widget_queue_draw (GTK_WIDGET (osd));
+}
+
+int
+ol_osd_window_get_width (OlOsdWindow *osd)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  return priv->width;
 }
 
 void
@@ -1150,8 +1176,6 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
   GtkWidget *widget = GTK_WIDGET (osd);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int old_raw_x = priv->raw_x, old_raw_y = priv->raw_y;
-  priv->raw_x = raw_x;
-  priv->raw_y = raw_y;
   int x, y;
   x = raw_x;
   y = raw_y;
@@ -1197,15 +1221,29 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
       gtk_widget_queue_draw (widget);
     }
   }
-  gtk_window_move (GTK_WINDOW (osd), x, y);
+  priv->raw_x = x;
+  priv->raw_y = y;
   if (priv->raw_x != old_raw_x || priv->raw_y != old_raw_y)
-    ol_osd_window_emit_move (osd);
+  {
+    gtk_window_move (GTK_WINDOW (osd), x, y);
+  }
 }
 
 void
 ol_osd_window_move (OlOsdWindow *osd, int x, int y)
 {
   ol_osd_window_move_resize (osd, x, y, -1, DRAG_MOVE);
+}
+
+void
+ol_osd_window_get_pos (OlOsdWindow *osd, int *x, int *y)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  if (x)
+    *x = priv->raw_x;
+  if (y)
+    *y = priv->raw_y;
 }
 
 static void
@@ -1247,6 +1285,17 @@ ol_osd_window_class_init (OlOsdWindowClass *klass)
   /* install signals */
   klass->signals[OSD_MOVED] =
     g_signal_newv ("moved",
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                  NULL,         /* closure */
+                  NULL,         /* accumulator */
+                  NULL,         /* accumulator data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0,
+                  NULL);
+  klass->signals[OSD_RESIZE] =
+    g_signal_newv ("resize",
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
                   NULL,         /* closure */
@@ -1582,9 +1631,11 @@ ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode)
   {
   case OL_OSD_WINDOW_NORMAL:
     gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_NORMAL);
+    window->type = GTK_WINDOW_TOPLEVEL;
     break;
   case OL_OSD_WINDOW_DOCK:
     gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_DOCK);
+    window->type = GTK_WINDOW_POPUP;
     break;
   default:
     ol_errorf ("Invalid OSD Window type %d\n", mode);
