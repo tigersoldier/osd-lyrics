@@ -204,7 +204,14 @@ ol_osd_window_paint_bg (OlOsdWindow *osd, cairo_t *cr)
       {
         ol_osd_window_clear_cairo (cr);
       }
-      cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+      else
+      {
+        cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+        cairo_set_source_rgb (cr, 0.9, 0.9, 0.9);
+        cairo_rectangle (cr, 0, 0, w, h);
+        cairo_fill (cr);
+      }
+      cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
       sw = gdk_pixbuf_get_width (osd->bg_pixbuf);
       sh = gdk_pixbuf_get_height (osd->bg_pixbuf);
       _paint_rect (cr, osd->bg_pixbuf,
