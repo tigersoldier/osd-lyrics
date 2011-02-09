@@ -923,6 +923,9 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
     start = 0;
     end = OL_OSD_WINDOW_MAX_LINE_COUNT;
   }
+  cairo_save (cr);
+  cairo_rectangle (cr, BORDER_WIDTH, BORDER_WIDTH, w, h);
+  cairo_clip (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
   for (line = start; line < end; line++)
   {
@@ -947,6 +950,7 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
     }
     ypos += font_height * (1 + LINE_PADDING);
   }
+  cairo_restore (cr);
 }
 
 static void
