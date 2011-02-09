@@ -370,7 +370,7 @@ ol_osd_window_emit_move (OlOsdWindow *osd)
 static void
 ol_osd_window_emit_resize (OlOsdWindow *osd)
 {
-  ol_errorf ("resize\n");
+  ol_errorf ("resize: %d\n", ol_osd_window_get_width (osd));
   GValue params[1] = {0};
   g_value_init (&params[0], G_OBJECT_TYPE (osd));
   g_value_set_object (&params[0], G_OBJECT (osd));
@@ -624,6 +624,7 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 static void
 ol_osd_window_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
+  ol_error ("req");
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   ol_osd_window_update_layout (osd);
@@ -1179,6 +1180,8 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
   int x, y;
   x = raw_x;
   y = raw_y;
+  priv->raw_x = raw_x;
+  priv->raw_y = raw_y;
   if (ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK)
   {
     GdkScreen *screen = gtk_widget_get_screen (widget);
