@@ -43,7 +43,6 @@ static struct _OptionWidgets
   GtkWidget *close;
   GtkWidget *font;
   GtkWidget *outline_width;
-  GtkWidget *width;
   GtkWidget *lrc_align[2];
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
@@ -104,8 +103,6 @@ void ol_option_update_preview (GtkWidget *widget);
 void ol_option_preview_expose (GtkWidget *widget,
                                GdkEventExpose *event,
                                gpointer data);
-void ol_option_osd_width_changed (GtkSpinButton *spinbutton,
-                                  gpointer user_data);
 void ol_option_osd_outline_changed (GtkSpinButton *spinbutton,
                                     gpointer user_data);
 void ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
@@ -344,20 +341,6 @@ ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   ol_osd_render_context_destroy (render);
   cairo_destroy (cr);
   g_free (font_family);
-}
-
-void
-ol_option_osd_width_changed (GtkSpinButton *spinbutton,
-                             gpointer user_data)
-{
-  GtkSpinButton *width_widget = GTK_SPIN_BUTTON (spinbutton);
-  if (width_widget != NULL)
-  {
-    ol_config_set_int (ol_config_get_instance (),
-                       "OSD",
-                       "width", gtk_spin_button_get_value (width_widget));
-                               
-  }
 }
 
 void
@@ -779,13 +762,6 @@ load_osd ()
   {
     gtk_spin_button_set_value (outline_widget,
                                ol_config_get_int (config, "OSD", "outline-width"));
-  }
-  /* Updates Width */
-  GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
-  if (width_widget != NULL)
-  {
-    gtk_spin_button_set_value (width_widget,
-                               ol_config_get_int (config, "OSD", "width"));
   }
   /* Lrc align */
   for (i = 0; i < 2; i++)
@@ -1294,7 +1270,6 @@ ol_option_show ()
     options.close = ol_gui_get_widget ("option-close");
     options.font = ol_gui_get_widget ("osd-font");
     options.outline_width = ol_gui_get_widget ("outline-width");
-    options.width = ol_gui_get_widget ("osd-width");
     options.lrc_align[0] = ol_gui_get_widget ("lrc-align-0");
     options.lrc_align[1] = ol_gui_get_widget ("lrc-align-1");
     options.active_lrc_color[0] = ol_gui_get_widget ("active-lrc-color-0");

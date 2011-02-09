@@ -311,34 +311,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   <object class="GtkHBox" id="hbox11">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkLabel" id="label5">
-                        <property name="visible">True</property>
-                        <property name="xalign">1</property>
-                        <property name="xpad">5</property>
-                        <property name="label" translatable="yes" comments="The width of OSD window">_Width:</property>
-                        <property name="use_underline">True</property>
-                        <property name="mnemonic_widget">osd-width</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="osd-width">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="max_length">4</property>
-                        <property name="invisible_char">•</property>
-                        <property name="xalign">1</property>
-                        <property name="adjustment">adj-osd-width</property>
-                        <signal name="value_changed" handler="ol_option_osd_width_changed"/>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkLabel" id="label17">
                         <property name="visible">True</property>
                         <property name="xalign">1</property>
@@ -349,7 +321,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="position">2</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -364,7 +336,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <signal name="changed" handler="ol_option_osd_outline_changed"/>
                       </object>
                       <packing>
-                        <property name="position">3</property>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
@@ -1876,11 +1849,10 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   </object>
   <object class="GtkSizeGroup" id="group-osd-label">
     <widgets>
-      <widget name="label-osd-window-mode"/>
-      <widget name="label-osd-lyric-lines"/>
-      <widget name="label5"/>
       <widget name="label4"/>
       <widget name="label17"/>
+      <widget name="label-osd-lyric-lines"/>
+      <widget name="label-osd-window-mode"/>
       <widget name="lrc-align-0-label"/>
       <widget name="lrc-align-1-label"/>
       <widget name="label7"/>
