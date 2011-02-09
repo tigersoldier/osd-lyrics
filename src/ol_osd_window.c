@@ -66,6 +66,8 @@ struct __OlOsdWindowPrivate
   gint raw_y;
   gboolean locked;
   gboolean composited;          /* whether the screen is composited */
+  gboolean update_shape;
+  double lyric_xpos[OL_OSD_WINDOW_MAX_LINE_COUNT];
   gulong composited_signal;
   gint mouse_x;
   gint mouse_y;
@@ -142,6 +144,9 @@ static void ol_osd_window_move_resize (OlOsdWindow *osd,
                                        enum DragState drag_type);
 static void ol_osd_window_paint (OlOsdWindow *osd);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
+static void ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd);
+static void ol_osd_window_update_shape (OlOsdWindow *osd);
+static void ol_osd_window_queue_reshape (OlOsdWindow *osd);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd,
                                                 gboolean disable_input);
 static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd,
@@ -303,6 +308,7 @@ ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
   GtkWidget *widget = GTK_WIDGET (userdata);
   OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
   priv->composited = gdk_screen_is_composited (screen);
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (widget);
 }
 
@@ -417,20 +423,18 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
   gboolean size_changed = FALSE;
   widget->allocation.x = event->x;
   widget->allocation.y = event->y;
-  if (widget->allocation.height != event->height)
+  if (priv->width != event->width)
   {
-    widget->allocation.height = event->height;
-    size_changed = TRUE;
-  }
-  widget->allocation.width = event->width;
-  if (priv->width != event->width) {
     priv->width = event->width;
     size_changed = TRUE;
     if (priv->drag_state == DRAG_NONE)
       ol_osd_window_emit_resize (osd);
   }
   if (size_changed)
+  {
     ol_osd_window_update_child_allocation (osd);
+    ol_osd_window_reset_shape_pixmap (osd);
+  }
   if (priv->raw_x != event->x || priv->raw_y != event->y)
   {
     priv->raw_x = event->x;
@@ -540,10 +544,13 @@ static void
 ol_osd_window_paint (OlOsdWindow *osd)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   cairo_t *cr;
   cr = gdk_cairo_create (GTK_WIDGET (osd)->window);
   ol_osd_window_paint_bg (osd, cr);
   ol_osd_window_paint_lyrics (osd, cr);
+  if (priv->update_shape)
+    ol_osd_window_update_shape (osd);
   cairo_destroy (cr);
 }
 
@@ -554,6 +561,7 @@ ol_osd_window_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   priv->mouse_over = TRUE;
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (widget);
   /* ol_osd_window_update_child_visibility (OL_OSD_WINDOW (widget)); */
   return FALSE;
@@ -578,6 +586,7 @@ ol_osd_window_check_mouse_leave (OlOsdWindow *osd)
       !_point_in_rect (rel_x, rel_y, &rect))
   {
     priv->mouse_over = FALSE;
+    ol_osd_window_queue_reshape (osd);
     gtk_widget_queue_draw (widget);
   }
 }
@@ -605,6 +614,8 @@ ol_osd_window_map_cb (GtkWidget *widget,
                                           (GSourceFunc) ol_osd_window_mouse_timer,
                                           widget);
   }
+  ol_osd_window_reset_shape_pixmap (osd);
+  ol_osd_window_queue_reshape (osd);
   return FALSE;
 }
 
@@ -689,7 +700,10 @@ ol_osd_window_update_layout (OlOsdWindow *osd)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  int old_height = priv->osd_height;
   priv->osd_height = ol_osd_window_compute_osd_height (osd);
+  if (priv->osd_height != old_height)
+    ol_osd_window_reset_shape_pixmap (osd);
   ol_osd_window_update_child_size_requisition (osd);
 }
 
@@ -731,9 +745,28 @@ ol_osd_window_mouse_timer (gpointer data)
     if (priv->mouse_over_lyrics != mouse_over)
     {
       priv->mouse_over_lyrics = mouse_over;
-      gtk_widget_queue_draw (GTK_WIDGET (osd));
+      gtk_widget_queue_draw (widget);
     }
-    ol_osd_window_check_mouse_leave (osd);
+    if (ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK)
+    {
+      GdkRectangle window_rect = {
+        .x = 0,
+        .y = 0,
+        .width = widget->allocation.width,
+        .height = widget->allocation.height,
+      };
+      gboolean mouse_over = _point_in_rect (rel_x, rel_y, &window_rect);
+      if (mouse_over != priv->mouse_over)
+      {
+        priv->mouse_over = mouse_over;
+        ol_osd_window_queue_reshape (osd);
+        gtk_widget_queue_draw (widget);
+      }
+    }
+    else
+    {
+      ol_osd_window_check_mouse_leave (osd);
+    }
   }
   return TRUE;
 }
@@ -745,6 +778,7 @@ ol_osd_window_set_width (OlOsdWindow *osd, gint width)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   priv->width = width;
   gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -793,6 +827,7 @@ ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked)
   if (GTK_WIDGET_REALIZED (GTK_WIDGET (osd))) {
     ol_osd_window_set_input_shape_mask (osd, locked);
   }
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -935,6 +970,11 @@ ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd, int line, double percentage)
         xpos = -half_count * w;
         if (xpos < w - width)
           xpos = w - width;
+      }
+      if (xpos != priv->lyric_xpos[line])
+      {
+        ol_osd_window_queue_reshape (osd);
+        priv->lyric_xpos[line] = xpos;
       }
     }
   }
@@ -1163,7 +1203,6 @@ ol_osd_window_has_lyrics (OlOsdWindow *osd)
 void
 ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
 {
-  ol_log_func ();
   ol_debugf ("  lyric:%s\n", lyric);
   ol_assert (OL_IS_OSD_WINDOW (osd));
   ol_assert (line >= 0 && line < OL_OSD_WINDOW_MAX_LINE_COUNT);
@@ -1174,6 +1213,11 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
   else
     osd->lyrics[line] = g_strdup ("");
   ol_osd_window_update_lyric_pixmap (osd, line);
+  /* We have to call ol_osd_window_update_shape instead of
+     ol_osd_window_queue_reshape here, because there might be empty shape
+     before setting lyric, in which case expose event will not be emitted,
+     thus the shape will not be updated at all. */
+  ol_osd_window_update_shape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -1190,7 +1234,78 @@ ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment)
     alignment = 1.0;
   osd->line_alignment[line] = alignment;
   ol_osd_window_update_lyric_rect (osd, line);
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
+}
+
+static void
+ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd)
+{
+  /* init shape pixmap */
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  if (!GTK_WIDGET_REALIZED (GTK_WIDGET (osd)))
+    return;
+  GtkWidget *widget = GTK_WIDGET (osd);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  gint width = priv->width;
+  gint height = ol_osd_window_compute_window_height (osd);
+  ol_errorf ("reset: %d x %d\n", width, height);
+  if (osd->shape_pixmap != NULL)
+  {
+    gint w, h;
+    gdk_drawable_get_size (osd->shape_pixmap, &w, &h);
+    if (w == width && h == height)
+    {
+      return;
+    }
+    else
+    {
+      g_object_unref (osd->shape_pixmap);
+      osd->shape_pixmap = NULL;
+    }
+  }
+  osd->shape_pixmap = gdk_pixmap_new (widget->window, width, height, 1);
+  cairo_t *cr = gdk_cairo_create (osd->shape_pixmap);
+  ol_osd_window_clear_cairo (cr);
+  cairo_destroy (cr);
+  ol_osd_window_queue_reshape (osd);
+}
+
+static void
+ol_osd_window_queue_reshape (OlOsdWindow *osd)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  priv->update_shape = TRUE;
+}
+
+static void
+ol_osd_window_update_shape (OlOsdWindow *osd)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  if (!GTK_WIDGET_REALIZED (widget))
+    return;
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  if (priv->composited ||
+      ol_osd_window_panel_visible (osd))
+  {
+    gdk_window_shape_combine_mask (widget->window, NULL, 0, 0);
+    return;
+  }
+  GdkPixmap *shape_mask = osd->shape_pixmap;
+  GdkGC *fg_gc = gdk_gc_new (shape_mask);
+  GdkColor color;
+  color.pixel = 0;
+  gdk_gc_set_foreground (fg_gc, &color);
+  gdk_gc_set_background (fg_gc, &color);
+  cairo_t *cr = gdk_cairo_create (shape_mask);
+  ol_osd_window_clear_cairo (cr);
+  ol_osd_window_paint_lyrics (osd, cr);
+  cairo_destroy (cr);
+  gdk_window_shape_combine_mask (widget->window, shape_mask, 0, 0);
+  priv->update_shape = FALSE;
+  g_object_unref (fg_gc);
 }
 
 static void
@@ -1278,6 +1393,7 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
         .height = h,
       };
       gtk_widget_size_allocate (widget, &alloc);
+      ol_osd_window_queue_reshape (osd);
       gtk_widget_queue_draw (widget);
     }
   }
@@ -1438,6 +1554,7 @@ ol_osd_window_init (OlOsdWindow *osd)
   priv->raw_x = 0;
   priv->raw_y = 0;
   priv->drag_state = DRAG_NONE;
+  priv->update_shape = FALSE;
   /* ol_osd_window_set_mode (osd, OL_OSD_WINDOW_DOCK); */
   ol_osd_window_set_mode (osd, OL_OSD_WINDOW_NORMAL);
   ol_osd_window_update_colormap (osd);
@@ -1532,6 +1649,7 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_pixmap (osd, i);
   gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -1554,6 +1672,7 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_pixmap (osd, i);
   gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -1576,6 +1695,7 @@ ol_osd_window_set_outline_width (OlOsdWindow *osd,
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_pixmap (osd, i);
   gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -1628,6 +1748,7 @@ ol_osd_window_set_line_count (OlOsdWindow *osd,
   ol_assert (line_count >= 1 && line_count <= 2);
   osd->line_count = line_count;
   gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_reshape (osd);
 }
 
 guint
@@ -1700,6 +1821,7 @@ ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode)
     gtk_widget_realize (widget);
   if (mapped)
     gtk_widget_map (widget);
+  ol_osd_window_queue_reshape (osd);
 }
 
 enum OlOsdWindowMode
