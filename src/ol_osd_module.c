@@ -284,7 +284,6 @@ config_change_handler (OlConfig *config,
   else if (strcmp (name, "osd-window-mode") == 0)
   {
     gchar *mode = ol_config_get_string (config, group, name);
-    ol_errorf ("mode is: %s\n", mode);
     if (strcmp (mode, "dock") == 0)
       ol_osd_window_set_mode (window, OL_OSD_WINDOW_DOCK);
     else
