@@ -388,18 +388,23 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
   GtkWidget *widget = GTK_WIDGET (window);
   OlOsdWindow *osd = OL_OSD_WINDOW (window);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  gboolean width_changed = FALSE;
+  gboolean size_changed = FALSE;
   widget->allocation.x = event->x;
   widget->allocation.y = event->y;
-  widget->allocation.height = event->height;
+  if (widget->allocation.height != event->height)
+  {
+    widget->allocation.height = event->height;
+    size_changed = TRUE;
+  }
   widget->allocation.width = event->width;
   if (priv->width != event->width) {
     priv->width = event->width;
-    width_changed = TRUE;
+    size_changed = TRUE;
     if (priv->drag_state == DRAG_NONE)
       ol_osd_window_emit_resize (osd);
-    /* ol_osd_window_set_width (osd, event->width); */
   }
+  if (size_changed)
+    ol_osd_window_update_child_allocation (osd);
   if (priv->raw_x != event->x || priv->raw_y != event->y)
   {
     priv->raw_x = event->x;
