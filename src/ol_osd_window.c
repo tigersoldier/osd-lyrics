@@ -65,7 +65,6 @@ struct __OlOsdWindowPrivate
   gint raw_x;
   gint raw_y;
   gboolean locked;
-  gboolean pressed;
   gboolean composited;          /* whether the screen is composited */
   gulong composited_signal;
   gint mouse_x;
@@ -75,7 +74,6 @@ struct __OlOsdWindowPrivate
   gint old_width;
   gboolean visible;
   guint mouse_timer_id;
-  guint drag_timer_id;
   gboolean mouse_over;
   gboolean mouse_over_lyrics;
   GtkRequisition child_requisition;
@@ -90,11 +88,6 @@ struct OsdLrc
 };
 
 G_DEFINE_TYPE(OlOsdWindow, ol_osd_window, GTK_TYPE_WINDOW)
-/** 
- * @brief Destroys an OSD Window
- * 
- * @param widget The OSD Window to destroy
- */
 static void ol_osd_window_destroy (GtkObject *object);
 static void ol_osd_window_set_property (GObject *object, guint prop_id,
                                         const GValue *value, GParamSpec *pspec);
@@ -143,13 +136,6 @@ static void ol_osd_window_move_resize (OlOsdWindow *osd,
                                        int raw_y,
                                        int width,
                                        enum DragState drag_type);
-/** 
- * @brief Paint the layout to be OSD style
- *
- * Paint the lyrics, the odd_lrc will be shown upper-left and the even_lrc will be shown bottom-right
- * @param osd An OlOsdWindow
- * @param cr A cairo_t to be painted
- */
 static void ol_osd_window_paint (OlOsdWindow *osd);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd,
@@ -333,7 +319,6 @@ ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event)
                                     event->time);
       }
     } else {
-      priv->pressed = TRUE;
       priv->old_x = widget->allocation.x;
       priv->old_y = widget->allocation.y;
       priv->old_width = widget->allocation.width;
@@ -397,7 +382,8 @@ ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
 
 static gboolean ol_osd_window_configure_event (GtkWindow *window,
                                                GdkEventConfigure *event,
-                                               gpointer user_data) {
+                                               gpointer user_data)
+{
   ol_assert_ret (OL_IS_OSD_WINDOW (window), FALSE);
   GtkWidget *widget = GTK_WIDGET (window);
   OlOsdWindow *osd = OL_OSD_WINDOW (window);
@@ -427,7 +413,8 @@ static gboolean ol_osd_window_configure_event (GtkWindow *window,
 static GdkWindowEdge
 ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
                                  gint x,
-                                 gint y) {
+                                 gint y)
+{
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   gint width = widget->allocation.width;
@@ -490,7 +477,8 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
   return FALSE;
 }
 
-static gboolean ol_osd_window_panel_visible (OlOsdWindow *osd) {
+static gboolean ol_osd_window_panel_visible (OlOsdWindow *osd)
+{
   ol_assert (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   return priv->mode == OL_OSD_WINDOW_NORMAL ||
@@ -498,7 +486,8 @@ static gboolean ol_osd_window_panel_visible (OlOsdWindow *osd) {
 }
 
 static gboolean
-ol_osd_window_expose_before (GtkWidget *widget, GdkEventExpose *event) {
+ol_osd_window_expose_before (GtkWidget *widget, GdkEventExpose *event)
+{
   ol_assert (OL_IS_OSD_WINDOW (widget));
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (ol_osd_window_panel_visible (osd))
@@ -517,7 +506,8 @@ ol_osd_window_expose_after (GtkWidget *widget, GdkEventExpose *event)
 }
 
 static void
-ol_osd_window_paint (OlOsdWindow *osd) {
+ol_osd_window_paint (OlOsdWindow *osd)
+{
   ol_assert (OL_IS_OSD_WINDOW (osd));
   cairo_t *cr;
   cr = gdk_cairo_create (GTK_WIDGET (osd)->window);
@@ -553,7 +543,7 @@ ol_osd_window_check_mouse_leave (OlOsdWindow *osd)
   rect.width = widget->allocation.width;
   rect.height = widget->allocation.height;
   if ((priv->mode != OL_OSD_WINDOW_DOCK ||
-       !priv->pressed) &&
+       priv->drag_state == DRAG_NONE) &&
       !_point_in_rect (rel_x, rel_y, &rect))
   {
     priv->mouse_over = FALSE;
@@ -842,7 +832,7 @@ ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd, int line, double percentage)
   GtkWidget *widget = GTK_WIDGET (osd);
   gint w, h;
   int width, height;
-  /* gdk_drawable_get_size (widget->window, &w, &h); */
+  gboolean smooth = TRUE;
   ol_osd_window_get_osd_size (osd, &w, &h);
   if (osd->active_lyric_pixmap[line] != NULL)
   {
@@ -860,7 +850,10 @@ ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd, int line, double percentage)
   else
   {
     OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-    if (priv->composited)
+    if (!priv->composited &&
+        ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK)
+      smooth = FALSE;
+    if (smooth)
     {
       if (percentage * width < w / 2.0)
         xpos = 0;
@@ -962,9 +955,8 @@ ol_osd_window_clear_cairo (cairo_t *cr)
   ol_assert (cr != NULL);
   cairo_save (cr);
   cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0);
-  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE); // set drawing compositing operator
-  // SOURCE -> replace destination
-  cairo_paint(cr); // paint source
+  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+  cairo_paint(cr);
   cairo_restore (cr);
 }
 
@@ -1370,12 +1362,10 @@ ol_osd_window_init (OlOsdWindow *osd)
   /* initilaize private data */
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   priv->width = DEFAULT_WIDTH;
-  priv->pressed = FALSE;
   priv->locked = TRUE;
   priv->composited = FALSE;
   priv->visible = FALSE;
   priv->mouse_timer_id = 0;
-  priv->drag_timer_id = 0;
   priv->child_requisition.width = 0;
   priv->child_requisition.height = 0;
   priv->mouse_over_lyrics = FALSE;
