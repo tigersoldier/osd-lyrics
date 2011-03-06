@@ -159,7 +159,6 @@ static void ol_osd_window_screen_composited_changed (GdkScreen *screen,
                                                      gpointer userdata);
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_child_allocation (OlOsdWindow *osd);
-static void ol_osd_window_check_resize (GtkContainer *container);
 static void ol_osd_window_check_mouse_leave (OlOsdWindow *osd);
 static void ol_osd_window_update_child_visibility (OlOsdWindow *osd);
 
@@ -670,8 +669,6 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   widget->allocation = *allocation;
-  int h = ol_osd_window_compute_window_height (osd);
-  widget->allocation.height = h;
 
   /* priv->width = allocation->width; */
   if (GTK_WIDGET_REALIZED (widget))
@@ -880,24 +877,6 @@ ol_osd_window_compute_osd_height (OlOsdWindow *osd)
   int font_height = ol_osd_render_get_font_height (osd->render_context);
   int height = font_height * (osd->line_count + (osd->line_count - 1) * LINE_PADDING);
   return height;
-}
-
-static void
-ol_osd_window_check_resize (GtkContainer *container)
-{
-  ol_assert (OL_IS_OSD_WINDOW (container));
-  GtkWidget *widget = GTK_WIDGET (container);
-  OlOsdWindow *osd = OL_OSD_WINDOW (container);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  ol_osd_window_update_layout (osd);
-  GtkAllocation alloc = {
-    .x = widget->allocation.x,
-    .y = widget->allocation.y,
-    .width = priv->width,
-    .height = ol_osd_window_compute_osd_height (osd),
-  };
-  gtk_widget_size_allocate (widget, &alloc);
-  gtk_widget_queue_draw (widget);
 }
 
 static void
@@ -1249,7 +1228,6 @@ ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   gint width = priv->width;
   gint height = ol_osd_window_compute_window_height (osd);
-  ol_errorf ("reset: %d x %d\n", width, height);
   if (osd->shape_pixmap != NULL)
   {
     gint w, h;
@@ -1284,15 +1262,21 @@ ol_osd_window_update_shape (OlOsdWindow *osd)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
+  static empty_mask = TRUE;
   if (!GTK_WIDGET_REALIZED (widget))
     return;
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   if (priv->composited ||
       ol_osd_window_panel_visible (osd))
   {
-    gdk_window_shape_combine_mask (widget->window, NULL, 0, 0);
+    if (!empty_mask)
+    {
+      empty_mask = TRUE;
+      gdk_window_shape_combine_mask (widget->window, NULL, 0, 0);
+    }
     return;
   }
+  empty_mask = FALSE;
   GdkPixmap *shape_mask = osd->shape_pixmap;
   GdkGC *fg_gc = gdk_gc_new (shape_mask);
   GdkColor color;
@@ -1392,7 +1376,9 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
         .width = w,
         .height = h,
       };
+      /* gtk_window_resize (GTK_WINDOW (osd), w, h); */
       gtk_widget_size_allocate (widget, &alloc);
+      /* gtk_widget_queue_resize (widget); */
       ol_osd_window_queue_reshape (osd);
       gtk_widget_queue_draw (widget);
     }
@@ -1447,8 +1433,6 @@ ol_osd_window_class_init (OlOsdWindowClass *klass)
   widget_class->enter_notify_event = ol_osd_window_enter_notify;
   widget_class->leave_notify_event = ol_osd_window_leave_notify;
 
-  container_class->check_resize = ol_osd_window_check_resize;
-  
   /* set up properties */
   g_object_class_install_property (gobject_class,
                                    PROP_LOCKED,
