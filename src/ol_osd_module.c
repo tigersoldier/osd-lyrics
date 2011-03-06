@@ -75,6 +75,7 @@ static void ol_osd_module_update_next_lyric (OlOsdModule *osd,
 static void ol_osd_module_init_osd (OlOsdModule *osd);
 static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
+static void ol_osd_resize_handler (OlOsdWindow *osd, gpointer data);
 static gboolean ol_osd_button_release (OlOsdWindow *osd,
                                        GdkEventButton *event,
                                        gpointer data);
@@ -89,10 +90,19 @@ ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
 {
   ol_log_func ();
   OlConfig *config = ol_config_get_instance ();
-  double xalign, yalign;
-  ol_osd_window_get_alignment (osd, &xalign, &yalign);
-  ol_config_set_double (config, "OSD", "xalign", xalign);
-  ol_config_set_double (config, "OSD", "yalign", yalign);
+  int x, y;
+  ol_osd_window_get_pos (osd, &x, &y);
+  ol_config_set_int_no_emit (config, "OSD", "x", x);
+  ol_config_set_int_no_emit (config, "OSD", "y", y);
+}
+
+static void
+ol_osd_resize_handler (OlOsdWindow *osd, gpointer data)
+{
+  ol_log_func ();
+  OlConfig *config = ol_config_get_instance ();
+  int width = ol_osd_window_get_width (osd);
+  ol_config_set_int_no_emit (config, "OSD", "width", width);
 }
 
 static gboolean
@@ -185,11 +195,11 @@ config_change_handler (OlConfig *config,
     ol_osd_window_set_locked (window,
                               ol_config_get_bool (config, "OSD", "locked"));
   }
-  else if (strcmp (name, "xalign") == 0 || strcmp (name, "yalign") == 0)
+  else if (strcmp (name, "x") == 0 || strcmp (name, "y") == 0)
   {
-    double xalign = ol_config_get_double (config, "OSD", "xalign");
-    double yalign = ol_config_get_double (config, "OSD", "yalign");
-    ol_osd_window_set_alignment (window, xalign, yalign);
+    ol_osd_window_move (window,
+                        ol_config_get_int (config, "OSD", "x"),
+                        ol_config_get_int (config, "OSD", "y"));
   }
   else if (strcmp (name, "font-family") == 0)
   {
@@ -271,6 +281,15 @@ config_change_handler (OlConfig *config,
   {
     ol_osd_window_set_outline_width (window, ol_config_get_int (config, "OSD", name));
   }
+  else if (strcmp (name, "osd-window-mode") == 0)
+  {
+    gchar *mode = ol_config_get_string (config, group, name);
+    if (strcmp (mode, "dock") == 0)
+      ol_osd_window_set_mode (window, OL_OSD_WINDOW_DOCK);
+    else
+      ol_osd_window_set_mode (window, OL_OSD_WINDOW_NORMAL);
+    g_free (mode);
+  }
 }
 
 static void
@@ -298,13 +317,15 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   osd->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
   ol_assert (config != NULL);
+  ol_config_set_bool (config, "OSD", "visible", TRUE);
+  config_change_handler (config, "OSD", "width", osd);
   config_change_handler (config, "OSD", "visible", osd);
   config_change_handler (config, "OSD", "locked", osd);
   config_change_handler (config, "OSD", "line-count", osd);
-  config_change_handler (config, "OSD", "xalign", osd);
+  config_change_handler (config, "OSD", "osd-window-mode", osd);
   config_change_handler (config, "OSD", "font-family", osd);
   config_change_handler (config, "OSD", "font-size", osd);
-  config_change_handler (config, "OSD", "width", osd);
+  config_change_handler (config, "OSD", "x", osd);
   config_change_handler (config, "OSD", "lrc-align-0", osd);
   config_change_handler (config, "OSD", "lrc-align-1", osd);
   config_change_handler (config, "OSD", "active-lrc-color", osd);
@@ -313,6 +334,9 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   config_change_handler (config, "OSD", "outline-width", osd);
   g_signal_connect (osd->window, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
+                    NULL);
+  g_signal_connect (osd->window, "resize",
+                    G_CALLBACK (ol_osd_resize_handler),
                     NULL);
   g_signal_connect (osd->window, "button-release-event",
                     G_CALLBACK (ol_osd_button_release),
@@ -355,8 +379,8 @@ ol_osd_module_free (struct OlDisplayModule *module)
   }
   if (priv->window != NULL)
   {
-      gtk_widget_destroy (priv->window);
-      priv->window = NULL;
+    gtk_widget_destroy (GTK_WIDGET (priv->window));
+    priv->window = NULL;
   }
   OlConfig *config = ol_config_get_instance ();
   g_signal_handler_disconnect (config, priv->config_signal);

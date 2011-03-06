@@ -41,16 +41,19 @@ typedef struct _OlOsdWindowClass            OlOsdWindowClass;
 enum OlOsdWindowSingals {
   OSD_INVALID_SIGNAL = 0,
   OSD_MOVED,
+  OSD_RESIZE,
   OSD_SINGAL_COUNT,
+};
+
+enum OlOsdWindowMode {
+  OL_OSD_WINDOW_NORMAL,
+  OL_OSD_WINDOW_DOCK,
 };
 
 struct _OlOsdWindow
 {
   GtkWindow parent;
-  GdkWindow *event_window;
-  GdkWindow *osd_window;
   GdkPixbuf *bg_pixbuf;
-  GdkScreen *screen;
   gchar *lyrics[OL_OSD_WINDOW_MAX_LINE_COUNT];
   double line_alignment[OL_OSD_WINDOW_MAX_LINE_COUNT];
   guint current_line;           /* which line is playing currently */
@@ -82,47 +85,13 @@ GtkType ol_osd_window_get_type (void);
 GtkWidget* ol_osd_window_new (void);
 
 /** 
- * @brief Sets the alignment of the OSD Window, respect to the screen
- * 
- * @param osd an OlOsdWindow
- * @param xalign the horizontal position of the OSD Window. 0.0 is left aligned, 1.0 is right aligned.
- * @param yalign the vertical position of the OSD Window. 0.0 is top aligned, 1.0 is bottom aligned.
- */
-void ol_osd_window_set_alignment (OlOsdWindow *osd, double xalign, double yalign);
-
-/** 
- * @brief Gets the alignment of the OSD Window, respect to the screen
- * 
- * @param osd an OlOsdWindow
- * @param xalign return location of the horizontal position of the OSD Window, or NULL
- * @param yalign return location of the vertical position of the OSD Window, or NULL
- */
-void ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign);
-
-/** 
- * @brief Gets the alignment of the OSD Window, respect to the screen
- * 
- * @param osd An OlOsdWindow
- * @param xalign the horizontal position of the OSD Window. 0.0 is left aligned, 1.0 is right aligned.
- * @param yalign the vertical position of the OSD Window. 0.0 is top aligned, 1.0 is bottom aligned.
- */
-void ol_osd_window_get_alignment (OlOsdWindow *osd, double *xalign, double *yalign);
-
-/** 
- * @brief Resizes an OSD window
- * 
- * @param osd An OlOsdWindow
- * @param width The width of the window
- * @param height The height of the window
- */
-void ol_osd_window_resize (OlOsdWindow *osd, gint width, gint height);
-/** 
  * @brief Sets witdh of an OSD window
  * 
  * @param osd An OlOsdWindow
  * @param width The width of the window
  */
 void ol_osd_window_set_width (OlOsdWindow *osd, gint width);
+int ol_osd_window_get_width (OlOsdWindow *osd);
 /** 
  * @brief Gets the size of an OSD window
  * 
@@ -335,4 +304,20 @@ gboolean ol_osd_window_get_translucent_on_mouse_over (OlOsdWindow *osd);
  * 
  */
 void ol_osd_window_set_bg (OlOsdWindow *osd, GdkPixbuf *bg);
+
+void ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode);
+
+enum OlOsdWindowMode ol_osd_window_get_mode (OlOsdWindow *osd);
+/** 
+ * Moves osd window
+ *
+ * If the type of OSD window is OL_OSD_WINDOW_DOCK, the position of
+ * window will be placed inside the screen.
+ * 
+ * @param osd 
+ * @param x 
+ * @param y 
+ */
+void ol_osd_window_move (OlOsdWindow *osd, int x, int y);
+void ol_osd_window_get_pos (OlOsdWindow *osd, int *x, int *y);
 #endif // __OSD_WINDOW_H__
