@@ -167,12 +167,9 @@ _get_played_time_cb(DBusGProxy *proxy, DBusGProxyCall *call_id, OlPlayerMpris *m
                            G_TYPE_INT,
                            &mpris->played_time,
                            G_TYPE_INVALID);
-    if(error != NULL){ 
-        g_print("Error in method call : %s\n", error->message); 
-        g_error_free(error);
-    }else{ 
-        g_print("SUCCESS,it is now %d\n", mpris->played_time);
-        
+    if (error != NULL) { 
+      ol_errorf ("Error in method call : %s\n", error->message); 
+      g_error_free (error);
     }
 }
       
