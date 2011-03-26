@@ -43,3 +43,4 @@ check: all
 
 install: 
 distclean:
+uninstall:
