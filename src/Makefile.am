@@ -72,7 +72,7 @@ osd_lyrics_SOURCES = \
 	ol_player_deciber.c \
 	ol_player_gmusicbrowser.c \
 	ol_player_vlc.c \
-	ol_elapse_emulator.c \	
+	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \
 	ol_utils_dbus.c \
