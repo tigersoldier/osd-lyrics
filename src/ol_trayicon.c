@@ -66,16 +66,16 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
     char *markup = NULL;
     if (album == NULL)
     {
-      markup = g_strdup_printf (INFO_FORMAT,
-                                title,
-                                artist);
+      markup = g_markup_printf_escaped (INFO_FORMAT,
+                                        title,
+                                        artist);
     }
     else
     {
-      markup = g_strdup_printf (INFO_FORMAT_ALBUM,
-                                title,
-                                artist,
-                                album);
+      markup = g_markup_printf_escaped (INFO_FORMAT_ALBUM,
+                                        title,
+                                        artist,
+                                        album);
     }
     gtk_tooltip_set_markup (tooltip, markup);
     g_free (markup);

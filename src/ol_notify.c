@@ -94,14 +94,14 @@ ol_notify_music_change (OlMusicInfo *info, const char *icon)
   char *body = NULL;
   if (album == NULL)
   {
-    body = g_strdup_printf (INFO_FORMAT,
-                            artist);
+    body = g_markup_printf_escaped (INFO_FORMAT,
+                                    artist);
   }
   else
   {
-    body = g_strdup_printf (INFO_FORMAT_ALBUM,
-                            artist,
-                            album);
+    body = g_markup_printf_escaped (INFO_FORMAT_ALBUM,
+                                    artist,
+                                    album);
   }
   NotifyNotification *music_notify = _get_notify (title, body, icon);
   notify_notification_set_timeout (music_notify,
