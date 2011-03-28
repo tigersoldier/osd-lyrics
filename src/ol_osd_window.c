@@ -76,6 +76,7 @@ struct __OlOsdWindowPrivate
   gint old_width;
   gboolean visible;
   guint mouse_timer_id;
+  gulong configure_event;
   gboolean mouse_over;
   gboolean mouse_over_lyrics;
   GtkRequisition child_requisition;
@@ -615,6 +616,8 @@ ol_osd_window_map_cb (GtkWidget *widget,
   }
   ol_osd_window_reset_shape_pixmap (osd);
   ol_osd_window_queue_reshape (osd);
+  priv->configure_event = g_signal_connect (G_OBJECT (osd), "configure-event",
+                                            G_CALLBACK (ol_osd_window_configure_event), osd);
   return FALSE;
 }
 
@@ -627,6 +630,12 @@ ol_osd_window_unmap_cb (GtkWidget *widget,
   if (priv->mouse_timer_id != 0)
   {
     g_source_remove (priv->mouse_timer_id);
+    priv->mouse_timer_id = 0;
+  }
+  if (priv->configure_event > 0) {
+    g_signal_handler_disconnect (widget,
+                                 priv->configure_event);
+    priv->configure_event = 0;
   }
   return FALSE;
 }
@@ -1531,6 +1540,7 @@ ol_osd_window_init (OlOsdWindow *osd)
   priv->composited = FALSE;
   priv->visible = FALSE;
   priv->mouse_timer_id = 0;
+  priv->configure_event = 0;
   priv->child_requisition.width = 0;
   priv->child_requisition.height = 0;
   priv->mouse_over_lyrics = FALSE;
@@ -1556,8 +1566,6 @@ ol_osd_window_init (OlOsdWindow *osd)
                     G_CALLBACK (ol_osd_window_motion_notify), osd);
   g_signal_connect (G_OBJECT (osd), "expose-event",
                     G_CALLBACK (ol_osd_window_expose_before), osd);
-  g_signal_connect (G_OBJECT (osd), "configure-event",
-                    G_CALLBACK (ol_osd_window_configure_event), osd);
   g_signal_connect_after (G_OBJECT (osd), "expose-event",
                           G_CALLBACK (ol_osd_window_expose_after), osd);
   g_signal_connect (G_OBJECT (osd), "map-event",
@@ -1803,8 +1811,11 @@ ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode)
   priv->mode = mode;
   if (realized)
     gtk_widget_realize (widget);
-  if (mapped)
+  if (mapped) {
     gtk_widget_map (widget);
+    /* We need to specify the position so that OSD window keeps its place. */
+    gtk_window_move (window, priv->raw_x, priv->raw_y);
+  }
   ol_osd_window_queue_reshape (osd);
 }
 
