@@ -93,6 +93,9 @@ PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([NOTIFY], [libnotify])
+PKG_CHECK_EXISTS([libnotify >= 0.7], 
+  AC_DEFINE(HAVE_LIBNOTIFY_0_7, 1, [Have libnotify >= 0.7]))
+
 PKG_CHECK_MODULES([SQLITE], [sqlite3 >= 3.3.0])
 MPD_CFLAGS=
 MPD_LIBS=

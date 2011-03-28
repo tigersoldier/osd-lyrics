@@ -16,14 +16,12 @@ static NotifyNotification *notify = NULL;
 static gboolean _init ();
 static NotifyNotification *_get_notify (const char *summary,
                                         const char *body,
-                                        const char *icon,
-                                        GtkWidget *attach);
+                                        const char *icon);
 
 static NotifyNotification *
 _get_notify (const char *summary,
              const char *body,
-             const char *icon,
-             GtkWidget *attach)
+             const char *icon)
 {
   ol_debugf ("summary: %s\n"
              "body: %s\n"
@@ -33,10 +31,16 @@ _get_notify (const char *summary,
              icon);
   if (notify == NULL)
   {
+#ifdef HAVE_LIBNOTIFY_0_7
+    notify = notify_notification_new (summary,
+                                      body,
+                                      icon);
+#else
     notify = notify_notification_new (summary,
                                       body,
                                       icon,
-                                      attach);
+                                      NULL);
+#endif
   }
   else
   {
@@ -99,7 +103,7 @@ ol_notify_music_change (OlMusicInfo *info, const char *icon)
                             artist,
                             album);
   }
-  NotifyNotification *music_notify = _get_notify (title, body, icon, NULL);
+  NotifyNotification *music_notify = _get_notify (title, body, icon);
   notify_notification_set_timeout (music_notify,
                                    DEFAULT_TIMEOUT);
   notify_notification_show (music_notify, NULL);
