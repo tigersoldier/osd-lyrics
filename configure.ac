@@ -20,6 +20,7 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
 	Makefile
 	lib/Makefile
+        lib/chardetect/Makefile
 	dailydeb.sh
 	src/Makefile
 	src/tests/Makefile
