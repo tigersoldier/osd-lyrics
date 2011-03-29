@@ -313,7 +313,7 @@ ol_config_set_str_list (OlConfig *config,
                         const char *group,
                         const char *name,
                         const char **value,
-                        int len)
+                        gsize len)
 {
   ol_assert_ret (config != NULL, FALSE);
   ol_assert_ret (name != NULL, FALSE);
@@ -378,7 +378,7 @@ char**
 ol_config_get_str_list (OlConfig *config,
                         const char *group,
                         const char *name,
-                        int *len)
+                        gsize *len)
 {
   ol_assert_ret (config != NULL, NULL);
   ol_assert_ret (name != NULL, NULL);

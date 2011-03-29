@@ -113,7 +113,7 @@ gboolean ol_config_set_str_list (OlConfig *config,
                                  const char *group,
                                  const char *name,
                                  const char **value,
-                                 int len);
+                                 gsize len);
 
 /** 
  * @brief Gets a boolean property of the config
@@ -172,7 +172,7 @@ char* ol_config_get_string (OlConfig *config, const char *group, const char *nam
 char** ol_config_get_str_list (OlConfig *config,
                                const char *group,
                                const char *name,
-                               int *len);
+                               gsize *len);
 
 /** 
  * @brief Flush config value into config file

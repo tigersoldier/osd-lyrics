@@ -230,9 +230,9 @@ config_change_handler (OlConfig *config,
   }
   else if (strcmp (name, "active-lrc-color") == 0)
   {
-    int len;
+    gsize len;
     char **color_str = ol_config_get_str_list (config, "OSD", name, &len);
-    ol_debugf ("len = %d\n", len);
+    ol_debugf ("len = %d\n", (int)len);
     if (len != OL_LINEAR_COLOR_COUNT) return;
     if (color_str != NULL)
     {
@@ -244,9 +244,9 @@ config_change_handler (OlConfig *config,
   }
   else if (strcmp (name, "inactive-lrc-color") == 0)
   {
-    int len;
+    gsize len;
     char **color_str = ol_config_get_str_list (config, "OSD", name, &len);
-    ol_debugf ("len = %d\n", len);
+    ol_debugf ("len = %d\n", (int)len);
     if (len != OL_LINEAR_COLOR_COUNT) return;
     if (color_str != NULL)
     {
