@@ -7,6 +7,7 @@ Makefile.in
 *.a
 src/osd-lyrics
 config.h
+config.h.in
 configure
 missing
 .deps
