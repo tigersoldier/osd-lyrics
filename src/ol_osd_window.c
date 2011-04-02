@@ -139,9 +139,10 @@ static GdkWindowEdge ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
 static void ol_osd_window_update_child_size_requisition (OlOsdWindow *osd);
 static void ol_osd_window_update_layout (OlOsdWindow *osd);
 static void ol_osd_window_move_resize (OlOsdWindow *osd,
-                                       int raw_x,
-                                       int raw_y,
+                                       int x,
+                                       int y,
                                        int width,
+                                       int height,
                                        enum DragState drag_type);
 static void ol_osd_window_paint (OlOsdWindow *osd);
 static void ol_osd_window_clear_cairo (cairo_t *cr);
@@ -169,6 +170,7 @@ static void _paint_rect (cairo_t *cr, GdkPixbuf *source,
                          double des_x, double des_y,
                          double dex_w, double des_h);
 static gboolean _point_in_rect (int x, int y, GdkRectangle *rect);
+static void ol_osd_window_queue_resize (OlOsdWindow *osd);
 
 static void
 _paint_rect (cairo_t *cr, GdkPixbuf *source,
@@ -471,6 +473,8 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   int x = priv->old_x + (event->x_root - priv->mouse_x);
   int y = priv->old_y + (event->y_root - priv->mouse_y);
+  GtkAllocation alloc;
+  gtk_widget_get_allocation (widget, &alloc);
   switch (priv->drag_state)
   {
   case DRAG_MOVE:
@@ -479,11 +483,14 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
   case DRAG_EAST:
     ol_osd_window_move_resize (osd, priv->old_x, priv->old_y,
                                priv->old_width + (event->x_root - priv->mouse_x),
+                               alloc.height,
                                DRAG_EAST);
     break;
   case DRAG_WEST:
     ol_osd_window_move_resize (osd, x, priv->old_y,
-                               priv->old_width + priv->old_x - x, DRAG_WEST);
+                               priv->old_width + priv->old_x - x,
+                               alloc.height,
+                               DRAG_WEST);
                                
     break;
   case DRAG_NONE:
@@ -782,7 +789,7 @@ ol_osd_window_set_width (OlOsdWindow *osd, gint width)
   ol_assert (OL_IS_OSD_WINDOW (osd));
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   priv->width = width;
-  gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -853,12 +860,25 @@ ol_osd_window_update_child_size_requisition (OlOsdWindow *osd)
   }
 }
 
+static int
+ol_osd_window_compute_window_width (OlOsdWindow *osd)
+{
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  int w = priv->width;
+  if (w < priv->child_requisition.width)
+    w = priv->child_requisition.width;
+  return w;
+}
+
 /** 
  * Computes the height of the OSD Window
  *
  * The computation relies on the height of OSD text and child widget. It should be
  * called after ol_osd_window_update_child_size_requisition priv->osd_height
- * updated. 
+ * updated.
+ *
+ * Please note that the computed height does NOT consider the constrain of screen
  * @param osd 
  * 
  * @return The height of the widget
@@ -869,11 +889,9 @@ ol_osd_window_compute_window_height (OlOsdWindow *osd)
   ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (osd));
-  int sh = gdk_screen_get_height (screen);
   int height = BORDER_WIDTH * 2;
   height += priv->osd_height;
-  height = MAX (height, MIN (height + priv->child_requisition.height,
-                             sh - priv->raw_y));
+  height += priv->child_requisition.height;
   return height;
 }
 
@@ -1320,6 +1338,89 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd, gboolean disable_input)
 }
 
 /** 
+ * Computes the position and size when constraining the window to be inside a screen
+ * 
+ * @param osd 
+ * @param x 
+ * @param y 
+ * @param width 
+ * @param height 
+ * @param drag_state The hint of drag type. If the window is outside the screen,
+ *                   drag_type determines how to constrain the window:
+ *                   DRAG_MOVE: constrain the window by change position
+ *                   DRAG_EAST: constrain the window by shrinking the width
+ *                   DRAG_WEST: constrain the window by shrinking the width and
+ *                              change the x position so that the right edge of the
+ *                              window will not change
+ *                   DRAG_NONE: acts as DRAG_MOVE
+
+ */
+static void
+ol_osd_window_compute_constrain (OlOsdWindow *osd,
+                                 int *x,
+                                 int *y,
+                                 int *width,
+                                 int *height,
+                                 enum DragState drag_state)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert (x != NULL);
+  ol_assert (y != NULL);
+  ol_assert (width != NULL);
+  ol_assert (height != NULL);
+  GtkWidget *widget = GTK_WIDGET (osd);
+  GtkAllocation alloc;
+  gtk_widget_get_allocation (widget, &alloc);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  if (ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK)
+  {
+    GdkScreen *screen = gtk_widget_get_screen (widget);
+    int sw = gdk_screen_get_width (screen);
+    int sh = gdk_screen_get_height (screen);
+    switch (drag_state)
+    {
+    case DRAG_EAST:
+      *x = MAX (0, *x);
+      *width = MIN (*width, sw - *x);
+      break;
+    case DRAG_WEST:
+      *width = MIN (*width, *x + *width);
+      *x = MAX (0, MIN (*x, alloc.width + alloc.x - *width));
+      break;
+    default:
+      *x = MAX (0, MIN (*x, sw - *width));
+    }
+    if (*y + *height > sh) {
+      int minh = ol_osd_window_compute_osd_height (osd) +
+        BORDER_WIDTH * 2;
+      *height = MAX (minh, sh - *y);
+      *y = MAX (0, sh - *height);
+    } else {
+      *y = MAX (0, *y);
+    }
+  }
+}
+
+static void
+ol_osd_window_queue_resize (OlOsdWindow *osd)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  GtkWidget *widget = GTK_WIDGET (osd);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  if (!GTK_WIDGET_REALIZED (widget))
+    return;
+  ol_osd_window_update_layout (osd);
+  int h = ol_osd_window_compute_window_height (osd);
+  int w = ol_osd_window_compute_window_width (osd);
+  ol_osd_window_move_resize (osd,
+                             priv->raw_x,
+                             priv->raw_y,
+                             w,
+                             h,
+                             DRAG_NONE);
+}
+
+/** 
  * Move and resize the OSD Window.
  *
  * The coordinations and size are raw values, which means does not honor the size
@@ -1328,73 +1429,44 @@ ol_osd_window_set_input_shape_mask (OlOsdWindow *osd, gboolean disable_input)
  * @param osd 
  * @param raw_x 
  * @param raw_y 
- * @param width
- */
+ * @param width 
+ * @param drag_state See long comment of ol_osd_window_compute_constrain
+*/
 static void
 ol_osd_window_move_resize (OlOsdWindow *osd,
-                           int raw_x,
-                           int raw_y,
+                           int x,
+                           int y,
                            int width,
-                           enum DragState drag_type)
+                           int height,
+                           enum DragState drag_state)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
+  GtkAllocation alloc;
+  gtk_widget_get_allocation (widget, &alloc);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  int old_raw_x = priv->raw_x, old_raw_y = priv->raw_y;
-  int x, y;
-  x = raw_x;
-  y = raw_y;
-  priv->raw_x = raw_x;
-  priv->raw_y = raw_y;
-  if (ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK)
+  ol_osd_window_compute_constrain (osd, &x, &y, &width, &height, drag_state);
+  if (height != widget->allocation.height || width != widget->allocation.width)
   {
-    GdkScreen *screen = gtk_widget_get_screen (widget);
-    int sw = gdk_screen_get_width (screen);
-    int sh = gdk_screen_get_height (screen);
-    /* Since the height might change when getting close to the bottom of
-       screen, we need to compute it. */
-    int h = ol_osd_window_compute_window_height (osd);
-    int w = width;
-    if (drag_type == DRAG_MOVE)
-      w = widget->allocation.width;
-    if (w < priv->child_requisition.width)
-      w = priv->child_requisition.width;
-    if (drag_type == DRAG_EAST)
-    {
-      x = MAX (0, x);
-      w = MIN (w, sw - x);
-    }
-    else if (drag_type == DRAG_WEST)
-    {
-      w = MIN (w, x + w);
-      x = MAX (0, MIN (x, width + raw_x - w));
-    }
-    else
-    {
-      x = MAX (0, MIN (x, sw - w));
-    }
-    y = MAX (0, MIN (y, sh- h));
-    if (h != widget->allocation.height || w != widget->allocation.width)
-    {
-      /* gtk_window_resize and gtk_widget_queue_resize don't work,
-         so we have to specify allocation explicitly*/
-      GtkAllocation alloc = {
-        .x = widget->allocation.x,
-        .y = widget->allocation.y,
-        .width = w,
-        .height = h,
-      };
-      /* gtk_window_resize (GTK_WINDOW (osd), w, h); */
-      gtk_widget_size_allocate (widget, &alloc);
-      /* gtk_widget_queue_resize (widget); */
-      ol_osd_window_queue_reshape (osd);
-      gtk_widget_queue_draw (widget);
-    }
+    /* gtk_window_resize and ol_osd_window_queue_resize don't work,
+       so we have to specify allocation explicitly*/
+    GtkAllocation newalloc = {
+      .x = alloc.x,
+      .y = alloc.y,
+      .width = width,
+      .height = height,
+    };
+    gtk_widget_size_allocate (widget, &newalloc);
+    /* gtk_window_resize (GTK_WINDOW (osd), w, h); */
+    /* ol_osd_window_queue_resize (widget); */
+    ol_osd_window_queue_reshape (osd);
+    gtk_widget_queue_draw (widget);
   }
-  priv->raw_x = x;
-  priv->raw_y = y;
-  if (priv->raw_x != old_raw_x || priv->raw_y != old_raw_y)
+  if (priv->raw_x != x || priv->raw_y != y ||
+      alloc.x != x || alloc.y != y)
   {
+    priv->raw_x = x;
+    priv->raw_y = y;
     gtk_window_move (GTK_WINDOW (osd), x, y);
   }
 }
@@ -1402,7 +1474,11 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
 void
 ol_osd_window_move (OlOsdWindow *osd, int x, int y)
 {
-  ol_osd_window_move_resize (osd, x, y, -1, DRAG_MOVE);
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_osd_window_move_resize (osd, x, y,
+                             ol_osd_window_compute_window_width (osd),
+                             ol_osd_window_compute_window_height (osd),
+                             DRAG_MOVE);
 }
 
 void
@@ -1639,7 +1715,7 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
   int i;
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_pixmap (osd, i);
-  gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -1662,7 +1738,7 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
   int i;
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_pixmap (osd, i);
-  gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -1685,7 +1761,7 @@ ol_osd_window_set_outline_width (OlOsdWindow *osd,
   int i;
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_pixmap (osd, i);
-  gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -1738,7 +1814,7 @@ ol_osd_window_set_line_count (OlOsdWindow *osd,
   ol_assert (OL_IS_OSD_WINDOW (osd)); 
   ol_assert (line_count >= 1 && line_count <= 2);
   osd->line_count = line_count;
-  gtk_widget_queue_resize (GTK_WIDGET (osd));
+  ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
 }
 
@@ -1813,7 +1889,7 @@ ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode)
   if (mapped) {
     gtk_widget_map (widget);
     /* We need to specify the position so that OSD window keeps its place. */
-    gtk_window_move (window, priv->raw_x, priv->raw_y);
+    ol_osd_window_queue_resize (osd);
   }
   ol_osd_window_queue_reshape (osd);
 }
