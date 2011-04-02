@@ -738,7 +738,6 @@ ol_osd_window_mouse_timer (gpointer data)
     gint w, h;
     gboolean mouse_over = FALSE;
     gdk_window_get_pointer (widget->window, &rel_x, &rel_y, NULL);
-    rel_x -= BORDER_WIDTH; rel_y -= BORDER_WIDTH;
     int i;
     for (i = 0; i < osd->line_count; i++)
     {
