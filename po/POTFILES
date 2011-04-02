@@ -7,4 +7,5 @@
 	../src/ol_lrc_fetch_minilyrics.c \
 	../src/ol_lrc_candidate_list.c \
 	../src/ol_search_dialog.c \
+	../src/ol_notify.c \
 	../data/dialogs.glade

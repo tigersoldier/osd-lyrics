@@ -20,11 +20,14 @@ INCLUDES = @GTK2_CFLAGS@ \
 	@XMMS2_CFLAGS@ \
 	@SQLITE_CFLAGS@ \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/tests \
 	-I$(top_srcdir)/lib/chardetect/include
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
 	-DGUIDIR='"$(OL_GUIDIR)"'
+AM_LDFLAGS = \
+	-L$(top_builddir)/lib/chardetect
 LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -32,8 +35,12 @@ LDADD = \
 	@MPD_LIBS@ \
 	@CURL_LIBS@ \
 	@SQLITE_LIBS@ \
-	$(top_srcdir)/lib/chardetect/chardetect.a \
+	-lchardetect \
 	-lstdc++
+
+noinst_HEADERS = \
+	ol_test_util.h
+
 # Tests
 ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
 	$(top_srcdir)/src/ol_debug.c \
@@ -67,6 +74,11 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_quodlibet.c \
 	$(top_srcdir)/src/ol_player_juk.c \
 	$(top_srcdir)/src/ol_player_qmmp.c \
+	$(top_srcdir)/src/ol_player_clementine.c \
+	$(top_srcdir)/src/ol_player_listen.c \
+	$(top_srcdir)/src/ol_player_deciber.c \
+	$(top_srcdir)/src/ol_player_gmusicbrowser.c \
+	$(top_srcdir)/src/ol_player_vlc.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
