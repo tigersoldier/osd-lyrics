@@ -319,10 +319,10 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   ol_assert (config != NULL);
   ol_config_set_bool (config, "OSD", "visible", TRUE);
   config_change_handler (config, "OSD", "width", osd);
+  config_change_handler (config, "OSD", "osd-window-mode", osd);
   config_change_handler (config, "OSD", "visible", osd);
   config_change_handler (config, "OSD", "locked", osd);
   config_change_handler (config, "OSD", "line-count", osd);
-  config_change_handler (config, "OSD", "osd-window-mode", osd);
   config_change_handler (config, "OSD", "font-family", osd);
   config_change_handler (config, "OSD", "font-size", osd);
   config_change_handler (config, "OSD", "x", osd);
