@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-06 20:40+0800\n"
-"PO-Revision-Date: 2010-06-04 21:56+0800\n"
+"PO-Revision-Date: 2011-04-03 16:06+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -155,9 +155,8 @@ msgid "%t - Title"
 msgstr "%t - 歌名"
 
 #: ../data/dialogs.glade.h:17
-#, fuzzy
 msgid "<b>Display mode</b>"
-msgstr "<b>文件名(_F)</b>"
+msgstr "<b>显示模式</b>"
 
 #: ../data/dialogs.glade.h:18
 msgid "<b>Lyric _Alignment</b>"
@@ -286,9 +285,8 @@ msgid "Lyric lines:"
 msgstr "歌词行数:"
 
 #: ../data/dialogs.glade.h:52
-#, fuzzy
 msgid "OSD"
-msgstr "桌面歌词(_O)"
+msgstr "桌面歌词"
 
 #. The outline width of text in OSD window
 #: ../data/dialogs.glade.h:54
@@ -305,7 +303,7 @@ msgstr "首选项"
 
 #: ../data/dialogs.glade.h:57
 msgid "Scrolling"
-msgstr ""
+msgstr "滚动歌词"
 
 #: ../data/dialogs.glade.h:58
 msgid "Search lyrics"
