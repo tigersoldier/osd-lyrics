@@ -684,9 +684,6 @@ ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  ol_errorf ("allocate: (%d, %d) - %d x %d\n",
-             allocation->x, allocation->y,
-             allocation->width, allocation->height);
   widget->allocation = *allocation;
 
   /* priv->width = allocation->width; */
@@ -1475,7 +1472,6 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
       .height = height,
     };
     /* gtk_widget_size_allocate (widget, &newalloc); */
-    ol_errorf ("resize to: %d x %d\n", width, height);
     gtk_window_resize (GTK_WINDOW (osd), width, height);
     /* ol_osd_window_queue_resize (widget); */
     ol_osd_window_queue_reshape (osd);
