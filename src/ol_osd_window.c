@@ -1367,11 +1367,8 @@ ol_osd_window_compute_constrain (OlOsdWindow *osd,
   ol_assert (width != NULL);
   ol_assert (height != NULL);
   GtkWidget *widget = GTK_WIDGET (osd);
-  int old_x, old_y, old_w, old_h;
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   GdkScreen *screen = gtk_widget_get_screen (widget);
-  gtk_window_get_position (GTK_WINDOW (osd), &old_x, &old_y);
-  gtk_window_get_size (GTK_WINDOW (osd), &old_w, &old_h);
   if (ol_osd_window_get_mode (osd) == OL_OSD_WINDOW_DOCK &&
       screen != NULL)
   {
@@ -1385,7 +1382,7 @@ ol_osd_window_compute_constrain (OlOsdWindow *osd,
       break;
     case DRAG_WEST:
       *width = MIN (*width, *x + *width);
-      *x = MAX (0, MIN (*x, old_w + old_x - *width));
+      *x = MAX (0, MIN (*x, priv->old_x + priv->old_width - *width));
       break;
     default:
       *x = MAX (0, MIN (*x, sw - *width));
