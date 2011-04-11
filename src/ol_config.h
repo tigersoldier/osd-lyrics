@@ -47,7 +47,7 @@ GType ol_config_get_type (void);
  * 
  * @return An instance of OlConfig, should not be freed
  */
-OlConfig* ol_config_get_instance ();
+OlConfig* ol_config_get_instance (void);
 
 /** 
  * @brief Sets an boolean property of the config
@@ -192,6 +192,6 @@ void ol_config_load (OlConfig *config);
  * @brief Unload config module
  * 
  */
-void ol_config_unload ();
+void ol_config_unload (void);
 
 #endif /* _OL_CONFIG_H_ */

@@ -12,6 +12,7 @@
                                       ((obj),                     \
                                        OL_TYPE_CONFIG,            \
                                        OlConfigPrivate))
+#define SAVE_SCHEDULE_TIME 5000
 const char CONFIG_FILE_NAME[] = PACKAGE_NAME ".conf";
 G_DEFINE_TYPE (OlConfig, ol_config, G_TYPE_OBJECT);
 
@@ -21,8 +22,9 @@ static void ol_config_emit_change (OlConfig *config,
                                    const char *group,
                                    const char *name);
 static void ol_config_do_change (OlConfig *config);
-static OlConfig* ol_config_new ();
-static const char* ol_config_get_path ();
+static OlConfig* ol_config_new (void);
+static const char* ol_config_get_path (void);
+static gboolean ol_config_real_save (OlConfig *config);
 
 static OlConfig* instance = NULL;
 
@@ -31,6 +33,7 @@ typedef struct _OlConfigPrivate OlConfigPrivate;
 struct _OlConfigPrivate
 {
   GKeyFile *config;
+  guint save_timer;
 };
 
 static void
@@ -98,6 +101,7 @@ ol_config_init (OlConfig *self)
                                   len);
     }
   }
+  priv->save_timer = 0;
 }
 
 static void
@@ -405,16 +409,42 @@ ol_config_get_path ()
   return path;
 }
 
-void ol_config_save (OlConfig *config)
+void
+ol_config_save (OlConfig *config)
 {
+  ol_assert (config != NULL);
+  OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (config);
+  if (priv->save_timer != 0)
+    return;
+  priv->save_timer = g_timeout_add (SAVE_SCHEDULE_TIME,
+                                    (GSourceFunc) ol_config_real_save,
+                                    config);
+}
+
+static gboolean
+ol_config_real_save (OlConfig *config)
+{
+  ol_assert_ret (config != NULL, TRUE);
   OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (config);
   gsize len;
   char *file_content = g_key_file_to_data (priv->config, &len, NULL);
   g_file_set_contents (ol_config_get_path (), file_content, len, NULL);
+  priv->save_timer = 0;
+  g_free (file_content);
+  return TRUE;
 }
 
-void ol_config_unload ()
+void
+ol_config_unload ()
 {
   if (instance == NULL)
+  {
+    OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (instance);
+    if (priv->save_timer != 0)
+    {
+      ol_config_real_save (instance);
+      g_source_remove (priv->save_timer);
+    }
     g_object_unref (instance);
+  }
 }
