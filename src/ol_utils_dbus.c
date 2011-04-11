@@ -2,6 +2,11 @@
 #include "ol_utils_dbus.h"
 #include "ol_debug.h"
 
+static const char *DBUS_NAME = "org.freedesktop.DBus";
+static const char *DBUS_IFACE = "org.freedesktop.DBus";
+static const char *DBUS_PATH = "/";
+static const char *DBUS_LIST_NAMES = "ListNames";
+
 static DBusGConnection *connection = NULL;
 static GError *error = NULL;
 
@@ -388,4 +393,82 @@ ol_dbus_unref_proxy (GObject *object, DBusGProxy **proxy)
     g_object_unref (*proxy);
     *proxy = NULL;
   }
+}
+
+char**
+ol_dbus_list_names ()
+{
+  DBusGConnection *connection = ol_dbus_get_connection ();
+  ol_assert_ret (connection != NULL, NULL);
+  GError *error = NULL;
+  DBusGProxy *proxy = dbus_g_proxy_new_for_name (connection,
+                                                 DBUS_NAME,
+                                                 DBUS_PATH,
+                                                 DBUS_IFACE);
+  ol_assert_ret (proxy != NULL, NULL);
+  char **names = NULL;
+  if (!dbus_g_proxy_call (proxy,
+                          DBUS_LIST_NAMES,
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV,
+                          &names,
+                          G_TYPE_INVALID))
+  {
+    ol_errorf ("Cannot list names of session bus: %s\n", error->message);
+    g_error_free (error);
+  }
+  g_object_unref (proxy);
+  return names;
+}
+
+gboolean
+ol_dbus_get_property (DBusGProxy *proxy,
+                      const char *name,
+                      GValue *returnval)
+{
+  ol_assert_ret (proxy != NULL, FALSE);
+  ol_assert_ret (name != NULL, FALSE);
+  ol_assert_ret (returnval != NULL, FALSE);
+  const char *iface = dbus_g_proxy_get_interface (proxy);
+  GError *error = NULL;
+  gboolean ret = TRUE;
+  DBusGProxy *dbus_proxy = dbus_g_proxy_new_from_proxy (proxy,
+                                                        "org.freedesktop.DBus.Properties",
+                                                        NULL);
+  if (!dbus_g_proxy_call (dbus_proxy, "Get", &error,
+                          G_TYPE_STRING, iface,
+                          G_TYPE_STRING, name,
+                          G_TYPE_INVALID,
+                          G_TYPE_VALUE, returnval,
+                          G_TYPE_INVALID))
+  {
+    ret = FALSE;
+  }
+  return ret;
+}
+
+gboolean
+ol_dbus_get_bool_property (DBusGProxy *proxy,
+                           const char *name,
+                           gboolean *returnval)
+{
+  ol_assert_ret (returnval != NULL, FALSE);
+  GValue value = {0};
+  gboolean ret = TRUE;
+  if (!ol_dbus_get_property (proxy, name, &value))
+  {
+    ret = FALSE;
+  }
+  else if (!G_VALUE_HOLDS_BOOLEAN (&value))
+  {
+    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+    ret = FALSE;
+  }
+  else
+  {
+    *returnval = g_value_get_boolean (&value);
+  }
+  g_value_unset (&value);
+  return ret;
 }

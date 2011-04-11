@@ -12,7 +12,8 @@ check_PROGRAMS = \
 	ol_utils_cmdline_test \
 	ol_fork_test \
 	ol_music_info_test \
-	ol_lrclib_test
+	ol_lrclib_test \
+	ol_utils_dbus_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -181,3 +182,8 @@ ol_lrclib_test_SOURCES = \
 	$(top_srcdir)/src/ol_lrclib.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c
+
+ol_utils_dbus_test_SOURCES = \
+	ol_utils_dbus_test.c \
+	$(top_srcdir)/src/ol_debug.c \
+	$(top_srcdir)/src/ol_utils_dbus.c

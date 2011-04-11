@@ -1,6 +1,7 @@
 #ifndef __OL_UTILS_DBUS_H__
 #define __OL_UTILS_DBUS_H__
 
+#include <glib.h>
 #include <dbus/dbus-glib.h>
 
 /** 
@@ -108,5 +109,22 @@ gboolean ol_dbus_connect (const gchar *service,
  */
 void ol_dbus_unref_proxy (GObject *object, DBusGProxy **proxy);
 
+/** 
+ * Lists owned-names on session bus.
+ * 
+ * @return A NULL-terminated string array of names. If failed, NULL is returned.
+ *         Should be freed with g_strfreev
+ * 
+ * @return 
+ */
+char** ol_dbus_list_names ();
+
+gboolean ol_dbus_get_property (DBusGProxy *proxy,
+                               const char *name,
+                               GValue *value);
+
+gboolean ol_dbus_get_bool_property (DBusGProxy *proxy,
+                                    const char *name,
+                                    gboolean *returnval);
 
 #endif // __OL_UTILS_DBUS_H__
