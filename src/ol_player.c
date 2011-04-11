@@ -154,7 +154,6 @@ ol_player_get_played_time (struct OlPlayer *player, int *played_time)
   if (player == NULL)
     return FALSE;
   gboolean s = player->get_played_time (played_time);
-  ol_debugf ("played-time:%d\n", *played_time);
   return s;
 }
 
@@ -173,7 +172,6 @@ ol_player_get_status (struct OlPlayer *player)
     return OL_PLAYER_ERROR;
   if (player->get_status == NULL)
     return OL_PLAYER_ERROR;
-  ol_debugf ("status:%d\n",player->get_status());
   return player->get_status ();
 }
 
