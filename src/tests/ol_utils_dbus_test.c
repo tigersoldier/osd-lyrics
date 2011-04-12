@@ -27,6 +27,10 @@ test_prop ()
     gboolean canplay = FALSE;
     ol_test_expect (ol_dbus_get_bool_property (proxy, "CanPlay", &canplay));
     ol_test_expect (canplay);
+    GHashTable *metadata = NULL;
+    ol_test_expect (ol_dbus_get_dict_property (proxy, "Metadata", &metadata));
+    ol_test_expect (metadata != NULL);
+    printf("%d\n", g_hash_table_size (metadata));
     g_object_unref (proxy);
   }
 }

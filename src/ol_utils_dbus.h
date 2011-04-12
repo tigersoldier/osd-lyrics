@@ -127,4 +127,8 @@ gboolean ol_dbus_get_bool_property (DBusGProxy *proxy,
                                     const char *name,
                                     gboolean *returnval);
 
+gboolean ol_dbus_get_dict_property (DBusGProxy *proxy,
+                                    const char *name,
+                                    GHashTable **returnval);
+
 #endif // __OL_UTILS_DBUS_H__

@@ -472,3 +472,29 @@ ol_dbus_get_bool_property (DBusGProxy *proxy,
   g_value_unset (&value);
   return ret;
 }
+
+gboolean
+ol_dbus_get_dict_property (DBusGProxy *proxy,
+                           const char *name,
+                           GHashTable **returnval)
+{
+  ol_assert_ret (returnval != NULL, FALSE);
+  GValue value = {0};
+  gboolean ret = TRUE;
+  if (!ol_dbus_get_property (proxy, name, &value))
+  {
+    ret = FALSE;
+  }
+  else if (!G_VALUE_HOLDS_BOXED (&value))
+  {
+    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+    ret = FALSE;
+  }
+  else
+  {
+    *returnval = g_value_get_boxed (&value);
+    g_hash_table_ref (*returnval);
+  }
+  g_value_unset (&value);
+  return ret;
+}
