@@ -30,6 +30,7 @@
 #include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
+#include "ol_player_mpris2.h"
 
 static GArray *players = NULL;
 
@@ -57,6 +58,7 @@ ol_player_init ()
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
+    ol_player_register (ol_player_mpris2_get ());
     ol_player_register (ol_player_rhythmbox_get ());
 #ifdef ENABLE_MPD
     ol_player_register (ol_player_mpd_get ());

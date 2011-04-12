@@ -100,6 +100,7 @@ noinst_HEADERS = \
 	ol_player_songbird.h \
 	ol_player_vlc.h \
 	ol_player_xmms2.h \
+	ol_player_mpris2.h \
 	ol_scroll_module.h \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
@@ -150,6 +151,7 @@ osd_lyrics_SOURCES = \
 	ol_player_deciber.c \
 	ol_player_gmusicbrowser.c \
 	ol_player_vlc.c \
+	ol_player_mpris2.c \
 	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \

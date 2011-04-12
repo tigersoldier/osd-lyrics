@@ -444,6 +444,9 @@ ol_dbus_get_property (DBusGProxy *proxy,
                           G_TYPE_INVALID))
   {
     ret = FALSE;
+    ol_debugf ("Get dbus property %s.%s failed: %s\n",
+               iface, name, error->message);
+    g_error_free (error);
   }
   return ret;
 }
@@ -468,6 +471,56 @@ ol_dbus_get_bool_property (DBusGProxy *proxy,
   else
   {
     *returnval = g_value_get_boolean (&value);
+  }
+  g_value_unset (&value);
+  return ret;
+}
+
+gboolean
+ol_dbus_get_int64_property (DBusGProxy *proxy,
+                            const char *name,
+                            gint64 *returnval)
+{
+  ol_assert_ret (returnval != NULL, FALSE);
+  GValue value = {0};
+  gboolean ret = TRUE;
+  if (!ol_dbus_get_property (proxy, name, &value))
+  {
+    ret = FALSE;
+  }
+  else if (!G_VALUE_HOLDS_INT64 (&value))
+  {
+    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+    ret = FALSE;
+  }
+  else
+  {
+    *returnval = g_value_get_int64 (&value);
+  }
+  g_value_unset (&value);
+  return ret;
+}
+
+gboolean
+ol_dbus_get_string_property (DBusGProxy *proxy,
+                             const char *name,
+                             char **returnval)
+{
+  ol_assert_ret (returnval != NULL, FALSE);
+  GValue value = {0};
+  gboolean ret = TRUE;
+  if (!ol_dbus_get_property (proxy, name, &value))
+  {
+    ret = FALSE;
+  }
+  else if (!G_VALUE_HOLDS_STRING (&value))
+  {
+    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+    ret = FALSE;
+  }
+  else
+  {
+    *returnval = g_strdup (g_value_get_string (&value));
   }
   g_value_unset (&value);
   return ret;

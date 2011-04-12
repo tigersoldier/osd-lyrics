@@ -127,6 +127,31 @@ gboolean ol_dbus_get_bool_property (DBusGProxy *proxy,
                                     const char *name,
                                     gboolean *returnval);
 
+gboolean ol_dbus_get_int64_property (DBusGProxy *proxy,
+                                     const char *name,
+                                     gint64 *returnval);
+
+/** 
+ * 
+ * 
+ * @param proxy 
+ * @param name 
+ * @param returnval The caller must use g_free to free the string
+ * 
+ * @return 
+ */
+gboolean ol_dbus_get_string_property (DBusGProxy *proxy,
+                                      const char *name,
+                                      char **returnval);
+/** 
+ * 
+ * 
+ * @param proxy 
+ * @param name 
+ * @param returnval The caller must use g_hash_table_unref to free the dict.
+ * 
+ * @return 
+ */
 gboolean ol_dbus_get_dict_property (DBusGProxy *proxy,
                                     const char *name,
                                     GHashTable **returnval);

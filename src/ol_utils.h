@@ -5,9 +5,11 @@
 
 #define ol_get_array_len(arr) (sizeof (arr) / sizeof (arr[0]))
 
-gchar* ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *name);
+const gchar* ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *name);
+gchar** ol_get_str_list_from_hash_table (GHashTable *hash_table, const gchar *name);
 gint ol_get_int_from_hash_table (GHashTable *hash_table, const gchar *name);
 guint ol_get_uint_from_hash_table (GHashTable *hash_table, const gchar *name);
+gint64 ol_get_int64_from_hash_table (GHashTable *hash_table, const gchar *name);
 
 /** 
  * @brief Checks if a string is empty

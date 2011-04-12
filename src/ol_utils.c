@@ -10,7 +10,7 @@
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-gchar*
+const gchar*
 ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
 {
   if (!hash_table)
@@ -18,9 +18,34 @@ ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
   GValue *value;
   value = (GValue *) g_hash_table_lookup(hash_table, key);
   if (value != NULL && G_VALUE_HOLDS_STRING(value))
-    return (gchar*) g_value_get_string (value);
+  {
+    return (const gchar*) g_value_get_string (value);
+  }
   else
+  {
+    ol_debugf ("Type of %s is %s, not string\n",
+               key, G_VALUE_TYPE_NAME (value));
     return NULL;
+  }
+}
+
+gchar**
+ol_get_str_list_from_hash_table (GHashTable *hash_table, const gchar *key)
+{
+  if (!hash_table)
+    return NULL;
+  GValue *value;
+  value = (GValue *) g_hash_table_lookup(hash_table, key);
+  if (value != NULL && G_VALUE_TYPE (value) == G_TYPE_STRV)
+  {
+    return (gchar**) g_value_get_boxed (value);
+  }
+  else
+  {
+    ol_debugf ("Type of %s is %s, not string list\n",
+               key, G_VALUE_TYPE_NAME (value));
+    return NULL;
+  }
 }
 
 gint
@@ -47,6 +72,19 @@ ol_get_uint_from_hash_table (GHashTable *hash_table, const gchar *key)
     return  g_value_get_uint (value);
   else
     return 0;
+}
+
+gint64
+ol_get_int64_from_hash_table (GHashTable *hash_table, const gchar *key)
+{
+  if (!hash_table)
+    return -1;
+  GValue *value;
+  value = (GValue *) g_hash_table_lookup(hash_table, key);
+  if (value != NULL && G_VALUE_HOLDS_INT64(value))
+    return  g_value_get_int64 (value);
+  else
+    return -1;
 }
 
 gboolean
