@@ -54,6 +54,7 @@ static gboolean _stop ();
 static gboolean _prev ();
 static gboolean _next ();
 static enum OlPlayerStatus _get_status ();
+static gboolean _seek (int pos_ms);
 static gboolean _ensure_proxy ();
 static gboolean _try_dbus_name (const char *name);
 static gboolean _proxy_destroy_cb (DBusGProxy *proxy, struct Mpris2 *mpris2);
@@ -277,6 +278,29 @@ _get_status ()
   return status;
 }
 
+static gboolean
+_seek (int pos_ms)
+{
+  if (!_ensure_proxy ())
+    return FALSE;
+  int position;
+  if (!_get_played_time (&position))
+    return FALSE;
+  GError *error = NULL;
+  if (!dbus_g_proxy_call (mpris2.proxy,
+                          SEEK_METHOD,
+                          &error,
+                          G_TYPE_INT64, (pos_ms - position) * 1000,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+  {
+    ol_debugf ("Seek failed: %s\n", error->message);
+    g_error_free (error);
+    return FALSE;
+  }
+  return TRUE;
+}
+
 struct OlPlayer*
 ol_player_mpris2_get () {
   static struct OlPlayer player = {
@@ -291,6 +315,7 @@ ol_player_mpris2_get () {
     .stop = _stop,
     .prev = _prev,
     .next = _next,
+    .seek = _seek,
     .get_status = _get_status,
   };
   return &player;
