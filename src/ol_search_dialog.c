@@ -66,6 +66,7 @@ ol_search_dialog_download_click (GtkWidget *widget,
     g_free (filename);
   }
   ol_lrc_candidate_free (candidate);
+  return TRUE;
 }
 
 gboolean
@@ -110,6 +111,7 @@ ol_search_dialog_search_click (GtkWidget *widget,
                                          info,
                                          internal_search_callback,
                                          NULL);
+  return TRUE;
 }
 
 static void

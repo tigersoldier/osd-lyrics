@@ -15,7 +15,7 @@ ol_color_from_string (const char *color_str)
   if (color_str[0] != '#')
     return ret;
   int i = 1;
-  char colors[3][3] = {0};
+  char colors[3][3] = {{0}};
   for (i = 1; i < 7; i++)
   {
     if ((color_str[i] >= '0' && color_str[i] <= '9') ||
@@ -59,7 +59,7 @@ OlColor*
 ol_color_from_str_list (const char **str_list, int *len)
 {
   ol_assert_ret (str_list != NULL, NULL);
-  int l = g_strv_length (str_list);
+  int l = g_strv_length ((char**)str_list);
   OlColor *ret = g_new (OlColor, l);
   int i;
   for (i = 0; i < l; i++)

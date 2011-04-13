@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -113,7 +114,6 @@ char *
 ol_path_alloc(void)
 {
   char *ptr;
-  int size;
 
   if(pathmax == 0)
   {
@@ -155,11 +155,11 @@ ol_stricmp (const char *str1, const char *str2, const ssize_t count)
     min = count;
 
   while((ptr1 < str1+min) && (ptr2 < str2+min)) {
-    if(isalpha(*ptr1) && isalpha(*ptr2)) {
-      if(tolower(*ptr1) != tolower(*ptr2))
+    if (isalpha (*ptr1) && isalpha (*ptr2)) {
+      if (tolower (*ptr1) != tolower (*ptr2))
         return *ptr1 > *ptr2 ? 1 : -1;
     } else {
-      if(*ptr1 != *ptr2)
+      if (*ptr1 != *ptr2)
         return *ptr1 > *ptr2 ? 1 : -1;
     }
     ptr1++;
@@ -215,11 +215,9 @@ ol_strnncpy (char *dest,
 {
   if (dest == NULL || dest_len <= 0 || src == NULL || src_len < 0)
     return NULL;
-  char *dest_end = dest + dest_len - 1;
   size_t src_real_len = strlen (src);
   if (src_len > src_real_len)
     src_len = src_real_len;
-  const char *src_end = src + src_len;
   if (dest_len < src_len + 1)   /* The space in dest is not enough */
   {
     dest[0] = '\0';

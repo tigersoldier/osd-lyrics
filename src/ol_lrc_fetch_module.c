@@ -6,10 +6,6 @@
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-static GThread *search_thread = NULL;
-static GCond *search_cond = NULL;
-static GMutex *search_mutex = NULL;
-static GMutex *search_thread_mutex = NULL;
 static int search_id = 0;
 static int download_id = 0;
 static GPtrArray *search_listeners;
@@ -53,7 +49,6 @@ static void
 internal_search (struct OlLrcFetchResult *search_result)
 {
   ol_assert (search_result != NULL);
-  int lrc_count;
   search_result->candidates = NULL;
   search_result->candidates = search_result->engine->search (&search_result->info,
                                                              &search_result->count,

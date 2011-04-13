@@ -67,7 +67,6 @@ ol_player_exaile02_get_music_info (OlMusicInfo *info)
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile02_init_dbus ())
       return FALSE;
-  gchar *buf;
   /* gets the title of current music */
   if (info->title)
   {

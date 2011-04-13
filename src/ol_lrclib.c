@@ -134,7 +134,7 @@ _find_by_uri (const char *uri, char **lrcpath)
   }
   else
   {
-    const char *path = sqlite3_column_text (stmt, 0);
+    const char *path = (const char*)sqlite3_column_text (stmt, 0);
     ol_debugf ("Path is: %s\n", path);
     *lrcpath = g_strdup (path);
     ret = 1;
@@ -178,7 +178,7 @@ _find_by_info (const OlMusicInfo *info, char **lrcpath)
   }
   else
   {
-    const char *path = sqlite3_column_text (stmt, 0);
+    const char *path = (const char*)sqlite3_column_text (stmt, 0);
     ol_debugf ("Path is: %s\n", path);
     *lrcpath = g_strdup (path);
     ret = 1;
@@ -240,7 +240,6 @@ ol_lrclib_init (const char *filename)
   }
   else
   {
-    sqlite3_stmt *stmt = NULL;
     code = sqlite3_exec (db, CREATE_TABLE, NULL,
                          NULL, &errmsg);
     if (code != SQLITE_OK)

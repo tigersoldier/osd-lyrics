@@ -108,7 +108,7 @@ static void _get_metadata_cb(DBusGProxy *proxy,
       g_free (mpris->uri);
       mpris->uri = g_strdup (ol_get_string_from_hash_table (data_list, "location"));
 
-      gchar *track_number_str = NULL;
+      const gchar *track_number_str = NULL;
       track_number_str = ol_get_string_from_hash_table (data_list, "tracknumber");
       if (track_number_str != NULL)
       {
@@ -122,7 +122,7 @@ static void _get_metadata_cb(DBusGProxy *proxy,
 static gboolean
 ol_player_mpris_update_metadata (OlPlayerMpris *mpris)
 {
-  ol_assert(mpris != NULL);
+  ol_assert_ret (mpris != NULL, FALSE);
   if (mpris->proxy == NULL && !ol_player_mpris_init_dbus (mpris))
     return FALSE;
   if (mpris->metadata_call_id != NULL)
@@ -141,7 +141,6 @@ ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
 {
   ol_assert_ret (mpris != NULL, FALSE);
   ol_assert_ret (info != NULL, FALSE);
-  gboolean ret = TRUE;
   if (ol_player_mpris_update_metadata (mpris))
   {
     ol_music_info_clear (info);

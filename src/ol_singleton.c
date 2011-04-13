@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -27,7 +28,6 @@ ol_is_running ()
 {
   ol_log_func ();
   int ret = 1;
-  const char *home = g_get_user_config_dir ();
   char *dir = g_strdup_printf ("%s/%s/", g_get_user_config_dir (), PACKAGE_NAME);
   if (g_mkdir_with_parents (dir, 0755) == -1)
   {

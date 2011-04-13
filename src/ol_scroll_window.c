@@ -107,7 +107,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->active_color = DEFAULT_ACTIVE_COLOR;
   priv->inactive_color = DEFAULT_INACTIVE_COLOR;
   priv->bg_color = DEFAULT_BG_COLOR;
-  priv->font_family = DEFAULT_FONT_FAMILY;
+  priv->font_family = g_strdup (DEFAULT_FONT_FAMILY);
   priv->font_size = DEFAULT_FONT_SIZE;
   priv->alignment = DEFAULT_ALIGNMENT;
   priv->outline_width = DEFAULT_OUTLINE_WIDTH;
@@ -120,13 +120,14 @@ ol_scroll_window_class_init (OlScrollWindowClass *klass)
 {
   printf("scroll window class_init\n");
   GObjectClass *gobject_class;
-  GtkObjectClass *object_class;
   GtkWidgetClass *widget_class;
+  GtkObjectClass *gtkobject_class;
   parent_class = g_type_class_peek_parent (klass);
   gobject_class = G_OBJECT_CLASS (klass);
-  object_class = (GtkObjectClass*) klass;
+  gtkobject_class = GTK_OBJECT_CLASS (klass);
   widget_class = (GtkWidgetClass*) klass;
   widget_class->expose_event = ol_scroll_window_expose;
+  gtkobject_class->destroy = ol_scroll_window_destroy;
   /*add private variables into OlScrollWindow*/
   g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
   
@@ -136,6 +137,9 @@ static void
 ol_scroll_window_destroy (GtkObject *object)
 {
   OlScrollWindow *scroll = OL_SCROLL_WINDOW (object);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (object);
+  if (priv->font_family != NULL)
+    g_free (priv->font_family);
   if (scroll->current_lyric_id!= -1)
   {
     scroll->current_lyric_id = -1;
@@ -256,9 +260,9 @@ ol_scroll_window_set_paint_lyrics (OlScrollWindow *scroll)
       tag = 0;
     else if (current_id < count/2)
       tag = 1;
-    else if (current_id >= count/2&&current_id <= whole_lyrics_len-count+count/2)
+    else if (current_id <= whole_lyrics_len-count+count/2)
       tag = 2;
-    else if (current_id <=  whole_lyrics_len)
+    else
       tag = 3;
     switch (tag) {
     case 0:
@@ -351,7 +355,7 @@ ol_scroll_window_set_paint_lyrics (OlScrollWindow *scroll)
 static int
 ol_scroll_window_compute_line_count (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), 0);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   int font_height = ol_scroll_window_get_font_height (scroll) + priv->outline_width;
   int line_count = priv->height/font_height;
@@ -362,7 +366,7 @@ ol_scroll_window_compute_line_count (OlScrollWindow *scroll)
 static int
 ol_scroll_window_get_font_height (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), 0);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   
   PangoContext *pango_context = gdk_pango_context_get ();
@@ -392,22 +396,24 @@ ol_scroll_window_get_font_height (OlScrollWindow *scroll)
 int 
 ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), -1);
   return scroll->current_lyric_id;
 }
 
 void
 ol_scroll_window_set_font_family (OlScrollWindow *scroll,
-                               const char *font_family)
+                                  const char *font_family)
 {
   if (scroll == NULL || font_family == NULL)
     return;
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  priv->font_family = font_family;
+  if (priv->font_family != NULL)
+    g_free (priv->font_family);
+  priv->font_family = g_strdup (font_family);
   gtk_widget_queue_draw (GTK_WIDGET (scroll));
 }
 
-char*
+const char*
 ol_scroll_window_get_font_family (OlScrollWindow *scroll)
 {
   if (scroll == NULL)

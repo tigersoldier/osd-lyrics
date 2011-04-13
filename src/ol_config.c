@@ -21,7 +21,6 @@ static void ol_config_finalize (GObject *object);
 static void ol_config_emit_change (OlConfig *config,
                                    const char *group,
                                    const char *name);
-static void ol_config_do_change (OlConfig *config);
 static OlConfig* ol_config_new (void);
 static const char* ol_config_get_path (void);
 static gboolean ol_config_real_save (OlConfig *config);
@@ -108,77 +107,14 @@ static void
 ol_config_class_init (OlConfigClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GParamSpec *ol_param_spec = NULL;
+
   
   ol_config_parent_class = g_type_class_peek_parent (klass);
 
   g_type_class_add_private (klass, sizeof (OlConfigPrivate));
   
-  /* gobject_class->set_property = ol_config_set_property; */
-  /* gobject_class->get_property = ol_config_get_property; */
   gobject_class->dispose = ol_config_despose;
   gobject_class->finalize = ol_config_finalize;
-  /* initialize properties */
-  int i;
-  /* for (i = 0; i < ol_get_array_len (config_bool); i++) */
-  /* { */
-  /*   ol_param_spec = g_param_spec_boolean (config_bool[i].name, */
-  /*                                         config_bool[i].nick, */
-  /*                                         config_bool[i].description, */
-  /*                                         config_bool[i].default_value, */
-  /*                                         G_PARAM_READWRITE); */
-  /*   g_object_class_install_property (gobject_class, */
-  /*                                    config_bool[i].key, */
-  /*                                    ol_param_spec); */
-  /* } */
-  /* for (i = 0; i < ol_get_array_len (config_int); i++) */
-  /* { */
-  /*   ol_param_spec = g_param_spec_int (config_int[i].name, */
-  /*                                     config_int[i].nick, */
-  /*                                     config_int[i].description, */
-  /*                                     config_int[i].min, */
-  /*                                     config_int[i].max, */
-  /*                                     config_int[i].default_value, */
-  /*                                     G_PARAM_READWRITE); */
-  /*   g_object_class_install_property (gobject_class, */
-  /*                                    config_int[i].key, */
-  /*                                    ol_param_spec); */
-  /* } */
-  /* for (i = 0; i < ol_get_array_len (config_double); i++) */
-  /* { */
-  /*   ol_param_spec = g_param_spec_double (config_double[i].name, */
-  /*                                        config_double[i].nick, */
-  /*                                        config_double[i].description, */
-  /*                                        config_double[i].min, */
-  /*                                        config_double[i].max, */
-  /*                                        config_double[i].default_value, */
-  /*                                        G_PARAM_READWRITE); */
-  /*   g_object_class_install_property (gobject_class, */
-  /*                                    config_double[i].key, */
-  /*                                    ol_param_spec); */
-  /* } */
-  /* for (i = 0; i < ol_get_array_len (config_str); i++) */
-  /* { */
-  /*   ol_param_spec = g_param_spec_string (config_str[i].name, */
-  /*                                        config_str[i].nick, */
-  /*                                        config_str[i].description, */
-  /*                                        config_str[i].default_value, */
-  /*                                        G_PARAM_READWRITE); */
-  /*   g_object_class_install_property (gobject_class, */
-  /*                                    config_str[i].key, */
-  /*                                    ol_param_spec); */
-  /* } */
-  /* for (i = 0; i < ol_get_array_len (config_str_list); i++) */
-  /* { */
-  /*   ol_param_spec = g_param_spec_boxed (config_str_list[i].name, */
-  /*                                       config_str_list[i].nick, */
-  /*                                       config_str_list[i].description, */
-  /*                                       G_TYPE_STRV, */
-  /*                                       G_PARAM_READWRITE); */
-  /*   g_object_class_install_property (gobject_class, */
-  /*                                    config_str_list[i].key, */
-  /*                                    ol_param_spec); */
-  /* } */
   /* initialize singals */
   GType signal_type[2];
   /* signal_type[0] = OL_TYPE_CONFIG; */
@@ -201,7 +137,6 @@ ol_config_class_init (OlConfigClass *klass)
 static void
 ol_config_despose (GObject *obj)
 {
-  OlConfig *self = OL_CONFIG (obj);
   OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (obj);
   if (priv->config != NULL)
   {
@@ -230,7 +165,7 @@ ol_config_emit_change (OlConfig *config,
                        const char *name)
 {
   int i;
-  GValue params[3] = {0};
+  GValue params[3] = {{0}, {0}, {0}};
   g_value_init (&params[0], G_OBJECT_TYPE (config));
   g_value_set_object (&params[0], G_OBJECT (config));
   g_value_init (&params[1], G_TYPE_STRING);
@@ -268,6 +203,7 @@ ol_config_set_bool (OlConfig *config, const char *group, const char *name, gbool
   g_key_file_set_boolean (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value);
   ol_config_emit_change (config, group, name);
   ol_config_save (config);
+  return TRUE;
 }
 
 gboolean
@@ -280,6 +216,7 @@ ol_config_set_int_no_emit (OlConfig *config,
   ol_assert_ret (name != NULL && group != NULL, FALSE);
   g_key_file_set_integer (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value);
   ol_config_save (config);
+  return TRUE;
 }
 
 gboolean
@@ -290,6 +227,7 @@ ol_config_set_int (OlConfig *config, const char *group, const char *name, int va
   g_key_file_set_integer (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value);
   ol_config_emit_change (config, group, name);
   ol_config_save (config);
+  return TRUE;
 }
 
 gboolean
@@ -300,6 +238,7 @@ ol_config_set_double (OlConfig *config, const char *group, const char *name, dou
   g_key_file_set_double (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value);
   ol_config_emit_change (config, group, name);
   ol_config_save (config);
+  return TRUE;
 }
 
 gboolean
@@ -310,6 +249,7 @@ ol_config_set_string (OlConfig *config, const char *group, const char *name, con
   g_key_file_set_string (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value);
   ol_config_emit_change (config, group, name);
   ol_config_save (config);
+  return TRUE;
 }
 
 gboolean
@@ -324,6 +264,7 @@ ol_config_set_str_list (OlConfig *config,
   g_key_file_set_string_list (OL_CONFIG_GET_PRIVATE (config)->config, group, name, value, len);
   ol_config_emit_change (config, group, name);
   ol_config_save (config);
+  return TRUE;
 }
 
 gboolean

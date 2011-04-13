@@ -41,10 +41,6 @@ static char *_get_request (const OlMusicInfo *info,
                            size_t *size);
 static int _get_candidate (const char *str,
                                OlLrcCandidate *candidate);
-static size_t _scan_until (const char *src,
-                           char *dest,
-                           char delim,
-                           size_t size);
 
 static int _get_value (const char *src,
                        const char *attr,
@@ -134,7 +130,6 @@ static int _get_candidate (const char *str,
   ol_log_func ();
   ol_assert_ret (str != NULL, -1);
   ol_assert_ret (candidate != NULL, -1);
-  char buf[BUF_SIZE] = "";
   char val[BUF_SIZE] = "";
   char *end;
   const char *ptr = str;
@@ -182,9 +177,9 @@ static char
   char digest[MD5_DIGEST_SIZE + 1];
   struct md5_ctx md5;
   md5_init (&md5);
-  md5_update (&md5, strlen (xml), xml);
-  md5_update (&md5, strlen (DIGIST_APPEND), DIGIST_APPEND);
-  md5_digest (&md5, MD5_DIGEST_SIZE, digest);
+  md5_update (&md5, strlen (xml), (const unsigned char*)xml);
+  md5_update (&md5, strlen (DIGIST_APPEND), (const unsigned char*)DIGIST_APPEND);
+  md5_digest (&md5, MD5_DIGEST_SIZE, (unsigned char*)digest);
   digest[MD5_DIGEST_SIZE] = '\0';
   int request_len = REQUEST_PREFIX_LEN + MD5_DIGEST_SIZE + strlen (xml);
   char *request = g_new (char, request_len + 1);

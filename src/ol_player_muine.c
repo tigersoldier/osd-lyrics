@@ -69,13 +69,13 @@ _set_playing (gboolean playing)
 static gboolean
 _play (void)
 {
-  _set_playing (TRUE);
+  return _set_playing (TRUE);
 }
 
 static gboolean
 _pause (void)
 {
-  _set_playing (FALSE);
+  return _set_playing (FALSE);
 }
 
 static gboolean

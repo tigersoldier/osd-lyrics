@@ -107,5 +107,5 @@ void ol_scroll_window_set_font_family (OlScrollWindow *scroll,
  * @param scroll An OlScrollWindow
  * @return The font family
  */
-char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
+const char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */

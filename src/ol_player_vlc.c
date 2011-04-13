@@ -43,7 +43,6 @@ static gboolean ol_player_vlc_next ();
 static gboolean ol_player_vlc_seek (int pos_ms);
 static void ol_player_vlc_ensure_elapse (int elapsed_time);
 static const char *ol_player_vlc_get_icon_path ();
-static const char *_get_icon_path (void);
 
 static void
 ol_player_vlc_ensure_elapse (int elapsed_time)

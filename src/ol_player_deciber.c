@@ -42,7 +42,6 @@ static gboolean ol_player_deciber_next ();
 static gboolean ol_player_deciber_seek (int pos_ms);
 static void ol_player_deciber_ensure_elapse (int elapsed_time);
 static const char *ol_player_deciber_get_icon_path ();
-static const char *_get_icon_path (void);
 
 static void
 ol_player_deciber_ensure_elapse (int elapsed_time)

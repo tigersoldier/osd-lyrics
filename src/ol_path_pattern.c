@@ -116,6 +116,7 @@ ol_path_expand_file_pattern (const char *pattern,
     if (ptr2 < pat_end)
     {
       char *append = NULL;
+      gboolean free_append = FALSE;
       size_t delta = 2;
       switch (*(ptr2 + 1))
       {
@@ -137,8 +138,10 @@ ol_path_expand_file_pattern (const char *pattern,
           append = NULL;
         else
         {
-          if (ol_uri_get_filename (buffer, BUFFER_SIZE, music_info->uri, FALSE))
-            append = buffer;
+          if (ol_uri_get_filename (buffer, BUFFER_SIZE, music_info->uri, FALSE)) {
+            append = replace_invalid_str (buffer);
+            free_append = TRUE;
+          }
         }
         break;
       case '%':
@@ -156,6 +159,8 @@ ol_path_expand_file_pattern (const char *pattern,
       }
       current = ol_strnncpy (current, end - current,
                              append, strlen (append));
+      if (free_append)
+        g_free (append);
       if (current == NULL)
         return -1;
       ptr2 += delta;

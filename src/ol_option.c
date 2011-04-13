@@ -16,7 +16,6 @@
 
 #define BUFFER_SIZE 1024
 
-static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
 
 struct CheckButtonOptions
@@ -139,8 +138,6 @@ void ol_option_menu_filename_activate (GtkMenuItem *menuitem,
                                     gpointer user_data);
 static void ol_option_list_add_clicked (GtkButton *button,
                                         struct ListExtraWidgets *widgets);
-static void ol_option_list_remove_clicked (GtkButton *button,
-                                           struct ListExtraWidgets *widgets);
 void ol_option_filename_clicked (GtkButton *button,
                                  struct ListExtraWidgets *widgets);
 void ol_option_path_clicked (GtkButton *button,
@@ -157,12 +154,6 @@ static void set_list_content (GtkTreeView *view, char **list);
 static void list_remove_clicked (GtkCellRenderer *cell,
                                  gchar *path,
                                  GtkTreeView *view);
-static void list_browse_clicked (GtkCellRenderer *cell,
-                                 gchar *path,
-                                 GtkTreeView *view);
-static void list_pattern_clicked (GtkCellRenderer *cell,
-                                  gchar *path,
-                                  GtkTreeView *view);
 
 /** 
  * @brief Get font family and font size from a GtkFontButton
@@ -179,7 +170,6 @@ static void load_osd ();
 static void load_download ();
 static void load_general ();
 static void load_check_button_options ();
-static void save_check_button_options ();
 static void init_list (struct ListExtraWidgets *widgets,
                        struct ListExtraButton *buttons);
 
@@ -579,25 +569,6 @@ ol_option_list_add_clicked (GtkButton *button,
     gtk_widget_grab_focus (widgets->entry);
 }
 
-static void
-ol_option_list_remove_clicked (GtkButton *button,
-                               struct ListExtraWidgets *widgets)
-{
-  ol_assert (button != NULL);
-  ol_assert (widgets != NULL);
-  if (button == NULL || widgets == NULL)
-    return;
-  if (widgets->list == NULL)
-    return;
-  GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widgets->list));
-  GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (widgets->list));
-  GtkTreeIter iter;
-  gboolean selected = gtk_tree_selection_get_selected (selection, NULL, &iter);
-  if (!selected)
-    return;
-  gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
-}
-
 void
 ol_option_filename_clicked (GtkButton *button,
                             struct ListExtraWidgets *widgets)
@@ -850,31 +821,11 @@ save_check_button_option (struct CheckButtonOptions* opt)
   OlConfig *config = ol_config_get_instance ();
   if (config == NULL)
     return;
-  GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (opt->widget_name)); 
-  ol_config_set_bool (config, 
+  GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (opt->widget_name));
+  ol_config_set_bool (config,
                       opt->config_group,
                       opt->config_name,
                       gtk_toggle_button_get_active (check_button));
-}
-
-static void
-save_check_button_options ()
-{
-  int i = 0;
-  OlConfig *config = ol_config_get_instance ();
-  if (config == NULL)
-    return;
-  for (i = 0; i < G_N_ELEMENTS (check_button_options); i++)
-  {
-    GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (check_button_options[i].widget_name)); 
-    if (check_button_options != NULL)
-    {
-      ol_config_set_bool (config, 
-                          check_button_options[i].config_group,
-                          check_button_options[i].config_name,
-                          gtk_toggle_button_get_active (check_button));
-    }
-  }
 }
 
 static void
@@ -1165,22 +1116,6 @@ list_remove_clicked (GtkCellRenderer *cell,
     gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
   }
   gtk_tree_path_free (tree_path);
-}
-
-static void
-list_browse_clicked (GtkCellRenderer *cell,
-                     gchar *path,
-                     GtkTreeView *view)
-{
-  ol_log_func ();
-}
-
-static void
-list_pattern_clicked (GtkCellRenderer *cell,
-                      gchar *path,
-                      GtkTreeView *view)
-{
-  ol_log_func ();
 }
 
 static void

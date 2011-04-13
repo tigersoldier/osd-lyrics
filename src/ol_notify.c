@@ -10,7 +10,6 @@ static const char *INFO_FORMAT = "%s";
 static const char *INFO_FORMAT_ALBUM = "%s\n<i>%s</i>";
 static const int DEFAULT_TIMEOUT = -1;
 
-static gboolean inited = FALSE;
 static NotifyNotification *notify = NULL;
 
 static gboolean _init ();

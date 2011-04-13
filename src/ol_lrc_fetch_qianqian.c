@@ -222,13 +222,10 @@ ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* cha
   int count=0;
   char page_url[OL_URL_LEN_MAX];
   char title_buf[BUFSIZE];
-  char artist_buf[BUFSIZE];
-  char buf[BUFSIZE], buf2[BUFSIZE];
+  char buf[BUFSIZE];
   char tmpfilenam[] = "/tmp/tmplrc-XXXXXX";
-  char *ptitle, *partist;
-  char *ptr, *tp, *p;
   FILE *fp;
-  int fd, ret, bl1, bl2;
+  int fd, ret;
 
   if (size != NULL) *size = 0;
   memset(candidates, 0, sizeof(candidates));
@@ -261,9 +258,9 @@ ol_lrc_fetch_qianqian_search(const OlMusicInfo *info, int *size, const char* cha
 int 
 ol_lrc_fetch_qianqian_download(OlLrcCandidate *tsu, const char *pathname, const char *charset)
 {
-  if (tsu == NULL) return;
+  if (tsu == NULL) return -1;
   ol_debugf ("%s->%s\n", tsu->url, pathname);
-  char *lrc_conv, *pathbuf;
+  char *pathbuf;
   FILE *fp;
   int ret;
   struct memo lrc;

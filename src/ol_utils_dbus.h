@@ -67,8 +67,15 @@ gboolean ol_dbus_set_bool (DBusGProxy *proxy,
                            const gchar *method,
                            gboolean value);
 
+gboolean ol_dbus_get_double (DBusGProxy *proxy,
+                             const gchar *method,
+                             gdouble *returnval);
+
 gboolean ol_dbus_invoke (DBusGProxy *proxy, const gchar *method);
 
+gboolean ol_dbus_invoke_with_str_arg (DBusGProxy *proxy,
+                                      const gchar *method,
+                                      const gchar *arg);
 /** 
  * Connect to a dbus service, get a proxy to invoke methods
  * 

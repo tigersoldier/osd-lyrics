@@ -68,7 +68,6 @@ static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
-static int fetch_id = 0;
 
 static void _initialize (int argc, char **argv);
 static gint _refresh_music_info (gpointer data);
@@ -170,6 +169,7 @@ ol_app_download_lyric (OlMusicInfo *music_info)
                              NULL);
   if (module != NULL)
     ol_display_module_search_message (module, _("Searching lyrics"));
+  return TRUE;
 }
 
 struct OlLrc *
@@ -256,7 +256,7 @@ _check_music_change ()
   {
     player = NULL;
   }
-  guint duration = 0;
+  gint duration = 0;
   if (player && !ol_player_get_music_length (player, &duration))
   {
     player = NULL;
@@ -362,7 +362,7 @@ _refresh_music_info (gpointer data)
   /* ol_log_func (); */
   if (player == NULL && !_get_active_player ())
     return TRUE;
-  guint time = 0;
+  gint time = 0;
   if (player && !ol_player_get_played_time (player, &time))
   {
     player = NULL;

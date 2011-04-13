@@ -123,7 +123,6 @@ static void ol_osd_window_realize_cb (GtkWidget *widget,
 static void ol_osd_window_unrealize_cb (GtkWidget *widget,
                                         gpointer user_data);
 
-static gboolean ol_osd_window_has_lyrics (OlOsdWindow *osd);
 static int ol_osd_window_compute_osd_height (OlOsdWindow *osd);
 static int ol_osd_window_compute_window_height (OlOsdWindow *osd);
 static double ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd,
@@ -162,7 +161,7 @@ static void ol_osd_window_screen_composited_changed (GdkScreen *screen,
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_child_allocation (OlOsdWindow *osd);
 static void ol_osd_window_check_mouse_leave (OlOsdWindow *osd);
-static void ol_osd_window_update_child_visibility (OlOsdWindow *osd);
+/* static void ol_osd_window_update_child_visibility (OlOsdWindow *osd); */
 
 static void _paint_rect (cairo_t *cr, GdkPixbuf *source,
                          double src_x, double src_y,
@@ -273,6 +272,7 @@ ol_osd_window_paint_bg (OlOsdWindow *osd, cairo_t *cr)
     
     }
   }
+  return TRUE;
 }
 
 static void
@@ -378,7 +378,7 @@ ol_osd_window_button_press (GtkWidget *widget, GdkEventButton *event)
 static void
 ol_osd_window_emit_move (OlOsdWindow *osd)
 {
-  GValue params[1] = {0};
+  GValue params[1] = {{0}};
   g_value_init (&params[0], G_OBJECT_TYPE (osd));
   g_value_set_object (&params[0], G_OBJECT (osd));
   g_signal_emitv (params,
@@ -390,7 +390,7 @@ ol_osd_window_emit_move (OlOsdWindow *osd)
 static void
 ol_osd_window_emit_resize (OlOsdWindow *osd)
 {
-  GValue params[1] = {0};
+  GValue params[1] = {{0}};
   g_value_init (&params[0], G_OBJECT_TYPE (osd));
   g_value_set_object (&params[0], G_OBJECT (osd));
   g_signal_emitv (params,
@@ -452,7 +452,7 @@ ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
                                  gint x,
                                  gint y)
 {
-  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), GDK_WINDOW_EDGE_SOUTH);
   GtkWidget *widget = GTK_WIDGET (osd);
   gint width = widget->allocation.width;
   gint height = widget->allocation.height;
@@ -521,7 +521,7 @@ ol_osd_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 
 static gboolean ol_osd_window_panel_visible (OlOsdWindow *osd)
 {
-  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), FALSE);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   return priv->mode == OL_OSD_WINDOW_NORMAL ||
     (priv->locked == FALSE && priv->mouse_over);
@@ -530,7 +530,7 @@ static gboolean ol_osd_window_panel_visible (OlOsdWindow *osd)
 static gboolean
 ol_osd_window_expose_before (GtkWidget *widget, GdkEventExpose *event)
 {
-  ol_assert (OL_IS_OSD_WINDOW (widget));
+  ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   if (ol_osd_window_panel_visible (osd))
     ol_osd_window_paint (osd);
@@ -604,7 +604,6 @@ ol_osd_window_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
   ol_osd_window_check_mouse_leave (osd);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   return FALSE;
 }
 
@@ -683,7 +682,6 @@ static void
 ol_osd_window_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
   OlOsdWindow *osd = OL_OSD_WINDOW (widget);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   widget->allocation = *allocation;
 
   /* priv->width = allocation->width; */
@@ -740,7 +738,6 @@ ol_osd_window_mouse_timer (gpointer data)
   if (GTK_WIDGET_REALIZED (osd))
   {
     gint rel_x, rel_y;
-    gint w, h;
     gboolean mouse_over = FALSE;
     gdk_window_get_pointer (widget->window, &rel_x, &rel_y, NULL);
     int i;
@@ -795,7 +792,7 @@ ol_osd_window_set_width (OlOsdWindow *osd, gint width)
 int
 ol_osd_window_get_width (OlOsdWindow *osd)
 {
-  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   return priv->width;
 }
@@ -812,19 +809,19 @@ ol_osd_window_get_osd_size (OlOsdWindow *osd, gint *width, gint *height)
     *height = ol_osd_window_compute_osd_height (osd);
 }
 
-static void
-ol_osd_window_update_child_visibility (OlOsdWindow *osd)
-{
-  ol_assert (OL_IS_OSD_WINDOW (osd));
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  GtkWidget *child = gtk_bin_get_child (GTK_BIN (osd));
-  if (child == NULL)
-    return;
-  if (priv->locked)
-    gtk_widget_hide (child);
-  else
-    gtk_widget_show (child);
-}
+/* static void */
+/* ol_osd_window_update_child_visibility (OlOsdWindow *osd) */
+/* { */
+/*   ol_assert (OL_IS_OSD_WINDOW (osd)); */
+/*   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd); */
+/*   GtkWidget *child = gtk_bin_get_child (GTK_BIN (osd)); */
+/*   if (child == NULL) */
+/*     return; */
+/*   if (priv->locked) */
+/*     gtk_widget_hide (child); */
+/*   else */
+/*     gtk_widget_show (child); */
+/* } */
 
 void
 ol_osd_window_set_locked (OlOsdWindow *osd, gboolean locked)
@@ -886,7 +883,6 @@ ol_osd_window_compute_window_height (OlOsdWindow *osd)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
-  GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (osd));
   int height = BORDER_WIDTH * 2;
   height += priv->osd_height;
   height += priv->child_requisition.height;
@@ -928,7 +924,6 @@ static double
 ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd, int line, double percentage)
 {
   /* ol_log_func (); */
-  GtkWidget *widget = GTK_WIDGET (osd);
   gint w, h;
   int width, height;
   gboolean smooth = TRUE;
@@ -988,7 +983,6 @@ static int
 ol_osd_window_compute_lyric_ypos (OlOsdWindow *osd)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int y = BORDER_WIDTH;
   return y;
 }
@@ -1084,6 +1078,8 @@ ol_osd_window_set_percentage (OlOsdWindow *osd, gint line, double percentage)
   {
     int old_x = ol_osd_window_compute_lyric_xpos (osd, line, old_percentage);
     int new_x = ol_osd_window_compute_lyric_xpos (osd, line, percentage);
+    if (old_x != new_x)
+      priv->update_shape = TRUE;
   }
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
@@ -1097,7 +1093,7 @@ ol_osd_window_set_current_percentage (OlOsdWindow *osd, double percentage)
 double
 ol_osd_window_get_current_percentage (OlOsdWindow *osd)
 {
-  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0.0);
   return osd->percentage[osd->current_line];
 }
 
@@ -1111,7 +1107,7 @@ ol_osd_window_set_current_line (OlOsdWindow *osd, gint line)
 
 gint ol_osd_window_get_current_line (OlOsdWindow *osd)
 {
-  ol_assert (OL_IS_OSD_WINDOW (osd));
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0);
   return osd->current_line;
 }
 
@@ -1185,22 +1181,6 @@ ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line)
   osd->lyric_rects[line].y = font_height * line * (1 + LINE_PADDING);
   osd->lyric_rects[line].width = w;
   osd->lyric_rects[line].height = h;
-}
-
-static gboolean
-ol_osd_window_has_lyrics (OlOsdWindow *osd)
-{
-  int i;
-  gboolean ret = FALSE;
-  for (i = 0; i < ol_osd_window_get_line_count (osd); i++)
-  {
-    if (!ol_is_string_empty (osd->lyrics[i]))
-    {
-      ret = TRUE;
-      break;
-    }
-  }
-  return ret;
 }
 
 void
@@ -1286,7 +1266,7 @@ ol_osd_window_update_shape (OlOsdWindow *osd)
 {
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
-  static empty_mask = TRUE;
+  static gboolean empty_mask = TRUE;
   if (!GTK_WIDGET_REALIZED (widget))
     return;
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
@@ -1319,7 +1299,6 @@ ol_osd_window_update_shape (OlOsdWindow *osd)
 static void
 ol_osd_window_set_input_shape_mask (OlOsdWindow *osd, gboolean disable_input)
 {
-  gint w, h;
   ol_assert (OL_IS_OSD_WINDOW (osd));
   GtkWidget *widget = GTK_WIDGET (osd);
   ol_assert (GTK_WIDGET_REALIZED (widget));
@@ -1462,12 +1441,12 @@ ol_osd_window_move_resize (OlOsdWindow *osd,
   {
     /* gtk_window_resize and ol_osd_window_queue_resize don't work,
        so we have to specify allocation explicitly*/
-    GtkAllocation newalloc = {
-      .x = 0,
-      .y = 0,
-      .width = width,
-      .height = height,
-    };
+    /* GtkAllocation newalloc = { */
+    /*   .x = 0, */
+    /*   .y = 0, */
+    /*   .width = width, */
+    /*   .height = height, */
+    /* }; */
     /* gtk_widget_size_allocate (widget, &newalloc); */
     gtk_window_resize (GTK_WINDOW (osd), width, height);
     /* ol_osd_window_queue_resize (widget); */
@@ -1504,12 +1483,10 @@ ol_osd_window_class_init (OlOsdWindowClass *klass)
   GObjectClass *gobject_class;
   GtkObjectClass *object_class;
   GtkWidgetClass *widget_class;
-  GtkContainerClass *container_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
   object_class = (GtkObjectClass*)klass;
   widget_class = (GtkWidgetClass*)klass;
-  container_class = (GtkContainerClass*)klass;
   ol_osd_window_parent_class = g_type_class_peek_parent (klass);
 
   gobject_class->set_property = ol_osd_window_set_property;
@@ -1562,9 +1539,12 @@ ol_osd_window_set_property (GObject *object, guint prop_id,
                             const GValue *value, GParamSpec *pspec)
 {
   OlOsdWindow *osd = OL_OSD_WINDOW (object);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   switch (prop_id)
   {
+  case PROP_LOCKED:
+    ol_assert (G_VALUE_HOLDS_BOOLEAN (value));
+    ol_osd_window_set_locked (osd, g_value_get_boolean (value));
+    break;
   }
 }
 
@@ -1573,11 +1553,12 @@ ol_osd_window_get_property (GObject *object, guint prop_id,
                             GValue *value, GParamSpec *pspec)
 {
   OlOsdWindow *osd = OL_OSD_WINDOW (object);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (priv);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   switch (prop_id)
   {
   case PROP_LOCKED:
     g_value_set_boolean (value, priv->locked);
+    break;
   }
 }
   
@@ -1590,7 +1571,7 @@ ol_osd_window_init (OlOsdWindow *osd)
   GValue allow_shrink = {0};
   g_value_init (&allow_shrink, G_TYPE_BOOLEAN);
   g_value_set_boolean (&allow_shrink, TRUE);
-  g_object_set_property (window, "allow-shrink", &allow_shrink);
+  g_object_set_property (G_OBJECT (window), "allow-shrink", &allow_shrink);
   g_value_unset (&allow_shrink);
   
   gtk_window_set_decorated (window, FALSE);
@@ -1678,9 +1659,7 @@ ol_osd_window_destroy (GtkObject *object)
 {
   ol_log_func ();
   ol_assert (OL_IS_OSD_WINDOW (object));
-  GtkWidget *widget = GTK_WIDGET (object);
   OlOsdWindow *osd = OL_OSD_WINDOW (object);
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (object);
   int i;
   for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
   {

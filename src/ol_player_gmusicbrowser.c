@@ -77,7 +77,7 @@ ol_player_gmusicbrowser_get_status ()
     {
       return OL_PLAYER_ERROR;
     }
-  gboolean buf = NULL;
+  gboolean buf = FALSE;
   enum OlPlayerStatus ret = OL_PLAYER_UNKNOWN;
   if (ol_dbus_get_bool (proxy, get_state, &buf)) 
   {
@@ -89,14 +89,13 @@ ol_player_gmusicbrowser_get_status ()
 static gboolean
 ol_player_gmusicbrowser_get_music_info (OlMusicInfo *info)
 {
-  ol_assert (info != NULL);
+  ol_assert_ret (info != NULL, FALSE);
   if (connection == NULL || proxy == NULL)
     if (!ol_player_gmusicbrowser_init_dbus ())
     {
       ol_debug ("Initialize dbus proxy failed\n");
       return FALSE;
     }
-  gchar *buf;
   enum OlPlayerStatus status = ol_player_gmusicbrowser_get_status ();
   if (status == OL_PLAYER_PLAYING)
   {
@@ -325,6 +324,7 @@ ol_player_gmusicbrowser_pause ()
     return FALSE;
   if (status == OL_PLAYER_PLAYING)
       return ol_dbus_invoke_with_str_arg (proxy, runcommand, play_pause);
+  return TRUE;
 }
 
 static gboolean

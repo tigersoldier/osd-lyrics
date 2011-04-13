@@ -63,8 +63,8 @@ ol_scroll_module_free (struct OlDisplayModule *module)
     return;
   if (priv->scroll != NULL)
   {
-      gtk_widget_destroy (priv->scroll);
-      priv->scroll = NULL;
+    gtk_widget_destroy (GTK_WIDGET (priv->scroll));
+    priv->scroll = NULL;
   }
   ol_music_info_clear (&priv->music_info);
   g_free (priv);
@@ -187,4 +187,5 @@ ol_scroll_module_get_class ()
   klass->set_played_time = ol_scroll_module_set_played_time;
   /* klass->set_player = ol_scroll_module_set_player; */
   /* klass->set_status = ol_scroll_module_set_status; */
+  return klass;
 }

@@ -52,7 +52,7 @@ _register_class (struct OlDisplayClass *klass)
 static struct OlDisplayClass*
 _get_class (const char *name)
 {
-  ol_assert (classes != NULL);
+  ol_assert_ret (name != NULL, NULL);
   int i;
   for (i = 0; i < classes->len; i++)
   {

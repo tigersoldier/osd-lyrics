@@ -81,7 +81,7 @@ ol_image_button_expose (GtkWidget *widget,
   else
   {
     cairo_t *cr = gdk_cairo_create (event->window);
-    int w, h, sw, sh, mx, my, x, y, sx, sy;
+    int w, h, sw, sh, mx, my, x, y;
     w = event->area.width; h = event->area.height;
     mx = event->area.x + event->area.width / 2;
     my = event->area.y + event->area.height / 2;

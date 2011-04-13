@@ -216,9 +216,6 @@ static void
 ol_cell_renderer_button_finalize (GObject *object)
 {
   OlCellRendererButton *cellbutton = OL_CELL_RENDERER_BUTTON (object);
-  OlCellRendererButtonPrivate *priv;
-
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (object);
 
   pango_font_description_free (cellbutton->font);
 
@@ -235,9 +232,6 @@ ol_cell_renderer_button_get_property (GObject        *object,
                                GParamSpec     *pspec)
 {
   OlCellRendererButton *cellbutton = OL_CELL_RENDERER_BUTTON (object);
-  OlCellRendererButtonPrivate *priv;
-
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (object);
 
   switch (param_id)
   {
@@ -260,10 +254,8 @@ ol_cell_renderer_button_set_property (GObject *object,
                                GParamSpec *pspec)
 {
   OlCellRendererButton *cellbutton = OL_CELL_RENDERER_BUTTON (object);
-  OlCellRendererButtonPrivate *priv;
 
   ol_logf (OL_DEBUG, "%s:%d\n", __FUNCTION__, param_id);
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (object);
 
   switch (param_id)
   {
@@ -376,9 +368,6 @@ ol_cell_renderer_button_render (GtkCellRenderer      *cell,
   GtkStateType state = 0;
   gint x_offset;
   gint y_offset;
-  OlCellRendererButtonPrivate *priv;
-
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (cell);
 
   layout = get_layout (cellbutton, widget, TRUE, flags);
   get_size (cell, widget, cell_area, layout, &x_offset, &y_offset, NULL, NULL);
@@ -503,6 +492,8 @@ get_layout (OlCellRendererButton *cellbutton,
   else
     align = PANGO_ALIGN_LEFT;
 
+  pango_layout_set_alignment (layout, align);
+
   pango_layout_set_attributes (layout, attr_list);
 
   pango_attr_list_unref (attr_list);
@@ -522,10 +513,6 @@ get_size (GtkCellRenderer *cell,
 {
   ol_logf (OL_DEBUG, "%s\n", __FUNCTION__);
   OlCellRendererButton *cellbutton = (OlCellRendererButton *) cell;
-  PangoRectangle rect;
-  OlCellRendererButtonPrivate *priv;
-
-  priv = OL_CELL_RENDERER_BUTTON_GET_PRIVATE (cell);
 
   gint btn_width = (cell->xpad) * 2;
   gint btn_height = (cell->ypad) * 2;

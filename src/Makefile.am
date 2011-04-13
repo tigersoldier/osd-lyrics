@@ -14,10 +14,11 @@ INCLUDES = \
 	@X11_CFLAGS@ \
 	@APP_INDICATOR_CFLAGS@ \
 	-I$(top_srcdir)/lib/chardetect/include
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGUIDIR='"$(OL_GUIDIR)"' 
+	-DGUIDIR='"$(OL_GUIDIR)"' \
+	-Wall -Wfatal-errors -Werror
 AM_LDFLAGS = \
 	-L$(top_builddir)/lib/chardetect
 LDADD = \

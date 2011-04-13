@@ -1,3 +1,4 @@
+#include <string.h>
 #include "ol_osd_render.h"
 #include "ol_debug.h"
 

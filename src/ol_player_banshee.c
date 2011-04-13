@@ -1,6 +1,7 @@
 #include <dbus/dbus-glib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ol_player_banshee.h"
 #include "ol_utils.h"
@@ -15,7 +16,6 @@ static const char *INTERFACE2 = "org.bansheeproject.Banshee.PlayerEngine";
 static const char *PLAY = "Play";
 static const char *PAUSE = "Pause";
 static const char *STOP = "Close";
-static const char *PLAY_PAUSE = "TogglePlaying";
 static const char *NEXT = "Next";
 static const char *PREVIOUS = "Previous";
 static const char *SEEK = "SetPosition";
@@ -63,7 +63,6 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
   if (info == NULL)
     return FALSE;
   GHashTable *data_list = NULL;
-  gint int_val;
   gboolean ret = TRUE;
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
@@ -131,7 +130,7 @@ ol_player_banshee_get_played_time (int *played_time)
       return FALSE;
   if (ol_dbus_get_uint (proxy,
                         CURRENT_POSITION,
-                        played_time))
+                        (unsigned int*)played_time))
   {
   }
   else

@@ -5,12 +5,11 @@
 
 static GtkAccelGroup *accel = NULL;
 
-static gboolean ol_hide_accel (gpointer userdata);
+static void ol_hide_accel (gpointer userdata);
 
-static gboolean
+static void
 ol_hide_accel (gpointer userdata)
 {
-  return FALSE;
 }
   
 
@@ -19,7 +18,7 @@ ol_keybinding_init ()
 {
   ol_keybinder_init ();
   GtkAccelGroup *accel = ol_keybinding_get_accel_group ();
-  GClosure *hide_closure = g_cclosure_new (ol_hide_accel,
+  GClosure *hide_closure = g_cclosure_new ((GCallback)ol_hide_accel,
                                            NULL,
                                            NULL);
   gtk_accel_map_add_entry ("<OSD Lyrics>/Hide",

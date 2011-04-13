@@ -40,7 +40,6 @@ static gboolean ol_player_guayadeque02_next ();
 static gboolean ol_player_guayadeque02_seek (int pos_ms);
 static void ol_player_guayadeque02_ensure_elapse (int elapsed_time);
 static const char *ol_player_guayadeque02_get_icon_path ();
-static const char *_get_icon_path (void);
 
 static void
 ol_player_guayadeque02_ensure_elapse (int elapsed_time)

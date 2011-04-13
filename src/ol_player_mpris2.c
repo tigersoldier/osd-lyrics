@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include <dbus/dbus-glib.h>
 #include "ol_player_mpris2.h"
@@ -8,7 +9,7 @@
 #include "ol_debug.h"
 
 static const char *PATH = "/org/mpris/MediaPlayer2";
-static const char *IFACE = "org.mpris.MediaPlayer2";
+/* static const char *IFACE = "org.mpris.MediaPlayer2"; */
 static const char *NAME_PREFIX = "org.mpris.MediaPlayer2";
 static const char *PLAYER_INTERFACE = "org.mpris.MediaPlayer2.Player";
 static const char *PLAY_METHOD = "Play";
@@ -17,7 +18,6 @@ static const char *STOP_METHOD = "Stop";
 static const char *NEXT_METHOD = "Next";
 static const char *PREVIOUS_METHOD = "Previous";
 static const char *SEEK_METHOD = "Seek";
-static const char *STATUS_METHOD = "PlaybackStatus";
 static const char *METADATA_PROP = "Metadata";
 static const char *STATUS_PROP = "PlaybackStatus";
 static const char *POSITION_PROP = "Position";
@@ -65,6 +65,7 @@ _proxy_destroy_cb (DBusGProxy *proxy, struct Mpris2 *mpris2)
 {
   g_object_unref (proxy);
   mpris2->proxy = NULL;
+  return FALSE;
 }
 
 static gboolean
@@ -264,7 +265,7 @@ _get_status ()
     return OL_PLAYER_ERROR;
   enum OlPlayerStatus status = OL_PLAYER_UNKNOWN;
   char *prop = NULL;
-  if (ol_dbus_get_string_property (mpris2.proxy, STATUS_METHOD, &prop))
+  if (ol_dbus_get_string_property (mpris2.proxy, STATUS_PROP, &prop))
   {
     ol_debugf ("MPRIS2 status: %s\n", prop);
     if (strcmp (prop, PLAYING_STATUS) == 0)

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "ol_music_info.h"
 #include "ol_config.h"
 #include "ol_osd_window.h"
@@ -7,6 +8,7 @@
 #include "ol_stock.h"
 #include "ol_menu.h"
 #include "ol_app.h"
+#include "ol_utils.h"
 #include "ol_debug.h"
 
 const int MESSAGE_DURATION_MS = 3000;
@@ -129,7 +131,7 @@ ol_osd_scroll (OlOsdWindow *osd,
                GdkEventScroll *event,
                gpointer data)
 {
-  int doffset;
+  int doffset = 0;
   if (event->direction == GDK_SCROLL_DOWN ||
       event->direction == GDK_SCROLL_RIGHT)
     doffset = -200;
