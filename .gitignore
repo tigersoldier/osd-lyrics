@@ -19,4 +19,5 @@ depcomp
 po/stamp-it
 autom4te.cache
 config.status
+cscope.out
 *~
