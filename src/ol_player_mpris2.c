@@ -4,6 +4,7 @@
 #include "ol_player_mpris2.h"
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
+#include "ol_elapse_emulator.h"
 #include "ol_debug.h"
 
 static const char *PATH = "/org/mpris/MediaPlayer2";
@@ -39,6 +40,7 @@ static const char *STOPPED_STATUS = "Stopped";
 static struct Mpris2
 {
   DBusGProxy *proxy;
+  OlElapseEmulator elapse;
 } mpris2 = {0};
 
 static gboolean _get_activated ();
@@ -81,6 +83,7 @@ _try_dbus_name (const char *name)
                     "destroy",
                     G_CALLBACK (_proxy_destroy_cb),
                     (gpointer) &mpris2);
+  ol_elapse_emulator_init (&mpris2.elapse, 0, 1000);
   return TRUE;
 }
 
@@ -136,7 +139,12 @@ _get_played_time (int *played_time)
                                    POSITION_PROP,
                                    &position))
     return FALSE;
-  *played_time = position / 1000;
+  if (_get_status () == OL_PLAYER_PLAYING)
+    *played_time = ol_elapse_emulator_get_real_ms (&mpris2.elapse,
+                                                   position / 1000);
+  else
+    *played_time = ol_elapse_emulator_get_last_ms (&mpris2.elapse,
+                                                   position / 1000);
   return TRUE;
 }
 
