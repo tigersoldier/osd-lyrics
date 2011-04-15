@@ -935,7 +935,9 @@ load_general ()
        struct OlPlayer **players = ol_player_get_players ();
        for (i = 0; players[i] != NULL; i++)
        {
-         if (strcmp (player_cmd, ol_player_get_cmd (players[i])) == 0)
+         const char *cmd = ol_player_get_cmd (players[i]);
+         if (cmd != NULL &&
+             strcmp (player_cmd, cmd) == 0)
          {
            gtk_combo_box_set_active (cb, i + 1);
           startup_custom = FALSE;
