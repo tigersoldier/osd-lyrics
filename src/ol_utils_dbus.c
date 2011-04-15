@@ -463,16 +463,19 @@ ol_dbus_get_bool_property (DBusGProxy *proxy,
   {
     ret = FALSE;
   }
-  else if (!G_VALUE_HOLDS_BOOLEAN (&value))
-  {
-    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
-    ret = FALSE;
-  }
   else
   {
-    *returnval = g_value_get_boolean (&value);
+    if (!G_VALUE_HOLDS_BOOLEAN (&value))
+    {
+      ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+      ret = FALSE;
+    }
+    else
+    {
+      *returnval = g_value_get_boolean (&value);
+    }
+    g_value_unset (&value);
   }
-  g_value_unset (&value);
   return ret;
 }
 
@@ -488,16 +491,19 @@ ol_dbus_get_int64_property (DBusGProxy *proxy,
   {
     ret = FALSE;
   }
-  else if (!G_VALUE_HOLDS_INT64 (&value))
-  {
-    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
-    ret = FALSE;
-  }
   else
   {
-    *returnval = g_value_get_int64 (&value);
+    if (!G_VALUE_HOLDS_INT64 (&value))
+    {
+      ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+      ret = FALSE;
+    }
+    else
+    {
+      *returnval = g_value_get_int64 (&value);
+    }
+    g_value_unset (&value);
   }
-  g_value_unset (&value);
   return ret;
 }
 
@@ -513,16 +519,19 @@ ol_dbus_get_string_property (DBusGProxy *proxy,
   {
     ret = FALSE;
   }
-  else if (!G_VALUE_HOLDS_STRING (&value))
-  {
-    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
-    ret = FALSE;
-  }
   else
   {
-    *returnval = g_strdup (g_value_get_string (&value));
+    if (!G_VALUE_HOLDS_STRING (&value))
+    {
+      ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+      ret = FALSE;
+    }
+    else
+    {
+      *returnval = g_strdup (g_value_get_string (&value));
+    }
+    g_value_unset (&value);
   }
-  g_value_unset (&value);
   return ret;
 }
 
@@ -538,16 +547,19 @@ ol_dbus_get_dict_property (DBusGProxy *proxy,
   {
     ret = FALSE;
   }
-  else if (!G_VALUE_HOLDS_BOXED (&value))
-  {
-    ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
-    ret = FALSE;
-  }
   else
   {
-    *returnval = g_value_get_boxed (&value);
-    g_hash_table_ref (*returnval);
+    if (!G_VALUE_HOLDS_BOXED (&value))
+    {
+      ol_errorf ("Property type mismatch, %s got\n", G_VALUE_TYPE_NAME (&value));
+      ret = FALSE;
+    }
+    else
+    {
+      *returnval = g_value_get_boxed (&value);
+      g_hash_table_ref (*returnval);
+    }
+    g_value_unset (&value);
   }
-  g_value_unset (&value);
   return ret;
 }
