@@ -21,7 +21,6 @@ static const char *icon_paths[] = {
 static gboolean ol_player_xmms2_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_xmms2_get_played_time (int *played_time);
 static gboolean ol_player_xmms2_get_music_length (int *len);
-static gboolean ol_player_xmms2_conenct ();
 static gboolean ol_player_xmms2_ensure_connection ();
 static gboolean ol_player_xmms2_get_activated ();
 static enum OlPlayerStatus ol_player_xmms2_get_status ();
@@ -346,7 +345,6 @@ ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key)
   ol_assert_ret (dict != NULL, NULL);
   ol_assert_ret (key != NULL, NULL);
   const char *val = NULL;
-  xmmsv_t *dict_entry = NULL;
   if (xmmsv_dict_get_string (dict, key, &val))
   {
     return g_strdup (val);
@@ -361,7 +359,6 @@ ol_player_xmms2_get_dict_int (xmmsv_t *dict, const char *key)
   ol_assert_ret (dict != NULL, 0);
   ol_assert_ret (key != NULL, 0);
   int32_t val = 0;
-  xmmsv_t *dict_entry = NULL;
   if (xmmsv_dict_get_int (dict, key, &val))
   {
     return val;

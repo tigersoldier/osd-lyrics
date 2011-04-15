@@ -53,10 +53,15 @@ ol_is_running ()
       }
       else
       {
-        ftruncate (fd, 0);
+        if (ftruncate (fd, 0) != 0)
+        {
+          ol_errorf ("Failed to truncate singleton lock: %s\n",
+                     strerror (errno));
+        }
         char buf[16];
         sprintf (buf, "%ld", (long)getpid ());
-        write (fd, buf, strlen (buf) + 1);
+        if (write (fd, buf, strlen (buf)) != strlen (buf))
+          ol_errorf ("Failed to write pid in singleton lock\n");
         ret = 0;
       }
     }
