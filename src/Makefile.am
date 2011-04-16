@@ -111,6 +111,7 @@ noinst_HEADERS = \
 	ol_utils_cmdline.h \
 	ol_utils_dbus.h \
 	ol_utils_dcop.h \
+	ol_utils_network.h \
 	ol_utils.h
 
 osd_lyrics_SOURCES = \
@@ -159,6 +160,7 @@ osd_lyrics_SOURCES = \
 	ol_utils_dbus.c \
 	ol_utils_dcop.c \
 	ol_utils_cmdline.c \
+	ol_utils_network.c \
 	ol_lrc_parser.c \
 	ol_lrc.c \
 	ol_search_dialog.c \
