@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAboutDialog" id="aboutdialog">
     <property name="border_width">5</property>
@@ -350,7 +350,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="xalign">1</property>
                         <property name="adjustment">adj-osd-outline</property>
                         <signal name="changed" handler="ol_option_update_preview"/>
-                        <signal name="changed" handler="ol_option_osd_outline_changed"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -439,7 +438,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="ol_option_osd_mode_changed"/>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -453,7 +451,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="receives_default">False</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">osd-window-mode-dock</property>
-                        <signal name="toggled" handler="ol_option_osd_mode_changed"/>
                       </object>
                       <packing>
                         <property name="position">2</property>
@@ -465,19 +462,36 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="translucent-on-mouse-over">
-                    <property name="label" translatable="yes">T_ranslucent on mouse over</property>
+                  <object class="GtkHBox" id="hbox13">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="yalign">0.55000001192092896</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="ol_option_mouseover_changed"/>
+                    <child>
+                      <object class="GtkLabel" id="label20">
+                        <property name="visible">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="translucent-on-mouse-over">
+                        <property name="label" translatable="yes">T_ranslucent on mouse over</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="yalign">0.55000001192092896</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="ol_option_mouseover_changed"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="position">5</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -1311,7 +1325,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkAlignment" id="alignment8">
+                              <object class="GtkAlignment" id="align-proxy-manual">
                                 <property name="visible">True</property>
                                 <property name="left_padding">12</property>
                                 <child>
@@ -1351,7 +1365,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                             <property name="xpad">5</property>
                                             <property name="label" translatable="yes">Po_rt:</property>
                                             <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">proxy-port</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1359,16 +1372,18 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkEntry" id="proxy-port">
+                                          <object class="GtkSpinButton" id="proxy-port">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="max_length">5</property>
                                             <property name="invisible_char">•</property>
-                                            <property name="width_chars">5</property>
+                                            <property name="adjustment">adj-proxy-port</property>
+                                            <property name="snap_to_ticks">True</property>
+                                            <property name="numeric">True</property>
+                                            <property name="wrap">True</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="fill">False</property>
                                             <property name="position">3</property>
                                           </packing>
                                         </child>
@@ -1460,14 +1475,17 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         <property name="n_rows">2</property>
                                         <property name="n_columns">2</property>
                                         <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
                                           <object class="GtkLabel" id="label-proxy-passwd">
                                             <property name="visible">True</property>
-                                            <property name="label" translatable="yes">label</property>
+                                            <property name="xalign">1</property>
+                                            <property name="xpad">5</property>
+                                            <property name="label" translatable="yes">Password:</property>
                                             <property name="use_underline">True</property>
+                                            <property name="mnemonic_widget">proxy-passwd</property>
                                           </object>
+                                          <packing>
+                                            <property name="x_options">GTK_FILL</property>
+                                          </packing>
                                         </child>
                                         <child>
                                           <object class="GtkEntry" id="proxy-passwd">
@@ -1482,7 +1500,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         </child>
                                         <child>
                                           <object class="GtkCheckButton" id="show-proxy-passwd">
-                                            <property name="label" translatable="yes">checkbutton</property>
+                                            <property name="label" translatable="yes">Show password</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -1495,13 +1513,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                             <property name="bottom_attach">2</property>
                                           </packing>
                                         </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="position">3</property>
                                       </packing>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
                                     </child>
                                   </object>
                                 </child>
@@ -1527,12 +1545,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     <property name="expand">False</property>
                     <property name="position">1</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -2181,13 +2193,23 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <widget name="label-osd-lyric-lines"/>
       <widget name="label17"/>
       <widget name="label4"/>
+      <widget name="label20"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup" id="group-proxy-label">
     <widgets>
+      <widget name="label-proxy-passwd"/>
       <widget name="label-proxy-host"/>
       <widget name="label-proxy-type"/>
       <widget name="label-proxy-user"/>
     </widgets>
+  </object>
+  <object class="GtkAdjustment" id="adj-proxy-port">
+    <property name="value">1080</property>
+    <property name="lower">1</property>
+    <property name="upper">65535</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">0</property>
   </object>
 </interface>
