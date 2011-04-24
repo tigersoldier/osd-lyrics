@@ -102,14 +102,13 @@ static gboolean
 ol_player_exaile03_get_music_info (OlMusicInfo *info)
 {
   /* ol_log_func (); */
-  ol_assert (info != NULL);
+  ol_assert_ret (info != NULL, FALSE);
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile03_init_dbus ())
     {
       ol_debug ("Initialize dbus proxy failed\n");
       return FALSE;
     }
-  gchar *buf;
   enum OlPlayerStatus status = ol_player_exaile03_get_status ();
   ol_debugf ("  status: %d\n", (int)status);
   if (status == OL_PLAYER_PLAYING || status == OL_PLAYER_PAUSED)
@@ -353,6 +352,7 @@ ol_player_exaile03_pause ()
     return FALSE;
   if (status == OL_PLAYER_PLAYING)
     return ol_dbus_invoke (proxy, play_pause);
+  return TRUE;
 }
 
 static gboolean

@@ -9,7 +9,6 @@
 
 static GtkWidget *window = NULL;
 static GtkTreeView *list = NULL;
-static GtkTreeStore *store = NULL;
 static GtkButton *download_button = NULL;
 static OlLrcFetchEngine *engine = NULL;
 static OlMusicInfo *info = NULL;
@@ -17,8 +16,6 @@ static char *filepath = NULL;
 
 static void ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data);
 static gboolean internal_init ();
-static void internal_set_list (const OlLrcCandidate *candidates,
-                               int count);
 gboolean ol_lrc_fetch_cancel (GtkWidget *widget, gpointer data);
 
 gboolean
@@ -27,14 +24,14 @@ ol_lrc_fetch_ui_cancel (GtkWidget *widget, gpointer data)
   ol_log_func ();
   if (window != NULL)
     gtk_widget_hide (window);
+  return TRUE;
 }
 
 gboolean
 ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
 {
   ol_log_func ();
-  GtkTreeSelection *selection = NULL;
-  OlLrcCandidate candidate = {0};
+  OlLrcCandidate candidate = {{0}};
   if (ol_lrc_candidate_list_get_selected (list, &candidate))
   {
     ol_lrc_fetch_begin_download (engine, &candidate, info, filepath, NULL);
@@ -52,6 +49,7 @@ ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
     }
   }
   gtk_widget_hide (window);
+  return TRUE;
 }
 
 static void
@@ -88,12 +86,6 @@ internal_init ()
                                 G_CALLBACK (ol_lrc_fetch_select_changed));
   }
   return TRUE;
-}
-
-static void
-internal_set_list (const OlLrcCandidate *candidates,
-                   int count)
-{
 }
 
 void

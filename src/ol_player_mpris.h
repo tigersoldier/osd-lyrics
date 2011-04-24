@@ -1,10 +1,11 @@
+
 /**
  * @file   ol_player_mpris.h
  * @author Tiger Soldier <tigersoldi@gmail.com>
  * @date   Sun Jun  7 16:53:56 2009
- * 
+ *
  * @brief  Supports all players that provides MPRIS interface
- * 
+ *
  */
 #ifndef _OL_PLAYER_MPRIS_H_
 #define _OL_PLAYER_MPRIS_H_
@@ -14,14 +15,25 @@
 typedef struct
 {
   DBusGProxy *proxy;
+  DBusGProxyCall *call_id;
+  DBusGProxyCall *metadata_call_id;
+  DBusGProxyCall *status_call_id;
+  enum OlPlayerStatus status;
   gchar *name;
+  int played_time;
+  gchar *title;
+  gchar *artist;
+  gchar *album;
+  gchar *uri;
+  int track_number;
+  int music_len;
 } OlPlayerMpris;
 
-/** 
+/**
  * @brief Creates a new MPRIS Player context
- * 
+ *
  * @param service The service name of the player on dbus
- * 
+ *
  * @return The created MPRIS Player context, should be destroyed by g_free
  */
 OlPlayerMpris* ol_player_mpris_new (const char *service);

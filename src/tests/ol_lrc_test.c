@@ -80,7 +80,7 @@ void no_newline_test ()
   struct OlLrc *lrc = ol_lrc_new (DATAFILE);
   const struct OlLrcItem *item = ol_lrc_get_item (lrc, 0);
   ol_test_expect (ol_lrc_item_get_lyric (item) != NULL);
-  ol_test_expect (ol_lrc_item_get_lyric (item)[0] == '\0');
+  ol_test_expect (strcmp (ol_lrc_item_get_lyric (item), "lyric") == 0);
   ol_lrc_free (lrc);
 }
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include "ol_lrc.h"
 #include "ol_lrc_parser.h"

@@ -63,7 +63,7 @@ void play ()
   }
 }
 
-void pause ()
+void _pause ()
 {
   if (controller == NULL)
     return;
@@ -218,7 +218,7 @@ main (int argc, char **argv)
   else if (strcmp (argv[1], "play") == 0)
     play ();
   else if (strcmp (argv[1], "pause") == 0)
-    pause ();
+    _pause ();
   else if (strcmp (argv[1], "prev") == 0)
     prev ();
   else if (strcmp (argv[1], "next") == 0)

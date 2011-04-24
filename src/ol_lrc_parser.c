@@ -283,13 +283,16 @@ ol_lrc_parser_next_token (struct OlLrcParser *parser)
     }
     parser->offset++;
   }
-  if (tag == 2)
+  if (tag == 2)                 /* both `[' and `]' appears, a tag found */
   {
     return _parse_tag (parser, start, parser->offset);
   }
   else
   {
-    size_t end = parser->offset - 1;
+    size_t end = parser->offset; /* Issue 113 */
+    if (parser->buffer[end - 1] == '\r' ||
+        parser->buffer[end - 1] == '\n')
+      end--;
     /* Deal with \r\n */
     if (parser->offset < parser->buflen &&
         parser->offset > 0 &&

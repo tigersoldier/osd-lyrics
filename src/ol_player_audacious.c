@@ -13,8 +13,6 @@ static const char *icon_paths[] = {
   "/usr/local/share/icons/hicolor/48x48/apps/audacious2.png",
 };
 
-static int first_time = -1;
-static int prev_time = 0;
 struct timeval begin_time;
 
 static OlPlayerMpris *mpris = NULL;

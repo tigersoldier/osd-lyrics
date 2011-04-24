@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include "ol_debug.h"
@@ -21,7 +22,6 @@ static const char *LEVEL_MSG[] = {
 
 static FILE *flog = NULL;
 static int debug_level = OL_ERROR;
-static int _endure_flog ();
 
 static int
 _ensure_flog ()
@@ -70,10 +70,7 @@ ol_log_set_file (const char *logfile)
   }
   if (strcmp (logfile, "-") == 0)
   {
-    int stdoutfd;
-    if (dup2 (STDOUT_FILENO, stdoutfd) == -1)
-      return 0;
-    flog = fdopen (stdoutfd, "w");
+    flog = fdopen (STDOUT_FILENO, "w");
   }
   else
   {

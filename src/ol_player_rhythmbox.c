@@ -55,10 +55,6 @@ static const char *ol_player_rhythmbox_get_icon_path ();
 
 static OlElapseEmulator elapse;
 
-static int
-ol_player_rhythmbox_init_timer (int time)
-{
-}
 
 /** 
  * Return real position in milliseconds
@@ -75,7 +71,7 @@ ol_player_rhythmbox_get_real_ms (int time)
   if (ol_player_rhythmbox_get_status () != OL_PLAYER_PLAYING)
   {
     int real_time = ol_elapse_emulator_get_last_ms (&elapse, time);
-    /* reset timer to current time to avoid error on resume playing*/
+    /* reset timer to current time to avoid error on resume playing */
     ol_elapse_emulator_init (&elapse, real_time, elapse.accuracy);
     return real_time;
   }
@@ -144,7 +140,6 @@ ol_player_rhythmbox_get_music_info (OlMusicInfo *info)
     if (!ol_player_rhythmbox_init_dbus ())
       return FALSE;
   GHashTable *data_list;
-  char *uri = NULL;
   gboolean ret = TRUE;
   data_list = ol_player_rhythmbox_get_song_properties ();
   if (data_list)
@@ -181,7 +176,7 @@ static gboolean
 ol_player_rhythmbox_get_played_time (int *played_time)
 {
   /* ol_log_func (); */
-  ol_assert (played_time != NULL);
+  ol_assert_ret (played_time != NULL, FALSE);
   if (!played_time)
     return FALSE;
   if ((!proxy_player || !proxy_shell) && !ol_player_rhythmbox_init_dbus ())

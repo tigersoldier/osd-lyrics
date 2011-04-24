@@ -16,7 +16,6 @@
 
 #define BUFFER_SIZE 1024
 
-static gboolean firstrun = TRUE;
 typedef struct _OptionWidgets OptionWidgets;
 
 struct CheckButtonOptions
@@ -26,19 +25,94 @@ struct CheckButtonOptions
   const char *config_group;
 };
 
+struct RadioStringValues
+{
+  const char *widget_name;
+  const char *value;
+};
+
+struct RadioStringOptions
+{
+  const char *config_name;
+  const char *config_group;
+  struct RadioStringValues *values;
+};
+
+struct TogglePropertyOptions
+{
+  const char *toggle_widget;
+  const char *target_widget;
+  const char *property;
+  gboolean negated;
+};
+
+struct WidgetConfigOptions
+{
+  const char *widget_name;
+  const char *config_group;
+  const char *config_name;
+};
+
+struct ComboStringOptions
+{
+  const char *widget_name;
+  const char *config_group;
+  const char *config_name;
+  const char **values;
+};
+
+enum {
+  CHECK_OPT_DOWNLOAD_FIRST = 0,
+  CHECK_OPT_TRANSLUCENT_MOUSEOVER,
+  CHECK_OPT_NOTIFY_MUSIC,
+};
+
 static struct CheckButtonOptions check_button_options[] = {
   {"download-first-lyric", "download-first-lyric", "Download"},
   {"translucent-on-mouse-over", "translucent-on-mouse-over", "OSD"},
   {"notify-music", "notify-music", "General"},
 };
 
+static struct RadioStringValues proxy_values[] = {
+  {"proxy-no", "no"},
+  {"proxy-system", "system"},
+  {"proxy-manual", "manual"},
+  {NULL, NULL},
+};
+
+static struct RadioStringValues osd_window_mode_values[] = {
+  {.widget_name = "osd-window-mode-normal", .value = "normal"},
+  {.widget_name = "osd-window-mode-dock", .value = "dock"},
+  {NULL, NULL},
+};
+
+static struct RadioStringOptions radio_str_options[] = {
+  {.config_name = "proxy", .config_group = "Download", .values = proxy_values},
+  {.config_name = "osd-window-mode", .config_group = "OSD", .values = osd_window_mode_values},
+};
+
+static struct WidgetConfigOptions entry_str_options[] = {
+  {.widget_name = "proxy-host", .config_group = "Download", .config_name = "proxy-host"},
+  {.widget_name = "proxy-username", .config_group = "Download", .config_name = "proxy-username"},
+  {.widget_name = "proxy-passwd", .config_group = "Download", .config_name = "proxy-password"},
+};
+
+static struct WidgetConfigOptions spin_int_options[] = {
+  {.widget_name = "proxy-port", .config_group = "Download", .config_name = "proxy-port"},
+  {.widget_name = "outline-width", .config_group = "OSD", .config_name = "outline-width"},
+};
+
+static const char *proxy_types[] = {"http", "socks4", "socks5", NULL};
+
+static struct ComboStringOptions combo_str_options[] = {
+  {.widget_name = "proxy-type", .config_group = "Download", .config_name = "proxy-type", .values = proxy_types},
+};
+
 static struct _OptionWidgets
 {
-  GtkWidget *ok;
-  GtkWidget *cancel;
+  GtkWidget *close;
   GtkWidget *font;
   GtkWidget *outline_width;
-  GtkWidget *width;
   GtkWidget *lrc_align[2];
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
@@ -54,6 +128,8 @@ static struct _OptionWidgets
   GtkWidget *filename_menu;
   GtkWidget *startup_player;
   GtkWidget *startup_player_cb;
+  GtkWidget *display_mode_osd;
+  GtkWidget *display_mode_scroll;
 } options;
 
 static struct ListExtraWidgets
@@ -62,6 +138,7 @@ static struct ListExtraWidgets
   GtkWidget *add_button;
   GtkWidget *extra_button;
   GtkWidget *list;
+  void (*save_func) ();
 } lrc_path_widgets, lrc_filename_widgets;
 
 struct ListExtraButton
@@ -78,13 +155,47 @@ enum TreeColumns {
   N_COLUMN,
 };
 
-void ol_option_about_clicked (GtkWidget *widget, gpointer data);
-void ol_option_ok_clicked (GtkWidget *widget);
-void ol_option_cancel_clicked (GtkWidget *widget);
+static struct TogglePropertyOptions toggle_properties[] = {
+  {"proxy-manual", "align-proxy-manual", "sensitive", FALSE},
+  {"show-proxy-passwd", "proxy-passwd", "visibility", FALSE},
+};
+
+static void save_check_button_option (struct CheckButtonOptions* opt);
+/* General options */
+void ol_option_display_mode_changed (GtkToggleButton *togglebutton,
+                                     gpointer user_data);
+void ol_option_notify_music_changed (GtkToggleButton *togglebutton,
+                                     gpointer user_data);
+void ol_option_startup_player_changed (GtkComboBox *cb,
+                                       gpointer user_data);
+void ol_option_save_startup_player ();
+static void init_startup_player (GtkWidget *widget);
+/* OSD options */
+void ol_option_font_changed (GtkWidget *widget);
 void ol_option_update_preview (GtkWidget *widget);
 void ol_option_preview_expose (GtkWidget *widget,
                                GdkEventExpose *event,
                                gpointer data);
+void ol_option_osd_outline_changed (GtkSpinButton *spinbutton,
+                                    gpointer user_data);
+void ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
+                                       gpointer user_data);
+void ol_option_mouseover_changed (GtkToggleButton *togglebutton,
+                                  gpointer user_data);
+void ol_option_osd_alignment_changed (GtkRange *range,
+                                      gpointer user_data);
+void ol_option_osd_color_changed (GtkColorButton *widget,
+                                  gpointer user_data);
+/* Path options */
+void ol_option_save_path_pattern ();
+void ol_option_save_file_pattern ();
+/* Download options */
+void ol_option_download_engine_changed (GtkComboBox *cb,
+                                        gpointer user_data);
+void ol_option_download_first_changed (GtkToggleButton *togglebutton,
+                                       gpointer user_data);
+void ol_option_about_clicked (GtkWidget *widget, gpointer data);
+void ol_option_close_clicked (GtkWidget *widget);
 void ol_option_lrc_filename_changed (GtkEditable *editable,
                                      gpointer user_data);
 void ol_option_menu_title_activate (GtkMenuItem *menuitem,
@@ -97,12 +208,8 @@ void ol_option_menu_number_activate (GtkMenuItem *menuitem,
                                     gpointer user_data);
 void ol_option_menu_filename_activate (GtkMenuItem *menuitem,
                                     gpointer user_data);
-void ol_option_startup_player_changed (GtkComboBox *cb,
-                                       gpointer user_data);
 static void ol_option_list_add_clicked (GtkButton *button,
                                         struct ListExtraWidgets *widgets);
-static void ol_option_list_remove_clicked (GtkButton *button,
-                                           struct ListExtraWidgets *widgets);
 void ol_option_filename_clicked (GtkButton *button,
                                  struct ListExtraWidgets *widgets);
 void ol_option_path_clicked (GtkButton *button,
@@ -119,13 +226,6 @@ static void set_list_content (GtkTreeView *view, char **list);
 static void list_remove_clicked (GtkCellRenderer *cell,
                                  gchar *path,
                                  GtkTreeView *view);
-static void list_browse_clicked (GtkCellRenderer *cell,
-                                 gchar *path,
-                                 GtkTreeView *view);
-static void list_pattern_clicked (GtkCellRenderer *cell,
-                                  gchar *path,
-                                  GtkTreeView *view);
-static void init_startup_player (GtkWidget *widget);
 
 /** 
  * @brief Get font family and font size from a GtkFontButton
@@ -138,16 +238,52 @@ static void init_startup_player (GtkWidget *widget);
 static void ol_option_get_font_info (GtkFontButton *font,
                                      gchar **font_family,
                                      double *font_size);
-static void save_osd ();
 static void load_osd ();
-static void save_download ();
 static void load_download ();
-static void save_general ();
 static void load_general ();
 static void load_check_button_options ();
-static void save_check_button_options ();
+static void load_radio_str_options ();
+static void load_entry_str_options ();
+static void load_spin_int_options ();
+static void load_combo_str_options ();
 static void init_list (struct ListExtraWidgets *widgets,
                        struct ListExtraButton *buttons);
+static void init_signals ();
+static void init_toggle_properties ();
+static void radio_str_changed (GtkToggleButton *button,
+                               struct RadioStringOptions *option);
+static void toggle_set_property (GtkToggleButton *widget,
+                                 struct TogglePropertyOptions *option);
+static void entry_str_changed (GtkEditable *widget,
+                               struct WidgetConfigOptions *option);
+static void spin_int_changed (GtkSpinButton *widget,
+                              struct WidgetConfigOptions *option);
+static void combo_str_changed (GtkComboBox *widget,
+                               struct ComboStringOptions *option);
+
+/* General Options */
+void
+ol_option_display_mode_changed (GtkToggleButton *togglebutton,
+                                gpointer user_data)
+{
+  if (gtk_toggle_button_get_active (togglebutton))
+  {
+    const char *mode = "OSD";
+    if (GTK_WIDGET(togglebutton) == options.display_mode_scroll)
+      mode = "scroll";
+    ol_config_set_string (ol_config_get_instance (),
+                          "General",
+                          "display-mode",
+                          mode);
+  }
+}
+
+void
+ol_option_notify_music_changed (GtkToggleButton *togglebutton,
+                                gpointer user_data)
+{
+  save_check_button_option (&check_button_options[CHECK_OPT_NOTIFY_MUSIC]);
+}
 
 void
 ol_option_startup_player_changed (GtkComboBox *cb,
@@ -176,6 +312,258 @@ ol_option_startup_player_changed (GtkComboBox *cb,
       gtk_widget_grab_focus (options.startup_player);
     }
   }
+  ol_option_save_startup_player ();
+}
+
+void
+ol_option_save_startup_player ()
+{
+  if (options.startup_player != NULL)
+  {
+    ol_config_set_string (ol_config_get_instance (),
+                          "General",
+                          "startup-player",
+                          gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
+  }
+}
+
+/* OSD options */
+void
+ol_option_font_changed (GtkWidget *widget)
+{
+  GtkFontButton *font = GTK_FONT_BUTTON (widget);
+  if (font != NULL)
+  {
+    OlConfig *config = ol_config_get_instance ();
+    gchar *font_family = NULL;
+    double font_size;
+    ol_option_get_font_info (font, &font_family, &font_size);
+    ol_config_set_string (config,
+                          "OSD",
+                          "font-family",
+                          font_family);
+    ol_config_set_double (config,
+                          "OSD",
+                          "font-size",
+                          font_size);
+    g_free (font_family);
+  }
+}
+
+void
+ol_option_update_preview (GtkWidget *widget)
+{
+  gtk_widget_queue_draw (options.osd_preview);
+}
+
+void
+ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+  ol_assert (options.font != NULL);
+  static const char *preview_text = "OSD Lyrics";
+  cairo_t *cr = gdk_cairo_create (widget->window);
+  gchar *font_family = NULL;
+  double font_size;
+  ol_option_get_font_info (GTK_FONT_BUTTON (options.font), &font_family, &font_size);
+  static OlOsdRenderContext *render = NULL;
+  render = ol_osd_render_context_new ();
+  ol_osd_render_set_font_family (render, font_family);
+  ol_osd_render_set_font_size (render, font_size);
+  if (options.outline_width != NULL)
+  {
+    int outline = gtk_spin_button_get_value (GTK_SPIN_BUTTON (options.outline_width));
+    ol_osd_render_set_outline_width (render, outline);
+  }
+  int tw, th, w, h;
+  gdk_drawable_get_size (widget->window, &w, &h);
+  ol_osd_render_get_pixel_size (render, preview_text, &tw, &th);
+  double x = (w - tw) / 2.0;
+  double y = (h - th) / 2.0;
+  int i;
+  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+  {
+    if (options.active_lrc_color[i] != NULL)
+    {
+      OlColor color;
+      GdkColor c;
+      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.active_lrc_color[i]),
+                                  &c);
+      color = ol_color_from_gdk_color (c);
+      ol_osd_render_set_linear_color (render, i, color);
+    }
+  }
+  cairo_save (cr);
+  cairo_rectangle (cr, 0, 0, w / 2, h);
+  cairo_clip (cr);
+  ol_osd_render_paint_text (render, cr, preview_text, x, y);
+  cairo_restore (cr);
+  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+  {
+    if (options.inactive_lrc_color[i] != NULL)
+    {
+      OlColor color;
+      GdkColor c;
+      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.inactive_lrc_color[i]),
+                                  &c);
+      color.r = c.red / 65535.0;
+      color.g = c.green / 65535.0;
+      color.b = c.blue / 65535.0;
+      ol_osd_render_set_linear_color (render, i, color);
+    }
+  }
+  cairo_save (cr);
+  cairo_rectangle (cr, w / 2, 0, w / 2, h);
+  cairo_clip (cr);
+  ol_osd_render_paint_text (render, cr, preview_text, x, y);
+  cairo_restore (cr);
+  ol_osd_render_context_destroy (render);
+  cairo_destroy (cr);
+  g_free (font_family);
+}
+
+void
+ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
+                                  gpointer user_data)
+{
+  int i;
+  if (gtk_toggle_button_get_active (togglebutton))
+    for (i = 0; i < 2; i++)
+      if (GTK_WIDGET (togglebutton) == options.line_count[i])
+      {
+        ol_config_set_int (ol_config_get_instance (),
+                           "OSD",
+                           "line-count", i + 1);
+        return;
+      }
+}
+
+void
+ol_option_mouseover_changed (GtkToggleButton *togglebutton,
+                             gpointer user_data)
+{
+  save_check_button_option (&check_button_options[CHECK_OPT_TRANSLUCENT_MOUSEOVER]);
+}
+
+void
+ol_option_osd_alignment_changed (GtkRange *range,
+                                 gpointer user_data)
+{
+  int i;
+  for (i = 0; i < 2; i++)
+  {
+    if (GTK_WIDGET (range) == options.lrc_align[i])
+    {
+      char buffer[20];
+      sprintf (buffer, "lrc-align-%d", i);
+      ol_config_set_double (ol_config_get_instance (),
+                            "OSD",
+                            buffer, 
+                            gtk_range_get_value (range));
+
+    }
+  }
+}
+
+void
+ol_option_osd_color_changed (GtkColorButton *widget,
+                             gpointer user_data)
+{
+  int i;
+  OlConfig *config = ol_config_get_instance ();
+  GtkWidget **color_widgets[] =
+    {options.active_lrc_color, options.inactive_lrc_color};
+  char *color_props[] =
+    {"active-lrc-color", "inactive-lrc-color"};
+  int k;
+  OlColor colors[OL_LINEAR_COLOR_COUNT];
+  for (k = 0; k < 2; k++)
+  {
+    for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
+    {
+      if (color_widgets[k][i] != NULL)
+      {
+        GtkColorButton *color_button = GTK_COLOR_BUTTON (color_widgets[k][i]);
+        GdkColor color;
+        gtk_color_button_get_color (color_button, &color);
+        colors[i] = ol_color_from_gdk_color (color);
+      }
+    }
+    char **lrc_color_str = ol_color_to_str_list (colors, OL_LINEAR_COLOR_COUNT);
+    ol_config_set_str_list (config,
+                            "OSD",
+                            color_props[k],
+                            (const char**)lrc_color_str,
+                            OL_LINEAR_COLOR_COUNT);
+    g_strfreev (lrc_color_str);
+  }
+}
+
+/* Path options */
+void
+ol_option_save_path_pattern ()
+{
+  OlConfig *config = ol_config_get_instance ();
+  if (options.lrc_path != NULL)
+  {
+    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
+    char **list = get_list_content (view);
+    if (list)
+    {
+      ol_config_set_str_list (config,
+                              "General",
+                              "lrc-path",
+                              (const char **)list,
+                              g_strv_length (list));
+      g_strfreev (list);
+    }
+  }
+}
+
+void
+ol_option_save_file_pattern ()
+{
+  OlConfig *config = ol_config_get_instance ();
+  if (options.lrc_filename != NULL)
+  {
+    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_filename);
+    char **list = get_list_content (view);
+    if (list != NULL)
+    {
+      ol_config_set_str_list (config,
+                              "General",
+                              "lrc-filename",
+                              (const char **)list,
+                              g_strv_length (list));
+      g_strfreev (list);
+    }
+  }
+}
+
+/* Download options */
+void
+ol_option_download_engine_changed (GtkComboBox *cb,
+                                   gpointer user_data)
+{
+  OlConfig *config = ol_config_get_instance ();
+  const char *engine = ol_lrc_engine_list_get_name (options.download_engine);
+  if (engine != NULL)
+  {
+    ol_config_set_string (config, 
+                          "Download", 
+                          "download-engine", 
+                          engine);
+  }
+  else
+  {
+    ol_error ("Failed to get the name of engine");
+  }
+}
+
+void
+ol_option_download_first_changed (GtkToggleButton *togglebutton,
+                                  gpointer user_data)
+{
+  save_check_button_option (&check_button_options[CHECK_OPT_DOWNLOAD_FIRST]);
 }
 
 void
@@ -239,25 +627,6 @@ ol_option_list_add_clicked (GtkButton *button,
   gtk_tree_selection_select_iter (selection, &iter);
   if (widgets->entry)
     gtk_widget_grab_focus (widgets->entry);
-}
-
-static void
-ol_option_list_remove_clicked (GtkButton *button,
-                               struct ListExtraWidgets *widgets)
-{
-  ol_assert (button != NULL);
-  ol_assert (widgets != NULL);
-  if (button == NULL || widgets == NULL)
-    return;
-  if (widgets->list == NULL)
-    return;
-  GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widgets->list));
-  GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (widgets->list));
-  GtkTreeIter iter;
-  gboolean selected = gtk_tree_selection_get_selected (selection, NULL, &iter);
-  if (!selected)
-    return;
-  gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 }
 
 void
@@ -393,77 +762,6 @@ ol_option_list_select_changed (GtkTreeSelection *selection, gpointer data)
   }
 }
 
-void
-ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
-{
-  ol_assert (options.font != NULL);
-  static const char *preview_text = "OSD Lyrics";
-  cairo_t *cr = gdk_cairo_create (widget->window);
-  gchar *font_family = NULL;
-  double font_size;
-  ol_option_get_font_info (GTK_FONT_BUTTON (options.font), &font_family, &font_size);
-  static OlOsdRenderContext *render = NULL;
-  render = ol_osd_render_context_new ();
-  ol_osd_render_set_font_family (render, font_family);
-  ol_osd_render_set_font_size (render, font_size);
-  if (options.outline_width != NULL)
-  {
-    int outline = gtk_spin_button_get_value (GTK_SPIN_BUTTON (options.outline_width));
-    ol_osd_render_set_outline_width (render, outline);
-  }
-  int tw, th, w, h;
-  gdk_drawable_get_size (widget->window, &w, &h);
-  ol_osd_render_get_pixel_size (render, preview_text, &tw, &th);
-  double x = (w - tw) / 2.0;
-  double y = (h - th) / 2.0;
-  int i;
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    if (options.active_lrc_color[i] != NULL)
-    {
-      OlColor color;
-      GdkColor c;
-      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.active_lrc_color[i]),
-                                  &c);
-      color = ol_color_from_gdk_color (c);
-      ol_osd_render_set_linear_color (render, i, color);
-    }
-  }
-  cairo_save (cr);
-  cairo_rectangle (cr, 0, 0, w / 2, h);
-  cairo_clip (cr);
-  ol_osd_render_paint_text (render, cr, preview_text, x, y);
-  cairo_restore (cr);
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    if (options.inactive_lrc_color[i] != NULL)
-    {
-      OlColor color;
-      GdkColor c;
-      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.inactive_lrc_color[i]),
-                                  &c);
-      color.r = c.red / 65535.0;
-      color.g = c.green / 65535.0;
-      color.b = c.blue / 65535.0;
-      ol_osd_render_set_linear_color (render, i, color);
-    }
-  }
-  cairo_save (cr);
-  cairo_rectangle (cr, w / 2, 0, w / 2, h);
-  cairo_clip (cr);
-  ol_osd_render_paint_text (render, cr, preview_text, x, y);
-  cairo_restore (cr);
-  ol_osd_render_context_destroy (render);
-  cairo_destroy (cr);
-  g_free (font_family);
-}
-
-void
-ol_option_update_preview (GtkWidget *widget)
-{
-  gtk_widget_queue_draw (options.osd_preview);
-}
-
 static void
 ol_option_update_widget (OptionWidgets *widgets)
 {
@@ -471,6 +769,11 @@ ol_option_update_widget (OptionWidgets *widgets)
   load_download ();
   load_general ();
   load_check_button_options ();
+  load_radio_str_options ();
+  load_entry_str_options ();
+  load_spin_int_options ();
+  load_combo_str_options ();
+  init_toggle_properties ();
 }
 
 static void
@@ -488,20 +791,6 @@ load_osd ()
     gtk_font_button_set_font_name (font, font_name);
     g_free (font_name);
     g_free (font_family);
-  }
-  /* Outline Width */
-  GtkSpinButton *outline_widget = GTK_SPIN_BUTTON (options.outline_width);
-  if (outline_widget != NULL)
-  {
-    gtk_spin_button_set_value (outline_widget,
-                               ol_config_get_int (config, "OSD", "outline-width"));
-  }
-  /* Updates Width */
-  GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
-  if (width_widget != NULL)
-  {
-    gtk_spin_button_set_value (width_widget,
-                               ol_config_get_int (config, "OSD", "width"));
   }
   /* Lrc align */
   for (i = 0; i < 2; i++)
@@ -551,6 +840,186 @@ load_osd ()
 }
 
 static void
+init_signals ()
+{
+  int i;
+  /* Connect RadioButton signals for string options */
+  for (i = 0; i < G_N_ELEMENTS (radio_str_options); i++)
+  {
+    struct RadioStringValues *value = radio_str_options[i].values;
+    if (value == NULL)
+      continue;
+    for (; value->widget_name != NULL && value->value != NULL; value++)
+    {
+      GtkToggleButton *radio_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (value->widget_name)); 
+      if (radio_button != NULL)
+      {
+        g_signal_connect (G_OBJECT (radio_button),
+                          "toggled",
+                          G_CALLBACK (radio_str_changed),
+                          &radio_str_options[i]);
+      }
+    }
+  }
+
+  for (i = 0; i < G_N_ELEMENTS (toggle_properties); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (toggle_properties[i].toggle_widget);
+    if (GTK_IS_TOGGLE_BUTTON (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "toggled",
+                        G_CALLBACK (toggle_set_property),
+                        &toggle_properties[i]);
+    }
+  }
+  
+  for (i = 0; i < G_N_ELEMENTS (entry_str_options); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (entry_str_options[i].widget_name);
+    if (GTK_IS_EDITABLE (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "changed",
+                        G_CALLBACK (entry_str_changed),
+                        &entry_str_options[i]);
+    }
+  }
+  for (i = 0; i < G_N_ELEMENTS (spin_int_options); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (spin_int_options[i].widget_name);
+    if (GTK_IS_EDITABLE (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "value-changed",
+                        G_CALLBACK (spin_int_changed),
+                        &spin_int_options[i]);
+    }
+  }
+  
+  for (i = 0; i < G_N_ELEMENTS (combo_str_options); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (combo_str_options[i].widget_name);
+    if (GTK_IS_COMBO_BOX (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "changed",
+                        G_CALLBACK (combo_str_changed),
+                        &combo_str_options[i]);
+    }
+  }
+}
+
+static void
+init_toggle_properties ()
+{
+  int i;
+  for (i = 0; i < G_N_ELEMENTS (toggle_properties); i++)
+  {
+    toggle_set_property (NULL, &toggle_properties[i]);
+  }
+}
+
+static void
+toggle_set_property (GtkToggleButton *widget,
+                     struct TogglePropertyOptions *option)
+{
+  ol_assert (option != NULL);
+  if (widget == NULL)
+  {
+    widget = GTK_TOGGLE_BUTTON (ol_gui_get_widget (option->toggle_widget));
+  }
+  GtkWidget *target = ol_gui_get_widget (option->target_widget);
+  ol_assert (widget != NULL);
+  ol_assert (target != NULL);
+
+  GValue value = {0};
+  g_value_init (&value, G_TYPE_BOOLEAN);
+  gboolean prop = gtk_toggle_button_get_active (widget);
+  if (option->negated)
+    prop = !prop;
+  g_value_set_boolean (&value, prop);
+  g_object_set_property (G_OBJECT (target), option->property, &value);
+  g_value_unset (&value);
+}
+
+static void
+radio_str_changed (GtkToggleButton *button,
+                   struct RadioStringOptions *option)
+{
+  ol_assert (GTK_IS_TOGGLE_BUTTON (button));
+  ol_assert (option != NULL);
+  if (!gtk_toggle_button_get_active (button))
+    return;
+  OlConfig *config = ol_config_get_instance ();
+  const char *config_value = NULL;
+  struct RadioStringValues *value = option->values;
+  for (; value->widget_name != NULL && value->value != NULL; value++)
+  {
+    GtkToggleButton *radio_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (value->widget_name));
+    if (radio_button != NULL && gtk_toggle_button_get_active (radio_button))
+    {
+      config_value = value->value;
+      break;
+    }
+  }
+  if (config_value != NULL)
+  {
+    ol_config_set_string (config,
+                          option->config_group,
+                          option->config_name,
+                          config_value);
+  }
+}
+
+static void
+entry_str_changed (GtkEditable *widget,
+                   struct WidgetConfigOptions *option)
+{
+  ol_assert (GTK_IS_EDITABLE (widget));
+  ol_assert (option != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  char *value = gtk_editable_get_chars (widget, 0, -1);
+  ol_config_set_string (config,
+                        option->config_group,
+                        option->config_name,
+                        value);
+  g_free (value);
+}
+
+static void
+spin_int_changed (GtkSpinButton *widget,
+                  struct WidgetConfigOptions *option)
+{
+  ol_assert (GTK_IS_SPIN_BUTTON (widget));
+  ol_assert (option != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  int value = gtk_spin_button_get_value (widget);
+  ol_config_set_int (config,
+                     option->config_group,
+                     option->config_name,
+                     value);
+}
+
+static void
+combo_str_changed (GtkComboBox *widget,
+                   struct ComboStringOptions *option)
+{
+  ol_assert (GTK_IS_COMBO_BOX (widget));
+  ol_assert (option != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  int index = gtk_combo_box_get_active (widget);
+  if (index < g_strv_length ((char**)option->values))
+    ol_config_set_string (config,
+                          option->config_group,
+                          option->config_name,
+                          option->values[index]);
+  else
+    ol_errorf ("Index of combobox %s out of range. Value is %d\n",
+               option->widget_name, index);
+}
+
+static void
 load_check_button_options ()
 {
   int i = 0;
@@ -572,137 +1041,121 @@ load_check_button_options ()
 }
 
 static void
-save_check_button_options ()
+save_check_button_option (struct CheckButtonOptions* opt)
+{
+  ol_assert (opt != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (opt->widget_name));
+  ol_config_set_bool (config,
+                      opt->config_group,
+                      opt->config_name,
+                      gtk_toggle_button_get_active (check_button));
+}
+
+static void
+load_radio_str_options ()
 {
   int i = 0;
   OlConfig *config = ol_config_get_instance ();
   if (config == NULL)
     return;
-  for (i = 0; i < G_N_ELEMENTS (check_button_options); i++)
+  for (i = 0; i < G_N_ELEMENTS (radio_str_options); i++)
   {
-    GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (check_button_options[i].widget_name)); 
-    if (check_button_options != NULL)
+    char *config_value = ol_config_get_string (config,
+                                               radio_str_options[i].config_group,
+                                               radio_str_options[i].config_name);
+    if (config_value == NULL)
+      continue;
+    struct RadioStringValues *value = radio_str_options[i].values;
+    for (; value->widget_name != NULL && value->value != NULL; value++)
     {
-      ol_config_set_bool (config, 
-                          check_button_options[i].config_group,
-                          check_button_options[i].config_name,
-                          gtk_toggle_button_get_active (check_button));
+      if (strcmp (value->value, config_value) == 0)
+        break;
+    }
+    if (value->widget_name == NULL || value->value == NULL)
+      value = radio_str_options[i].values;
+    GtkToggleButton *radio_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (value->widget_name)); 
+    if (radio_button != NULL)
+    {
+      gtk_toggle_button_set_active (radio_button, TRUE);
+    }
+    g_free (config_value);
+  }
+}
+
+static void
+load_entry_str_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (entry_str_options); i++)
+  {
+    char *config_value = ol_config_get_string (config,
+                                               entry_str_options[i].config_group,
+                                               entry_str_options[i].config_name);
+    if (config_value == NULL)
+      continue;
+    GtkEntry *entry = GTK_ENTRY (ol_gui_get_widget (entry_str_options[i].widget_name)); 
+    if (entry != NULL)
+    {
+      gtk_entry_set_text (entry, config_value);
+    }
+    g_free (config_value);
+  }
+}
+
+static void
+load_spin_int_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (spin_int_options); i++)
+  {
+    int config_value = ol_config_get_int (config,
+                                          spin_int_options[i].config_group,
+                                          spin_int_options[i].config_name);
+    GtkSpinButton *spin = GTK_SPIN_BUTTON (ol_gui_get_widget (spin_int_options[i].widget_name)); 
+    if (spin != NULL)
+    {
+      gtk_spin_button_set_value (spin, config_value);
     }
   }
 }
 
 static void
-save_osd ()
+load_combo_str_options ()
 {
-  OlConfig *config = ol_config_get_instance ();
-  /* Updates Font */
-  GtkFontButton *font = GTK_FONT_BUTTON (options.font);
-  if (font != NULL)
-  {
-    gchar *font_family = NULL;
-    double font_size;
-    ol_option_get_font_info (font, &font_family, &font_size);
-    ol_config_set_string (config,
-                          "OSD",
-                          "font-family",
-                          font_family);
-    ol_config_set_double (config,
-                          "OSD",
-                          "font-size",
-                          font_size);
-    g_free (font_family);
-  }
-  /* Outline Width */
-  GtkSpinButton *outline_widget = GTK_SPIN_BUTTON (options.outline_width);
-  if (outline_widget != NULL)
-  {
-    ol_config_set_int (config,
-                       "OSD",
-                       "outline-width",
-                       gtk_spin_button_get_value (outline_widget));
-  }
-  /* Updates Width */
-  GtkSpinButton *width_widget = GTK_SPIN_BUTTON (options.width);
-  if (width_widget != NULL)
-  {
-    ol_config_set_int (config,
-                       "OSD",
-                       "width", gtk_spin_button_get_value (width_widget));
-                               
-  }
   int i;
-  for (i = 0; i < 2; i++)
-  {
-    GtkRange *lrc_align = GTK_RANGE (options.lrc_align[i]);
-    if (lrc_align != NULL)
-    {
-      char buffer[20];
-      sprintf (buffer, "lrc-align-%d", i);
-      ol_config_set_double (config,
-                            "OSD",
-                            buffer, 
-                            gtk_range_get_value (lrc_align));
-
-    }
-  }
-  /* [In]Active lrc color */
-  GtkWidget **color_widgets[] =
-    {options.active_lrc_color, options.inactive_lrc_color};
-  char *color_props[] =
-    {"active-lrc-color", "inactive-lrc-color"};
-  int k;
-  OlColor colors[OL_LINEAR_COLOR_COUNT];
-  for (k = 0; k < 2; k++)
-  {
-    for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-    {
-      if (color_widgets[k][i] != NULL)
-      {
-        GtkColorButton *color_button = GTK_COLOR_BUTTON (color_widgets[k][i]);
-        GdkColor color;
-        gtk_color_button_get_color (color_button, &color);
-        colors[i] = ol_color_from_gdk_color (color);
-      }
-    }
-    char **lrc_color_str = ol_color_to_str_list (colors, OL_LINEAR_COLOR_COUNT);
-    ol_config_set_str_list (config,
-                            "OSD",
-                            color_props[k],
-                            (const char**)lrc_color_str,
-                            OL_LINEAR_COLOR_COUNT);
-    g_strfreev (lrc_color_str);
-  }
-  /* OSD line count */
-  for (i = 0; i < 2; i++)
-  {
-    if (options.line_count[i] != NULL && GTK_IS_TOGGLE_BUTTON (options.line_count[i]))
-    {
-      if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (options.line_count[i])))
-      {
-        ol_config_set_int (config,
-                           "OSD",
-                           "line-count", i + 1);
-      }
-    }
-  }
-}
-
-static void
-save_download ()
-{
+  int index;
+  const char **combo_value;
+  GtkComboBox *combo;
   OlConfig *config = ol_config_get_instance ();
-  /* Download Engine */
-  const char *engine = ol_lrc_engine_list_get_name (options.download_engine);
-  if (engine != NULL)
+  for (i = 0; i < G_N_ELEMENTS (combo_str_options); i++)
   {
-    ol_config_set_string (config, 
-                          "Download", 
-                          "download-engine", 
-                          engine);
-  }
-  else
-  {
-    ol_error ("Failed to get the name of engine");
+    char *config_value = ol_config_get_string (config,
+                                               combo_str_options[i].config_group,
+                                               combo_str_options[i].config_name);
+    if (config_value == NULL)
+      continue;
+    combo = GTK_COMBO_BOX (ol_gui_get_widget (combo_str_options[i].widget_name));
+    if (combo == NULL)
+      continue;
+    combo_value = combo_str_options[i].values;
+    for (index = 0; *combo_value != NULL; index++, combo_value++)
+    {
+      if (strcmp (config_value, *combo_value) == 0)
+        break;
+    }
+    if (combo_value == NULL)
+      index = 0;
+    gtk_combo_box_set_active (combo, index);
+    g_free (config_value);
   }
 }
 
@@ -741,48 +1194,6 @@ get_list_content (GtkTreeView *view)
     } while (gtk_tree_model_iter_next (model, &iter));
   }
   return list;
-}
-
-static void
-save_general ()
-{
-  OlConfig *config = ol_config_get_instance ();
-  if (options.lrc_path != NULL)
-  {
-    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
-    char **list = get_list_content (view);
-    if (list)
-    {
-      ol_config_set_str_list (config,
-                              "General",
-                              "lrc-path",
-                              (const char **)list,
-                              g_strv_length (list));
-      g_strfreev (list);
-    }
-  }
-  if (options.lrc_filename != NULL)
-  {
-    GtkTreeView *view = GTK_TREE_VIEW (options.lrc_filename);
-    char **list = get_list_content (view);
-    if (list != NULL)
-    {
-      ol_config_set_str_list (config,
-                              "General",
-                              "lrc-filename",
-                              (const char **)list,
-                              g_strv_length (list));
-      g_strfreev (list);
-    }
-  }
-  /* Startup player */
-  if (options.startup_player != NULL)
-  {
-    ol_config_set_string (config,
-                          "General",
-                          "startup-player",
-                          gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
-  }
 }
 
 static void
@@ -855,7 +1266,9 @@ load_general ()
        struct OlPlayer **players = ol_player_get_players ();
        for (i = 0; players[i] != NULL; i++)
        {
-         if (strcmp (player_cmd, ol_player_get_cmd (players[i])) == 0)
+         const char *cmd = ol_player_get_cmd (players[i]);
+         if (cmd != NULL &&
+             strcmp (player_cmd, cmd) == 0)
          {
            gtk_combo_box_set_active (cb, i + 1);
           startup_custom = FALSE;
@@ -876,25 +1289,22 @@ load_general ()
                         player_cmd);
   }
   g_free (player_cmd);
+
+  char *display_mode = ol_config_get_string (config,
+                                             "General",
+                                             "display-mode");
+  if (options.display_mode_scroll != NULL &&
+      ol_stricmp (display_mode, "scroll", -1) == 0)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.display_mode_scroll),
+                                  TRUE);
+  else if (options.display_mode_osd != NULL)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.display_mode_osd),
+                                  TRUE);
+  g_free (display_mode);
 }
 
 void
-ol_option_ok_clicked (GtkWidget *widget)
-{
-  save_osd ();
-  save_download ();
-  save_general ();
-  save_check_button_options ();
-  /* Close dialog */
-  GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
-  if (GTK_WIDGET_TOPLEVEL (toplevel))
-  {
-    gtk_widget_hide (toplevel);
-  }
-}
-
-void
-ol_option_cancel_clicked (GtkWidget *widget)
+ol_option_close_clicked (GtkWidget *widget)
 {
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
   if (GTK_WIDGET_TOPLEVEL (toplevel))
@@ -987,6 +1397,21 @@ init_list (struct ListExtraWidgets *widgets,
   ol_option_list_select_changed (select, (gpointer) widgets);
   gtk_tree_view_set_reorderable (list, TRUE);
   /* Setup extra widgets (add, remove, text entry)*/
+  if (widgets->save_func != NULL)
+  {
+    g_signal_connect (G_OBJECT (store), "row-changed",
+                      G_CALLBACK (widgets->save_func),
+                      (gpointer) widgets);
+    g_signal_connect (G_OBJECT (store), "row-deleted",
+                      G_CALLBACK (widgets->save_func),
+                      (gpointer) widgets);
+    g_signal_connect (G_OBJECT (store), "row-inserted",
+                      G_CALLBACK (widgets->save_func),
+                      (gpointer) widgets);
+    g_signal_connect (G_OBJECT (store), "rows-reordered",
+                      G_CALLBACK (widgets->save_func),
+                      (gpointer) widgets);
+  }
   if (widgets->entry != NULL)
   {
     g_signal_connect (G_OBJECT (widgets->entry), "changed",
@@ -1024,22 +1449,6 @@ list_remove_clicked (GtkCellRenderer *cell,
     gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
   }
   gtk_tree_path_free (tree_path);
-}
-
-static void
-list_browse_clicked (GtkCellRenderer *cell,
-                     gchar *path,
-                     GtkTreeView *view)
-{
-  ol_log_func ();
-}
-
-static void
-list_pattern_clicked (GtkCellRenderer *cell,
-                      gchar *path,
-                      GtkTreeView *view)
-{
-  ol_log_func ();
 }
 
 static void
@@ -1124,11 +1533,11 @@ ol_option_show ()
     g_signal_connect (window, "delete-event",
                       G_CALLBACK (gtk_widget_hide_on_delete),
                       NULL);
-    options.ok = ol_gui_get_widget ("optionok");
-    options.cancel = ol_gui_get_widget ("optioncancel");
+    options.display_mode_osd = ol_gui_get_widget ("display-mode-osd");
+    options.display_mode_scroll = ol_gui_get_widget ("display-mode-scroll");
+    options.close = ol_gui_get_widget ("option-close");
     options.font = ol_gui_get_widget ("osd-font");
     options.outline_width = ol_gui_get_widget ("outline-width");
-    options.width = ol_gui_get_widget ("osd-width");
     options.lrc_align[0] = ol_gui_get_widget ("lrc-align-0");
     options.lrc_align[1] = ol_gui_get_widget ("lrc-align-1");
     options.active_lrc_color[0] = ol_gui_get_widget ("active-lrc-color-0");
@@ -1155,6 +1564,7 @@ ol_option_show ()
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_gui_get_widget ("add-lrc-path");
     lrc_path_widgets.extra_button = ol_gui_get_widget ("lrc-path-browse");
+    lrc_path_widgets.save_func = ol_option_save_path_pattern;
     struct ListExtraButton path_buttons[] = {
       /* {GTK_STOCK_DIRECTORY, list_browse_clicked}, */
       {NULL, NULL},
@@ -1165,6 +1575,7 @@ ol_option_show ()
     lrc_filename_widgets.list = options.lrc_filename;
     lrc_filename_widgets.add_button = ol_gui_get_widget ("add-lrc-filename");
     lrc_filename_widgets.extra_button = ol_gui_get_widget ("lrc-filename-pattern");
+    lrc_filename_widgets.save_func = ol_option_save_file_pattern;
     struct ListExtraButton file_buttons[] = {
       /* {GTK_STOCK_INFO, list_pattern_clicked}, */
       {NULL, NULL},
@@ -1180,7 +1591,7 @@ ol_option_show ()
                                                         GTK_RESPONSE_ACCEPT,
                                                         NULL);
 #if GTK_CHECK_VERSION (2, 18, 0)
-  gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
+    gtk_file_chooser_set_create_folders (GTK_FILE_CHOOSER (options.path_chooser),
                                          TRUE);
 #endif
     options.filename_menu = ol_gui_get_widget ("filename-pattern-popup");
@@ -1188,7 +1599,8 @@ ol_option_show ()
     gtk_button_box_set_child_secondary (GTK_BUTTON_BOX (ol_gui_get_widget ("dialog-action_area2")),
                                         ol_gui_get_widget ("option-aboug"),
                                         TRUE);
+    init_signals ();
   }
   ol_option_update_widget (&options);
-  gtk_dialog_run (GTK_DIALOG (window));
+  gtk_widget_show (GTK_WIDGET (window));
 }

@@ -44,6 +44,6 @@ inline void* PR_Malloc(size_t len)
     return malloc(len);
 }
 
-#define PR_FREEIF(p) do { if (p) delete p; } while(0)
+#define PR_FREEIF(p) do { if (p) free(p); } while(0)
 
 #endif

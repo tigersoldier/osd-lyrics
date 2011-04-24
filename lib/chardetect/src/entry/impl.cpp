@@ -68,7 +68,7 @@ public:
 
     virtual ~DllDetector()
     {
-	if (charset_) delete charset_;
+        if (charset_) free(charset_);
     }
 
     virtual void Report(const char* charset)

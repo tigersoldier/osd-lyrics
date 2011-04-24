@@ -171,7 +171,6 @@ ol_music_info_serialize (OlMusicInfo *music_info,
                          size_t count)
 {
   ol_assert_ret (music_info != NULL, 0);
-  static const char empty_string[] = "";
   int cnt = 0;
   if (buffer == NULL)
   {

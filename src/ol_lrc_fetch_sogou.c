@@ -50,10 +50,10 @@ ol_lrc_fetch_sogou_search(const OlMusicInfo *info, int *size, const char* charse
   char artist_buf[BUFSIZE];
   char buf[BUFSIZE], buf2[BUFSIZE];
   char tmpfilenam[] = "/tmp/tmplrc-XXXXXX";
-  char *ptitle, *partist;
+
   char *ptr, *tp, *p;
   FILE *fp;
-  int fd, ret, bl1, bl2, count=0;
+  int fd, ret, count=0;
 
   memset(result, 0, sizeof(result));
 

@@ -1,5 +1,5 @@
 check_PROGRAMS = \
-	ol_osd_test \
+	ol_osd_window_test \
 	ol_player_test\
 	ol_lrc_parser_test\
 	ol_lrc_test \
@@ -12,7 +12,8 @@ check_PROGRAMS = \
 	ol_utils_cmdline_test \
 	ol_fork_test \
 	ol_music_info_test \
-	ol_lrclib_test
+	ol_lrclib_test \
+	ol_utils_dbus_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -20,11 +21,14 @@ INCLUDES = @GTK2_CFLAGS@ \
 	@XMMS2_CFLAGS@ \
 	@SQLITE_CFLAGS@ \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/tests \
 	-I$(top_srcdir)/lib/chardetect/include
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
 	-DGUIDIR='"$(OL_GUIDIR)"'
+AM_LDFLAGS = \
+	-L$(top_builddir)/lib/chardetect
 LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -32,14 +36,18 @@ LDADD = \
 	@MPD_LIBS@ \
 	@CURL_LIBS@ \
 	@SQLITE_LIBS@ \
-	$(top_srcdir)/lib/chardetect/chardetect.a \
+	-lchardetect \
 	-lstdc++
+
+noinst_HEADERS = \
+	ol_test_util.h
+
 # Tests
 ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c
 
-ol_osd_test_SOURCES = ol_osd_test.c \
+ol_osd_window_test_SOURCES = ol_osd_window_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
 	$(top_srcdir)/src/ol_osd_render.c \
 	$(top_srcdir)/src/ol_debug.c \
@@ -58,6 +66,8 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_exaile03.c \
 	$(top_srcdir)/src/ol_player_audacious.c \
 	$(top_srcdir)/src/ol_player_rhythmbox.c \
+	$(top_srcdir)/src/ol_player_guayadeque02.c \
+	$(top_srcdir)/src/ol_player_muine.c \
 	$(top_srcdir)/src/ol_player_mpd.c \
 	$(top_srcdir)/src/ol_player_moc.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
@@ -65,6 +75,11 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_quodlibet.c \
 	$(top_srcdir)/src/ol_player_juk.c \
 	$(top_srcdir)/src/ol_player_qmmp.c \
+	$(top_srcdir)/src/ol_player_clementine.c \
+	$(top_srcdir)/src/ol_player_listen.c \
+	$(top_srcdir)/src/ol_player_deciber.c \
+	$(top_srcdir)/src/ol_player_gmusicbrowser.c \
+	$(top_srcdir)/src/ol_player_vlc.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
@@ -167,3 +182,8 @@ ol_lrclib_test_SOURCES = \
 	$(top_srcdir)/src/ol_lrclib.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c
+
+ol_utils_dbus_test_SOURCES = \
+	ol_utils_dbus_test.c \
+	$(top_srcdir)/src/ol_debug.c \
+	$(top_srcdir)/src/ol_utils_dbus.c

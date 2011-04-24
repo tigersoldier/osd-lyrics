@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include "config.h"
 #include "ol_player.h"
@@ -5,6 +6,12 @@
 #include "ol_player_banshee.h"
 #include "ol_player_exaile02.h"
 #include "ol_player_exaile03.h"
+#include "ol_player_listen.h"
+#include "ol_player_clementine.h"
+#include "ol_player_guayadeque02.h"
+#include "ol_player_deciber.h"
+#include "ol_player_gmusicbrowser.h"
+#include "ol_player_vlc.h"
 #ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
 #endif  /* ENABLE_AMAROK1 */
@@ -22,6 +29,8 @@
 #include "ol_player_quodlibet.h"
 #include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
+#include "ol_player_muine.h"
+#include "ol_player_mpris2.h"
 
 static GArray *players = NULL;
 
@@ -39,10 +48,17 @@ ol_player_init ()
     ol_player_register (ol_player_exaile02_get ());
     ol_player_register (ol_player_exaile03_get ());
     ol_player_register (ol_player_audacious_get ());
-    ol_player_register (ol_player_songbird_get ()); 
+    ol_player_register (ol_player_songbird_get ());
+    ol_player_register (ol_player_clementine_get ());
+    ol_player_register (ol_player_listen_get ());
+    ol_player_register (ol_player_guayadeque02_get ());
+    ol_player_register (ol_player_deciber_get ());
+    ol_player_register (ol_player_gmusicbrowser_get ());
+    ol_player_register (ol_player_vlc_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
+    ol_player_register (ol_player_mpris2_get ());
     ol_player_register (ol_player_rhythmbox_get ());
 #ifdef ENABLE_MPD
     ol_player_register (ol_player_mpd_get ());
@@ -51,6 +67,9 @@ ol_player_init ()
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_qmmp_get ());
     ol_player_register (ol_player_juk_get ());
+    ol_player_register (ol_player_muine_get ());
+
+
   }
 }
 
@@ -70,6 +89,7 @@ ol_player_get_players ()
   struct OlPlayer **ret = g_new0 (struct OlPlayer *,
                                   players->len + 1);
   int i;
+  
   for (i = 0; i < players->len; i++)
   {
     ret[i] = g_array_index (players, struct OlPlayer*, i);
@@ -113,7 +133,13 @@ ol_player_get_music_info (struct OlPlayer *player, OlMusicInfo *info)
 {
   if (player == NULL)
     return FALSE;
-  return player->get_music_info (info);
+  gboolean s =player->get_music_info (info);
+  /*ol_debugf ("title:%s\n", info->title);
+  ol_debugf ("artist:%s\n", info->artist);
+  ol_debugf ("album:%s\n", info->album);
+  ol_debugf ("track_number:%d\n", info->track_number);
+  ol_debugf ("uri:%s\n", info->uri);*/
+  return s;
 }
 
 gboolean
@@ -129,7 +155,8 @@ ol_player_get_played_time (struct OlPlayer *player, int *played_time)
 {
   if (player == NULL)
     return FALSE;
-  return player->get_played_time (played_time);
+  gboolean s = player->get_played_time (played_time);
+  return s;
 }
 
 gboolean
@@ -152,6 +179,7 @@ ol_player_get_status (struct OlPlayer *player)
 
 int
 ol_player_get_capacity (struct OlPlayer *player)
+    
 {
   if (player == NULL)
     return -1;

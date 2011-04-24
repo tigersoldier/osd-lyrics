@@ -21,7 +21,6 @@ static const char *icon_paths[] = {
 static gboolean ol_player_xmms2_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_xmms2_get_played_time (int *played_time);
 static gboolean ol_player_xmms2_get_music_length (int *len);
-static gboolean ol_player_xmms2_conenct ();
 static gboolean ol_player_xmms2_ensure_connection ();
 static gboolean ol_player_xmms2_get_activated ();
 static enum OlPlayerStatus ol_player_xmms2_get_status ();
@@ -160,6 +159,7 @@ xmmsv_dict_get_string (xmmsv_t *dictv, const char *key, const char **val)
 static xmmsv_t *
 xmmsv_propdict_to_dict (xmmsv_t *propdict, const char **src_prefs)
 {
+  xmmsv_ref (propdict);
   return propdict;
 }
 
@@ -345,7 +345,6 @@ ol_player_xmms2_get_dict_string (xmmsv_t *dict, const char *key)
   ol_assert_ret (dict != NULL, NULL);
   ol_assert_ret (key != NULL, NULL);
   const char *val = NULL;
-  xmmsv_t *dict_entry = NULL;
   if (xmmsv_dict_get_string (dict, key, &val))
   {
     return g_strdup (val);
@@ -360,7 +359,6 @@ ol_player_xmms2_get_dict_int (xmmsv_t *dict, const char *key)
   ol_assert_ret (dict != NULL, 0);
   ol_assert_ret (key != NULL, 0);
   int32_t val = 0;
-  xmmsv_t *dict_entry = NULL;
   if (xmmsv_dict_get_int (dict, key, &val))
   {
     return val;
@@ -405,6 +403,7 @@ ol_player_xmms2_get_music_info (OlMusicInfo *info)
                info->artist,
                info->album,
                info->uri);
+      xmmsv_unref (dict);
     }
     xmmsc_result_unref (result);
   }
@@ -424,6 +423,7 @@ ol_player_xmms2_get_played_time (int *played_time)
   if (xmmsv_is_error (return_value))
   {
     ol_error ("Get played time from XMMS2 failed");
+    xmmsc_result_unref (result);
     return FALSE;
   }
   int32_t elapsed = 0;
@@ -456,6 +456,7 @@ ol_player_xmms2_get_music_length (int *len)
     {
       xmmsv_t *dict = xmmsv_propdict_to_dict (return_value, NULL);
       *len = ol_player_xmms2_get_dict_int (return_value, "duration");
+      xmmsv_unref (dict);
     }
     xmmsc_result_unref (result);
   }

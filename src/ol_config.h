@@ -47,7 +47,7 @@ GType ol_config_get_type (void);
  * 
  * @return An instance of OlConfig, should not be freed
  */
-OlConfig* ol_config_get_instance ();
+OlConfig* ol_config_get_instance (void);
 
 /** 
  * @brief Sets an boolean property of the config
@@ -71,6 +71,11 @@ gboolean ol_config_set_bool (OlConfig *config, const char *group, const char *na
  * @return If succeed, returns TRUE
  */
 gboolean ol_config_set_int (OlConfig *config, const char *group, const char *name, int value);
+
+gboolean ol_config_set_int_no_emit (OlConfig *config,
+                                    const char *group,
+                                    const char *name,
+                                    int value);
 
 /** 
  * @brief Sets a double property of the config
@@ -108,7 +113,7 @@ gboolean ol_config_set_str_list (OlConfig *config,
                                  const char *group,
                                  const char *name,
                                  const char **value,
-                                 int len);
+                                 gsize len);
 
 /** 
  * @brief Gets a boolean property of the config
@@ -167,7 +172,7 @@ char* ol_config_get_string (OlConfig *config, const char *group, const char *nam
 char** ol_config_get_str_list (OlConfig *config,
                                const char *group,
                                const char *name,
-                               int *len);
+                               gsize *len);
 
 /** 
  * @brief Flush config value into config file
@@ -187,6 +192,6 @@ void ol_config_load (OlConfig *config);
  * @brief Unload config module
  * 
  */
-void ol_config_unload ();
+void ol_config_unload (void);
 
 #endif /* _OL_CONFIG_H_ */

@@ -3,6 +3,7 @@
 #include "ol_lyric_manage.h"
 #include "ol_path_pattern.h"
 #include "ol_config.h"
+#include "ol_utils.h"
 #include "ol_debug.h"
 
 static gboolean internal_for_each (OlMusicInfo *info,
@@ -16,7 +17,7 @@ internal_for_each (OlMusicInfo *info,
 {
   ol_log_func ();
   OlConfig *config = ol_config_get_instance ();
-  int pathlen, namelen;
+  gsize pathlen, namelen;
   char **path_list = ol_config_get_str_list (config, "General", "lrc-path", &pathlen);
   char **name_list = ol_config_get_str_list (config, "General", "lrc-filename", &namelen);
   if (path_list == NULL || name_list == NULL)

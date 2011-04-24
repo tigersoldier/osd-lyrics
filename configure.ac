@@ -20,6 +20,7 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
 	Makefile
 	lib/Makefile
+        lib/chardetect/Makefile
 	dailydeb.sh
 	src/Makefile
 	src/tests/Makefile
@@ -93,6 +94,9 @@ PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([NOTIFY], [libnotify])
+PKG_CHECK_EXISTS([libnotify >= 0.7], 
+  AC_DEFINE(HAVE_LIBNOTIFY_0_7, 1, [Have libnotify >= 0.7]))
+
 PKG_CHECK_MODULES([SQLITE], [sqlite3 >= 3.3.0])
 MPD_CFLAGS=
 MPD_LIBS=
@@ -148,8 +152,11 @@ fi
 AM_CONDITIONAL(HAVE_APP_INDICATOR, test x"$enable_appindicator" = xyes)
 
 # i18n support from GNU gettext.
-AM_GNU_GETTEXT_VERSION([0.17])
-AM_GNU_GETTEXT([external])
+GETTEXT_PACKAGE=osd-lyrics
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
+IT_PROG_INTLTOOL([0.35.0])
+AM_GLIB_GNU_GETTEXT
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
@@ -159,5 +166,3 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 # Checks for library functions.
 
 AC_OUTPUT
-
-chmod +x dailydeb.sh

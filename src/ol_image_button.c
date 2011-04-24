@@ -81,7 +81,7 @@ ol_image_button_expose (GtkWidget *widget,
   else
   {
     cairo_t *cr = gdk_cairo_create (event->window);
-    int w, h, sw, sh, mx, my, x, y, sx, sy;
+    int w, h, sw, sh, mx, my, x, y;
     w = event->area.width; h = event->area.height;
     mx = event->area.x + event->area.width / 2;
     my = event->area.y + event->area.height / 2;
@@ -147,6 +147,7 @@ ol_image_button_destroy (GtkObject *object)
   if (priv->image != NULL)
   {
     g_object_unref (priv->image);
+    priv->image = NULL;
   }
   GTK_OBJECT_CLASS (ol_image_button_parent_class)->destroy (object);
 }
@@ -164,6 +165,7 @@ ol_image_button_set_pixbuf (OlImageButton *btn, GdkPixbuf *image)
 {
   ol_log_func ();
   ol_assert (OL_IS_IMAGE_BUTTON (btn));
+  ol_assert (image == NULL || GDK_IS_PIXBUF (image));
   OlImageButtonPriv *priv = OL_IMAGE_BUTTON_GET_PRIVATE (btn);
   if (priv->image != NULL)
   {

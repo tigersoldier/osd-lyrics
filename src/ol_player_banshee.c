@@ -1,6 +1,7 @@
 #include <dbus/dbus-glib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ol_player_banshee.h"
 #include "ol_utils.h"
@@ -15,7 +16,6 @@ static const char *INTERFACE2 = "org.bansheeproject.Banshee.PlayerEngine";
 static const char *PLAY = "Play";
 static const char *PAUSE = "Pause";
 static const char *STOP = "Close";
-static const char *PLAY_PAUSE = "TogglePlaying";
 static const char *NEXT = "Next";
 static const char *PREVIOUS = "Previous";
 static const char *SEEK = "SetPosition";
@@ -36,7 +36,7 @@ static gboolean ol_player_banshee_get_played_time (int *played_time);
 static gboolean ol_player_banshee_get_music_length (int *len);
 static gboolean ol_player_banshee_init_dbus ();
 static gboolean ol_player_banshee_get_activated ();
-static gboolean ol_player_banshee_proxy_destroy_handler (gpointer userdata);
+static gboolean ol_player_banshee_proxy_destroy_handler (DBusGProxy *proxy, gpointer userdata);
 static enum OlPlayerStatus ol_player_banshee_get_status ();
 static int ol_player_banshee_get_capacity ();
 static gboolean ol_player_banshee_play ();
@@ -48,10 +48,10 @@ static gboolean ol_player_banshee_seek (int pos_ms);
 static const char *ol_player_banshee_get_icon_path ();
 
 static gboolean
-ol_player_banshee_proxy_destroy_handler (gpointer userdata)
+ol_player_banshee_proxy_destroy_handler (DBusGProxy *_proxy, gpointer userdata)
 {
   ol_log_func ();
-  g_object_unref (userdata);
+  g_object_unref (proxy);
   proxy = NULL;
   return FALSE;
 }
@@ -63,7 +63,6 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
   if (info == NULL)
     return FALSE;
   GHashTable *data_list = NULL;
-  gint int_val;
   gboolean ret = TRUE;
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
@@ -131,7 +130,7 @@ ol_player_banshee_get_played_time (int *played_time)
       return FALSE;
   if (ol_dbus_get_uint (proxy,
                         CURRENT_POSITION,
-                        played_time))
+                        (unsigned int*)played_time))
   {
   }
   else

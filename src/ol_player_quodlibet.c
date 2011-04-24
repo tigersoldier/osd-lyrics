@@ -54,7 +54,7 @@ internal_invoke (const char *method)
 {
   ol_log_func ();
   ol_debugf ("  Method: %s\n", method);
-  ol_assert (method != NULL);
+  ol_assert_ret (method != NULL, FALSE);
   if (!internal_ensure_dbus ())
     return FALSE;
   return ol_dbus_invoke (proxy, method);

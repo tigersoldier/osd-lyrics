@@ -30,6 +30,8 @@ enum {
   PROP_LINE_COUNT,
   PROP_TOTAL_COUNT,
   PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER,
+  PROP_OSD_X,
+  PROP_OSD_Y,
   PROP_DOWNLOAD_ENGINE,
   PROP_LRC_PATH,
   PROP_LRC_FILENAME,
@@ -37,6 +39,13 @@ enum {
   PROP_STARTUP_PLAYER,
   PROP_NOTIFY_MUSIC,
   PROP_DISPLAY_MODE,
+  PROP_OSD_WINDOW_MODE,
+  PROP_PROXY,
+  PROP_PROXY_HOST,
+  PROP_PROXY_PORT,
+  PROP_PROXY_TYPE,
+  PROP_PROXY_USERNAME,
+  PROP_PROXY_PASSWORD,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -184,6 +193,9 @@ static const OlConfigBoolValue config_bool[] = {
 static const OlConfigIntValue config_int[] = {
   {PROP_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
   {PROP_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
+  {PROP_OSD_X, "x", "OSD", "OSD X position", "The horizontal position of OSD", 0, 10000, 0},
+  {PROP_OSD_Y, "y", "OSD", "OSD Y position", "The vertical position of OSD", 0, 10000, 0},
+  {PROP_PROXY_PORT, "proxy-port", "Download", "Proxy Port", "The port of proxy", 7070},
 };
 
 static const OlConfigDoubleValue config_double[] = {
@@ -213,12 +225,26 @@ static const OlConfigStringValue config_str[] = {
   {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
    "Download engine", "Select the source where LRC files are downloaded from",
    "MiniLyrics"},
+  {PROP_PROXY, "proxy", "Download",
+   "Proxy", "The proxy to download lyrics. Available settings are no, system, or manual", "no"},
+  {PROP_PROXY_TYPE, "proxy-type", "Download",
+   "Proxy Type",
+   "The protocol used by manual proxy. Available settings are http, socks4, or socks5", "http"},
+  {PROP_PROXY_HOST, "proxy-host", "Download",
+   "Proxy Host", "The hostname of proxy", ""},
+  {PROP_PROXY_USERNAME, "proxy-username", "Download",
+   "Proxy Username", "The username of proxy", ""},
+  {PROP_PROXY_PASSWORD, "proxy-password", "Download",
+   "Proxy Password", "The password of proxy", ""},
   {PROP_STARTUP_PLAYER, "startup-player", "General",
    "Startup player", "Startup the player if no available player detected.",
    ""},
   {PROP_DISPLAY_MODE, "display-mode", "General",
    "Display Mode", "The means of displaying lyrics, either OSD or scroll.",
    "OSD"},
+  {PROP_OSD_WINDOW_MODE, "osd-window-mode", "OSD",
+   "OSD window mode", "The display mode of OSD Window, either dock or normal.",
+   "dock"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */

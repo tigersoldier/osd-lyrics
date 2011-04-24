@@ -52,7 +52,7 @@ _register_class (struct OlDisplayClass *klass)
 static struct OlDisplayClass*
 _get_class (const char *name)
 {
-  ol_assert (classes != NULL);
+  ol_assert_ret (name != NULL, NULL);
   int i;
   for (i = 0; i < classes->len; i++)
   {
@@ -135,6 +135,7 @@ void
 ol_display_module_set_music_info (struct OlDisplayModule *module,
                                   OlMusicInfo *music_info)
 {
+  ol_log_func ();
   ol_assert (module != NULL);
   call (module->klass->set_music_info, module, music_info);
 }
@@ -175,6 +176,7 @@ void
 ol_display_module_set_duration (struct OlDisplayModule *module,
                                 int duration)
 {
+  ol_log_func ();
   ol_assert (module != NULL);
   call (module->klass->set_duration, module, duration);
 }

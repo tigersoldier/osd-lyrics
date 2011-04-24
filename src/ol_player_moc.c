@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ol_player_moc.h"
 #include "ol_player.h"
@@ -40,7 +41,6 @@ static gboolean ol_player_moc_pause ();
 static gboolean ol_player_moc_stop ();
 static gboolean ol_player_moc_prev ();
 static gboolean ol_player_moc_next ();
-static gboolean ol_player_moc_seek (int pos_ms);
 static void ensure_elapse (int elapsed_time);
 
 static gboolean
@@ -124,7 +124,7 @@ ol_player_moc_get_music_length (int *len)
   ol_assert_ret (len != NULL, FALSE);
   if (!ol_player_moc_get_activated ())
     return FALSE;
-  int status;
+  int status = ol_player_moc_get_status ();
   if (status != OL_PLAYER_PLAYING && status != OL_PLAYER_PAUSED)
   {
     *len = -1;

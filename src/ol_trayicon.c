@@ -11,13 +11,22 @@
 #include "ol_config.h"
 #include "ol_debug.h"
 
+#if HAVE_APP_INDICATOR
+static AppIndicator *indicator = NULL;
+#else  /* HAVE_APP_INDICATOR */
 static const char *UNKNOWN_TITLE = N_("Unknown title");
 static const char *UNKNOWN_ARTIST = N_("Unknown artist");
 static const char *INFO_FORMAT = "<big><b>%s</b></big>\n"
                                  "  %s";
 static const char *INFO_FORMAT_ALBUM = "<big><b>%s</b></big>\n"
                                        "  %s - <i>%s</i>";
-
+static GtkStatusIcon *status_icon = NULL;
+static gboolean internal_query_tooltip (GtkStatusIcon *status_icon,
+                                        gint           x,
+                                        gint           y,
+                                        gboolean       keyboard_mode,
+                                        GtkTooltip    *tooltip,
+                                        gpointer       user_data);
 static void
 activate (GtkStatusIcon* status_icon,
           gpointer user_data)
@@ -26,18 +35,6 @@ activate (GtkStatusIcon* status_icon,
   ol_config_set_bool (config, "General", "visible",
                       !ol_config_get_bool (config, "General", "visible"));
 }
-
-static gboolean internal_query_tooltip (GtkStatusIcon *status_icon,
-                                        gint           x,
-                                        gint           y,
-                                        gboolean       keyboard_mode,
-                                        GtkTooltip    *tooltip,
-                                        gpointer       user_data);
-#if HAVE_APP_INDICATOR
-static AppIndicator *indicator = NULL;
-#else
-static GtkStatusIcon *status_icon = NULL;
-#endif
 
 static gboolean
 internal_query_tooltip (GtkStatusIcon *status_icon,
@@ -66,16 +63,16 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
     char *markup = NULL;
     if (album == NULL)
     {
-      markup = g_strdup_printf (INFO_FORMAT,
-                                title,
-                                artist);
+      markup = g_markup_printf_escaped (INFO_FORMAT,
+                                        title,
+                                        artist);
     }
     else
     {
-      markup = g_strdup_printf (INFO_FORMAT_ALBUM,
-                                title,
-                                artist,
-                                album);
+      markup = g_markup_printf_escaped (INFO_FORMAT_ALBUM,
+                                        title,
+                                        artist,
+                                        album);
     }
     gtk_tooltip_set_markup (tooltip, markup);
     g_free (markup);
@@ -95,7 +92,6 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
   return TRUE;
 }
 
-
 static void 
 popup (GtkStatusIcon *status_icon,
        guint button,
@@ -111,6 +107,7 @@ popup (GtkStatusIcon *status_icon,
                   button,
                   activate_time);
 }
+#endif  /* HAVE_APP_INDICATOR */
 
 void ol_trayicon_inital ()
 {

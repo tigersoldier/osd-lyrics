@@ -240,7 +240,6 @@ ol_menu_init ()
 {
   /* create accelerator group */
   GtkAccelGroup *accel = ol_keybinding_get_accel_group ();
-  GtkWidget *item;
   OlConfig *config = ol_config_get_instance ();
   popup_menu = ol_gui_get_widget ("pop-menu");
   gtk_menu_set_accel_group (GTK_MENU (popup_menu), accel);

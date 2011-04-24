@@ -35,7 +35,7 @@ struct __OlScrollWindowPrivate
   OlColor active_color;            /*播放歌词颜色*/
   OlColor inactive_color;          /*未播放歌词颜色*/
   OlColor bg_color;                /*背景颜色*/
-  const gchar *font_family;        /*字体*/
+  gchar *font_family;              /*字体*/
   double font_size;                /*字体大小*/
   double alignment;                /*对齐方式*/ 
   gint outline_width;              /*边栏宽度*/
@@ -55,9 +55,12 @@ static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
 static void ol_scroll_window_resize (OlScrollWindow *scroll);
 static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 
-static gboolean ol_scroll_window_button_press (GtkWidget * widget,  GdkEventButton * event);
-static gboolean ol_scroll_window_button_release (GtkWidget * widget, GdkEventButton * event);
-static gboolean ol_scroll_window_motion_notify (GtkWidget * widget,  GdkEventButton * event);
+static gboolean ol_scroll_window_button_press (GtkWidget *widget,
+                                               GdkEventButton *event);
+static gboolean ol_scroll_window_button_release (GtkWidget *widget,
+                                                 GdkEventButton *event);
+static gboolean ol_scroll_window_motion_notify (GtkWidget *widget,
+                                                GdkEventMotion *event);
 
 static void _draw_destory_button (OlScrollWindow *scroll, cairo_t *cr, double size);
 
@@ -119,7 +122,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->active_color = DEFAULT_ACTIVE_COLOR;
   priv->inactive_color = DEFAULT_INACTIVE_COLOR;
   priv->bg_color = DEFAULT_BG_COLOR;
-  priv->font_family = DEFAULT_FONT_FAMILY;
+  priv->font_family = g_strdup (DEFAULT_FONT_FAMILY);
   priv->font_size = DEFAULT_FONT_SIZE;
   priv->alignment = DEFAULT_ALIGNMENT;
   priv->outline_width = DEFAULT_OUTLINE_WIDTH;
@@ -146,18 +149,17 @@ ol_scroll_window_class_init (OlScrollWindowClass *klass)
 {
   printf("scroll window class_init\n");
   GObjectClass *gobject_class;
-  GtkObjectClass *object_class;
   GtkWidgetClass *widget_class;
+  GtkObjectClass *gtkobject_class;
   parent_class = g_type_class_peek_parent (klass);
   gobject_class = G_OBJECT_CLASS (klass);
-  object_class = (GtkObjectClass*) klass;
+  gtkobject_class = GTK_OBJECT_CLASS (klass);
   widget_class = (GtkWidgetClass*) klass;
   widget_class->expose_event = ol_scroll_window_expose;
-  
   widget_class->button_press_event = ol_scroll_window_button_press;
   widget_class->button_release_event = ol_scroll_window_button_release;
   widget_class->motion_notify_event = ol_scroll_window_motion_notify;
-
+  gtkobject_class->destroy = ol_scroll_window_destroy;
   /*add private variables into OlScrollWindow*/
   g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
   
@@ -167,6 +169,9 @@ static void
 ol_scroll_window_destroy (GtkObject *object)
 {
   OlScrollWindow *scroll = OL_SCROLL_WINDOW (object);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (object);
+  if (priv->font_family != NULL)
+    g_free (priv->font_family);
   if (scroll->current_lyric_id!= -1)
   {
     scroll->current_lyric_id = -1;
@@ -203,8 +208,8 @@ ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll, GPtrArray *whole_lyric
 static PangoLayout*
 _get_pango (OlScrollWindow *scroll, cairo_t *cr)
 {
-  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
-  ol_assert (cr != NULL);
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), NULL);
+  ol_assert_ret (cr != NULL, NULL);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   PangoLayout *layout = pango_cairo_create_layout (cr);
   gchar *font_string = g_strdup_printf ("%s %0.0lf",
@@ -222,8 +227,7 @@ _get_pango (OlScrollWindow *scroll, cairo_t *cr)
 static cairo_t*
 _get_cairo (OlScrollWindow *scroll)
 {
-  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
-  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), NULL);
   cairo_t *cr;
   cr = gdk_cairo_create (GTK_WIDGET (scroll)->window);
   cairo_set_source_rgb (cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g);
@@ -355,7 +359,7 @@ ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percenta
 static int
 ol_scroll_window_compute_line_count (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), 0);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   int font_height = ol_scroll_window_get_font_height (scroll) + priv->outline_width;
   int line_count = priv->height/font_height;
@@ -366,7 +370,7 @@ ol_scroll_window_compute_line_count (OlScrollWindow *scroll)
 static int
 ol_scroll_window_get_font_height (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), 0);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   
   PangoContext *pango_context = gdk_pango_context_get ();
@@ -396,18 +400,20 @@ ol_scroll_window_get_font_height (OlScrollWindow *scroll)
 int 
 ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), -1);
   return scroll->current_lyric_id;
 }
 
 void
 ol_scroll_window_set_font_family (OlScrollWindow *scroll,
-                               const char *font_family)
+                                  const char *font_family)
 {
   if (scroll == NULL || font_family == NULL)
     return;
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  priv->font_family = font_family;
+  if (priv->font_family != NULL)
+    g_free (priv->font_family);
+  priv->font_family = g_strdup (font_family);
   gtk_widget_queue_draw (GTK_WIDGET (scroll));
 }
 
@@ -439,7 +445,8 @@ ol_scroll_window_button_release (GtkWidget * widget,
   gint width;
   gdk_drawable_get_size (gtk_widget_get_window (widget),
 			 &width, NULL);
-  if (event->x <= width-3 &&event->x >= width-13 && event->y >= 3 && event->y <= 13) {
+  if (event->x <= width-3 &&event->x >= width-13 && event->y >= 3 && event->y <= 13)
+  {
     gtk_widget_destroy (widget);
   }
   if (event->button == 1)
@@ -448,10 +455,11 @@ ol_scroll_window_button_release (GtkWidget * widget,
 }
 
 static gboolean
-ol_scroll_window_motion_notify (GtkWidget * widget, 
-			      GdkEventButton * event)
+ol_scroll_window_motion_notify (GtkWidget *widget, 
+                                GdkEventMotion *event)
 {
-  if (drag) {
+  if (drag)
+  {
     int x, y;
     gtk_window_get_position ((GtkWindow *) widget, &x, &y);
     gtk_window_move((GtkWindow *) widget, x + event->x - nX, y + event->y - nY);

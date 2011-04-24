@@ -68,7 +68,6 @@ static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
-static int fetch_id = 0;
 
 static void _initialize (int argc, char **argv);
 static gint _refresh_music_info (gpointer data);
@@ -81,6 +80,37 @@ static gboolean _get_active_player (void);
 static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
 static void _download_callback (struct OlLrcDownloadResult *result);
+static void _on_config_changed (OlConfig *config,
+                                gchar *group,
+                                gchar *name,
+                                gpointer userdata);
+
+static void
+_on_config_changed (OlConfig *config,
+                    gchar *group,
+                    gchar *name,
+                    gpointer userdata)
+{
+  if (strcmp (name, "display-mode") == 0)
+  {
+    char *mode = ol_config_get_string (config, group, name);
+    if (display_mode == NULL ||
+        ol_stricmp (mode, display_mode, -1) != 0)
+    {
+      if (display_mode != NULL)
+        g_free (display_mode);
+      display_mode = g_strdup (mode);
+      ol_display_module_free (module);
+      module = ol_display_module_new (display_mode);
+      ol_display_module_set_music_info (module, &music_info);
+      ol_display_module_set_duration (module, previous_duration);
+      ol_display_module_set_lrc (module, lrc_file);
+      ol_display_module_set_player (module, player);
+      ol_display_module_set_status (module, previous_status);
+    }
+    g_free (mode);
+  }
+}
 
 static void
 _download_callback (struct OlLrcDownloadResult *result)
@@ -139,6 +169,7 @@ ol_app_download_lyric (OlMusicInfo *music_info)
                              NULL);
   if (module != NULL)
     ol_display_module_search_message (module, _("Searching lyrics"));
+  return TRUE;
 }
 
 struct OlLrc *
@@ -183,6 +214,7 @@ _check_lyric_file ()
   int code = ol_lrclib_find (&music_info, &filename);
   if (code == 0)
     filename = ol_lyric_find (&music_info);
+ 
   if (filename != NULL)
   {
     ret = ol_app_assign_lrcfile (&music_info, filename, code == 0);
@@ -190,6 +222,7 @@ _check_lyric_file ()
   }
   else
   {
+    ol_debugf("filename;%s\n", filename);
     if (code == 0) ret = FALSE;
   }
   return ret;
@@ -198,7 +231,7 @@ _check_lyric_file ()
 static void
 _on_music_changed ()
 {
-  ol_log_func ();
+  ol_debugf("on music change\n");
   if (module != NULL)
   {
     ol_display_module_set_music_info (module, &music_info);
@@ -223,7 +256,7 @@ _check_music_change ()
   {
     player = NULL;
   }
-  guint duration = 0;
+  gint duration = 0;
   if (player && !ol_player_get_music_length (player, &duration))
   {
     player = NULL;
@@ -247,7 +280,12 @@ _check_music_change ()
   /*   ol_debugf ("change6:%d-%d\n", previous_duration, duration); */
   /*   changed = TRUE; */
   /* } */
-  previous_duration = duration;
+  if (previous_duration != duration)
+  {
+    previous_duration = duration;
+    if (module != NULL)
+      ol_display_module_set_duration (module, duration);
+  }
   if (changed)
   {
     _on_music_changed ();
@@ -265,6 +303,7 @@ _update_player_status (enum OlPlayerStatus status)
     {
       ol_display_module_set_status (module, status);
     }
+    ol_trayicon_status_changed (status);
   }
 }
 
@@ -323,7 +362,7 @@ _refresh_music_info (gpointer data)
   /* ol_log_func (); */
   if (player == NULL && !_get_active_player ())
     return TRUE;
-  guint time = 0;
+  gint time = 0;
   if (player && !ol_player_get_played_time (player, &time))
   {
     player = NULL;
@@ -422,6 +461,9 @@ _initialize (int argc, char **argv)
   OlConfig *config = ol_config_get_instance ();
   display_mode = ol_config_get_string (config, "General", "display-mode");
   module = ol_display_module_new (display_mode);
+  g_signal_connect (config, "changed",
+                    G_CALLBACK (_on_config_changed),
+                    NULL);
 
   ol_trayicon_inital ();
   ol_notify_init ();
