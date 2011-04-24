@@ -101,7 +101,7 @@ _set_curl_proxy (CURL *curl_handler)
   }
   if (ret && type != OL_PROXY_NONE && type != OL_PROXY_ENVAR)
   {
-    char *host = ol_get_proxy_username ();
+    char *host = ol_get_proxy_host ();
     int port = ol_get_proxy_port ();
     char *username = ol_get_proxy_username ();
     char *password = ol_get_proxy_password ();
@@ -109,7 +109,7 @@ _set_curl_proxy (CURL *curl_handler)
         1 < port && port < (1 << 16))
     {
       if (curl_easy_setopt (curl_handler, CURLOPT_PROXY,
-                            username) != CURLE_OK)
+                            host) != CURLE_OK)
       {
         ol_error ("Failed to set curl proxy host");
         goto error;
