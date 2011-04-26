@@ -96,15 +96,30 @@ int ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll);
  * @brief Sets the font family for an SCROLL Window
  * 
  * @param scroll An OlScrollWindow;
- * @param font_family Font family, must not be NULL
+ * @param font_name Font family, must not be NULL. The font_name contains style and
+ *        size information. Should be able to pass the value to
+ *        pango_font_description_from_string() 
  */
-void ol_scroll_window_set_font_family (OlScrollWindow *scroll,
-                                       const char *font_family);
+void ol_scroll_window_set_font_name (OlScrollWindow *scroll,
+                                     const char *font_family);
 /** 
  * @brief Gets the font family for an SCROLL Window
  * 
  * @param scroll An OlScrollWindow
- * @return The font family
+ * @return The font name, see the comment of ol_scroll_window_set_font_name
  */
-const char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
+const char* ol_scroll_window_get_font_name (OlScrollWindow *scroll);
+
+/** 
+ * Sets the opacity of the background
+ * 
+ * @param scroll 
+ * @param opacity The opacity of the background. 0 being fully transparent
+ *                and 1 meansfully opaque.
+ * 
+ */
+void ol_scroll_window_set_bg_opacity (OlScrollWindow *scroll,
+                                      double opacity);
+
+double ol_scroll_window_get_bg_opacity (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */
