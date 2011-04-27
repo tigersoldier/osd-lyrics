@@ -112,61 +112,72 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                         <property name="visible">True</property>
                         <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkTable" id="table5">
+                          <object class="GtkVBox" id="vbox9">
                             <property name="visible">True</property>
-                            <property name="n_rows">2</property>
-                            <property name="n_columns">2</property>
                             <child>
-                              <object class="GtkImage" id="osd-mode-image">
-                                <property name="width_request">200</property>
-                                <property name="stock">gtk-missing-image</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkImage" id="scroll-mode-image">
-                                <property name="width_request">200</property>
-                                <property name="stock">gtk-missing-image</property>
+                              <object class="GtkHBox" id="hbox14">
+                                <property name="visible">True</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <object class="GtkImage" id="osd-mode-image">
+                                    <property name="width_request">200</property>
+                                    <property name="stock">gtk-missing-image</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkImage" id="scroll-mode-image">
+                                    <property name="width_request">200</property>
+                                    <property name="stock">gtk-missing-image</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkRadioButton" id="display-mode-osd">
-                                <property name="label" translatable="yes">OSD</property>
+                              <object class="GtkHBox" id="hbox15">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="ol_option_display_mode_changed"/>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <object class="GtkRadioButton" id="display-mode-osd">
+                                    <property name="label" translatable="yes">OSD</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="ol_option_display_mode_changed"/>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkRadioButton" id="display-mode-scroll">
+                                    <property name="label" translatable="yes">Scrolling</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                    <property name="group">display-mode-osd</property>
+                                    <signal name="toggled" handler="ol_option_display_mode_changed"/>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"></property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="display-mode-scroll">
-                                <property name="label" translatable="yes">Scrolling</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">display-mode-osd</property>
-                                <signal name="toggled" handler="ol_option_display_mode_changed"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"></property>
-                                <property name="y_options"></property>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
@@ -432,10 +443,11 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="osd-window-mode-dock">
-                        <property name="label" translatable="yes">Dock</property>
+                        <property name="label" translatable="yes">Doc_k</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                       </object>
@@ -445,10 +457,11 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="osd-window-mode-normal">
-                        <property name="label" translatable="yes">Normal</property>
+                        <property name="label" translatable="yes">Nor_mal</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">osd-window-mode-dock</property>
                       </object>
@@ -908,6 +921,295 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               </packing>
             </child>
             <child>
+              <object class="GtkVBox" id="vbox10">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkFrame" id="frame4">
+                    <property name="visible">True</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment8">
+                        <property name="visible">True</property>
+                        <property name="left_padding">12</property>
+                        <child>
+                          <object class="GtkVBox" id="vbox11">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkHBox" id="hbox16">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label29">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">_Font:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-font</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFontButton" id="scroll-font">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox17">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label30">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">Ac_tive color:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-active-lrc-color</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkColorButton" id="scroll-active-lrc-color">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="color">#000000000000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox18">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label31">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">_Inactive color:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-inactive-lrc-color</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkColorButton" id="scroll-inactive-lrc-color">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="color">#000000000000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label28">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Lyrics&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frame5">
+                    <property name="visible">True</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment10">
+                        <property name="visible">True</property>
+                        <property name="left_padding">12</property>
+                        <child>
+                          <object class="GtkVBox" id="vbox12">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkHBox" id="hbox19">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label33">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">Colo_r:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-bg-color</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkColorButton" id="scroll-bg-color">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="color">#000000000000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkTable" id="table5">
+                                <property name="visible">True</property>
+                                <property name="n_rows">2</property>
+                                <property name="n_columns">2</property>
+                                <child>
+                                  <object class="GtkLabel" id="label34">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">O_pacity:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-opacity</property>
+                                  </object>
+                                  <packing>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHScale" id="scroll-opacity">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">adj-scroll-opacity</property>
+                                    <property name="draw_value">False</property>
+                                    <property name="value_pos">bottom</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <object class="GtkHBox" id="hbox20">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label35">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Transparent</property>
+                                      </object>
+                                      <packing>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label36">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="label" translatable="yes">Opaque</property>
+                                      </object>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label32">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Background&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label27">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Scrolling</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkVBox" id="vbox4">
                 <property name="visible">True</property>
                 <child>
@@ -1164,7 +1466,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 </child>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child type="tab">
@@ -1174,7 +1476,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -1203,6 +1505,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="xpad">5</property>
                                     <property name="label" translatable="yes">_Site:</property>
                                     <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">download-engine</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1479,7 +1782,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="xpad">5</property>
-                                            <property name="label" translatable="yes">Password:</property>
+                                            <property name="label" translatable="yes">Passwo_rd:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">proxy-passwd</property>
                                           </object>
@@ -1500,10 +1803,11 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                         </child>
                                         <child>
                                           <object class="GtkCheckButton" id="show-proxy-passwd">
-                                            <property name="label" translatable="yes">Show password</property>
+                                            <property name="label" translatable="yes">Show passwor_d</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
+                                            <property name="use_underline">True</property>
                                             <property name="draw_indicator">True</property>
                                           </object>
                                           <packing>
@@ -1548,7 +1852,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 </child>
               </object>
               <packing>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
             <child type="tab">
@@ -1558,7 +1862,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
-                <property name="position">3</property>
+                <property name="position">4</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -2210,6 +2514,20 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="upper">65535</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">0</property>
+  </object>
+  <object class="GtkSizeGroup" id="group-scroll-label">
+    <widgets>
+      <widget name="label34"/>
+      <widget name="label33"/>
+      <widget name="label31"/>
+      <widget name="label30"/>
+      <widget name="label29"/>
+    </widgets>
+  </object>
+  <object class="GtkAdjustment" id="adj-scroll-opacity">
+    <property name="value">1</property>
+    <property name="upper">1</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">0.10000000000000001</property>
   </object>
 </interface>

@@ -102,6 +102,20 @@ static struct WidgetConfigOptions spin_int_options[] = {
   {.widget_name = "outline-width", .config_group = "OSD", .config_name = "outline-width"},
 };
 
+static struct WidgetConfigOptions scale_double_options[] = {
+  {.widget_name = "scroll-opacity", .config_group = "ScrollMode", .config_name = "opacity"},
+};
+
+static struct WidgetConfigOptions color_str_options[] = {
+  {.widget_name = "scroll-bg-color", .config_group = "ScrollMode", .config_name = "bg-color"},
+  {.widget_name = "scroll-active-lrc-color", .config_group = "ScrollMode", .config_name = "active-lrc-color"},
+  {.widget_name = "scroll-inactive-lrc-color", .config_group = "ScrollMode", .config_name = "inactive-lrc-color"},
+};
+
+static struct WidgetConfigOptions font_str_options[] = {
+  {.widget_name = "scroll-font", .config_group = "ScrollMode", .config_name = "font-name"},
+};
+
 static const char *proxy_types[] = {"http", "socks4", "socks5", NULL};
 
 static struct ComboStringOptions combo_str_options[] = {
@@ -245,6 +259,9 @@ static void load_check_button_options ();
 static void load_radio_str_options ();
 static void load_entry_str_options ();
 static void load_spin_int_options ();
+static void load_color_str_options ();
+static void load_font_str_options ();
+static void load_scale_double_options ();
 static void load_combo_str_options ();
 static void init_list (struct ListExtraWidgets *widgets,
                        struct ListExtraButton *buttons);
@@ -257,6 +274,12 @@ static void toggle_set_property (GtkToggleButton *widget,
 static void entry_str_changed (GtkEditable *widget,
                                struct WidgetConfigOptions *option);
 static void spin_int_changed (GtkSpinButton *widget,
+                              struct WidgetConfigOptions *option);
+static void scale_double_changed (GtkScale *widget,
+                                  struct WidgetConfigOptions *option);
+static void color_str_changed (GtkColorButton *widget,
+                               struct WidgetConfigOptions *option);
+static void font_str_changed (GtkFontButton *widget,
                               struct WidgetConfigOptions *option);
 static void combo_str_changed (GtkComboBox *widget,
                                struct ComboStringOptions *option);
@@ -772,6 +795,10 @@ ol_option_update_widget (OptionWidgets *widgets)
   load_radio_str_options ();
   load_entry_str_options ();
   load_spin_int_options ();
+  load_scale_double_options ();
+  load_spin_int_options ();
+  load_color_str_options ();
+  load_font_str_options ();
   load_combo_str_options ();
   init_toggle_properties ();
 }
@@ -888,12 +915,48 @@ init_signals ()
   for (i = 0; i < G_N_ELEMENTS (spin_int_options); i++)
   {
     GtkWidget *widget = ol_gui_get_widget (spin_int_options[i].widget_name);
-    if (GTK_IS_EDITABLE (widget))
+    if (GTK_IS_SPIN_BUTTON (widget))
     {
       g_signal_connect (G_OBJECT (widget),
                         "value-changed",
                         G_CALLBACK (spin_int_changed),
                         &spin_int_options[i]);
+    }
+  }
+  
+  for (i = 0; i < G_N_ELEMENTS (scale_double_options); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (scale_double_options[i].widget_name);
+    if (GTK_IS_RANGE (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "value-changed",
+                        G_CALLBACK (scale_double_changed),
+                        &scale_double_options[i]);
+    }
+  }
+  
+  for (i = 0; i < G_N_ELEMENTS (color_str_options); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (color_str_options[i].widget_name);
+    if (GTK_IS_COLOR_BUTTON (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "color-set",
+                        G_CALLBACK (color_str_changed),
+                        &color_str_options[i]);
+    }
+  }
+  
+  for (i = 0; i < G_N_ELEMENTS (font_str_options); i++)
+  {
+    GtkWidget *widget = ol_gui_get_widget (font_str_options[i].widget_name);
+    if (GTK_IS_FONT_BUTTON (widget))
+    {
+      g_signal_connect (G_OBJECT (widget),
+                        "font-set",
+                        G_CALLBACK (font_str_changed),
+                        &font_str_options[i]);
     }
   }
   
@@ -999,6 +1062,51 @@ spin_int_changed (GtkSpinButton *widget,
                      option->config_group,
                      option->config_name,
                      value);
+}
+
+static void
+scale_double_changed (GtkScale *widget,
+                      struct WidgetConfigOptions *option)
+{
+  ol_assert (GTK_IS_RANGE (widget));
+  ol_assert (option != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  double value = gtk_range_get_value (GTK_RANGE (widget));
+  ol_config_set_double (config,
+                        option->config_group,
+                        option->config_name,
+                        value);
+}
+
+static void
+color_str_changed (GtkColorButton *widget,
+                   struct WidgetConfigOptions *option)
+{
+  ol_assert (GTK_IS_COLOR_BUTTON (widget));
+  ol_assert (option != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  GdkColor gcolor;
+  gtk_color_button_get_color (GTK_COLOR_BUTTON (widget), &gcolor);
+  OlColor color = ol_color_from_gdk_color (gcolor);
+  const char *value = ol_color_to_string (color);
+  ol_config_set_string (config,
+                        option->config_group,
+                        option->config_name,
+                        value);
+}
+
+static void
+font_str_changed (GtkFontButton *widget,
+                   struct WidgetConfigOptions *option)
+{
+  ol_assert (GTK_IS_FONT_BUTTON (widget));
+  ol_assert (option != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  const char *value = gtk_font_button_get_font_name (GTK_FONT_BUTTON (widget));
+  ol_config_set_string (config,
+                        option->config_group,
+                        option->config_name,
+                        value);
 }
 
 static void
@@ -1125,6 +1233,74 @@ load_spin_int_options ()
     {
       gtk_spin_button_set_value (spin, config_value);
     }
+  }
+}
+
+static void
+load_scale_double_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (scale_double_options); i++)
+  {
+    double config_value = ol_config_get_double (config,
+                                                scale_double_options[i].config_group,
+                                                scale_double_options[i].config_name);
+    GtkWidget *range = ol_gui_get_widget (scale_double_options[i].widget_name);
+    if (GTK_IS_RANGE (range))
+    {
+      gtk_range_set_value (GTK_RANGE (range), config_value);
+    }
+  }
+}
+
+static void
+load_color_str_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (color_str_options); i++)
+  {
+    char* config_value = ol_config_get_string (config,
+                                               color_str_options[i].config_group,
+                                               color_str_options[i].config_name);
+    if (config_value == NULL)
+      continue;
+    GtkWidget *button = ol_gui_get_widget (color_str_options[i].widget_name);
+    if (GTK_IS_COLOR_BUTTON (button))
+    {
+      OlColor color = ol_color_from_string (config_value);
+      GdkColor gcolor = ol_color_to_gdk_color (color);
+      gtk_color_button_set_color (GTK_COLOR_BUTTON (button), &gcolor);
+    }
+    g_free (config_value);
+  }
+}
+
+static void
+load_font_str_options ()
+{
+  int i = 0;
+  OlConfig *config = ol_config_get_instance ();
+  if (config == NULL)
+    return;
+  for (i = 0; i < G_N_ELEMENTS (font_str_options); i++)
+  {
+    char* config_value = ol_config_get_string (config,
+                                               font_str_options[i].config_group,
+                                               font_str_options[i].config_name);
+    if (config_value == NULL)
+      continue;
+    GtkWidget *button = ol_gui_get_widget (font_str_options[i].widget_name);
+    if (GTK_IS_FONT_BUTTON (button))
+    {
+      gtk_font_button_set_font_name (GTK_FONT_BUTTON (button), config_value);
+    }
+    g_free (config_value);
   }
 }
 

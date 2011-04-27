@@ -223,10 +223,15 @@ static cairo_t*
 _get_cairo (OlScrollWindow *scroll)
 {
   ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), NULL);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   cairo_t *cr;
   cr = gdk_cairo_create (GTK_WIDGET (scroll)->window);
   cairo_save (cr);
-  cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0);
+  cairo_set_source_rgba (cr,
+                         priv->bg_color.r,
+                         priv->bg_color.g,
+                         priv->bg_color.b,
+                         0.0);
   cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
   cairo_paint(cr);
   cairo_restore (cr);
@@ -259,10 +264,6 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
   ol_assert (cr != NULL);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  cairo_set_source_rgb (cr,
-                        priv->bg_color.r,
-                        priv->bg_color.b,
-                        priv->bg_color.g);
   gint width, height;
   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
                          &width, &height);
@@ -294,8 +295,8 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
   cairo_close_path (cr);
   cairo_set_source_rgba (cr,
                          priv->bg_color.r,
-                         priv->bg_color.b,
                          priv->bg_color.g,
+                         priv->bg_color.b,
                          priv->bg_opacity);
   cairo_fill(cr);
   /*clip the disply area*/
