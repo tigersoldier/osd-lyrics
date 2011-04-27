@@ -27,6 +27,7 @@ static const gint DEFAULT_LINE_MARGIN = 1;
 static const gint DEFAULT_PADDING_X = 10;
 static const gint DEFAULT_PADDING_Y = 5;
 static const gint DEFAULT_CORNER_RADIUS = 10;
+static const gint DEFAULT_FRAME_WIDTH = 7;
 static const double DEFAULT_BG_OPACITY = 0.9;
 /**********************************************/
 
@@ -43,6 +44,7 @@ struct __OlScrollWindowPrivate
   gint line_margin;                /*Margin between two lines*/
   gint padding_x;
   gint padding_y;
+  gint frame_width;
   gint corner_radius;
   double bg_opacity;
 };
@@ -65,8 +67,6 @@ static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 
 static gboolean ol_scroll_window_button_press (GtkWidget *widget,
                                                GdkEventButton *event);
-static gboolean ol_scroll_window_button_release (GtkWidget *widget,
-                                                 GdkEventButton *event);
 static gboolean ol_scroll_window_motion_notify (GtkWidget *widget,
                                                 GdkEventMotion *event);
 
@@ -102,6 +102,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->padding_y = DEFAULT_PADDING_Y;
   priv->corner_radius = DEFAULT_CORNER_RADIUS;
   priv->bg_opacity = DEFAULT_BG_OPACITY;
+  priv->frame_width = DEFAULT_FRAME_WIDTH;
   /*set allocation*/
   gtk_window_resize(GTK_WINDOW(self), DEFAULT_WIDTH, DEFAULT_HEIGHT);
   gtk_widget_add_events (GTK_WIDGET (self),
@@ -143,24 +144,22 @@ ol_scroll_window_init (OlScrollWindow *self)
   /* Connect signals */
   g_signal_connect (G_OBJECT (self), "expose-event",
                     G_CALLBACK (ol_scroll_window_expose), self);
+  g_signal_connect (G_OBJECT (self), "button-press-event",
+                    G_CALLBACK (ol_scroll_window_button_press), self);
+  g_signal_connect (G_OBJECT (self), "motion-notify-event",
+                    G_CALLBACK (ol_scroll_window_motion_notify), self);
 }
 
 static void
 ol_scroll_window_class_init (OlScrollWindowClass *klass)
 {
   GObjectClass *gobject_class;
-  GtkWidgetClass *widget_class;
   GtkObjectClass *gtkobject_class;
   gobject_class = G_OBJECT_CLASS (klass);
   gtkobject_class = GTK_OBJECT_CLASS (klass);
-  widget_class = (GtkWidgetClass*) klass;
-  widget_class->button_press_event = ol_scroll_window_button_press;
-  widget_class->button_release_event = ol_scroll_window_button_release;
-  widget_class->motion_notify_event = ol_scroll_window_motion_notify;
   gtkobject_class->destroy = ol_scroll_window_destroy;
   /*add private variables into OlScrollWindow*/
   g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
-  
 }
 
 static void
@@ -265,7 +264,7 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
                         DEFAULT_BG_COLOR.g);
   gint width, height;
   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
-			 &width, &height);
+                         &width, &height);
   cairo_save (cr);
   cairo_new_path (cr);
   /* Top-left */
@@ -450,37 +449,133 @@ ol_scroll_window_get_font_name (OlScrollWindow *scroll)
   return priv->font_name;
 }
 
+static gboolean
+_get_pointer_edge (gint x, gint y,
+                   gint width, gint height,
+                   gint top, gint bottom,
+                   gint left, gint right,
+                   GdkWindowEdge *edge)
+{
+  ol_assert_ret (width > 0 && height > 0, FALSE);
+  ol_assert_ret (top >= 0, FALSE);
+  ol_assert_ret (bottom >= 0, FALSE);
+  ol_assert_ret (left >= 0, FALSE);
+  ol_assert_ret (right >= 0, FALSE);
+  gboolean ret = TRUE;
+  GdkWindowEdge ret_edge;
+  if (x < left)
+  {
+    if (y < top)
+      ret_edge = GDK_WINDOW_EDGE_NORTH_WEST;
+    else if (y >= height - bottom)
+      ret_edge = GDK_WINDOW_EDGE_SOUTH_WEST;
+    else
+      ret_edge = GDK_WINDOW_EDGE_WEST;
+  }
+  else if (x >= width - right)
+  {
+    if (y < top)
+      ret_edge = GDK_WINDOW_EDGE_NORTH_EAST;
+    else if (y >= height - bottom)
+      ret_edge = GDK_WINDOW_EDGE_SOUTH_EAST;
+    else
+      ret_edge = GDK_WINDOW_EDGE_EAST;
+  }
+  else if (y < top)
+  {
+    ret_edge = GDK_WINDOW_EDGE_NORTH;
+  }
+  else if (y >= height - bottom)
+  {
+    ret_edge = GDK_WINDOW_EDGE_SOUTH;
+  }
+  else
+  {
+    ret = FALSE;
+  }
+  if (edge != NULL && ret)
+    *edge = ret_edge;
+  return ret;
+}
+
 static gboolean 
 ol_scroll_window_button_press (GtkWidget * widget, 
                                GdkEventButton * event)
 {
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (widget), FALSE);
+  gint width, height;
+  GtkWindow *window = GTK_WINDOW (widget);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
+  GdkWindowEdge edge;
+  gtk_window_get_size (window, &width, &height);
   if (event->button == 1) {
-    gtk_window_begin_move_drag (GTK_WINDOW (widget),
-                                event->button,
-                                (gint)event->x_root,
-                                (gint)event->y_root,
-                                event->time);
+    if (!_get_pointer_edge (event->x, event->y,
+                            width, height,
+                            priv->frame_width, priv->frame_width,
+                            priv->frame_width, priv->frame_width,
+                            &edge))
+      gtk_window_begin_move_drag (window,
+                                  event->button,
+                                  (gint)event->x_root,
+                                  (gint)event->y_root,
+                                  event->time);
+    else
+      gtk_window_begin_resize_drag (window,
+                                    edge,
+                                    event->button,
+                                    (gint)event->x_root,
+                                    (gint)event->y_root,
+                                    event->time);
   }
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean
-ol_scroll_window_button_release (GtkWidget * widget, 
-				GdkEventButton * event)
+ol_scroll_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 {
-  gint width;
-  gdk_drawable_get_size (gtk_widget_get_window (widget),
-			 &width, NULL);
-  if (event->x <= width-3 &&event->x >= width-13 && event->y >= 3 && event->y <= 13)
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (widget), FALSE);
+  gint width, height;
+  GtkWindow *window = GTK_WINDOW (widget);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
+  GdkWindowEdge edge;
+  gtk_window_get_size (window, &width, &height);
+  GdkCursor *cursor = NULL;
+  if (_get_pointer_edge (event->x, event->y,
+                         width, height,
+                         priv->frame_width, priv->frame_width,
+                         priv->frame_width, priv->frame_width,
+                         &edge))
   {
-    gtk_widget_destroy (widget);
+    switch (edge) {
+    case GDK_WINDOW_EDGE_EAST:
+      cursor = gdk_cursor_new (GDK_RIGHT_SIDE);
+      break;
+    case GDK_WINDOW_EDGE_WEST:
+      cursor = gdk_cursor_new (GDK_LEFT_SIDE);
+      break;
+    case GDK_WINDOW_EDGE_NORTH:
+      cursor = gdk_cursor_new (GDK_TOP_SIDE);
+      break;
+    case GDK_WINDOW_EDGE_SOUTH:
+      cursor = gdk_cursor_new (GDK_BOTTOM_SIDE);
+      break;
+    case GDK_WINDOW_EDGE_NORTH_EAST:
+      cursor = gdk_cursor_new (GDK_TOP_RIGHT_CORNER);
+      break;
+    case GDK_WINDOW_EDGE_NORTH_WEST:
+      cursor = gdk_cursor_new (GDK_TOP_LEFT_CORNER);
+      break;
+    case GDK_WINDOW_EDGE_SOUTH_EAST:
+      cursor = gdk_cursor_new (GDK_BOTTOM_RIGHT_CORNER);
+      break;
+    case GDK_WINDOW_EDGE_SOUTH_WEST:
+      cursor = gdk_cursor_new (GDK_BOTTOM_LEFT_CORNER);
+      break;
+    }
   }
-  return TRUE;
-}
-
-static gboolean
-ol_scroll_window_motion_notify (GtkWidget *widget, 
-                                GdkEventMotion *event)
-{
-  return TRUE;
+  gdk_window_set_cursor (widget->window,
+                         cursor);
+  if (cursor)
+    gdk_cursor_unref (cursor);
+  return FALSE;
 }
