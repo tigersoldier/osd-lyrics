@@ -1,6 +1,9 @@
+#include <string.h>
 #include "ol_scroll_module.h"
 #include "ol_music_info.h"
 #include "ol_scroll_window.h"
+#include "ol_config.h"
+#include "ol_color.h"
 #include "ol_lrc.h"
 
 typedef struct _OlScrollModule OlScrollModule;
@@ -21,13 +24,103 @@ void ol_scroll_module_set_music_info (struct OlDisplayModule *module, OlMusicInf
 void ol_scroll_module_set_played_time (struct OlDisplayModule *module, int played_time);
 void ol_scroll_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file);
 void ol_scroll_module_set_duration (struct OlDisplayModule *module, int duration);
-//void ol_scroll_module_set_music_info (struct OlDisplayModule *module, OlMusicInfo *music_info);
-//void ol_scroll_module_set_player (struct OlDisplayModule *module, struct OlPlayer *player);
 /*
 void ol_osd_module_search_message (struct OlDisplayModule *module, const char *message);
 void ol_osd_module_search_fail_message (struct OlDisplayModule *module, const char *message);
 void ol_osd_module_download_fail_message (struct OlDisplayModule *module, const char *message);
 void ol_osd_module_clear_message (struct OlDisplayModule *module);*/
+static void _config_change_handler (OlConfig *config,
+                                    gchar *group,
+                                    gchar *name,
+                                    gpointer userdata);
+static gboolean _window_configure_cb (GtkWidget *widget,
+                                      GdkEventConfigure *event,
+                                      gpointer user_data);
+
+static gboolean
+_window_configure_cb (GtkWidget *widget,
+                      GdkEventConfigure *event,
+                      gpointer user_data)
+{
+  ol_assert_ret (GTK_IS_WINDOW (widget), FALSE);
+  OlScrollModule *module = (OlScrollModule*) user_data;
+  if (module == NULL)
+    return FALSE;
+  gint width, height;
+  OlConfig *config = ol_config_get_instance ();
+  gtk_window_get_size (GTK_WINDOW (widget), &width, &height);
+  ol_config_set_int_no_emit (config, "ScrollMode", "width", width);
+  ol_config_set_int_no_emit (config, "ScrollMode", "height", height);
+  return FALSE;
+}
+
+static void
+_config_change_handler (OlConfig *config,
+                        gchar *group,
+                        gchar *name,
+                        gpointer userdata)
+{
+  ol_debugf ("%s:[%s]%s\n", __FUNCTION__, group, name);
+  static const char *GROUP_NAME = "ScrollMode";
+  OlScrollModule *module = (OlScrollModule*) userdata;
+  if (module == NULL)
+    return;
+  OlScrollWindow *window = module->scroll;
+  /* OlOsdWindow *osd = OL_OSD_WINDOW (userdata); */
+  if (window == NULL || !OL_IS_SCROLL_WINDOW (window))
+    return;
+  if (strcmp (group, GROUP_NAME) != 0)
+    return;
+  if (strcmp (name, "font-name") == 0)
+  {
+    gchar *font = ol_config_get_string (config, GROUP_NAME, "font-name");
+    ol_assert (font != NULL);
+    ol_scroll_window_set_font_name (window, font);
+    g_free (font);
+  }
+  else if (strcmp (name, "width") == 0 ||
+           strcmp (name, "height") == 0)
+  {
+    gint width = ol_config_get_int (config, GROUP_NAME, "width");
+    gint height = ol_config_get_int (config, GROUP_NAME, "height");
+    gtk_window_resize (GTK_WINDOW (window), width, height);
+  }
+  else if (strcmp (name, "active-lrc-color") == 0)
+  {
+    char *color_str = ol_config_get_string (config, GROUP_NAME, name);
+    if (color_str != NULL)
+    {
+      OlColor color = ol_color_from_string (color_str);
+      ol_scroll_window_set_active_color (window, color);
+      g_free (color_str);
+    }
+  }
+  else if (strcmp (name, "inactive-lrc-color") == 0)
+  {
+    char *color_str = ol_config_get_string (config, GROUP_NAME, name);
+    if (color_str != NULL)
+    {
+      OlColor color = ol_color_from_string (color_str);
+      ol_scroll_window_set_inactive_color (window, color);
+      g_free (color_str);
+    }
+  }
+  else if (strcmp (name, "bg-color") == 0)
+  {
+    char *color_str = ol_config_get_string (config, GROUP_NAME, name);
+    if (color_str != NULL)
+    {
+      OlColor color = ol_color_from_string (color_str);
+      ol_scroll_window_set_bg_color (window, color);
+      g_free (color_str);
+    }
+  }
+  else if (strcmp (name, "opacity") == 0)
+  {
+    double opacity = ol_config_get_double (config, group, name);
+    ol_scroll_window_set_bg_opacity (window, opacity);
+  }
+}
 
 static void
 ol_scroll_module_init_scroll (OlScrollModule *module)
@@ -39,7 +132,20 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   {
     return;
   }
-  gtk_window_set_opacity(GTK_WINDOW(module->scroll), 0.7); 
+  OlConfig *config = ol_config_get_instance ();
+  _config_change_handler (config, "ScrollMode", "width", module);
+  _config_change_handler (config, "ScrollMode", "font-name", module);
+  _config_change_handler (config, "ScrollMode", "active-lrc-color", module);
+  _config_change_handler (config, "ScrollMode", "inactive-lrc-color", module);
+  _config_change_handler (config, "ScrollMode", "bg-color", module);
+  _config_change_handler (config, "ScrollMode", "opacity", module);
+  g_signal_connect (module->scroll, "configure-event",
+                    G_CALLBACK (_window_configure_cb),
+                    module);
+  g_signal_connect (config, "changed",
+                    G_CALLBACK (_config_change_handler),
+                    module);
+  
   gtk_widget_show(GTK_WIDGET (module->scroll));
 }
 
@@ -127,8 +233,6 @@ ol_scroll_module_set_played_time (struct OlDisplayModule *module, int played_tim
     ol_scroll_window_set_lyric (priv->scroll, -1);
   }
 }
-
-
 
 void
 ol_scroll_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file)

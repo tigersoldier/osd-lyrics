@@ -259,9 +259,10 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
   ol_assert (cr != NULL);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  cairo_set_source_rgb (cr, DEFAULT_BG_COLOR.r,
-                        DEFAULT_BG_COLOR.b,
-                        DEFAULT_BG_COLOR.g);
+  cairo_set_source_rgb (cr,
+                        priv->bg_color.r,
+                        priv->bg_color.b,
+                        priv->bg_color.g);
   gint width, height;
   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
                          &width, &height);
@@ -291,7 +292,11 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
              priv->corner_radius,
              M_PI * 0.5, M_PI);
   cairo_close_path (cr);
-  cairo_set_source_rgba (cr, DEFAULT_BG_COLOR.r, DEFAULT_BG_COLOR.b, DEFAULT_BG_COLOR.g, priv->bg_opacity);
+  cairo_set_source_rgba (cr,
+                         priv->bg_color.r,
+                         priv->bg_color.b,
+                         priv->bg_color.g,
+                         priv->bg_opacity);
   cairo_fill(cr);
   /*clip the disply area*/
   cairo_restore (cr);
@@ -579,3 +584,80 @@ ol_scroll_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
     gdk_cursor_unref (cursor);
   return FALSE;
 }
+
+void
+ol_scroll_window_set_active_color (OlScrollWindow *scroll,
+                                   OlColor color)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->active_color = color;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+OlColor
+ol_scroll_window_get_active_color (OlScrollWindow *scroll)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll),
+                 ol_color_from_string ("#000000"));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  return priv->active_color;
+}
+
+void
+ol_scroll_window_set_inactive_color (OlScrollWindow *scroll,
+                                     OlColor color)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->inactive_color = color;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+OlColor
+ol_scroll_window_get_inactive_color (OlScrollWindow *scroll)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll),
+                 ol_color_from_string ("#000000"));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  return priv->inactive_color;
+}
+
+void
+ol_scroll_window_set_bg_color (OlScrollWindow *scroll,
+                               OlColor color)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->bg_color = color;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+OlColor
+ol_scroll_window_get_bg_color (OlScrollWindow *scroll)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll),
+                 ol_color_from_string ("#000000"));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  return priv->bg_color;
+}
+
+void
+ol_scroll_window_set_bg_opacity (OlScrollWindow *scroll,
+                                 double opacity)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->bg_opacity = opacity;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+double
+ol_scroll_window_get_bg_opacity (OlScrollWindow *scroll)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll),
+                 1.0);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  return priv->bg_opacity;
+}
+

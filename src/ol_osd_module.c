@@ -191,6 +191,8 @@ config_change_handler (OlConfig *config,
   /* OlOsdWindow *osd = OL_OSD_WINDOW (userdata); */
   if (window == NULL || !OL_IS_OSD_WINDOW (window))
     return;
+  if (strcmp (group, "OSD") != 0)
+    return;
   if (strcmp (name, "locked") == 0)
   {
     ol_debugf ("  locked: %d\n", ol_config_get_bool (config, "OSD", "locked"));

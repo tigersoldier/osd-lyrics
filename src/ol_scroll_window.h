@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 #include <ol_debug.h>
+#include "ol_color.h"
 
 #define OL_SCROLL_WINDOW(obj)                   GTK_CHECK_CAST (obj, ol_scroll_window_get_type (), OlScrollWindow)
 #define OL_SCROLL_WINDOW_CLASS(klass)           GTK_CHECK_CLASS_CAST (klass, ol_scroll_window_get_type (), OlScrollWindowClass)
@@ -120,6 +121,17 @@ const char* ol_scroll_window_get_font_name (OlScrollWindow *scroll);
  */
 void ol_scroll_window_set_bg_opacity (OlScrollWindow *scroll,
                                       double opacity);
-
 double ol_scroll_window_get_bg_opacity (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_active_color (OlScrollWindow *scroll,
+                                        OlColor color);
+OlColor ol_scroll_window_get_active_color (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_inactive_color (OlScrollWindow *scroll,
+                                          OlColor color);
+OlColor ol_scroll_window_get_inactive_color (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_bg_color (OlScrollWindow *scroll,
+                                          OlColor color);
+OlColor ol_scroll_window_get_bg_color (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */

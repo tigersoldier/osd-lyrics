@@ -46,6 +46,13 @@ enum {
   PROP_PROXY_TYPE,
   PROP_PROXY_USERNAME,
   PROP_PROXY_PASSWORD,
+  PROP_SCROLL_WIDTH,
+  PROP_SCROLL_HEIGHT,
+  PROP_SCROLL_FONT_NAME,
+  PROP_SCROLL_BG_COLOR,
+  PROP_SCROLL_ACTIVE_LRC_COLOR,
+  PROP_SCROLL_INACTIVE_LRC_COLOR,
+  PROP_SCROLL_OPACITY,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -196,6 +203,10 @@ static const OlConfigIntValue config_int[] = {
   {PROP_OSD_X, "x", "OSD", "OSD X position", "The horizontal position of OSD", 0, 10000, 0},
   {PROP_OSD_Y, "y", "OSD", "OSD Y position", "The vertical position of OSD", 0, 10000, 0},
   {PROP_PROXY_PORT, "proxy-port", "Download", "Proxy Port", "The port of proxy", 7070},
+  {PROP_SCROLL_WIDTH, "width", "ScrollMode", "Scroll Window Width",
+   "The width of the scroll window", 1, 10000, 500},
+  {PROP_SCROLL_HEIGHT, "height", "ScrollMode", "Scroll Window Height",
+   "The height of the scroll window", 1, 10000, 400},
 };
 
 static const OlConfigDoubleValue config_double[] = {
@@ -216,6 +227,9 @@ static const OlConfigDoubleValue config_double[] = {
   {PROP_LRC_ALIGN_1, "lrc-align-1", "OSD", "Lyric alignment 1",
    "Alignment of the second lyric line",
    0.0, 1.0, 1.0},
+  {PROP_SCROLL_OPACITY, "opacity", "ScrollMode", "Scroll Window Opacity",
+   "The background opacity of the scroll window",
+   0.0, 1.0, 0.9},
 };
 
 static const OlConfigStringValue config_str[] = {
@@ -245,6 +259,15 @@ static const OlConfigStringValue config_str[] = {
   {PROP_OSD_WINDOW_MODE, "osd-window-mode", "OSD",
    "OSD window mode", "The display mode of OSD Window, either dock or normal.",
    "dock"},
+  {PROP_SCROLL_FONT_NAME, "font-name", "ScrollMode", "Scroll Window Font Name",
+   "The font information of scroll window, like ``Sans Bold Italic 12''",
+   "Sans 12"},
+  {PROP_SCROLL_BG_COLOR, "bg-color", "ScrollMode", "Scroll Window Background Color",
+   "The background color of scroll window", "#000000"},
+  {PROP_SCROLL_ACTIVE_LRC_COLOR, "active-lrc-color", "ScrollMode",
+   "Active lyric color", "Color of active lyrics", "#E3CF00"},
+  {PROP_SCROLL_INACTIVE_LRC_COLOR, "inactive-lrc-color", "ScrollMode",
+   "Inactive lyric color", "Colors of inactive lyrics", "#FAEBD6"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */
