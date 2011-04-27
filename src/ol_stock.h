@@ -9,6 +9,7 @@
 #define OL_STOCK_OSD_STOP "osd-lyrics-osd-stop"
 #define OL_STOCK_OSD_PREV "osd-lyrics-osd-prev"
 #define OL_STOCK_OSD_NEXT "osd-lyrics-osd-next"
+#define OL_STOCK_SCROLL_CLOSE "osd-lyrics-scroll-close"
 void ol_stock_init ();
 
 #endif /* _OL_STOCK_H_ */

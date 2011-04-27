@@ -18,7 +18,8 @@ dist_osd_icon_DATA = \
 	osd-lyrics-osd-pause.svg \
 	osd-lyrics-osd-stop.svg \
 	osd-lyrics-osd-next.svg \
-	osd-lyrics-osd-prev.svg
+	osd-lyrics-osd-prev.svg \
+	osd-lyrics-scroll-close.svg
 
 bgdir = ${datadir}/icons/hicolor/scalable/apps
 dist_bg_DATA = osd-lyrics-osd-bg.svg

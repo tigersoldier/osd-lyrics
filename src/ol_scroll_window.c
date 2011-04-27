@@ -1,9 +1,12 @@
 #include <math.h>
-#include "ol_scroll_window.h"
-#include <ol_debug.h>
-#include <pango/pangocairo.h>
 #include <glib.h>
-#include <ol_color.h>
+#include <pango/pangocairo.h>
+
+#include "ol_scroll_window.h"
+#include "ol_color.h"
+#include "ol_stock.h"
+#include "ol_image_button.h"
+#include "ol_debug.h"
 
 
 #define OL_SCROLL_WINDOW_GET_PRIVATE(obj)    (G_TYPE_INSTANCE_GET_PRIVATE \
@@ -54,7 +57,7 @@ static void ol_scroll_window_class_init (OlScrollWindowClass *klass);
 static void ol_scroll_window_destroy (GtkObject *object);
 static gboolean ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event);
 
-static void ol_scroll_window_paint (OlScrollWindow *scroll);
+static void _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr);
 static int ol_scroll_window_compute_line_count (OlScrollWindow *scroll);
 static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
 
@@ -67,8 +70,6 @@ static gboolean ol_scroll_window_button_release (GtkWidget *widget,
 static gboolean ol_scroll_window_motion_notify (GtkWidget *widget,
                                                 GdkEventMotion *event);
 
-static void _draw_destory_button (OlScrollWindow *scroll, cairo_t *cr, double size);
-
 G_DEFINE_TYPE (OlScrollWindow, ol_scroll_window, GTK_TYPE_WINDOW);
 
 
@@ -77,8 +78,6 @@ ol_scroll_window_new ()
 {
   OlScrollWindow *scroll;
   scroll = g_object_new (ol_scroll_window_get_type (), NULL);
-  gtk_window_set_decorated (GTK_WINDOW(scroll), FALSE);
-  /* gtk_window_set_opacity(GTK_WINDOW(scroll), 0.1); */
   return GTK_WIDGET (scroll);
 }
 
@@ -117,19 +116,44 @@ ol_scroll_window_init (OlScrollWindow *self)
   if (colormap == NULL)
     colormap = gdk_screen_get_rgb_colormap (screen);
   gtk_widget_set_colormap (GTK_WIDGET (self), colormap);
+  gtk_window_set_decorated (GTK_WINDOW(self), FALSE);
+  gtk_widget_set_app_paintable (GTK_WIDGET (self), TRUE);
+  /* Set tool buttons */
+  GtkAlignment *alignment = GTK_ALIGNMENT (gtk_alignment_new (1.0, 0.0, 0.0, 0.0));
+  gtk_alignment_set_padding (alignment,
+                             priv->padding_x, priv->padding_x,
+                             priv->padding_x, priv->padding_x);
+  gtk_container_add (GTK_CONTAINER (self),
+                     GTK_WIDGET (alignment));
+  OlImageButton *button = OL_IMAGE_BUTTON (ol_image_button_new ());
+  GtkIconTheme *icontheme = gtk_icon_theme_get_default ();
+  GtkIconInfo *info = gtk_icon_theme_lookup_icon (icontheme,
+                                                  OL_STOCK_SCROLL_CLOSE,
+                                                  16,
+                                                  0);
+  
+  GdkPixbuf *image = gdk_pixbuf_new_from_file (gtk_icon_info_get_filename (info),
+                                               NULL);
+  gtk_icon_info_free (info);
+  ol_image_button_set_pixbuf (button, image);
+
+  gtk_container_add (GTK_CONTAINER (alignment),
+                     GTK_WIDGET (button));
+  gtk_widget_show_all (GTK_WIDGET (alignment));
+  /* Connect signals */
+  g_signal_connect (G_OBJECT (self), "expose-event",
+                    G_CALLBACK (ol_scroll_window_expose), self);
 }
 
 static void
 ol_scroll_window_class_init (OlScrollWindowClass *klass)
 {
-  printf("scroll window class_init\n");
   GObjectClass *gobject_class;
   GtkWidgetClass *widget_class;
   GtkObjectClass *gtkobject_class;
   gobject_class = G_OBJECT_CLASS (klass);
   gtkobject_class = GTK_OBJECT_CLASS (klass);
   widget_class = (GtkWidgetClass*) klass;
-  widget_class->expose_event = ol_scroll_window_expose;
   widget_class->button_press_event = ol_scroll_window_button_press;
   widget_class->button_release_event = ol_scroll_window_button_release;
   widget_class->motion_notify_event = ol_scroll_window_motion_notify;
@@ -157,7 +181,11 @@ ol_scroll_window_destroy (GtkObject *object)
 static gboolean
 ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
-  ol_scroll_window_paint (OL_SCROLL_WINDOW (widget));
+  OlScrollWindow *scroll = OL_SCROLL_WINDOW (widget);
+  cairo_t *cr = _get_cairo (scroll);
+  _paint_bg (scroll, cr);
+  _paint_lyrics (scroll, cr);
+  cairo_destroy (cr);
   return FALSE;
 }
 
@@ -226,25 +254,6 @@ _get_active_color_ratio (OlScrollWindow *scroll, int line)
   return ratio;
 }
 
-static void 
-_draw_destory_button (OlScrollWindow *scroll, cairo_t *cr, double size)
-{
-   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
-   ol_assert (cr != NULL);
-   gint width;
-   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
-			 &width, NULL);
-   cairo_move_to (cr, width-size-3.0, 3.0);
-   cairo_line_to (cr, width-3.0, size+3.0);
-
-   cairo_move_to (cr, width-size-3.0, size+3.0);
-   cairo_line_to (cr, width-3.0, 3.0);
-   cairo_set_source_rgb (cr, 1, 1, 1);
-   cairo_set_line_width (cr, 2.0);
-   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
-   cairo_stroke (cr);
-}
-
 static void
 _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
 {
@@ -290,7 +299,7 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
 }
 
 static void
-ol_scroll_window_paint (OlScrollWindow *scroll)
+_paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
 {
   ol_log_func ();
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
@@ -304,12 +313,8 @@ ol_scroll_window_paint (OlScrollWindow *scroll)
   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
                          &width, &height);
   
-  cairo_t *cr = _get_cairo (scroll);
-  _paint_bg (scroll, cr);
   /* set the font */
   PangoLayout *layout = _get_pango (scroll, cr);
-  /* paint the destory button*/
-  _draw_destory_button (scroll, cr, 10);
   /* paint the lyrics*/
   cairo_save (cr);
   cairo_new_path (cr);
@@ -361,7 +366,6 @@ ol_scroll_window_paint (OlScrollWindow *scroll)
   g_object_unref (layout);
   cairo_reset_clip (cr);
   cairo_restore (cr);
-  cairo_destroy (cr);
 }
 
 void
