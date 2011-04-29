@@ -44,7 +44,6 @@ struct _OlScrollWindow
   GtkWindow widget;
   double percentage;
   GPtrArray *whole_lyrics;
-  gint whole_lyrics_len;
   gint current_lyric_id;
 };
 
@@ -64,26 +63,23 @@ GtkType ol_scroll_window_get_type (void);
 GtkWidget* ol_scroll_window_new (void);
 
 /** 
- * @brief Set the lyric of certain line
- * If a line of lyric is set, it will changes to the lyric.
- * @param scroll An OlScrollWindow
- * @param lyric_id The lyric_line which is currenty being displayed. -1  means the line has no lyric currently.
- */
-void ol_scroll_window_set_lyric (OlScrollWindow *scroll, const int lyric_id);
-/** 
  * @brief Set the whole lyric of a song
  * If music changes,the whole lyrics of window will be changed.
  * @param scroll An OlScrollWindow
- * @param whole_lyrics The lyrics of a song. NULL means the line has no lyric currently.
- * @param whole_lyrics_len The lyrics number of a song
+ * @param whole_lyrics The lyrics of a song. NULL means the line has no lyric
+ *                     currently. The scroll window will increase the ref count of it.
  */
-void ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll, GPtrArray *whole_lyrics, gint whole_lyrics_len);
+void ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll,
+                                       GPtrArray *whole_lyrics);
 /** 
- * @brief Sets the progress of the current lyric line
+ * @brief Sets the progress of the lyrics
  * @param scroll An OlScrollWindow
+ * @param lyric_id The lyric_line which is currenty being displayed. -1  means the line has no lyric currently.
  * @param percentage The width percentage of the left part whose color is changed
  */
-void ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percentage);
+void ol_scroll_window_set_progress (OlScrollWindow *scroll,
+                                    int lyric_id,
+                                    double percentage);
 
 
 /** 
@@ -110,6 +106,16 @@ void ol_scroll_window_set_font_name (OlScrollWindow *scroll,
  * @return The font name, see the comment of ol_scroll_window_set_font_name
  */
 const char* ol_scroll_window_get_font_name (OlScrollWindow *scroll);
+
+/** 
+ * Sets the text to be shown
+ *
+ * The text will be shown only if the lyrics are set to be NULL
+ * @param scroll 
+ * @param text The text to be set, or NULL.
+ */
+void ol_scroll_window_set_text (OlScrollWindow *scroll,
+                                const char *text);
 
 /** 
  * Sets the opacity of the background

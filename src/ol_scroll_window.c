@@ -47,19 +47,21 @@ struct __OlScrollWindowPrivate
   gint frame_width;
   gint corner_radius;
   double bg_opacity;
+  char *text;
 };
 
 
 static cairo_t* _get_cairo (OlScrollWindow *scroll);
 static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_bg (OlScrollWindow *scroll, cairo_t *cr);
+static void _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr);
+static void _paint_text (OlScrollWindow *scroll, cairo_t *cr);
 
 static void ol_scroll_window_init (OlScrollWindow *self);
 static void ol_scroll_window_class_init (OlScrollWindowClass *klass);
 static void ol_scroll_window_destroy (GtkObject *object);
 static gboolean ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event);
 
-static void _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr);
 static int ol_scroll_window_compute_line_count (OlScrollWindow *scroll);
 static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
 
@@ -87,7 +89,6 @@ ol_scroll_window_init (OlScrollWindow *self)
   /*basic*/
   self->percentage = 0.0;
   self->whole_lyrics = NULL;
-  self->whole_lyrics_len = 0;
   self->current_lyric_id = -1;
   /*privat data*/
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (self);
@@ -103,6 +104,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->corner_radius = DEFAULT_CORNER_RADIUS;
   priv->bg_opacity = DEFAULT_BG_OPACITY;
   priv->frame_width = DEFAULT_FRAME_WIDTH;
+  priv->text = NULL;
   /*set allocation*/
   gtk_window_resize(GTK_WINDOW(self), DEFAULT_WIDTH, DEFAULT_HEIGHT);
   gtk_widget_add_events (GTK_WIDGET (self),
@@ -169,6 +171,8 @@ ol_scroll_window_destroy (GtkObject *object)
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (object);
   if (priv->font_name != NULL)
     g_free (priv->font_name);
+  if (priv->text != NULL)
+    g_free (priv->text);
   if (scroll->current_lyric_id!= -1)
   {
     scroll->current_lyric_id = -1;
@@ -181,29 +185,37 @@ static gboolean
 ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event)
 {
   OlScrollWindow *scroll = OL_SCROLL_WINDOW (widget);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
   cairo_t *cr = _get_cairo (scroll);
   _paint_bg (scroll, cr);
-  _paint_lyrics (scroll, cr);
+  if (scroll->whole_lyrics != NULL)
+    _paint_lyrics (scroll, cr);
+  else if (priv->text != NULL)
+    _paint_text (scroll, cr);
   cairo_destroy (cr);
   return FALSE;
 }
 
 void 
-ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll, GPtrArray *whole_lyrics, gint whole_lyrics_len)
+ol_scroll_window_set_whole_lyrics (OlScrollWindow *scroll,
+                                   GPtrArray *whole_lyrics)
 {
   ol_log_func ();
-  g_return_if_fail (scroll != NULL);
-  if (whole_lyrics == NULL) {
-    scroll->whole_lyrics = NULL;
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  if (scroll->whole_lyrics != NULL)
+    g_ptr_array_unref (scroll->whole_lyrics);
+  scroll->whole_lyrics = whole_lyrics;
+  if (whole_lyrics != NULL)
+  {
+    g_ptr_array_ref (whole_lyrics);
   }
-  else {
-    int i;
-    scroll->whole_lyrics = g_ptr_array_new_with_free_func (g_free);
-    for (i = 0; i < whole_lyrics_len; i++) {
-      g_ptr_array_add (scroll->whole_lyrics, g_strdup (g_ptr_array_index (whole_lyrics, i)));
-    }
+  else
+  {
+    /* We only queue draw when the lyrics are no available.
+       Otherwise the progress will go wrong due to out-dated
+       progress info*/
+    gtk_widget_queue_draw (GTK_WIDGET (scroll));
   }
-  scroll->whole_lyrics_len = whole_lyrics_len;
 }
 
 static PangoLayout*
@@ -223,16 +235,10 @@ static cairo_t*
 _get_cairo (OlScrollWindow *scroll)
 {
   ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), NULL);
-  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   cairo_t *cr;
   cr = gdk_cairo_create (GTK_WIDGET (scroll)->window);
   cairo_save (cr);
-  cairo_set_source_rgba (cr,
-                         priv->bg_color.r,
-                         priv->bg_color.g,
-                         priv->bg_color.b,
-                         0.0);
-  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+  cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
   cairo_paint(cr);
   cairo_restore (cr);
   return cr;
@@ -298,8 +304,8 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
                          priv->bg_color.g,
                          priv->bg_color.b,
                          priv->bg_opacity);
-  cairo_fill(cr);
-  /*clip the disply area*/
+  cairo_fill (cr);
+  /* cairo_stroke (cr); */
   cairo_restore (cr);
 }
 
@@ -344,7 +350,7 @@ _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
       if (i >= scroll->whole_lyrics->len)
         break;
       pango_layout_set_text (layout,
-                             g_strdup (g_ptr_array_index (scroll->whole_lyrics, i)),
+                             g_ptr_array_index (scroll->whole_lyrics, i),
                              -1);
       cairo_save (cr);
       double ratio = _get_active_color_ratio (scroll, i);
@@ -373,19 +379,60 @@ _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
   cairo_restore (cr);
 }
 
-void
-ol_scroll_window_set_lyric (OlScrollWindow *scroll, const int lyric_id)
+static void
+_paint_text (OlScrollWindow *scroll, cairo_t *cr)
 {
   ol_log_func ();
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
-  scroll->current_lyric_id = lyric_id; 
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert (cr != NULL);
+  GtkWidget *widget = GTK_WIDGET (scroll);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  gint width, height;
+  PangoRectangle extent;
+  PangoLayout *layout;
+  gint x, y;
+  gdk_drawable_get_size (gtk_widget_get_window (widget),
+                         &width, &height);
+  
+  /* set the font */
+  cairo_save (cr);
+  cairo_set_source_rgb (cr,
+                        priv->inactive_color.r,
+                        priv->inactive_color.g,
+                        priv->inactive_color.b);
+  layout = _get_pango (scroll, cr);
+  pango_layout_set_text (layout, priv->text, -1);
+  pango_layout_get_pixel_extents (layout, NULL, &extent);
+  pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
+  x = (width - extent.width) / 2;
+  y = (height - extent.height) / 2;
+  if (x < 0) x = 0;
+  if (y < 0) y = 0;
+  cairo_move_to (cr, x, y);
+  pango_cairo_update_layout (cr, layout);
+  pango_cairo_show_layout (cr, layout);
 }
 
 void
-ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percentage)
+ol_scroll_window_set_progress (OlScrollWindow *scroll,
+                               int lyric_id,
+                               double percentage)
 {
-  g_return_if_fail (OL_IS_SCROLL_WINDOW (scroll));
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  scroll->current_lyric_id = lyric_id;
   scroll->percentage = percentage;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+void
+ol_scroll_window_set_text (OlScrollWindow *scroll,
+                           const char *text)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  if (priv->text != NULL)
+    g_free (priv->text);
+  priv->text = g_strdup (text);
   gtk_widget_queue_draw (GTK_WIDGET (scroll));
 }
 
@@ -400,7 +447,6 @@ ol_scroll_window_compute_line_count (OlScrollWindow *scroll)
   int line_count = height - priv->padding_y * 2 / font_height;
   return line_count;
 }
-
 
 static int
 ol_scroll_window_get_font_height (OlScrollWindow *scroll)
