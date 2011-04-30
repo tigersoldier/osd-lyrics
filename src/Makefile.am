@@ -61,6 +61,7 @@ noinst_HEADERS = \
 	ol_lrc_fetch_module.h \
 	ol_lrc_fetch_qianqian.h \
 	ol_lrc_fetch_sogou.h \
+	ol_lrc_fetch_xiami.h \
 	ol_lrc_fetch_ui.h \
 	ol_lrc_fetch_utils.h \
 	ol_lrc.h \
@@ -169,6 +170,7 @@ osd_lyrics_SOURCES = \
 	ol_lrc_fetch.c \
 	ol_lrc_fetch_module.c \
 	ol_lrc_fetch_ui.c \
+	ol_lrc_fetch_xiami.c \
 	ol_lrc_fetch_sogou.c \
 	ol_lrc_fetch_qianqian.c \
 	ol_lrc_fetch_minilyrics.c \

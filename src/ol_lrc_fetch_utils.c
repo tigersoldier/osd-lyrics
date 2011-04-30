@@ -11,11 +11,9 @@
 #include "ol_utils_network.h"
 #include "ol_debug.h"
 
-const int RANK_SCALE = 100000;
-const double RANK_ACCEPT_FACTOR = 0.5;
-
 static long cntimeout = 6;
 static char errbuf[CURL_ERROR_SIZE];
+const int RANK_SCALE = 100000;
 static gboolean _set_curl_proxy (CURL *curl_handler);
 
 size_t
@@ -516,7 +514,7 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
   return 0;
 }
 
-static int
+int
 ol_lrc_fetch_calc_rank (const OlMusicInfo *info,
                         OlLrcCandidate *candidate)
 {
@@ -550,7 +548,7 @@ ol_lrc_fetch_add_candidate (const OlMusicInfo *info,
       count < 0 || size <= 0)
     return 0;
   new_candidate->rank = ol_lrc_fetch_calc_rank (info, new_candidate);
-  if (new_candidate->rank < RANK_ACCEPT_FACTOR * RANK_SCALE)
+  if (new_candidate->rank < LRC_RANK_THRESHOLD)
     return count;
   int pos = count;
   while (pos > 0 && new_candidate->rank > candidate_list[pos - 1].rank)

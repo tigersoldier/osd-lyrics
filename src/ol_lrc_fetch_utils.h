@@ -21,6 +21,8 @@
 
 #include<limits.h>
 
+#define LRC_RANK_THRESHOLD 50000
+
 /** 
  * @brief converts text from one encoding to another using libiconv
  * 
@@ -118,5 +120,8 @@ int ol_lrc_fetch_add_candidate (const struct _OlMusicInfo *info,
                                 size_t count,
                                 size_t size,
                                 struct _OlLrcCandidate *new_candidate);
+
+int ol_lrc_fetch_calc_rank (const struct _OlMusicInfo *info,
+                            struct _OlLrcCandidate *candidate);
 
 #endif /* _UTIL_LRC_FETCH */ 
