@@ -187,12 +187,23 @@ ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event)
   OlScrollWindow *scroll = OL_SCROLL_WINDOW (widget);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
   cairo_t *cr = _get_cairo (scroll);
-  _paint_bg (scroll, cr);
-  if (scroll->whole_lyrics != NULL)
-    _paint_lyrics (scroll, cr);
-  else if (priv->text != NULL)
-    _paint_text (scroll, cr);
-  cairo_destroy (cr);
+  if (!gdk_region_point_in(event->region, 0, 0))
+  {
+    /* If expose event is caused by resizing, the drawing area is
+       clipped with the extended region. As we need to repaint the
+       whole window, we need to queue the draw to get another expose
+       event which clips the whole window*/
+    gtk_widget_queue_draw (widget);
+  }
+  else
+  {
+    _paint_bg (scroll, cr);
+    if (scroll->whole_lyrics != NULL)
+      _paint_lyrics (scroll, cr);
+    else if (priv->text != NULL)
+      _paint_text (scroll, cr);
+    cairo_destroy (cr);
+  }
   return FALSE;
 }
 
@@ -236,7 +247,8 @@ _get_cairo (OlScrollWindow *scroll)
 {
   ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), NULL);
   cairo_t *cr;
-  cr = gdk_cairo_create (GTK_WIDGET (scroll)->window);
+  GtkWidget *widget = GTK_WIDGET (scroll);
+  cr = gdk_cairo_create (gtk_widget_get_window (widget));
   cairo_save (cr);
   cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
   cairo_paint(cr);
