@@ -4,6 +4,8 @@
 #include "ol_scroll_window.h"
 #include "ol_config.h"
 #include "ol_color.h"
+#include "ol_stock.h"
+#include "ol_image_button.h"
 #include "ol_lrc.h"
 
 typedef struct _OlScrollModule OlScrollModule;
@@ -31,9 +33,6 @@ static void ol_scroll_module_set_lrc (struct OlDisplayModule *module,
 static void ol_scroll_module_set_duration (struct OlDisplayModule *module,
                                            int duration);
 
-/* void ol_osd_module_search_message (struct OlDisplayModule *module, const char *message); */
-/* void ol_osd_module_search_fail_message (struct OlDisplayModule *module, const char *message); */
-/* void ol_osd_module_download_fail_message (struct OlDisplayModule *module, const char *message); */
 static void ol_scroll_module_set_message (struct OlDisplayModule *module,
                                           const char *message);
 static void ol_scroll_module_set_last_message (struct OlDisplayModule *module,
@@ -46,8 +45,11 @@ static void _config_change_handler (OlConfig *config,
                                     gpointer userdata);
 static gboolean _window_configure_cb (GtkWidget *widget,
                                       GdkEventConfigure *event,
-                                      gpointer user_data);
+                                      gpointer userdata);
 static void _set_music_info_as_text (OlScrollModule *module);
+static GtkWidget* _toolbar_new (OlScrollModule *module);
+static gboolean _close_clicked_cb (GtkButton *button,
+                                   gpointer userdata);
 
 static gboolean
 _window_configure_cb (GtkWidget *widget,
@@ -134,6 +136,37 @@ _config_change_handler (OlConfig *config,
   }
 }
 
+static gboolean
+_close_clicked_cb (GtkButton *button,
+                   gpointer userdata)
+{
+  gtk_main_quit ();
+  return FALSE;
+}
+
+static GtkWidget *
+_toolbar_new (OlScrollModule *module)
+{
+  GtkWidget *toolbar = gtk_hbox_new (FALSE, 0);
+  OlImageButton *button = OL_IMAGE_BUTTON (ol_image_button_new ());
+  GtkIconTheme *icontheme = gtk_icon_theme_get_default ();
+  GtkIconInfo *info = gtk_icon_theme_lookup_icon (icontheme,
+                                                  OL_STOCK_SCROLL_CLOSE,
+                                                  16,
+                                                  0);
+  
+  GdkPixbuf *image = gdk_pixbuf_new_from_file (gtk_icon_info_get_filename (info),
+                                               NULL);
+  ol_image_button_set_pixbuf (button, image);
+  g_signal_connect (button, "clicked", G_CALLBACK (_close_clicked_cb), module);
+  gtk_container_add (GTK_CONTAINER (toolbar),
+                     GTK_WIDGET (button));
+  gtk_icon_info_free (info);
+
+  gtk_widget_show_all (toolbar);
+  return toolbar;
+}
+
 static void
 ol_scroll_module_init_scroll (OlScrollModule *module)
 {
@@ -145,6 +178,9 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   {
     return;
   }
+  GtkWidget *toolbar = _toolbar_new (module);
+  ol_scroll_window_add_toolbar (module->scroll,
+                                toolbar);
   OlConfig *config = ol_config_get_instance ();
   _config_change_handler (config, "ScrollMode", "width", module);
   _config_change_handler (config, "ScrollMode", "font-name", module);

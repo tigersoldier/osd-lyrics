@@ -140,4 +140,9 @@ OlColor ol_scroll_window_get_inactive_color (OlScrollWindow *scroll);
 void ol_scroll_window_set_bg_color (OlScrollWindow *scroll,
                                           OlColor color);
 OlColor ol_scroll_window_get_bg_color (OlScrollWindow *scroll);
+
+void ol_scroll_window_add_toolbar (OlScrollWindow *scroll,
+                                   GtkWidget	*widget);
+void ol_scroll_window_remove_toolbar (OlScrollWindow *scroll,
+                                      GtkWidget *widget);
 #endif /* __OL_SCROLL_WINDOW_H__ */

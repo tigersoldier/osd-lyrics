@@ -4,8 +4,6 @@
 
 #include "ol_scroll_window.h"
 #include "ol_color.h"
-#include "ol_stock.h"
-#include "ol_image_button.h"
 #include "ol_debug.h"
 
 
@@ -49,6 +47,7 @@ struct __OlScrollWindowPrivate
   double bg_opacity;
   char *text;
   gint saved_lrc_y;
+  GtkContainer *container;
 };
 
 
@@ -123,28 +122,15 @@ ol_scroll_window_init (OlScrollWindow *self)
   gtk_widget_set_colormap (GTK_WIDGET (self), colormap);
   gtk_window_set_decorated (GTK_WINDOW(self), FALSE);
   gtk_widget_set_app_paintable (GTK_WIDGET (self), TRUE);
-  /* Set tool buttons */
+  /* Set toolbar container */
   GtkAlignment *alignment = GTK_ALIGNMENT (gtk_alignment_new (1.0, 0.0, 0.0, 0.0));
   gtk_alignment_set_padding (alignment,
                              priv->padding_x, priv->padding_x,
                              priv->padding_x, priv->padding_x);
   gtk_container_add (GTK_CONTAINER (self),
                      GTK_WIDGET (alignment));
-  OlImageButton *button = OL_IMAGE_BUTTON (ol_image_button_new ());
-  GtkIconTheme *icontheme = gtk_icon_theme_get_default ();
-  GtkIconInfo *info = gtk_icon_theme_lookup_icon (icontheme,
-                                                  OL_STOCK_SCROLL_CLOSE,
-                                                  16,
-                                                  0);
-  
-  GdkPixbuf *image = gdk_pixbuf_new_from_file (gtk_icon_info_get_filename (info),
-                                               NULL);
-  gtk_icon_info_free (info);
-  ol_image_button_set_pixbuf (button, image);
-
-  gtk_container_add (GTK_CONTAINER (alignment),
-                     GTK_WIDGET (button));
   gtk_widget_show_all (GTK_WIDGET (alignment));
+  priv->container = GTK_CONTAINER (alignment);
   /* Connect signals */
   g_signal_connect (G_OBJECT (self), "expose-event",
                     G_CALLBACK (ol_scroll_window_expose), self);
@@ -164,6 +150,24 @@ ol_scroll_window_class_init (OlScrollWindowClass *klass)
   gtkobject_class->destroy = ol_scroll_window_destroy;
   /*add private variables into OlScrollWindow*/
   g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
+}
+
+void
+ol_scroll_window_add_toolbar (OlScrollWindow *scroll,
+                              GtkWidget	*widget)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  gtk_container_add (priv->container, widget);
+}
+
+ void
+ol_scroll_window_remove_toolbar (OlScrollWindow *scroll,
+                                 GtkWidget *widget)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  gtk_container_remove (priv->container, widget);
 }
 
 static void
