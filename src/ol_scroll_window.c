@@ -339,12 +339,10 @@ _calc_lrc_ypos (OlScrollWindow *scroll, double percentage)
     return -1;
   gint line_height;
   line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
-  if (percentage < 0.1)
-    percentage = percentage / 0.1 * 0.5;
-  else if (percentage > 0.9)
-    percentage = 1 - (1 - percentage) / 0.1 * 0.5;
+  if (percentage < 0.15)
+    percentage = percentage / 0.15;
   else
-    percentage = 0.5;
+    percentage = 1;
   return line_height * percentage;
 }
 
