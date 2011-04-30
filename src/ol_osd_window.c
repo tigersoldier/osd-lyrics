@@ -661,6 +661,7 @@ ol_osd_window_realize_cb (GtkWidget *widget,
                                                 G_CALLBACK (ol_osd_window_screen_composited_changed),
                                                 osd);
   }
+  ol_osd_window_set_input_shape_mask (osd, priv->locked);
 }
 
 static void
