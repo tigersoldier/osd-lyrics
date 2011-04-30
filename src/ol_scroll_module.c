@@ -179,6 +179,10 @@ ol_scroll_module_free (struct OlDisplayModule *module)
   ol_assert (module != NULL);
   OlScrollModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
+  OlConfig *config = ol_config_get_instance ();
+  g_signal_handlers_disconnect_by_func (config,
+                                        _config_change_handler,
+                                        priv);
   if (module == NULL)
     return;
   if (priv->scroll != NULL)
