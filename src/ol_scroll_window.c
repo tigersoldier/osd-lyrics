@@ -510,6 +510,7 @@ ol_scroll_window_get_font_height (OlScrollWindow *scroll)
   pango_font_metrics_unref (metrics);
     
   height += PANGO_PIXELS (ascent + descent);
+  pango_font_description_free (font_desc);
   g_object_unref (pango_layout);
   g_object_unref (pango_context);
   return height;
