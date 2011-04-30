@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 #include <ol_debug.h>
+#include "ol_color.h"
 
 #define OL_SCROLL_WINDOW(obj)                   GTK_CHECK_CAST (obj, ol_scroll_window_get_type (), OlScrollWindow)
 #define OL_SCROLL_WINDOW_CLASS(klass)           GTK_CHECK_CLASS_CAST (klass, ol_scroll_window_get_type (), OlScrollWindowClass)
@@ -41,10 +42,8 @@ struct _OlScrollWindow
 {
   /*basic*/
   GtkWindow widget;
-  GPtrArray *paint_lyrics;
   double percentage;
   GPtrArray *whole_lyrics;
-  gint whole_lyrics_len;
   gint current_lyric_id;
 };
 
@@ -64,26 +63,23 @@ GtkType ol_scroll_window_get_type (void);
 GtkWidget* ol_scroll_window_new (void);
 
 /** 
- * @brief Set the lyric of certain line
- * If a line of lyric is set, it will changes to the lyric.
- * @param scroll An OlScrollWindow
- * @param lyric_id The lyric_line which is currenty being displayed. -1  means the line has no lyric currently.
- */
-void ol_scroll_window_set_lyric (OlScrollWindow *scroll, const int lyric_id);
-/** 
  * @brief Set the whole lyric of a song
  * If music changes,the whole lyrics of window will be changed.
  * @param scroll An OlScrollWindow
- * @param whole_lyrics The lyrics of a song. NULL means the line has no lyric currently.
- * @param whole_lyrics_len The lyrics number of a song
+ * @param whole_lyrics The lyrics of a song. NULL means the line has no lyric
+ *                     currently. The scroll window will increase the ref count of it.
  */
-void ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll, GPtrArray *whole_lyrics, gint whole_lyrics_len);
+void ol_scroll_window_set_whole_lyrics(OlScrollWindow *scroll,
+                                       GPtrArray *whole_lyrics);
 /** 
- * @brief Sets the progress of the current lyric line
+ * @brief Sets the progress of the lyrics
  * @param scroll An OlScrollWindow
+ * @param lyric_id The lyric_line which is currenty being displayed. -1  means the line has no lyric currently.
  * @param percentage The width percentage of the left part whose color is changed
  */
-void ol_scroll_window_set_current_percentage (OlScrollWindow *scroll, double percentage);
+void ol_scroll_window_set_progress (OlScrollWindow *scroll,
+                                    int lyric_id,
+                                    double percentage);
 
 
 /** 
@@ -97,15 +93,51 @@ int ol_scroll_window_get_current_lyric_id (OlScrollWindow *scroll);
  * @brief Sets the font family for an SCROLL Window
  * 
  * @param scroll An OlScrollWindow;
- * @param font_family Font family, must not be NULL
+ * @param font_name Font family, must not be NULL. The font_name contains style and
+ *        size information. Should be able to pass the value to
+ *        pango_font_description_from_string() 
  */
-void ol_scroll_window_set_font_family (OlScrollWindow *scroll,
-                                    const char *font_family);
+void ol_scroll_window_set_font_name (OlScrollWindow *scroll,
+                                     const char *font_family);
 /** 
  * @brief Gets the font family for an SCROLL Window
  * 
  * @param scroll An OlScrollWindow
- * @return The font family
+ * @return The font name, see the comment of ol_scroll_window_set_font_name
  */
-const char* ol_scroll_window_get_font_family (OlScrollWindow *scroll);
+const char* ol_scroll_window_get_font_name (OlScrollWindow *scroll);
+
+/** 
+ * Sets the text to be shown
+ *
+ * The text will be shown only if the lyrics are set to be NULL
+ * @param scroll 
+ * @param text The text to be set, or NULL.
+ */
+void ol_scroll_window_set_text (OlScrollWindow *scroll,
+                                const char *text);
+
+/** 
+ * Sets the opacity of the background
+ * 
+ * @param scroll 
+ * @param opacity The opacity of the background. 0 being fully transparent
+ *                and 1 meansfully opaque.
+ * 
+ */
+void ol_scroll_window_set_bg_opacity (OlScrollWindow *scroll,
+                                      double opacity);
+double ol_scroll_window_get_bg_opacity (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_active_color (OlScrollWindow *scroll,
+                                        OlColor color);
+OlColor ol_scroll_window_get_active_color (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_inactive_color (OlScrollWindow *scroll,
+                                          OlColor color);
+OlColor ol_scroll_window_get_inactive_color (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_bg_color (OlScrollWindow *scroll,
+                                          OlColor color);
+OlColor ol_scroll_window_get_bg_color (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */

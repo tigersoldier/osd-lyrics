@@ -1,15 +1,15 @@
 2010-12-17  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_vlc.c : ADD:Supports vlc.
-	
+
 2010-12-08  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_gmusicbrowser.c (ol_player_deciber_get_played_time): ADD:Supports Gmusicbrowser Audio Player.
-	
+
 2010-12-06  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_deciber.c (ol_player_deciber_get_played_time): ADD:Supports Deciber Audio Player.
-	
+
 2010-12-06  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_guayadeque02.c (ol_player_guayadeque02_get_played_time): FIXED:repeats playing the same line when the player is paused.
@@ -24,8 +24,8 @@
 	* src/Makefile.am (osd_lyrics_SOURCES): ADD:Supports Listen Music Player.
 
 2010-11-27  Sarlmol Apple  <sarlmolapple@gmail.com>
-	FIXED: Issue 151(2), Cant close the scroll windows while swithing the display mode. 
-	* src/ol_scroll_module.c (ol_scroll_module_free): 
+	FIXED: Issue 151(2), Cant close the scroll windows while swithing the display mode.
+	* src/ol_scroll_module.c (ol_scroll_module_free):
 
 2010-11-26  Sarlmol Apple  <sarlmolapple@gmail.com>
 
@@ -34,9 +34,28 @@
 2010-08-23  Sarlmol Apple  <sarlmolapple@gmail.com>
 
 	* src/ol_player_guayadeque02.c : ADD: Guayadeque0.2.5 support
+
 2010-07-10  Tiger Soldier  <tigersoldi@gmail.com>
 
 	* src/ol_player_muine.c : ADD: Muine support
+
+2010-07-12  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_scroll_window.c (_draw_destory_button): ADD:draw the destory button
+	ADD:add destory-event handle for destory button
+
+2010-07-11  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_scroll_window.c (ol_scroll_window_button_release): ADD:Drag the mouse for no-frame window(Gtkwindow shield events:button-press,button-release and motion-notify, so we should add the events for scroll_window in ol_scroll_window_new())
+	FIX:make the window move smoothly(add events:GDK_POINTER_MOTION_HINT_MASK)
+
+2010-06-10  Sarlmol Apple  <sarlmolapple@gmail.com>
+
+	* src/ol_scroll_window.c (ol_scroll_window_paint): FIX:Crash out when end of a song
+
+2010-06-10  Tiger Soldier  <tigersoldi@gmail.com>
+
+	* src/ol_scroll_window.c (ol_scroll_window_paint): CHANGE: Refactor scroll window, get rid of active_lyrics array
 
 2010-06-09  Tiger Soldier  <tigersoldi@gmail.com>
 

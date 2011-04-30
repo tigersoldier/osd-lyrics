@@ -12,6 +12,7 @@ const char *ICON_LIST[] = {
   OL_STOCK_OSD_STOP,
   OL_STOCK_OSD_PREV,
   OL_STOCK_OSD_NEXT,
+  OL_STOCK_SCROLL_CLOSE,
 };
 
 void 
