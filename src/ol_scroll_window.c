@@ -48,6 +48,7 @@ struct __OlScrollWindowPrivate
   gint corner_radius;
   double bg_opacity;
   char *text;
+  gint saved_lrc_y;
 };
 
 
@@ -56,6 +57,7 @@ static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_bg (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_text (OlScrollWindow *scroll, cairo_t *cr);
+static gint _calc_lrc_ypos (OlScrollWindow *scroll, double percentage);
 
 static void ol_scroll_window_init (OlScrollWindow *self);
 static void ol_scroll_window_class_init (OlScrollWindowClass *klass);
@@ -213,12 +215,14 @@ ol_scroll_window_set_whole_lyrics (OlScrollWindow *scroll,
 {
   ol_log_func ();
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   if (scroll->whole_lyrics != NULL)
     g_ptr_array_unref (scroll->whole_lyrics);
   scroll->whole_lyrics = whole_lyrics;
   if (whole_lyrics != NULL)
   {
     g_ptr_array_ref (whole_lyrics);
+    priv->saved_lrc_y = -1;
   }
   else
   {
@@ -321,10 +325,28 @@ _paint_bg (OlScrollWindow *scroll, cairo_t *cr)
   cairo_restore (cr);
 }
 
+static gint
+_calc_lrc_ypos (OlScrollWindow *scroll, double percentage)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), -1);
+  GtkWidget *widget = GTK_WIDGET (scroll);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  if (!GTK_WIDGET_REALIZED (widget))
+    return -1;
+  gint line_height;
+  line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
+  if (percentage < 0.1)
+    percentage = percentage / 0.1 * 0.5;
+  else if (percentage > 0.9)
+    percentage = 1 - (1 - percentage) / 0.1 * 0.5;
+  else
+    percentage = 0.5;
+  return line_height * percentage;
+}
+
 static void
 _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
 {
-  ol_log_func ();
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
   GtkWidget *widget = GTK_WIDGET (scroll);
   ol_assert (GTK_WIDGET_REALIZED (widget));
@@ -350,7 +372,8 @@ _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
   int i;
   int begin = scroll->current_lyric_id - count / 2;
   int end = scroll->current_lyric_id + count / 2 + 1;
-  int ypos = height / 2  - line_height * percentage - (count / 2 + 1) * line_height;
+  priv->saved_lrc_y = _calc_lrc_ypos (scroll, percentage);
+  int ypos = height / 2  - priv->saved_lrc_y - (count / 2 + 1) * line_height;
   cairo_set_source_rgb(cr,
                        priv->inactive_color.r,
                        priv->inactive_color.g,
@@ -431,9 +454,13 @@ ol_scroll_window_set_progress (OlScrollWindow *scroll,
                                double percentage)
 {
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  gint saved_lyric_id = scroll->current_lyric_id;
   scroll->current_lyric_id = lyric_id;
   scroll->percentage = percentage;
-  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+  if (saved_lyric_id != lyric_id ||
+      priv->saved_lrc_y != _calc_lrc_ypos (scroll, percentage))
+    gtk_widget_queue_draw (GTK_WIDGET (scroll));
 }
 
 void
@@ -481,6 +508,8 @@ ol_scroll_window_get_font_height (OlScrollWindow *scroll)
   pango_font_metrics_unref (metrics);
     
   height += PANGO_PIXELS (ascent + descent);
+  g_object_unref (pango_layout);
+  g_object_unref (pango_context);
   return height;
 }
 
