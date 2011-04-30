@@ -366,13 +366,14 @@ static gboolean
 ol_config_real_save (OlConfig *config)
 {
   ol_assert_ret (config != NULL, TRUE);
+  ol_error ("save");
   OlConfigPrivate *priv = OL_CONFIG_GET_PRIVATE (config);
   gsize len;
   char *file_content = g_key_file_to_data (priv->config, &len, NULL);
   g_file_set_contents (ol_config_get_path (), file_content, len, NULL);
   priv->save_timer = 0;
   g_free (file_content);
-  return TRUE;
+  return FALSE;
 }
 
 void
