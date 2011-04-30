@@ -6,6 +6,7 @@
 #include "ol_color.h"
 #include "ol_stock.h"
 #include "ol_image_button.h"
+#include "ol_menu.h"
 #include "ol_lrc.h"
 
 typedef struct _OlScrollModule OlScrollModule;
@@ -50,6 +51,28 @@ static void _set_music_info_as_text (OlScrollModule *module);
 static GtkWidget* _toolbar_new (OlScrollModule *module);
 static gboolean _close_clicked_cb (GtkButton *button,
                                    gpointer userdata);
+static gboolean _button_release_cb (OlScrollWindow *scroll,
+                                    GdkEventButton *event,
+                                    gpointer userdata);
+
+static gboolean
+_button_release_cb (OlScrollWindow *scroll,
+                    GdkEventButton *event,
+                    gpointer data)
+{
+  if (event->button == 3)
+  {
+    gtk_menu_popup (GTK_MENU (ol_menu_get_popup ()),
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    event->button,
+                    event->time);
+    return TRUE;
+  }
+  return FALSE;
+}
 
 static gboolean
 _window_configure_cb (GtkWidget *widget,
@@ -80,7 +103,6 @@ _config_change_handler (OlConfig *config,
   if (module == NULL)
     return;
   OlScrollWindow *window = module->scroll;
-  /* OlOsdWindow *osd = OL_OSD_WINDOW (userdata); */
   if (window == NULL || !OL_IS_SCROLL_WINDOW (window))
     return;
   if (strcmp (group, GROUP_NAME) != 0)
@@ -190,6 +212,9 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   _config_change_handler (config, "ScrollMode", "opacity", module);
   g_signal_connect (module->scroll, "configure-event",
                     G_CALLBACK (_window_configure_cb),
+                    module);
+  g_signal_connect (module->scroll, "button-release-event",
+                    G_CALLBACK (_button_release_cb),
                     module);
   g_signal_connect (config, "changed",
                     G_CALLBACK (_config_change_handler),
