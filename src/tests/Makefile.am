@@ -13,7 +13,8 @@ check_PROGRAMS = \
 	ol_fork_test \
 	ol_music_info_test \
 	ol_lrclib_test \
-	ol_utils_dbus_test
+	ol_utils_dbus_test \
+	ol_utils_test
 
 INCLUDES = @GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -62,6 +63,7 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_amarok2.c \
 	$(top_srcdir)/src/ol_player_banshee.c \
 	$(top_srcdir)/src/ol_player_mpris.c \
+	$(top_srcdir)/src/ol_player_mpris2.c \
 	$(top_srcdir)/src/ol_player_exaile02.c \
 	$(top_srcdir)/src/ol_player_exaile03.c \
 	$(top_srcdir)/src/ol_player_audacious.c \
@@ -109,6 +111,9 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_md5.c \
+	$(top_srcdir)/src/ol_utils_network.c \
+	$(top_srcdir)/src/ol_config.c \
+	$(top_srcdir)/src/ol_marshal.c \
 	$(top_srcdir)/src/ol_utils.c
 
 ol_config_test_SOURCES = \
@@ -138,6 +143,7 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_lrc_candidate_list.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
+	$(top_srcdir)/src/ol_utils_network.c \
 	$(top_srcdir)/src/ol_gui.c
 
 ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
@@ -156,6 +162,7 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_fork.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
+	$(top_srcdir)/src/ol_utils_network.c \
 	$(top_srcdir)/src/ol_gui.c 
 
 ol_path_test_SOURCES = \
@@ -187,3 +194,8 @@ ol_utils_dbus_test_SOURCES = \
 	ol_utils_dbus_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_utils_dbus.c
+
+ol_utils_test_SOURCES = \
+	ol_utils_test.c \
+	$(top_srcdir)/src/ol_utils.c \
+	$(top_srcdir)/src/ol_debug.c

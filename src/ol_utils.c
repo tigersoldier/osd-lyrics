@@ -25,7 +25,7 @@ ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
   else
   {
     ol_debugf ("Type of %s is %s, not string\n",
-               key, G_VALUE_TYPE_NAME (value));
+               key, value != NULL ? G_VALUE_TYPE_NAME (value) : "NULL");
     return NULL;
   }
 }
@@ -37,14 +37,15 @@ ol_get_str_list_from_hash_table (GHashTable *hash_table, const gchar *key)
     return NULL;
   GValue *value;
   value = (GValue *) g_hash_table_lookup(hash_table, key);
-  if (value != NULL && G_VALUE_TYPE (value) == G_TYPE_STRV)
+  if (value != NULL &&
+      (G_VALUE_TYPE (value) == G_TYPE_STRV || G_VALUE_HOLDS_POINTER (value)))
   {
-    return (gchar**) g_value_get_boxed (value);
+    return (gchar**) g_value_get_pointer (value);
   }
   else
   {
     ol_debugf ("Type of %s is %s, not string list\n",
-               key, G_VALUE_TYPE_NAME (value));
+               key, value != NULL ? G_VALUE_TYPE_NAME (value) : "NULL");
     return NULL;
   }
 }

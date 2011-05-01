@@ -372,7 +372,7 @@ ol_config_real_save (OlConfig *config)
   g_file_set_contents (ol_config_get_path (), file_content, len, NULL);
   priv->save_timer = 0;
   g_free (file_content);
-  return TRUE;
+  return FALSE;
 }
 
 void
