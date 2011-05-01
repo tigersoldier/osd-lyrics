@@ -47,11 +47,12 @@ struct __OlScrollWindowPrivate
   double bg_opacity;
   char *text;
   gint saved_lrc_y;
-  GtkContainer *container;
+  GtkWidget *window_container;
+  GtkContainer *toolbar_container;
 };
 
 
-static cairo_t* _get_cairo (OlScrollWindow *scroll);
+static cairo_t* _get_cairo (OlScrollWindow *scroll, GtkWidget *widget);
 static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_bg (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr);
@@ -61,7 +62,9 @@ static gint _calc_lrc_ypos (OlScrollWindow *scroll, double percentage);
 static void ol_scroll_window_init (OlScrollWindow *self);
 static void ol_scroll_window_class_init (OlScrollWindowClass *klass);
 static void ol_scroll_window_destroy (GtkObject *object);
-static gboolean ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event);
+static gboolean ol_scroll_window_expose (GtkWidget *widget,
+                                         GdkEventExpose *event,
+                                         gpointer userdata);
 
 static int ol_scroll_window_compute_line_count (OlScrollWindow *scroll);
 static int ol_scroll_window_get_font_height (OlScrollWindow *scroll);
@@ -122,17 +125,20 @@ ol_scroll_window_init (OlScrollWindow *self)
   gtk_widget_set_colormap (GTK_WIDGET (self), colormap);
   gtk_window_set_decorated (GTK_WINDOW(self), FALSE);
   gtk_widget_set_app_paintable (GTK_WIDGET (self), TRUE);
+  /* We need an additional widget to paint on */
+  priv->window_container = gtk_alignment_new (0.0, 0.0, 1.0, 1.0);
+  gtk_widget_set_redraw_on_allocate(priv->window_container, TRUE);
+  gtk_container_add (GTK_CONTAINER (self), priv->window_container);
   /* Set toolbar container */
-  GtkAlignment *alignment = GTK_ALIGNMENT (gtk_alignment_new (1.0, 0.0, 0.0, 0.0));
-  gtk_alignment_set_padding (alignment,
+  priv->toolbar_container = GTK_CONTAINER (gtk_alignment_new (1.0, 0.0, 0.0, 0.0));
+  gtk_alignment_set_padding (GTK_ALIGNMENT (priv->toolbar_container),
                              priv->padding_x, priv->padding_x,
                              priv->padding_x, priv->padding_x);
-  gtk_container_add (GTK_CONTAINER (self),
-                     GTK_WIDGET (alignment));
-  gtk_widget_show_all (GTK_WIDGET (alignment));
-  priv->container = GTK_CONTAINER (alignment);
+  gtk_container_add (GTK_CONTAINER (priv->window_container),
+                     GTK_WIDGET (priv->toolbar_container));
+  gtk_widget_show_all (priv->window_container);
   /* Connect signals */
-  g_signal_connect (G_OBJECT (self), "expose-event",
+  g_signal_connect (G_OBJECT (priv->window_container), "expose-event",
                     G_CALLBACK (ol_scroll_window_expose), self);
   g_signal_connect (G_OBJECT (self), "button-press-event",
                     G_CALLBACK (ol_scroll_window_button_press), self);
@@ -158,7 +164,7 @@ ol_scroll_window_add_toolbar (OlScrollWindow *scroll,
 {
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  gtk_container_add (priv->container, widget);
+  gtk_container_add (priv->toolbar_container, widget);
 }
 
  void
@@ -167,7 +173,7 @@ ol_scroll_window_remove_toolbar (OlScrollWindow *scroll,
 {
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  gtk_container_remove (priv->container, widget);
+  gtk_container_remove (priv->toolbar_container, widget);
 }
 
 static void
@@ -188,28 +194,20 @@ ol_scroll_window_destroy (GtkObject *object)
 
 
 static gboolean
-ol_scroll_window_expose (GtkWidget *widget, GdkEventExpose *event)
+ol_scroll_window_expose (GtkWidget *widget,
+                         GdkEventExpose *event,
+                         gpointer userdata)
 {
-  OlScrollWindow *scroll = OL_SCROLL_WINDOW (widget);
-  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
-  cairo_t *cr = _get_cairo (scroll);
-  if (!gdk_region_point_in(event->region, 0, 0))
-  {
-    /* If expose event is caused by resizing, the drawing area is
-       clipped with the extended region. As we need to repaint the
-       whole window, we need to queue the draw to get another expose
-       event which clips the whole window*/
-    gtk_widget_queue_draw (widget);
-  }
-  else
-  {
-    _paint_bg (scroll, cr);
-    if (scroll->whole_lyrics != NULL)
-      _paint_lyrics (scroll, cr);
-    else if (priv->text != NULL)
-      _paint_text (scroll, cr);
-    cairo_destroy (cr);
-  }
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (userdata), FALSE);
+  OlScrollWindow *scroll = OL_SCROLL_WINDOW (userdata);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  cairo_t *cr = _get_cairo (scroll, widget);
+  _paint_bg (scroll, cr);
+  if (scroll->whole_lyrics != NULL)
+    _paint_lyrics (scroll, cr);
+  else if (priv->text != NULL)
+    _paint_text (scroll, cr);
+  cairo_destroy (cr);
   return FALSE;
 }
 
@@ -251,11 +249,11 @@ _get_pango (OlScrollWindow *scroll, cairo_t *cr)
 }
 
 static cairo_t*
-_get_cairo (OlScrollWindow *scroll)
+_get_cairo (OlScrollWindow *scroll, GtkWidget *widget)
 {
   ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), NULL);
+  ol_assert_ret (GTK_IS_WIDGET (widget), NULL);
   cairo_t *cr;
-  GtkWidget *widget = GTK_WIDGET (scroll);
   cr = gdk_cairo_create (gtk_widget_get_window (widget));
   cairo_save (cr);
   cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
