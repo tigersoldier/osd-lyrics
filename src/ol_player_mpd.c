@@ -34,7 +34,6 @@ static gboolean ol_player_mpd_get_played_time (int *played_time);
 static gboolean ol_player_mpd_get_music_length (int *len);
 static gboolean ol_player_mpd_ensure_connection (void);
 static gboolean ol_player_mpd_get_activated (void);
-static gboolean ol_player_mpd_proxy_destroy_handler (gpointer userdata);
 static enum OlPlayerStatus ol_player_mpd_get_status (void);
 static int ol_player_mpd_get_capacity (void);
 static gboolean ol_player_mpd_play (void);
