@@ -130,5 +130,14 @@ gboolean ol_path_is_file (const char *filename);
  */
 ssize_t ol_file_len (const char *filename);
 
+/** 
+ * Converts a string to hex representation.
+ *
+ * @param data The string to encode
+ * @param len The length to encode, or -1 if the string is NUL-terminated
+ * 
+ * @return The encoded string, should be freed with g_free.
+ */
+char* ol_encode_hex (const char *data, size_t len);
 
 #endif // __OL_UTILS_H__

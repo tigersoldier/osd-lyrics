@@ -307,3 +307,20 @@ ol_file_len (const char *filename)
     return -1;
   return buf.st_size;
 }
+
+char*
+ol_encode_hex (const char *data, size_t len)
+{
+  ol_assert_ret (data != NULL, NULL);
+  if (len < 0)
+    len = strlen (data);
+  size_t hex_len = len * 2 + 1;
+  gchar *hex = g_new (hex_len);
+  gchar *current = hex;
+  for (; len > 0; len--, current += 2, data++)
+  {
+    sprintf (current, "%02x", *data);
+  }
+  *current = '\0';
+  return hex;
+}
