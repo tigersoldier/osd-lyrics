@@ -24,18 +24,13 @@
 /** 
  * @brief converts text from one encoding to another using libiconv
  * 
- * @param icv a conversion descriptor
  * @param src text to be converted
  * @param srclen at most #srclen bytes will be read
  * @param dest buffer to store the convert result
  * @param destlen at most #destlen bytes will be written
  * 
- * @return The iconv function returns the number of characters converted in a non-reversible way during this call; 
- *         reversible conversions are not counted. In case of error, it sets errno and returns (size_t)(−1). 
+ * @return The converted length. In case of error, it sets errno and returns (size_t)(−1). 
  */
-size_t convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen);
-
-/* the same to function: convert_icv */
 size_t convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen);
 
 

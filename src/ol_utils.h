@@ -138,6 +138,6 @@ ssize_t ol_file_len (const char *filename);
  * 
  * @return The encoded string, should be freed with g_free.
  */
-char* ol_encode_hex (const char *data, size_t len);
+char* ol_encode_hex (const char *data, ssize_t len);
 
 #endif // __OL_UTILS_H__

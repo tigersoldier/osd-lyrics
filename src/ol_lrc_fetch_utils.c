@@ -19,22 +19,6 @@ static char errbuf[CURL_ERROR_SIZE];
 static gboolean _set_curl_proxy (CURL *curl_handler);
 
 size_t
-convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen)
-{
-  ol_log_func ();
-  size_t ret;
-  if(icv == NULL)
-    return (size_t)-1;
-
-  char **input = &src;
-  char **output = &dest;
-  memset(dest, 0, destlen);
-
-  ret = iconv(*icv, input, &srclen, output, &destlen);
-  return ret;
-}
-
-size_t
 convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen)
 {
   ol_log_func ();
@@ -43,15 +27,19 @@ convert(const char *from_charset, const char *to_charset, char *src, size_t srcl
   char **input = &src;
   char **output = &dest;
   memset(dest, 0, destlen);
+  size_t destleft = destlen;
 
   if((cv = iconv_open(to_charset, from_charset)) == (iconv_t)-1) {
     ol_errorf ("  the conversion from %s to %s is not supported by the implementation.\n", from_charset, to_charset);
     return (size_t)-1;
   }
 
-  ret = iconv(cv, input, &srclen, output, &destlen);
+  ret = iconv(cv, input, &srclen, output, &destleft);
   iconv_close(cv);
-  return ret;
+  if (ret == (size_t)-1)
+    return ret;
+  else
+    return destlen - destleft;
 }
 
 static gboolean

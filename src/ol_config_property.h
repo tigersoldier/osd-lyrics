@@ -238,7 +238,7 @@ static const OlConfigStringValue config_str[] = {
    "serif"},
   {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
    "Download engine", "Select the source where LRC files are downloaded from",
-   "MiniLyrics"},
+   "ttPlayer"},
   {PROP_PROXY, "proxy", "Download",
    "Proxy", "The proxy to download lyrics. Available settings are no, system, or manual", "no"},
   {PROP_PROXY_TYPE, "proxy-type", "Download",

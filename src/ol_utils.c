@@ -309,17 +309,17 @@ ol_file_len (const char *filename)
 }
 
 char*
-ol_encode_hex (const char *data, size_t len)
+ol_encode_hex (const char *data, ssize_t len)
 {
   ol_assert_ret (data != NULL, NULL);
   if (len < 0)
     len = strlen (data);
   size_t hex_len = len * 2 + 1;
-  gchar *hex = g_new (hex_len);
+  gchar *hex = g_new (gchar, hex_len);
   gchar *current = hex;
   for (; len > 0; len--, current += 2, data++)
   {
-    sprintf (current, "%02x", *data);
+    sprintf (current, "%02x", (unsigned char)*data);
   }
   *current = '\0';
   return hex;
