@@ -18,7 +18,7 @@ ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
     return NULL;
   GValue *value;
   value = (GValue *) g_hash_table_lookup(hash_table, key);
-  if (value != NULL && G_VALUE_HOLDS_STRING(value))
+  if (value != NULL && G_VALUE_HOLDS_STRING (value))
   {
     return (const gchar*) g_value_get_string (value);
   }
@@ -38,9 +38,9 @@ ol_get_str_list_from_hash_table (GHashTable *hash_table, const gchar *key)
   GValue *value;
   value = (GValue *) g_hash_table_lookup(hash_table, key);
   if (value != NULL &&
-      (G_VALUE_TYPE (value) == G_TYPE_STRV || G_VALUE_HOLDS_POINTER (value)))
+      (G_VALUE_TYPE (value) == G_TYPE_STRV || G_VALUE_HOLDS_BOXED (value)))
   {
-    return (gchar**) g_value_get_pointer (value);
+    return (gchar**) g_value_get_boxed (value);
   }
   else
   {

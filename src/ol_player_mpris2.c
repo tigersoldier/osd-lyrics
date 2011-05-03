@@ -176,12 +176,15 @@ _get_music_info (OlMusicInfo *info)
                            ol_get_string_from_hash_table (metadata,
                                                           TITLE_KEY));
   char **artist_list = ol_get_str_list_from_hash_table (metadata,
-                                                    ARTIST_KEY);
-  char *artist = NULL;
-  if (g_strv_length (artist_list) > 0)
-    artist = g_strjoinv (",", artist_list);
-  ol_music_info_set_artist (info, artist);
-  g_free (artist);
+                                                        ARTIST_KEY);
+  if (artist_list != NULL)
+  {
+    char *artist = NULL;
+    if (g_strv_length (artist_list) > 0)
+      artist = g_strjoinv (",", artist_list);
+    ol_music_info_set_artist (info, artist);
+    g_free (artist);
+  }
                    
   ol_music_info_set_album (info,
                            ol_get_string_from_hash_table (metadata,

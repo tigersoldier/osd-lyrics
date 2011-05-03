@@ -448,6 +448,7 @@ ol_dbus_get_property (DBusGProxy *proxy,
                iface, name, error->message);
     g_error_free (error);
   }
+  g_object_unref (dbus_proxy);
   return ret;
 }
 
