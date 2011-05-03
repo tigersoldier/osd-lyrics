@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-30 21:52+0800\n"
-"PO-Revision-Date: 2011-04-30 22:04+0800\n"
+"POT-Creation-Date: 2011-05-03 15:24+0800\n"
+"PO-Revision-Date: 2011-05-03 15:24+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "Language: \n"
@@ -81,17 +81,9 @@ msgstr "自定义"
 msgid "Select a folder"
 msgstr "选择文件夹"
 
-#: ../src/ol_lrc_fetch_qianqian.c:294
-msgid "Qianqian"
-msgstr "千千"
-
-#: ../src/ol_lrc_fetch_sogou.c:163
-msgid "Sogou"
-msgstr "搜狗"
-
-#: ../src/ol_lrc_fetch_minilyrics.c:300
-msgid "MiniLyrics"
-msgstr "迷你歌词"
+#: ../src/ol_lrc_fetch_ttplayer.c:256
+msgid "ttPlayer"
+msgstr "千千静听"
 
 #: ../src/ol_lrc_candidate_list.c:25
 msgid "Title"
@@ -536,6 +528,15 @@ msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Tiger Soldier https://launchpad.net/~tigersoldi"
+
+#~ msgid "Qianqian"
+#~ msgstr "千千"
+
+#~ msgid "Sogou"
+#~ msgstr "搜狗"
+
+#~ msgid "MiniLyrics"
+#~ msgstr "迷你歌词"
 
 #~ msgid "Dock"
 #~ msgstr "桌面置顶"
