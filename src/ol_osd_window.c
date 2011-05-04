@@ -1128,6 +1128,7 @@ ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyri
     ol_osd_render_get_pixel_size (osd->render_context,
                                   lyric,
                                   &w, &h);
+    ol_errorf ("new: width: %d\n", w);
     *pixmap = gdk_pixmap_new (GTK_WIDGET (osd)->window, w, h, -1);
     cairo_t *cr = gdk_cairo_create (*pixmap);
     cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0);
@@ -1193,9 +1194,16 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
   if (osd->lyrics[line] != NULL)
     g_free (osd->lyrics[line]);
   if (lyric != NULL)
-    osd->lyrics[line] = g_strdup (lyric);
+  {
+    if (strlen (lyric) > 256)
+      osd->lyrics[line] = g_strndup (lyric, 256);
+    else
+      osd->lyrics[line] = g_strdup (lyric);
+  }
   else
+  {
     osd->lyrics[line] = g_strdup ("");
+  }
   ol_osd_window_update_lyric_pixmap (osd, line);
   /* We have to call ol_osd_window_update_shape instead of
      ol_osd_window_queue_reshape here, because there might be empty shape
