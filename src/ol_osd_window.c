@@ -16,6 +16,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+#include <string.h>
 #include <math.h>
 #include "ol_osd_window.h"
 #include "ol_utils.h"
@@ -80,6 +81,9 @@ struct __OlOsdWindowPrivate
   gboolean mouse_over;
   gboolean mouse_over_lyrics;
   GtkRequisition child_requisition;
+  cairo_surface_t *active_lyric_surfaces[OL_OSD_WINDOW_MAX_LINE_COUNT];
+  cairo_surface_t *inactive_lyric_surfaces[OL_OSD_WINDOW_MAX_LINE_COUNT];
+  GdkPixmap *shape_pixmap;
   enum OlOsdWindowMode mode;
   enum DragState drag_state;
 };
@@ -150,10 +154,10 @@ static void ol_osd_window_update_shape (OlOsdWindow *osd);
 static void ol_osd_window_queue_reshape (OlOsdWindow *osd);
 static void ol_osd_window_set_input_shape_mask (OlOsdWindow *osd,
                                                 gboolean disable_input);
-static void ol_osd_draw_lyric_pixmap (OlOsdWindow *osd,
-                                      GdkPixmap **pixmap,
-                                      const char *lyric);
-static void ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line);
+static void ol_osd_draw_lyric_surface (OlOsdWindow *osd,
+                                       cairo_surface_t **surface,
+                                       const char *lyric);
+static void ol_osd_window_update_lyric_surface (OlOsdWindow *osd, int line);
 static void ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line);
 static void ol_osd_window_update_colormap (OlOsdWindow *osd);
 static void ol_osd_window_screen_composited_changed (GdkScreen *screen,
@@ -925,17 +929,18 @@ static double
 ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd, int line, double percentage)
 {
   /* ol_log_func (); */
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   gint w, h;
-  int width, height;
+  int width;
   gboolean smooth = TRUE;
   ol_osd_window_get_osd_size (osd, &w, &h);
-  if (osd->active_lyric_pixmap[line] != NULL)
+  if (priv->active_lyric_surfaces[line] != NULL)
   {
-    gdk_drawable_get_size (osd->active_lyric_pixmap[line], &width, &height);
+    width = cairo_image_surface_get_width (priv->active_lyric_surfaces[line]);
   }
   else
   {
-    width = height = 0;
+    width = 0;
   }
   double xpos;
   if (w >= width)
@@ -1029,21 +1034,23 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
   for (line = start; line < end; line++)
   {
     double percentage = osd->percentage[line];
-    if (osd->active_lyric_pixmap[line] != NULL && osd->inactive_lyric_pixmap[line])
+    if (priv->active_lyric_surfaces[line] != NULL &&
+        priv->inactive_lyric_surfaces[line])
     {
-      gdk_drawable_get_size (osd->active_lyric_pixmap[line], &width, &height);
+      width = cairo_image_surface_get_width (priv->active_lyric_surfaces[line]);
+      height = cairo_image_surface_get_height (priv->active_lyric_surfaces[line]);
       xpos = ol_osd_window_compute_lyric_xpos (osd, line, osd->percentage[line]);
       xpos += BORDER_WIDTH;
       cairo_save (cr);
       cairo_rectangle (cr, xpos, ypos, (double)width * percentage, height);
       cairo_clip (cr);
-      gdk_cairo_set_source_pixmap (cr, osd->active_lyric_pixmap[line], xpos, ypos);
+      cairo_set_source_surface (cr, priv->active_lyric_surfaces[line], xpos, ypos);
       cairo_paint_with_alpha (cr, alpha);
       cairo_restore (cr);
       cairo_save (cr);
       cairo_rectangle (cr, xpos + width * percentage, ypos, (double)width * (1.0 - percentage), height);
       cairo_clip (cr);
-      gdk_cairo_set_source_pixmap (cr, osd->inactive_lyric_pixmap[line], xpos, ypos);
+      cairo_set_source_surface (cr, priv->inactive_lyric_surfaces[line], xpos, ypos);
       cairo_paint_with_alpha (cr, alpha);
       cairo_restore (cr);
     }
@@ -1113,14 +1120,14 @@ gint ol_osd_window_get_current_line (OlOsdWindow *osd)
 }
 
 static void
-ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyric)
+ol_osd_draw_lyric_surface (OlOsdWindow *osd, cairo_surface_t **surface, const char *lyric)
 {
-  if (*pixmap != NULL)
+  if (*surface != NULL)
   {
-    g_object_unref (*pixmap);
-    *pixmap = NULL;
+    cairo_surface_destroy (*surface);
+    *surface = NULL;
   }
-  if (!ol_is_string_empty (lyric) && *pixmap == NULL)
+  if (!ol_is_string_empty (lyric) && *surface == NULL)
   {
     int w, h;
     if (!GTK_WIDGET_REALIZED (GTK_WIDGET (osd)))
@@ -1128,9 +1135,8 @@ ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyri
     ol_osd_render_get_pixel_size (osd->render_context,
                                   lyric,
                                   &w, &h);
-    ol_errorf ("new: width: %d\n", w);
-    *pixmap = gdk_pixmap_new (GTK_WIDGET (osd)->window, w, h, -1);
-    cairo_t *cr = gdk_cairo_create (*pixmap);
+    *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
+    cairo_t *cr = cairo_create (*surface);
     cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0);
     cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
     cairo_paint (cr);
@@ -1144,27 +1150,32 @@ ol_osd_draw_lyric_pixmap (OlOsdWindow *osd, GdkPixmap **pixmap, const char *lyri
 }
 
 static void
-ol_osd_window_update_lyric_pixmap (OlOsdWindow *osd, int line)
+ol_osd_window_update_lyric_surface (OlOsdWindow *osd, int line)
 {
   int i;
   if (!GTK_WIDGET_REALIZED (GTK_WIDGET (osd)))
     return;
-  /* draws the inactive pixmaps */
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  /* draws the inactive surfaces */
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
     ol_osd_render_set_linear_color (osd->render_context,
                                     i,
                                     osd->inactive_colors[i]);
   }
-  ol_osd_draw_lyric_pixmap (osd, &osd->inactive_lyric_pixmap[line], osd->lyrics[line]);
-  /* draws the active pixmaps */
+  ol_osd_draw_lyric_surface (osd,
+                             &priv->inactive_lyric_surfaces[line],
+                             osd->lyrics[line]);
+  /* draws the active surfaces */
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
     ol_osd_render_set_linear_color (osd->render_context,
                                     i,
                                     osd->active_colors[i]);
   }
-  ol_osd_draw_lyric_pixmap (osd, &osd->active_lyric_pixmap[line], osd->lyrics[line]);
+  ol_osd_draw_lyric_surface (osd,
+                             &priv->active_lyric_surfaces[line],
+                             osd->lyrics[line]);
   ol_osd_window_update_lyric_rect (osd, line);
 }
 
@@ -1172,10 +1183,14 @@ static void
 ol_osd_window_update_lyric_rect (OlOsdWindow *osd, int line)
 {
   ol_log_func ();
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int w, h;
   w = h = 0;
-  if (osd->active_lyric_pixmap[line] != NULL)
-    gdk_drawable_get_size (osd->active_lyric_pixmap[line], &w, &h);
+  if (priv->active_lyric_surfaces[line] != NULL)
+  {
+    w = cairo_image_surface_get_width (priv->active_lyric_surfaces[line]);
+    h = cairo_image_surface_get_height (priv->active_lyric_surfaces[line]);
+  }
   int font_height = ol_osd_render_get_font_height (osd->render_context);
   osd->lyric_rects[line].x = ol_osd_window_compute_lyric_xpos (osd,
                                                                line,
@@ -1204,7 +1219,7 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
   {
     osd->lyrics[line] = g_strdup ("");
   }
-  ol_osd_window_update_lyric_pixmap (osd, line);
+  ol_osd_window_update_lyric_surface (osd, line);
   /* We have to call ol_osd_window_update_shape instead of
      ol_osd_window_queue_reshape here, because there might be empty shape
      before setting lyric, in which case expose event will not be emitted,
@@ -1241,22 +1256,22 @@ ol_osd_window_reset_shape_pixmap (OlOsdWindow *osd)
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   gint width = priv->width;
   gint height = ol_osd_window_compute_window_height (osd);
-  if (osd->shape_pixmap != NULL)
+  if (priv->shape_pixmap != NULL)
   {
     gint w, h;
-    gdk_drawable_get_size (osd->shape_pixmap, &w, &h);
+    gdk_drawable_get_size (priv->shape_pixmap, &w, &h);
     if (w == width && h == height)
     {
       return;
     }
     else
     {
-      g_object_unref (osd->shape_pixmap);
-      osd->shape_pixmap = NULL;
+      g_object_unref (priv->shape_pixmap);
+      priv->shape_pixmap = NULL;
     }
   }
-  osd->shape_pixmap = gdk_pixmap_new (widget->window, width, height, 1);
-  cairo_t *cr = gdk_cairo_create (osd->shape_pixmap);
+  priv->shape_pixmap = gdk_pixmap_new (widget->window, width, height, 1);
+  cairo_t *cr = gdk_cairo_create (priv->shape_pixmap);
   ol_osd_window_clear_cairo (cr);
   cairo_destroy (cr);
   ol_osd_window_queue_reshape (osd);
@@ -1290,7 +1305,7 @@ ol_osd_window_update_shape (OlOsdWindow *osd)
     return;
   }
   empty_mask = FALSE;
-  GdkPixmap *shape_mask = osd->shape_pixmap;
+  GdkPixmap *shape_mask = priv->shape_pixmap;
   GdkGC *fg_gc = gdk_gc_new (shape_mask);
   GdkColor color;
   color.pixel = 0;
@@ -1576,6 +1591,7 @@ ol_osd_window_init (OlOsdWindow *osd)
 {
   ol_log_func ();
   GtkWindow *window = GTK_WINDOW (osd);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   window->type = GTK_WINDOW_TOPLEVEL;
   GValue allow_shrink = {0};
   g_value_init (&allow_shrink, G_TYPE_BOOLEAN);
@@ -1594,8 +1610,8 @@ ol_osd_window_init (OlOsdWindow *osd)
     osd->lyrics[i] = NULL;
     osd->line_alignment[i] = 0.5;
     osd->percentage[i] = 0.0;
-    osd->active_lyric_pixmap[i] = NULL;
-    osd->inactive_lyric_pixmap[i] = NULL;
+    priv->active_lyric_surfaces[i] = NULL;
+    priv->inactive_lyric_surfaces[i] = NULL;
     osd->lyric_rects[i].x = 0;
     osd->lyric_rects[i].y = 0;
     osd->lyric_rects[i].width = 0;
@@ -1607,10 +1623,9 @@ ol_osd_window_init (OlOsdWindow *osd)
     osd->inactive_colors[i] = DEFAULT_INACTIVE_COLORS[i];
   }
   osd->render_context = ol_osd_render_context_new ();
-  osd->shape_pixmap = NULL;
   osd->translucent_on_mouse_over = FALSE;
   /* initilaize private data */
-  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  priv->shape_pixmap = NULL;
   priv->width = DEFAULT_WIDTH;
   priv->locked = TRUE;
   priv->composited = FALSE;
@@ -1669,6 +1684,7 @@ ol_osd_window_destroy (GtkObject *object)
   ol_log_func ();
   ol_assert (OL_IS_OSD_WINDOW (object));
   OlOsdWindow *osd = OL_OSD_WINDOW (object);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int i;
   for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
   {
@@ -1677,21 +1693,21 @@ ol_osd_window_destroy (GtkObject *object)
       g_free (osd->lyrics[i]);
       osd->lyrics[i] = NULL;
     }
-    if (osd->active_lyric_pixmap[i] != NULL)
+    if (priv->active_lyric_surfaces[i] != NULL)
     {
-      g_object_unref (osd->active_lyric_pixmap[i]);
-      osd->active_lyric_pixmap[i] = NULL;
+      cairo_surface_destroy (priv->active_lyric_surfaces[i]);
+      priv->active_lyric_surfaces[i] = NULL;
     }
-    if (osd->inactive_lyric_pixmap[i] != NULL)
+    if (priv->inactive_lyric_surfaces[i] != NULL)
     {
-      g_object_unref (osd->inactive_lyric_pixmap[i]);
-      osd->inactive_lyric_pixmap[i] = NULL;
+      cairo_surface_destroy (priv->inactive_lyric_surfaces[i]);
+      priv->inactive_lyric_surfaces[i] = NULL;
     }
   }
-  if (osd->shape_pixmap != NULL)
+  if (priv->shape_pixmap != NULL)
   {
-    g_object_unref (osd->shape_pixmap);
-    osd->shape_pixmap = NULL;
+    g_object_unref (priv->shape_pixmap);
+    priv->shape_pixmap = NULL;
   }
   if (osd->render_context != NULL)
   {
@@ -1713,7 +1729,7 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
                                  font_family);
   int i;
   for (i = 0; i < osd->line_count; i++)
-    ol_osd_window_update_lyric_pixmap (osd, i);
+    ol_osd_window_update_lyric_surface (osd, i);
   ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
@@ -1736,7 +1752,7 @@ ol_osd_window_set_font_size (OlOsdWindow *osd,
   ol_osd_render_set_font_size (osd->render_context, font_size);
   int i;
   for (i = 0; i < osd->line_count; i++)
-    ol_osd_window_update_lyric_pixmap (osd, i);
+    ol_osd_window_update_lyric_surface (osd, i);
   ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
@@ -1759,7 +1775,7 @@ ol_osd_window_set_outline_width (OlOsdWindow *osd,
   ol_osd_render_set_outline_width (osd->render_context, width);
   int i;
   for (i = 0; i < osd->line_count; i++)
-    ol_osd_window_update_lyric_pixmap (osd, i);
+    ol_osd_window_update_lyric_surface (osd, i);
   ol_osd_window_queue_resize (osd);
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
@@ -1786,7 +1802,7 @@ ol_osd_window_set_active_colors (OlOsdWindow *osd,
   osd->active_colors[2] = bottom_color;
   int i;
   for (i = 0; i < osd->line_count; i++)
-    ol_osd_window_update_lyric_pixmap (osd, i);
+    ol_osd_window_update_lyric_surface (osd, i);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
@@ -1802,7 +1818,7 @@ ol_osd_window_set_inactive_colors (OlOsdWindow *osd,
   osd->inactive_colors[2] = bottom_color;
   int i;
   for (i = 0; i < osd->line_count; i++)
-    ol_osd_window_update_lyric_pixmap (osd, i);
+    ol_osd_window_update_lyric_surface (osd, i);
   gtk_widget_queue_draw (GTK_WIDGET (osd));
 }
 
