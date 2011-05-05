@@ -108,12 +108,12 @@ static void _get_metadata_cb(DBusGProxy *proxy,
       g_free (mpris->uri);
       mpris->uri = g_strdup (ol_get_string_from_hash_table (data_list, "location"));
 
-      const gchar *track_number_str = NULL;
+      const char* track_number_str;
       track_number_str = ol_get_string_from_hash_table (data_list, "tracknumber");
       if (track_number_str != NULL)
-      {
         sscanf (track_number_str, "%d", &mpris->track_number);
-      }
+      else
+        mpris->track_number = ol_get_int_from_hash_table (data_list, "tracknumber");
       g_hash_table_destroy (data_list);
     }
   }
