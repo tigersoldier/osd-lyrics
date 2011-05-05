@@ -55,6 +55,7 @@ ol_player_init ()
     ol_player_register (ol_player_deciber_get ());
     ol_player_register (ol_player_gmusicbrowser_get ());
     ol_player_register (ol_player_vlc_get ());
+    ol_player_register (ol_player_qmmp_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
@@ -65,7 +66,6 @@ ol_player_init ()
 #endif  /* ENABLE_MPD */
     ol_player_register (ol_player_moc_get ());
     ol_player_register (ol_player_quodlibet_get ());
-    ol_player_register (ol_player_qmmp_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
 
