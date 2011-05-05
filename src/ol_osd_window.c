@@ -49,6 +49,7 @@ static const int DEFAULT_HEIGHT = 100;
 static const double LINE_PADDING = 0.1;
 static const int BORDER_WIDTH = 5;
 static const int DEFAULT_WIDTH = 1024;
+static const int MAX_LYRIC_LEN = 256;
 
 enum DragState
 {
@@ -1211,8 +1212,9 @@ ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric)
     g_free (osd->lyrics[line]);
   if (lyric != NULL)
   {
-    if (strlen (lyric) > 256)
-      osd->lyrics[line] = g_strndup (lyric, 256);
+    if (g_utf8_strlen (lyric, -1) > MAX_LYRIC_LEN)
+      osd->lyrics[line] = g_strndup (lyric,
+                                     g_utf8_offset_to_pointer (lyric, MAX_LYRIC_LEN) - lyric);
     else
       osd->lyrics[line] = g_strdup (lyric);
   }
