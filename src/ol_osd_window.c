@@ -1715,7 +1715,10 @@ ol_osd_window_destroy (GtkObject *object)
     osd->render_context = NULL;
   }
   if (osd->bg_pixbuf != NULL)
+  {
     g_object_unref (osd->bg_pixbuf);
+    osd->bg_pixbuf = NULL;
+  }
   GTK_OBJECT_CLASS (ol_osd_window_parent_class)->destroy (object);
 }
 
