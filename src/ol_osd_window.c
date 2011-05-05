@@ -636,6 +636,7 @@ ol_osd_window_unmap_cb (GtkWidget *widget,
                       GdkEvent  *event,
                       gpointer   user_data) {
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
+  ol_errorf ("unmap\n");
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   if (priv->mouse_timer_id != 0)
   {
@@ -1686,6 +1687,11 @@ ol_osd_window_destroy (GtkObject *object)
   OlOsdWindow *osd = OL_OSD_WINDOW (object);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int i;
+  if (priv->mouse_timer_id > 0)
+  {
+    g_source_remove (priv->mouse_timer_id);
+    priv->mouse_timer_id = 0;
+  }
   for (i = 0; i < OL_OSD_WINDOW_MAX_LINE_COUNT; i++)
   {
     if (osd->lyrics[i] != NULL)

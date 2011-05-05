@@ -386,6 +386,11 @@ ol_osd_module_free (struct OlDisplayModule *module)
     gtk_widget_destroy (GTK_WIDGET (priv->window));
     priv->window = NULL;
   }
+  if (priv->message_source > 0)
+  {
+    g_source_remove (priv->message_source);
+    priv->message_source = 0;
+  }
   OlConfig *config = ol_config_get_instance ();
   g_signal_handler_disconnect (config, priv->config_signal);
   ol_music_info_clear (&priv->music_info);
