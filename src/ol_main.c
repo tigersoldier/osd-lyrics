@@ -497,5 +497,6 @@ main (int argc, char **argv)
   ol_display_module_unload ();
   ol_trayicon_free ();
   ol_lrclib_unload ();
+  ol_config_unload ();
   return 0;
 }

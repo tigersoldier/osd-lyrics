@@ -385,6 +385,7 @@ ol_config_unload ()
     {
       ol_config_real_save (instance);
       g_source_remove (priv->save_timer);
+      priv->save_timer = 0;
     }
     g_object_unref (instance);
   }
