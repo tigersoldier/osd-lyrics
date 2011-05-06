@@ -1926,6 +1926,22 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   <object class="GtkMenu" id="pop-menu">
     <property name="visible">True</property>
     <child>
+      <object class="GtkImageMenuItem" id="menu-switch-osd">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">OSD _mode</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_menu_switch_osd"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkImageMenuItem" id="menu-switch-scrolling">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Scrolling _mode</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_menu_switch_scrolling"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkCheckMenuItem" id="menu-lock">
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">If locked, you can't move OSD window by mouse</property>

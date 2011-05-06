@@ -24,17 +24,11 @@
 
 static void ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data);
 static GtkWidget *popup_menu = NULL;
-/* enum { */
-/*   OL_MENU_LOCK, */
-/*   OL_MENU_HIDE, */
-/*   OL_MENU_PERFERENCE, */
-/*   OL_MENU_ABOUT, */
-/*   OL_MENU_QUIT, */
-/*   OL_MENU_COUNT, */
-/* }; */
 
 static struct Menu
 {
+  GtkWidget *switch_osd;
+  GtkWidget *switch_scroll;
   GtkWidget *lock;
   GtkWidget *hide;
   GtkWidget *play;
@@ -47,7 +41,6 @@ static struct Menu
   GtkWidget *quit;
 } menu = {0};
 
-/* static GtkMenuItem *items[OL_MENU_COUNT] = {0}; */
 void ol_menu_lock (GtkWidget *widget, gpointer data);
 void ol_menu_hide (GtkWidget *widget, gpointer data);
 void ol_menu_quit (GtkWidget *widget, gpointer data);
@@ -62,6 +55,8 @@ void ol_menu_no_lyric (GtkWidget *widget, gpointer data);
 void ol_menu_assign_lrc (GtkWidget *widget, gpointer data);
 void ol_menu_advance_lrc (GtkWidget *widget, gpointer data);
 void ol_menu_delay_lrc (GtkWidget *widget, gpointer data);
+void ol_menu_switch_osd (GtkWidget *widget, gpointer data);
+void ol_menu_switch_scrolling (GtkWidget *widget, gpointer data);
 
 void
 ol_menu_advance_lrc (GtkWidget *widget, gpointer data)
@@ -137,11 +132,10 @@ ol_menu_assign_lrc (GtkWidget *widget, gpointer data)
 static void
 ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)
 {
-  ol_log_func ();
-  ol_logf (OL_DEBUG, "  name:%s\n", name);
-  if (strcmp (name, "locked") == 0)
+  ol_errorf ("group:%s  name:%s\n", group, name);
+  if (strcmp (name, "locked") == 0 && strcmp (group, "OSD") == 0)
   {
-    gboolean locked = ol_config_get_bool (config, "OSD", "locked");
+    gboolean locked = ol_config_get_bool (config, group, name);
     if (menu.lock != NULL &&
         locked != gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menu.lock)))
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu.lock),
@@ -149,11 +143,30 @@ ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)
   }
   else if (strcmp (name, "visible") == 0 && strcmp (group, "OSD") == 0)
   {
-    gboolean visible = ol_config_get_bool (config, "OSD", name);
+    gboolean visible = ol_config_get_bool (config, group, name);
     if (menu.hide &&
         visible == gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menu.hide)))
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu.hide),
                                       !visible);
+  }
+  else if (strcmp (name, "display-mode") == 0 && strcmp (group, "General") ==0)
+  {
+    char *mode = ol_config_get_string (config, group, name);
+    if (g_ascii_strcasecmp (mode, "OSD") == 0)
+    {
+      gtk_widget_show (menu.lock);
+      gtk_widget_show (menu.hide);
+      gtk_widget_show (menu.switch_scroll);
+      gtk_widget_hide (menu.switch_osd);
+    }
+    else
+    {
+      gtk_widget_hide (menu.lock);
+      gtk_widget_hide (menu.hide);
+      gtk_widget_hide (menu.switch_scroll);
+      gtk_widget_show (menu.switch_osd);
+    }
+    g_free (mode);
   }
 }
 
@@ -173,6 +186,22 @@ ol_menu_hide (GtkWidget *widget, gpointer data)
   ol_assert (config != NULL);
   gboolean hide = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
   ol_config_set_bool (config, "OSD", "visible", !hide);
+}
+
+void
+ol_menu_switch_osd (GtkWidget *widget, gpointer data)
+{
+  OlConfig *config = ol_config_get_instance ();
+  ol_assert (config != NULL);
+  ol_config_set_string (config, "General", "display-mode", "OSD");
+}
+
+void
+ol_menu_switch_scrolling (GtkWidget *widget, gpointer data)
+{
+  OlConfig *config = ol_config_get_instance ();
+  ol_assert (config != NULL);
+  ol_config_set_string (config, "General", "display-mode", "scroll");
 }
 
 void
@@ -248,7 +277,6 @@ ol_menu_init ()
     gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu.lock),
                                   "<OSD Lyrics>/Lock");
   }
-  ol_config_changed (config, "OSD", "locked", NULL);
 
   menu.hide = ol_gui_get_widget ("menu-hide");
   if (menu.hide)
@@ -256,7 +284,6 @@ ol_menu_init ()
     gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu.hide),
                                   "<OSD Lyrics>/Hide");
   }
-  ol_config_changed (config, "OSD", "visible", NULL);
 
   menu.preference = ol_gui_get_widget ("menu-prefernce");
   menu.about = ol_gui_get_widget ("menu-about");
@@ -267,12 +294,18 @@ ol_menu_init ()
   menu.stop = ol_gui_get_widget ("menu-stop");
   menu.prev = ol_gui_get_widget ("menu-prev");
   menu.next = ol_gui_get_widget ("menu-next");
+
+  menu.switch_osd = ol_gui_get_widget ("menu-switch-osd");
+  menu.switch_scroll = ol_gui_get_widget ("menu-switch-scrolling");
   
+  gtk_widget_show_all (popup_menu);
+  ol_config_changed (config, "OSD", "locked", NULL);
+  ol_config_changed (config, "OSD", "visible", NULL);
+  ol_config_changed (config, "General", "display-mode", NULL);
   g_signal_connect (config,
                     "changed",
                     G_CALLBACK (ol_config_changed),
                     NULL);
-  gtk_widget_show_all (popup_menu);
 }
 
 static void
