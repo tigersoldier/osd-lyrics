@@ -7,6 +7,7 @@
 #include "ol_stock.h"
 #include "ol_image_button.h"
 #include "ol_menu.h"
+#include "ol_app.h"
 #include "ol_lrc.h"
 
 typedef struct _OlScrollModule OlScrollModule;
@@ -54,6 +55,9 @@ static gboolean _close_clicked_cb (GtkButton *button,
 static gboolean _button_release_cb (OlScrollWindow *scroll,
                                     GdkEventButton *event,
                                     gpointer userdata);
+static void _scroll_cb (OlScrollWindow *osd,
+                        GdkEventScroll *event,
+                        gpointer data);
 
 static gboolean
 _button_release_cb (OlScrollWindow *scroll,
@@ -73,6 +77,22 @@ _button_release_cb (OlScrollWindow *scroll,
   }
   return FALSE;
 }
+
+static void
+_scroll_cb (OlScrollWindow *osd,
+            GdkEventScroll *event,
+            gpointer data)
+{
+  int doffset = 0;
+  if (event->direction == GDK_SCROLL_DOWN ||
+      event->direction == GDK_SCROLL_RIGHT)
+    doffset = -200;
+  else if (event->direction == GDK_SCROLL_UP ||
+           event->direction == GDK_SCROLL_LEFT)
+    doffset = 200;
+  ol_app_adjust_lyric_offset (doffset);
+}
+
 
 static gboolean
 _window_configure_cb (GtkWidget *widget,
@@ -215,6 +235,9 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
                     module);
   g_signal_connect (module->scroll, "button-release-event",
                     G_CALLBACK (_button_release_cb),
+                    module);
+  g_signal_connect (module->scroll, "scroll-event",
+                    G_CALLBACK (_scroll_cb),
                     module);
   g_signal_connect (config, "changed",
                     G_CALLBACK (_config_change_handler),
