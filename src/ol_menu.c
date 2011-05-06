@@ -147,9 +147,9 @@ ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu.lock),
                                       locked);
   }
-  else if (strcmp (name, "visible") == 0)
+  else if (strcmp (name, "visible") == 0 && strcmp (group, "OSD") == 0)
   {
-    gboolean visible = ol_config_get_bool (config, "General", name);
+    gboolean visible = ol_config_get_bool (config, "OSD", name);
     if (menu.hide &&
         visible == gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menu.hide)))
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu.hide),
@@ -172,7 +172,7 @@ ol_menu_hide (GtkWidget *widget, gpointer data)
   OlConfig *config = ol_config_get_instance ();
   ol_assert (config != NULL);
   gboolean hide = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (widget));
-  ol_config_set_bool (config, "General", "visible", !hide);
+  ol_config_set_bool (config, "OSD", "visible", !hide);
 }
 
 void
@@ -228,7 +228,6 @@ ol_menu_prev (GtkWidget *widget, gpointer data)
 void
 ol_menu_next (GtkWidget *widget, gpointer data)
 {
-  fprintf (stderr, "%s\n", __FUNCTION__);
   struct OlPlayer *player = ol_app_get_player ();
   if (player == NULL)
     return;
@@ -257,7 +256,7 @@ ol_menu_init ()
     gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu.hide),
                                   "<OSD Lyrics>/Hide");
   }
-  ol_config_changed (config, "General", "visible", NULL);
+  ol_config_changed (config, "OSD", "visible", NULL);
 
   menu.preference = ol_gui_get_widget ("menu-prefernce");
   menu.about = ol_gui_get_widget ("menu-about");
