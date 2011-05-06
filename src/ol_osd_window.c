@@ -637,7 +637,6 @@ ol_osd_window_unmap_cb (GtkWidget *widget,
                       GdkEvent  *event,
                       gpointer   user_data) {
   ol_assert_ret (OL_IS_OSD_WINDOW (widget), FALSE);
-  ol_errorf ("unmap\n");
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (widget);
   if (priv->mouse_timer_id != 0)
   {
