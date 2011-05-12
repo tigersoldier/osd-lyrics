@@ -38,6 +38,11 @@
 typedef struct _OlScrollWindow                  OlScrollWindow;
 typedef struct _OlScrollWindowClass             OlScrollWindowClass;
 
+enum OlScrollWindowScrollMode {
+  OL_SCROLL_WINDOW_ALWAYS,
+  OL_SCROLL_WINDOW_BY_LINES,
+};
+
 struct _OlScrollWindow
 {
   /*basic*/
@@ -145,4 +150,9 @@ void ol_scroll_window_add_toolbar (OlScrollWindow *scroll,
                                    GtkWidget	*widget);
 void ol_scroll_window_remove_toolbar (OlScrollWindow *scroll,
                                       GtkWidget *widget);
+
+void ol_scroll_window_set_scroll_mode (OlScrollWindow *scroll,
+                                       enum OlScrollWindowScrollMode mode);
+
+enum OlScrollWindowScrollMode ol_scroll_window_get_scroll_mode (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */

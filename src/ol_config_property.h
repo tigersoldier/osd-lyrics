@@ -50,6 +50,7 @@ enum {
   PROP_SCROLL_ACTIVE_LRC_COLOR,
   PROP_SCROLL_INACTIVE_LRC_COLOR,
   PROP_SCROLL_OPACITY,
+  PROP_SCROLL_SCROLL_MODE,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -241,6 +242,9 @@ static const OlConfigStringValue config_str[] = {
    "Active lyric color", "Color of active lyrics", "#E3CF00"},
   {PROP_SCROLL_INACTIVE_LRC_COLOR, "inactive-lrc-color", "ScrollMode",
    "Inactive lyric color", "Colors of inactive lyrics", "#FAEBD6"},
+  {PROP_SCROLL_SCROLL_MODE, "scroll-mode", "ScrollMode", "Scroll Modes",
+   "Means of scrolling. Use \"always\" to keep scrolling by time, "
+   "or \"lines\" to scroll only when lyric changes", "always"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */

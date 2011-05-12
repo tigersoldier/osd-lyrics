@@ -129,7 +129,7 @@ _config_change_handler (OlConfig *config,
     return;
   if (strcmp (name, "font-name") == 0)
   {
-    gchar *font = ol_config_get_string (config, GROUP_NAME, "font-name");
+    gchar *font = ol_config_get_string (config, group, "font-name");
     ol_assert (font != NULL);
     ol_scroll_window_set_font_name (window, font);
     g_free (font);
@@ -137,13 +137,13 @@ _config_change_handler (OlConfig *config,
   else if (strcmp (name, "width") == 0 ||
            strcmp (name, "height") == 0)
   {
-    gint width = ol_config_get_int (config, GROUP_NAME, "width");
-    gint height = ol_config_get_int (config, GROUP_NAME, "height");
+    gint width = ol_config_get_int (config, group, "width");
+    gint height = ol_config_get_int (config, group, "height");
     gtk_window_resize (GTK_WINDOW (window), width, height);
   }
   else if (strcmp (name, "active-lrc-color") == 0)
   {
-    char *color_str = ol_config_get_string (config, GROUP_NAME, name);
+    char *color_str = ol_config_get_string (config, group, name);
     if (color_str != NULL)
     {
       OlColor color = ol_color_from_string (color_str);
@@ -153,7 +153,7 @@ _config_change_handler (OlConfig *config,
   }
   else if (strcmp (name, "inactive-lrc-color") == 0)
   {
-    char *color_str = ol_config_get_string (config, GROUP_NAME, name);
+    char *color_str = ol_config_get_string (config, group, name);
     if (color_str != NULL)
     {
       OlColor color = ol_color_from_string (color_str);
@@ -163,7 +163,7 @@ _config_change_handler (OlConfig *config,
   }
   else if (strcmp (name, "bg-color") == 0)
   {
-    char *color_str = ol_config_get_string (config, GROUP_NAME, name);
+    char *color_str = ol_config_get_string (config, group, name);
     if (color_str != NULL)
     {
       OlColor color = ol_color_from_string (color_str);
@@ -175,6 +175,20 @@ _config_change_handler (OlConfig *config,
   {
     double opacity = ol_config_get_double (config, group, name);
     ol_scroll_window_set_bg_opacity (window, opacity);
+  }
+  else if (strcmp (name, "scroll-mode") == 0)
+  {
+    char *scroll_mode = ol_config_get_string (config, group, name);
+    if (scroll_mode != NULL)
+    {
+      enum OlScrollWindowScrollMode mode = OL_SCROLL_WINDOW_ALWAYS;
+      if (g_strcasecmp (scroll_mode, "lines") == 0)
+      {
+        mode = OL_SCROLL_WINDOW_BY_LINES;
+      }
+      ol_scroll_window_set_scroll_mode (window, mode);
+      g_free (scroll_mode);
+    }
   }
 }
 
@@ -230,6 +244,7 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   _config_change_handler (config, "ScrollMode", "inactive-lrc-color", module);
   _config_change_handler (config, "ScrollMode", "bg-color", module);
   _config_change_handler (config, "ScrollMode", "opacity", module);
+  _config_change_handler (config, "ScrollMode", "scroll-mode", module);
   g_signal_connect (module->scroll, "configure-event",
                     G_CALLBACK (_window_configure_cb),
                     module);

@@ -49,6 +49,7 @@ struct __OlScrollWindowPrivate
   gint saved_lrc_y;
   GtkWidget *window_container;
   GtkContainer *toolbar_container;
+  enum OlScrollWindowScrollMode scroll_mode;
 };
 
 
@@ -109,6 +110,7 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->bg_opacity = DEFAULT_BG_OPACITY;
   priv->frame_width = DEFAULT_FRAME_WIDTH;
   priv->text = NULL;
+  priv->scroll_mode = OL_SCROLL_WINDOW_ALWAYS;
   /*set allocation*/
   gtk_window_resize(GTK_WINDOW(self), DEFAULT_WIDTH, DEFAULT_HEIGHT);
   gtk_widget_add_events (GTK_WIDGET (self),
@@ -337,10 +339,13 @@ _calc_lrc_ypos (OlScrollWindow *scroll, double percentage)
     return -1;
   gint line_height;
   line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
-  if (percentage < 0.15)
-    percentage = percentage / 0.15;
-  else
-    percentage = 1;
+  if (priv->scroll_mode == OL_SCROLL_WINDOW_BY_LINES)
+  {
+    if (percentage < 0.15)
+      percentage = percentage / 0.15;
+    else
+      percentage = 1;
+  }
   return line_height * percentage;
 }
 
@@ -750,3 +755,20 @@ ol_scroll_window_get_bg_opacity (OlScrollWindow *scroll)
   return priv->bg_opacity;
 }
 
+void
+ol_scroll_window_set_scroll_mode (OlScrollWindow *scroll,
+                                  enum OlScrollWindowScrollMode mode)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->scroll_mode = mode;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+enum OlScrollWindowScrollMode
+ol_scroll_window_get_scroll_mode (OlScrollWindow *scroll)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), OL_SCROLL_WINDOW_ALWAYS);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  return priv->scroll_mode;
+}

@@ -117,9 +117,11 @@ static struct WidgetConfigOptions font_str_options[] = {
 };
 
 static const char *proxy_types[] = {"http", "socks4", "socks5", NULL};
+static const char *scroll_modes[] = {"always", "lines", NULL};
 
 static struct ComboStringOptions combo_str_options[] = {
   {.widget_name = "proxy-type", .config_group = "Download", .config_name = "proxy-type", .values = proxy_types},
+  {.widget_name = "scroll-scroll-mode", .config_group = "ScrollMode", .config_name = "scroll-mode", .values = scroll_modes},
 };
 
 static struct _OptionWidgets

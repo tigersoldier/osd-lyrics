@@ -86,6 +86,20 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="list-scroll-mode">
+    <columns>
+      <!-- column-name item -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Always</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">By lines</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="optiondialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences</property>
@@ -149,6 +163,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   <object class="GtkRadioButton" id="display-mode-osd">
                                     <property name="label" translatable="yes">OSD</property>
                                     <property name="visible">True</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="active">True</property>
@@ -164,6 +180,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="label" translatable="yes">Scrolling</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">display-mode-osd</property>
@@ -1036,6 +1054,45 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox-scroll-mode">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label-scroll-mode">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">Scroll _mode:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-scroll-mode</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="scroll-scroll-mode">
+                                    <property name="visible">True</property>
+                                    <property name="model">list-scroll-mode</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cell-renderer-scroll-mode"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </object>
@@ -2538,6 +2595,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <widget name="label31"/>
       <widget name="label30"/>
       <widget name="label29"/>
+      <widget name="label-scroll-mode"/>
     </widgets>
   </object>
   <object class="GtkAdjustment" id="adj-scroll-opacity">
