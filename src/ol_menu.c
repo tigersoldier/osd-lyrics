@@ -101,7 +101,7 @@ ol_menu_assign_lrc (GtkWidget *widget, gpointer data)
   gtk_file_filter_add_pattern (lrc_filter, "*.lrc");
   if (info != NULL)
   {
-    ol_errorf ("prev_path: %s\n", prev_path);
+    ol_debugf ("prev_path: %s\n", prev_path);
     GtkWidget *dialog = NULL;
     dialog = gtk_file_chooser_dialog_new (_("Choose LRC file to assign"),
                                           NULL,
@@ -132,7 +132,7 @@ ol_menu_assign_lrc (GtkWidget *widget, gpointer data)
 static void
 ol_config_changed (OlConfig *config, gchar *group, gchar *name, gpointer data)
 {
-  ol_errorf ("group:%s  name:%s\n", group, name);
+  ol_debugf ("group:%s  name:%s\n", group, name);
   if (strcmp (name, "locked") == 0 && strcmp (group, "OSD") == 0)
   {
     gboolean locked = ol_config_get_bool (config, group, name);
