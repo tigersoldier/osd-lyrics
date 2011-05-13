@@ -419,9 +419,10 @@ ol_osd_window_button_release (GtkWidget *widget, GdkEventButton *event)
   return FALSE;
 }
 
-static gboolean ol_osd_window_configure_event (GtkWindow *window,
-                                               GdkEventConfigure *event,
-                                               gpointer user_data)
+static gboolean
+ol_osd_window_configure_event (GtkWindow *window,
+                               GdkEventConfigure *event,
+                               gpointer user_data)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (window), FALSE);
   GtkWidget *widget = GTK_WIDGET (window);
@@ -625,7 +626,6 @@ ol_osd_window_map_cb (GtkWidget *widget,
                                           (GSourceFunc) ol_osd_window_mouse_timer,
                                           widget);
   }
-  ol_osd_window_reset_shape_pixmap (osd);
   ol_osd_window_queue_reshape (osd);
   priv->configure_event = g_signal_connect (G_OBJECT (osd), "configure-event",
                                             G_CALLBACK (ol_osd_window_configure_event), osd);
@@ -666,6 +666,7 @@ ol_osd_window_realize_cb (GtkWidget *widget,
                                                 G_CALLBACK (ol_osd_window_screen_composited_changed),
                                                 osd);
   }
+  ol_osd_window_reset_shape_pixmap (osd);
   ol_osd_window_set_input_shape_mask (osd, priv->locked);
 }
 
