@@ -129,7 +129,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                           <object class="GtkVBox" id="vbox9">
                             <property name="visible">True</property>
                             <child>
-                              <object class="GtkHBox" id="hbox14">
+                              <object class="GtkHBox" id="hbox-display-mode-image">
                                 <property name="visible">True</property>
                                 <property name="homogeneous">True</property>
                                 <child>
@@ -163,8 +163,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   <object class="GtkRadioButton" id="display-mode-osd">
                                     <property name="label" translatable="yes">OSD</property>
                                     <property name="visible">True</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="active">True</property>
@@ -172,6 +170,8 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <signal name="toggled" handler="ol_option_display_mode_changed"/>
                                   </object>
                                   <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -180,14 +180,14 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                     <property name="label" translatable="yes">Scrolling</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">display-mode-osd</property>
                                     <signal name="toggled" handler="ol_option_display_mode_changed"/>
                                   </object>
                                   <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -1983,7 +1983,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   <object class="GtkMenu" id="pop-menu">
     <property name="visible">True</property>
     <child>
-      <object class="GtkImageMenuItem" id="menu-switch-osd">
+      <object class="GtkMenuItem" id="menu-switch-osd">
         <property name="visible">True</property>
         <property name="label" translatable="yes">OSD _mode</property>
         <property name="use_underline">True</property>
@@ -1991,7 +1991,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-switch-scrolling">
+      <object class="GtkMenuItem" id="menu-switch-scrolling">
         <property name="visible">True</property>
         <property name="label" translatable="yes">Scrolling _mode</property>
         <property name="use_underline">True</property>
@@ -2033,44 +2033,36 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-assign-lrc">
+      <object class="GtkMenuItem" id="menu-assign-lrc">
         <property name="label" translatable="yes">_Assign lyric...</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Assign local LRC file to current music</property>
         <property name="use_underline">True</property>
-        <property name="image">image8</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_assign_lrc"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-no-lyric">
+      <object class="GtkMenuItem" id="menu-no-lyric">
         <property name="label" translatable="yes">_No lyric</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Don't assign lyric to this music</property>
         <property name="use_underline">True</property>
-        <property name="image">image7</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_no_lyric"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-advance-lrc">
+      <object class="GtkMenuItem" id="menu-advance-lrc">
         <property name="label" translatable="yes">Lyric delay -</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Adjust lyrics delay by -0.2 s</property>
-        <property name="image">image1</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_advance_lrc"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-delay-lrc">
+      <object class="GtkMenuItem" id="menu-delay-lrc">
         <property name="label" translatable="yes">Lyric delay +</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Adjust lyric delay by +0.2 s</property>
-        <property name="image">image6</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_delay_lrc"/>
       </object>
     </child>
