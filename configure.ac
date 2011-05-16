@@ -2,12 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 PACKAGE=osd-lyrics
 PACKAGE_NAME="OSD Lyrics"
-MAJOR_VER=0
-MINOR_VER=3
-BUILD=20100604
-AC_SUBST(BUILD)
+m4_define([OL_MAJOR_VER], [0])
+m4_define([OL_MINOR_VER], [4])
+m4_define([OL_MICRO_VER], [0])
+m4_define([OL_BUILD], [git])
+m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER.OL_BUILD])
 
-AC_INIT([osd-lyrics], [0.3.20100604], [http://code.google.com/p/osd-lyrics/issues/list])
+AC_INIT([osd-lyrics], [OL_VERSION], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
