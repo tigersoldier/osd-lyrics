@@ -46,11 +46,18 @@
 #define INFO_INTERVAL 500
 #define LRCDB_FILENAME "lrc.db"
 
-static char *debug_level = NULL;
+gboolean _arg_debug_cb (const gchar *option_name,
+                        const gchar *value,
+                        gpointer data,
+                        GError **error);
+static gboolean _arg_version;
+
 static GOptionEntry cmdargs[] =
 {
-  { "debug", 'd', 0, G_OPTION_ARG_STRING, &debug_level,
+  { "debug", 'd', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, _arg_debug_cb,
     N_ ("The level of debug messages to log, can be 'none', 'error', 'debug', or 'info'"), "level" },
+  { "version", 'v', 0, G_OPTION_ARG_NONE, &_arg_version,
+    N_ ("Shows the version of " PACKAGE_NAME), NULL},
   { NULL }
 };
 
@@ -418,20 +425,45 @@ _parse_cmd_args (int *argc, char ***argv)
   {
     ol_errorf ("option parsing failed: %s\n", error->message);
   }
-  if (debug_level != NULL)
+  if (_arg_version)
   {
-    if (strcmp (debug_level, "none") == 0)
-      ol_log_set_level (OL_LOG_NONE);
-    else if (strcmp (debug_level, "error") == 0)
-      ol_log_set_level (OL_ERROR);
-    else if (strcmp (debug_level, "debug") == 0)
-      ol_log_set_level (OL_DEBUG);
-    else if (strcmp (debug_level, "info") == 0)
-      ol_log_set_level (OL_INFO);
-    g_free (debug_level);
+    printf ("%s\n", PACKAGE_STRING);
+    exit (0);
   }
 }
 
+gboolean
+_arg_debug_cb (const gchar *option_name,
+               const gchar *value,
+               gpointer data,
+               GError **error)
+{
+  if (value == NULL)
+    value = "debug";
+  if (strcmp (value, "none") == 0)
+  {
+    ol_log_set_level (OL_LOG_NONE);
+  }
+  else if (strcmp (value, "error") == 0)
+  {
+    ol_log_set_level (OL_ERROR);
+  }
+  else if (strcmp (value, "debug") == 0)
+  {
+    ol_log_set_level (OL_DEBUG);
+  }
+  else if (strcmp (value, "info") == 0)
+  {
+    ol_log_set_level (OL_INFO);
+  }
+  else
+  {
+    g_set_error_literal (error, g_quark_from_string (PACKAGE_NAME), 1,
+                         N_ ("debug level should be one of ``none'', ``error'', ``debug'', or ``info''"));
+    return FALSE;
+  }
+  return TRUE;
+}
 
 static void
 _initialize (int argc, char **argv)
