@@ -51,28 +51,29 @@ static gboolean
 ol_player_banshee_proxy_destroy_handler (DBusGProxy *_proxy, gpointer userdata)
 {
   ol_log_func ();
-  g_object_unref (proxy);
-  proxy = NULL;
+  g_object_unref (_proxy);
+  *(void**)userdata = NULL;
   return FALSE;
 }
 
 static gboolean
 ol_player_banshee_get_music_info (OlMusicInfo *info)
 {
-  /* ol_log_func (); */
-  if (info == NULL)
-    return FALSE;
+  ol_log_func ();
+  ol_assert_ret (info != NULL, FALSE);
   GHashTable *data_list = NULL;
   gboolean ret = TRUE;
+  GError *error = NULL;
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
   if (dbus_g_proxy_call (proxy,
-                        GET_TITLE,
-                        NULL,G_TYPE_INVALID,
-                        dbus_g_type_get_map("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
-                        &data_list,
-                        G_TYPE_INVALID))
+                         GET_TITLE,
+                         &error,
+                         G_TYPE_INVALID,
+                         dbus_g_type_get_map("GHashTable",G_TYPE_STRING, G_TYPE_VALUE),
+                         &data_list,
+                         G_TYPE_INVALID))
   {
     ol_music_info_clear (info);
     info->artist = g_strdup (ol_get_string_from_hash_table (data_list, "artist"));
@@ -88,8 +89,9 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
   }
   else
   {
-    ol_debugf ("%s fail\n", GET_TITLE);
-    proxy = NULL;
+    ol_debugf ("%s fail: %s\n", GET_TITLE, error->message);
+    g_error_free (error);
+    error = NULL;
     ret = FALSE;
   }
   return ret;
@@ -98,9 +100,8 @@ ol_player_banshee_get_music_info (OlMusicInfo *info)
 static gboolean
 ol_player_banshee_get_music_length (int *len)
 {
-  /* ol_log_func (); */
-  if (!len)
-    return FALSE;
+  ol_log_func ();
+  ol_assert_ret (len != NULL, FALSE);
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
@@ -123,8 +124,7 @@ ol_player_banshee_get_music_length (int *len)
 static gboolean
 ol_player_banshee_get_played_time (int *played_time)
 {
-  if (!played_time)
-    return FALSE;
+  ol_assert_ret (played_time != NULL, FALSE);
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
@@ -143,7 +143,7 @@ ol_player_banshee_get_played_time (int *played_time)
 static gboolean
 ol_player_banshee_get_activated ()
 {
-  /* ol_log_func (); */
+  ol_log_func ();
   if (proxy == NULL)
     if (!ol_player_banshee_init_dbus ())
       return FALSE;
@@ -175,7 +175,7 @@ ol_player_banshee_init_dbus ()
       error = NULL;
       return FALSE;
     }
-    g_signal_connect (proxy, "destroy", G_CALLBACK (ol_player_banshee_proxy_destroy_handler), proxy);
+    g_signal_connect (proxy, "destroy", G_CALLBACK (ol_player_banshee_proxy_destroy_handler), &proxy);
   }
   if (control_proxy == NULL)
   {
@@ -187,7 +187,7 @@ ol_player_banshee_init_dbus ()
       error = NULL;
       return FALSE;
     }
-    g_signal_connect (control_proxy, "destroy", G_CALLBACK (ol_player_banshee_proxy_destroy_handler), control_proxy);
+    g_signal_connect (control_proxy, "destroy", G_CALLBACK (ol_player_banshee_proxy_destroy_handler), &control_proxy);
   }
   return TRUE;
 }
