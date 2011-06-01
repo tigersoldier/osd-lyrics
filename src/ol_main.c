@@ -238,7 +238,7 @@ _check_lyric_file ()
 static void
 _on_music_changed ()
 {
-  ol_debugf("on music change\n");
+  ol_log_func ();
   if (module != NULL)
   {
     ol_display_module_set_music_info (module, &music_info);
@@ -253,6 +253,44 @@ _on_music_changed ()
 }
 
 static void
+_normalize_music_info (OlMusicInfo *music_info)
+{
+  if (ol_is_string_empty (ol_music_info_get_title (music_info)) &&
+      ! ol_is_string_empty (ol_music_info_get_uri (music_info)))
+  {
+    const char *uri = ol_music_info_get_uri (music_info);
+    char *path = NULL;
+    if (uri[0] == '/')
+    {
+      path = g_strdup (uri);
+    }
+    else
+    {
+      GError *err = NULL;
+      path = g_filename_from_uri (uri, NULL, &err);
+      if (path == NULL)
+      {
+        ol_debugf ("Convert uri failed: %s\n", err->message);
+        g_error_free (err);
+      }
+    }
+    if (path != NULL)
+    {
+      char *basename = g_path_get_basename (path);
+      char *mainname = NULL;
+      ol_path_splitext (basename, &mainname, NULL);
+      if (mainname != NULL)
+      {
+        ol_music_info_set_title (music_info, mainname);
+        g_free (mainname);
+      }
+      g_free (basename);
+      g_free (path);
+    }
+  }
+}
+
+static void
 _check_music_change ()
 {
   ol_log_func ();
@@ -262,6 +300,10 @@ _check_music_change ()
   if (player && !ol_player_get_music_info (player, &music_info))
   {
     player = NULL;
+  }
+  else
+  {
+    _normalize_music_info (&music_info);
   }
   gint duration = 0;
   if (player && !ol_player_get_music_length (player, &duration))

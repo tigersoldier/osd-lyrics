@@ -140,4 +140,18 @@ ssize_t ol_file_len (const char *filename);
  */
 char* ol_encode_hex (const char *data, ssize_t len);
 
+/** 
+ * Split a path into two parts (root, ext), the ext is the extension of a file
+ * name, which begins with a period and contains at most period. root + ext = path.
+ *
+ * If the filename begins with a period and has no extension, the filename will not
+ * be stored in the ext part.
+ * 
+ * @param path The path to be splited.
+ * @param root The path without ext. Should be freed with g_free.
+ * @param ext The extension of filename, or NULL if no extension found.
+ *            Should be freed with g_free.
+ */
+void ol_path_splitext (const char *path, char **root, char **ext);
+
 #endif // __OL_UTILS_H__

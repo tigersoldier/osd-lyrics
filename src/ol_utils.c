@@ -324,3 +324,36 @@ ol_encode_hex (const char *data, ssize_t len)
   *current = '\0';
   return hex;
 }
+
+void
+ol_path_splitext (const char *path, char **root, char **ext)
+{
+  if (path != NULL)
+  {
+    char *period = strrchr (path, '.');
+    if (period != NULL &&
+        (period - path == 0 || *(period - 1) == G_DIR_SEPARATOR))
+      period = NULL;
+    if (period == NULL)
+    {
+      if (root != NULL)
+        *root = g_strdup (path);
+      if (ext != NULL)
+        *ext = NULL;
+    }
+    else
+    {
+      if (root != NULL)
+        *root = g_strndup (path, period - path);
+      if (ext != NULL)
+        *ext = g_strdup (period);
+    }
+  }
+  else
+  {
+    if (root != NULL)
+      *root = NULL;
+    if (ext != NULL)
+      *ext = NULL;
+  }
+}
