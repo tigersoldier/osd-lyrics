@@ -547,7 +547,7 @@ ol_osd_module_set_message (struct OlDisplayModule *module,
     g_source_remove (priv->message_source);
   priv->message_source = g_timeout_add (duration_ms,
                                         (GSourceFunc) hide_message,
-                                        (gpointer) module);
+                                        (gpointer) priv);
 }
 
 static void
