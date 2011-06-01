@@ -245,7 +245,8 @@ _on_music_changed ()
     ol_display_module_set_duration (module, previous_duration);
   }
   ol_display_module_set_lrc (module, NULL);
-  if (!_check_lyric_file ())
+  if (!_check_lyric_file () &&
+      !ol_is_string_empty (ol_music_info_get_title (&music_info)))
     ol_app_download_lyric (&music_info);
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
