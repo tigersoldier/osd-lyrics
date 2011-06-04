@@ -171,7 +171,7 @@ fi
 AM_CONDITIONAL(HAVE_APP_INDICATOR, test x"$enable_appindicator" = xyes)
 
 # i18n support from GNU gettext.
-GETTEXT_PACKAGE=osd-lyrics
+GETTEXT_PACKAGE=osdlyrics
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 IT_PROG_INTLTOOL([0.35.0])

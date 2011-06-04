@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-13 18:37+0800\n"
+"POT-Creation-Date: 2011-06-04 13:46+0800\n"
 "PO-Revision-Date: 2011-05-13 18:42+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
@@ -18,91 +18,101 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-06-04 13:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../src/ol_menu.c:100
+#: ../src/ol_menu.c:119
 msgid "LRC files"
 msgstr "LRC文件"
 
-#: ../src/ol_menu.c:106
+#: ../src/ol_menu.c:125
 msgid "Choose LRC file to assign"
 msgstr "选择要关联的LRC文件"
 
-#: ../src/ol_main.c:53
+#: ../src/ol_main.c:58
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
 msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'info"
 
-#: ../src/ol_main.c:122
+#: ../src/ol_main.c:60
+msgid "Shows the version of "
+msgstr ""
+
+#: ../src/ol_main.c:129
 msgid "Download failed"
 msgstr "下载失败"
 
-#: ../src/ol_main.c:137
+#: ../src/ol_main.c:144
 msgid "Cannot create the lyric directory"
 msgstr "无法创建歌词目录"
 
-#: ../src/ol_main.c:154
+#: ../src/ol_main.c:161
 msgid "Lyrics not found"
 msgstr "找不到匹配的歌词"
 
-#: ../src/ol_main.c:171
+#: ../src/ol_main.c:178
 msgid "Searching lyrics"
 msgstr "正在搜索歌词"
 
-#: ../src/ol_main.c:348
+#: ../src/ol_main.c:398
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "没有检测到支持的播放器，程序自动退出。\n"
 
-#: ../src/ol_main.c:454
+#: ../src/ol_main.c:505
+#, fuzzy
+msgid ""
+"debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
+msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'info"
+
+#: ../src/ol_main.c:529
 msgid "Another OSD Lyrics is running, exit."
 msgstr "OSD Lyrics已经运行，程序自动退出。"
 
-#: ../src/ol_trayicon.c:17 ../src/ol_notify.c:7
+#: ../src/ol_trayicon.c:36 ../src/ol_notify.c:26
 msgid "Unknown title"
 msgstr "未知歌名"
 
-#: ../src/ol_trayicon.c:18 ../src/ol_notify.c:8
+#: ../src/ol_trayicon.c:37 ../src/ol_notify.c:27
 msgid "Unknown artist"
 msgstr "未知歌手"
 
-#: ../src/ol_trayicon.c:52 ../src/ol_trayicon.c:130
+#: ../src/ol_trayicon.c:71 ../src/ol_trayicon.c:149
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
-#: ../src/ol_option.c:1692
+#: ../src/ol_option.c:1711
 msgid "None"
 msgstr "无"
 
-#: ../src/ol_option.c:1700 ../data/dialogs.glade.h:44
+#: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
 msgstr "自定义"
 
-#: ../src/ol_option.c:1763
+#: ../src/ol_option.c:1782
 msgid "Select a folder"
 msgstr "选择文件夹"
 
-#: ../src/ol_lrc_fetch_ttplayer.c:256
+#: ../src/ol_lrc_fetch_ttplayer.c:274
 msgid "ttPlayer"
 msgstr "千千静听"
 
-#: ../src/ol_lrc_candidate_list.c:25
+#: ../src/ol_lrc_candidate_list.c:43
 msgid "Title"
 msgstr "歌名"
 
-#: ../src/ol_lrc_candidate_list.c:30
+#: ../src/ol_lrc_candidate_list.c:48
 msgid "Artist"
 msgstr "歌手"
 
-#: ../src/ol_search_dialog.c:12
+#: ../src/ol_search_dialog.c:31
 #, c-format
 msgid "Searching lyrics from %s..."
 msgstr "正在从%s搜索歌词..."
 
-#: ../src/ol_search_dialog.c:13
+#: ../src/ol_search_dialog.c:32
 msgid "Ooops, no lyric found :("
 msgstr "囧, 找不到歌词:("
 
-#: ../src/ol_search_dialog.c:14
+#: ../src/ol_search_dialog.c:33
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "找到%d个歌词:)"
