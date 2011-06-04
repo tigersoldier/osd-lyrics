@@ -1,20 +1,23 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-PACKAGE=osd-lyrics
-PACKAGE_NAME="OSD Lyrics"
 m4_define([OL_MAJOR_VER], [0])
 m4_define([OL_MINOR_VER], [4])
 m4_define([OL_MICRO_VER], [0])
 m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER-git])
 
-AC_INIT([osd-lyrics], [OL_VERSION], [http://code.google.com/p/osd-lyrics/issues/list])
-AM_INIT_AUTOMAKE
+AC_INIT([osdlyrics], [OL_VERSION], [http://code.google.com/p/osd-lyrics/issues/list])
+AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
+
+# Checks for header files.
+AC_PATH_X
+AC_CHECK_HEADERS([fcntl.h libintl.h limits.h locale.h stddef.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
@@ -26,6 +29,22 @@ AC_CONFIG_FILES([ po/Makefile.in
 	src/tests/Makefile
 	data/Makefile
 ])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+
+# Checks for library functions.
+# AM_GNU_GETTEXT
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([ftruncate gettimeofday memset pathconf strchr strdup strerror strrchr strstr])
 
 #define paths
 OL_ICONDIR="$datadir/$PACKAGE/icons"

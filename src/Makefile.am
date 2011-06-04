@@ -3,7 +3,9 @@ bin_PROGRAMS = osd-lyrics
 #ol_player_test
 #TEST = $(check_PROGRAMS)
 
-INCLUDES = \
+AM_CFLAGS = -Wall -Werror
+
+AM_CPPFLAGS = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@CURL_CFLAGS@ \
@@ -13,14 +15,10 @@ INCLUDES = \
 	@SQLITE_CFLAGS@ \
 	@X11_CFLAGS@ \
 	@APP_INDICATOR_CFLAGS@ \
-	-I$(top_srcdir)/lib/chardetect/include
-AM_CFLAGS = \
+	-I$(top_srcdir)/lib/chardetect/include \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGUIDIR='"$(OL_GUIDIR)"' \
-	-Wall -Wfatal-errors -Werror
-AM_LDFLAGS = \
-	-L$(top_builddir)/lib/chardetect
+	-DGUIDIR='"$(OL_GUIDIR)"'
 LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -31,7 +29,7 @@ LDADD = \
 	@SQLITE_LIBS@ \
 	@X11_LIBS@ \
 	@APP_INDICATOR_LIBS@ \
-	-lchardetect \
+	../lib/chardetect/libchardetect.a \
 	-lstdc++
 
 noinst_HEADERS = \
