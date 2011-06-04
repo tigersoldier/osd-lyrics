@@ -3,7 +3,7 @@
 m4_define([OL_MAJOR_VER], [0])
 m4_define([OL_MINOR_VER], [4])
 m4_define([OL_MICRO_VER], [0])
-m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER-git])
+m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER])
 
 AC_INIT([osdlyrics], [OL_VERSION], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE([-Wall -Werror])
