@@ -1,43 +1,33 @@
-OSD Lyrics is inspired by lrcdis. With OSD Lyrics, you can enjoy an OSD lyrics show with various media players in Linux.
+-*- mode: markdown -*-
 
-=Compatible Media Players=
+OSD Lyrics - Show lyrics with your favorite media player.
 
- * Amarok 2.0 and 1.4 (1.4 are disabled by default, use --enable-amarok1 to compile)
- * Audacious
- * Banshee
- * Exaile (Both 0.2 and 0.3)
- * MPD
- * Rhythmbox
- * Songbird (with MPRIS extension installed)
- * XMMS2
+Introduction
+============
 
-=Download Lyrics=
+OSD Lyrics is a lyrics show compatible with various media players. It is not a plugin but a standalone program. OSD Lyrics shows lyrics on your desktop, in the style similar to KaraOK. It also provides another displaying style, in which lyrics scroll from bottom to top. OSD Lyrics can download lyrics from the network automatically.
 
-OSD Lyrics can download lyrics from following web sites:
- * Sogou http://mp3.sogou.com/ 
- * Qianqian http://www.qianqian.com/index.html 
+OSD Lyrics is released under GPL v3. See COPYING for more detail.
 
-You can switch the download engine in preference dialog.
+Usage
+=====
 
-=Have Trouble?=
+To use OSD Lyrics, just launch your media player, then launch OSD Lyrics. OSD Lyrics will detect and connect to the media player. 
 
- * Read our FAQ: http://code.google.com/p/osd-lyrics/wiki/FAQ
- * Post to our discussion group(http://groups.google.com/group/osd-lyrics) or send a mail to osd-lyrics@googlegroups.com.
- * You can also fire an issue to http://code.google.com/p/osd-lyrics/issues/list.
+Contact Us
+==========
 
-=Get Involved=
+The home page of OSD Lyrics is http://code.google.com/p/osd-lyrics/
 
- * If you would like to translate OSD Lyrics to other languagues, please visit https://translations.launchpad.net/osd-lyrics
- * If there is any feature request, suggestion, or bug, feel free to report them to  http://code.google.com/p/osd-lyrics/issues/list
- *If there is any Grammar mistake in both documentation and software interface, please let me know :)
+The source repository is on Github: http://github.com/tigersoldier/osd-lyrics
 
-=Acknowledgement=
+If there is any feature request, suggestion, or bug, feel free to report them to http://code.google.com/p/osd-lyrics/issues/list
 
-Some open source projects help the authors to develop OSD Lyrics, as well as some people. The authors would like to thank you:
- * Gnome OSD: OSD implementation
- * lrcdis: The idea of third-party lyrics program, and the analysis of LRC download protocols
- * Cairo-Dock: Its musicPlayer plugin helps the authors to implement most music player support
- * The global keybinding implementation is taken from Gnome Do, which is originally from Red hat and Tomboy
- * TuaratriX (http://imtx.cn/) has help one of the author on the implementation of OSD, and is maintaining the Ubuntu PPA repository.
- * easy designed our beautiful icon.
- * liangsuilong(http://liangsuilong.co.cc/) maintains the Fedora RPM repository.
+The support mail list is osd-lyrics@googlegroups.com. You can also visit https://groups.google.com/group/osd-lyrics
+
+Contributing
+============
+
+ - Help translate: https://translations.launchpad.net/osd-lyrics
+ - Patch or bug report: http://code.google.com/p/osd-lyrics/issues/list
+ - Any visual design is welcome :)
