@@ -3,12 +3,16 @@
 m4_define([OL_MAJOR_VER], [0])
 m4_define([OL_MINOR_VER], [4])
 m4_define([OL_MICRO_VER], [0])
-m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER-git])
+m4_define([OL_BUILD], [-git])
+m4_define(OL_BUILD_VER,
+          m4_esyscmd([if test x]OL_BUILD[ == x-git; then git log -1 --format=format:%ad --date=short | sed 's/-//g'; fi]))
 
+m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER[]OL_BUILD[]OL_BUILD_VER])
 AC_INIT([osdlyrics], [OL_VERSION], [http://code.google.com/p/osd-lyrics/issues/list])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
+AC_DEFINE([PROGRAM_NAME], ["OSD Lyrics"], [The full name of the program to display])
 
 # Checks for header files.
 AC_PATH_X
