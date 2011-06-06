@@ -6,7 +6,7 @@
     <property name="border_width">5</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
-    <property name="copyright" translatable="yes">Copyright 2009 The OSD Lyrics project.</property>
+    <property name="copyright" translatable="yes">Copyright 2009-2011 The OSD Lyrics project.</property>
     <property name="comments" translatable="yes">An OSD lyric show compatible with various media players and supports lyrics downloading.
 </property>
     <property name="website">http://code.google.com/p/osd-lyrics/ </property>
