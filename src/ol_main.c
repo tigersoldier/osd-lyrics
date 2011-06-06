@@ -470,7 +470,7 @@ _parse_cmd_args (int *argc, char ***argv)
   }
   if (_arg_version)
   {
-    printf ("%s\n", PACKAGE_STRING);
+    printf ("%s %s\n", PROGRAM_NAME, VERSION);
     exit (0);
   }
 }
