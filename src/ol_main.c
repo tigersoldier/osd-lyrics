@@ -41,9 +41,11 @@
 #include "ol_lrclib.h"
 #include "ol_debug.h"
 #include "ol_singleton.h"
+#include "ol_player_chooser.h"
 
 #define REFRESH_INTERVAL 100
 #define INFO_INTERVAL 500
+#define TIMEOUT_WAIT_LAUNCH 5000
 #define LRCDB_FILENAME "lrc.db"
 
 gboolean _arg_debug_cb (const gchar *option_name,
@@ -57,11 +59,10 @@ static GOptionEntry cmdargs[] =
   { "debug", 'd', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, _arg_debug_cb,
     N_ ("The level of debug messages to log, can be 'none', 'error', 'debug', or 'info'"), "level" },
   { "version", 'v', 0, G_OPTION_ARG_NONE, &_arg_version,
-    N_ ("Shows the version of " PACKAGE_NAME), NULL},
+    N_ ("Show version information"), NULL},
   { NULL }
 };
 
-static gboolean first_run = TRUE;
 static guint refresh_source = 0;
 static guint info_timer = 0;
 static struct OlPlayer *player = NULL;
@@ -75,10 +76,22 @@ static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
+static enum _PlayerLostAction {
+  ACTION_NONE = 0,
+  ACTION_LAUNCH_DEFAULT,
+  ACTION_CHOOSE_PLAYER,
+  ACTION_WAIT_LAUNCH,
+  ACTION_QUIT,
+} player_lost_action = ACTION_LAUNCH_DEFAULT;
 
 static void _initialize (int argc, char **argv);
 static gint _refresh_music_info (gpointer data);
 static gint _refresh_player_info (gpointer data);
+static void _wait_for_player_launch (void);
+static void _player_lost_cb (void);
+static void _player_chooser_response_cb (GtkDialog *dialog,
+                                         gint response_id,
+                                         gpointer user_data);
 static void _check_music_change ();
 static void _on_music_changed (void);
 static gboolean _check_lyric_file (void);
@@ -371,14 +384,50 @@ _refresh_player_info (gpointer data)
 }
 
 static gboolean
-_get_active_player (void)
+_player_launch_timeout (gpointer userdata)
 {
-  ol_log_func ();
-  player = ol_player_get_active_player ();
-  if (player == NULL)
+  if (player_lost_action == ACTION_WAIT_LAUNCH)
+    player_lost_action = ACTION_CHOOSE_PLAYER;
+  return FALSE;
+}
+
+static void
+_wait_for_player_launch (void)
+{
+  player_lost_action = ACTION_WAIT_LAUNCH;
+  g_timeout_add (TIMEOUT_WAIT_LAUNCH, _player_launch_timeout, NULL);
+}
+
+static void
+_player_chooser_response_cb (GtkDialog *dialog,
+                             gint response_id,
+                             gpointer user_data)
+{
+  ol_assert (GTK_IS_DIALOG (dialog));
+  switch (response_id)
   {
-    gboolean ignore = FALSE;
-    if (first_run)
+  case OL_PLAYER_CHOOSER_RESPONSE_LAUNCH:
+    _wait_for_player_launch ();
+    break;
+  case GTK_RESPONSE_DELETE_EVENT:
+  case GTK_RESPONSE_CLOSE:
+    gtk_main_quit ();
+    break;
+  default:
+    ol_errorf ("Unknown response id: %d\n", response_id);
+  }
+  gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+static void
+_player_lost_cb (void)
+{
+  switch (player_lost_action)
+  {
+  case ACTION_LAUNCH_DEFAULT:
+  case ACTION_CHOOSE_PLAYER:
+  {
+    if (player_lost_action == ACTION_LAUNCH_DEFAULT)
     {
       OlConfig *config = ol_config_get_instance ();
       char *player_cmd = ol_config_get_string (config,
@@ -386,21 +435,49 @@ _get_active_player (void)
                                                "startup-player");
       if (!ol_is_string_empty (player_cmd))
       {
-        ignore = TRUE;
         ol_debugf ("Running %s\n", player_cmd);
         g_spawn_command_line_async (player_cmd, NULL);
-        sleep (5);
+        _wait_for_player_launch ();
+        g_free (player_cmd);
+        break;
       }
-      g_free (player_cmd);
+      else
+      {
+        g_free (player_cmd);
+      }
     }
-    if (!ignore)
-    {
-      printf (_("No supported player is running, exit.\n"));
-      gtk_main_quit ();
-    }
+    GtkWidget *player_chooser = ol_player_chooser_new (NULL);
+    g_signal_connect (player_chooser,
+                      "response",
+                      G_CALLBACK (_player_chooser_response_cb),
+                      NULL);
+    gtk_widget_show (player_chooser);
+    player_lost_action = ACTION_NONE;
+    break;
+  }
+  case ACTION_QUIT:
+    printf (_("No supported player is running, exit.\n"));
+    gtk_main_quit ();
+    break;
+  default:
+    break;
+  }
+}
+
+static gboolean
+_get_active_player (void)
+{
+  ol_log_func ();
+  player = ol_player_get_active_player ();
+  if (player == NULL)
+  {
+    _player_lost_cb ();
+  }
+  else
+  {
+    player_lost_action = ACTION_QUIT;
   }
   ol_display_module_set_player (module, player);
-  first_run = FALSE;
   return player != NULL;
 }
 
@@ -408,8 +485,6 @@ static gint
 _refresh_music_info (gpointer data)
 {
   ol_log_func ();
-  //printf ("_refresh_music_info:successful\n");
-  /* ol_log_func (); */
   if (player == NULL && !_get_active_player ())
     return TRUE;
   gint time = 0;
@@ -518,8 +593,6 @@ _initialize (int argc, char **argv)
   bind_textdomain_codeset(PACKAGE, "UTF-8");
   /* textdomain (PACKAGE); */
 #endif
-  /* Handler for SIGCHLD to wait lrc downloading process */
-  /* signal (SIGCHLD, child_handler); */
 
   g_thread_init(NULL);
   gtk_init (&argc, &argv);

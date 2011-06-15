@@ -182,7 +182,9 @@ osd_lyrics_SOURCES = \
 	ol_marshal.c \
 	ol_stock.c \
 	ol_notify.c \
-	ol_lrclib.c
+	ol_lrclib.c \
+	ol_player_chooser.h \
+	ol_player_chooser.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 

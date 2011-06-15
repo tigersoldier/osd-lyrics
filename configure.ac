@@ -112,7 +112,11 @@ AS_IF([test "x$enable_amarok1" != xno],
   [AC_DEFINE([ENABLE_AMAROK1], [1], [Define if compile to support Amarok 1.4])])
 
 # Checks for libraries.
-PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0, gthread-2.0, gmodule-export-2.0])
+PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0, 
+                          gthread-2.0, 
+                          gmodule-export-2.0,
+                          gio-2.0,
+                          gio-unix-2.0])
 PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
