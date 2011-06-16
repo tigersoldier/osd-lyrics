@@ -20,6 +20,7 @@
 #include "ol_player_chooser.h"
 #include "ol_intl.h"
 #include "ol_utils.h"
+#include "ol_config.h"
 #include "ol_debug.h"
 
 #define OL_PLAYER_CHOOSER_GET_PRIVATE(obj)   (G_TYPE_INSTANCE_GET_PRIVATE  \
@@ -51,13 +52,13 @@ static void _set_supported_players (OlPlayerChooser *chooser,
                                     GList *supported_players);
 static void _player_button_launch (GtkButton *button,
                                    GAppInfo *app_info);
-static void _player_button_response (GtkButton *button,
-                                     GtkDialog *dialog);
 static void _launch_button_clicked_cb (GtkButton *button,
                                        OlPlayerChooser *window);
 static gboolean _app_command_exists (GAppInfo *app_info);
 static gint _app_info_cmp (GAppInfo *a, GAppInfo *b);
 static GtkWidget *_image_from_app_info (GAppInfo *app_info);
+static void _remember_cmd_if_needed (OlPlayerChooser *window,
+                                     const char *cmd);
 
 static void
 ol_player_chooser_class_init (OlPlayerChooserClass *klass)
@@ -110,6 +111,7 @@ ol_player_chooser_init (OlPlayerChooser *window)
 
   GtkWidget *final_hbox = gtk_hbox_new (FALSE, 0);
   GtkWidget *remember_button = gtk_check_button_new_with_label (_("Remember my choice"));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (remember_button), TRUE);
   priv->remember_button = remember_button;
   gtk_box_pack_start (GTK_BOX (final_hbox), remember_button, FALSE, TRUE, 0);
 
@@ -172,13 +174,13 @@ _player_button_launch (GtkButton *button,
     ol_errorf ("Cannot launch %s: %s", g_app_info_get_commandline (app_info));
     g_error_free (err);
   }
-}
-
-static void
-_player_button_response (GtkButton *button,
-                         GtkDialog *dialog)
-{
-  gtk_dialog_response (dialog, OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
+  GtkWidget *toplevel = gtk_widget_get_toplevel (GTK_WIDGET (button));
+  if (OL_IS_PLAYER_CHOOSER (toplevel))
+	{
+    _remember_cmd_if_needed (OL_PLAYER_CHOOSER (toplevel),
+                             g_app_info_get_commandline (app_info));
+    gtk_dialog_response (GTK_DIALOG (toplevel), OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
+  }
 }
 
 static gint
@@ -280,10 +282,6 @@ _set_app_table (OlPlayerChooser *window,
                       "clicked",
                       G_CALLBACK (_player_button_launch),
                       app_info);
-    g_signal_connect (button,
-                      "clicked",
-                      G_CALLBACK (_player_button_response),
-                      window);
 
     gtk_table_attach_defaults (table, button, col, col + 1, row, row + 1);
     row += (col + 1) / n_columns;
@@ -324,5 +322,22 @@ _launch_button_clicked_cb (GtkButton *button,
   if (ol_is_string_empty (cmd))
     return;
   g_spawn_command_line_async (cmd, NULL);
+  _remember_cmd_if_needed (window, cmd);
   gtk_dialog_response (GTK_DIALOG (window), OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
+}
+
+static void
+_remember_cmd_if_needed (OlPlayerChooser *window,
+                         const char *cmd)
+{
+  ol_assert (OL_IS_PLAYER_CHOOSER (window));
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (priv->remember_button)))
+  {
+    OlConfig *config = ol_config_get_instance ();
+    ol_config_set_string (config,
+                          "General",
+                          "startup-player",
+                          cmd);
+  }
 }
