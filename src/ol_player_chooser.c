@@ -36,19 +36,22 @@ typedef struct _OlPlayerChooserPrivate
   GtkTable *all_table;
   GtkExpander *supported_expander;
   GtkExpander *all_expander;
-  GList *all_app_info;
 } OlPlayerChooserPrivate;
 
 static void _destroy (GtkObject *object);
 static void _set_app_table (OlPlayerChooser *window,
                             GtkTable *table,
-                            GList *app_list);
+                            GList *app_list,
+                            gboolean (*filter) (GAppInfo *));
 static void _set_supported_players (OlPlayerChooser *chooser,
                                     GList *supported_players);
 static void _player_button_launch (GtkButton *button,
                                    GAppInfo *app_info);
 static void _player_button_response (GtkButton *button,
                                      GtkDialog *dialog);
+static gboolean _app_command_exists (GAppInfo *app_info);
+static gint _app_info_cmp (GAppInfo *a, GAppInfo *b);
+static GtkWidget *_image_from_app_info (GAppInfo *app_info);
 
 static void
 ol_player_chooser_class_init (OlPlayerChooserClass *klass)
@@ -162,18 +165,74 @@ _player_button_response (GtkButton *button,
   gtk_dialog_response (dialog, OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
 }
 
+static gint
+_app_info_cmp (GAppInfo *a, GAppInfo *b)
+{
+  return strcasecmp (g_app_info_get_display_name (a),
+                     g_app_info_get_display_name (b));
+}
+
+static gboolean
+_app_command_exists (GAppInfo *app_info)
+{
+  ol_assert_ret (G_IS_APP_INFO (app_info), FALSE);
+  const char *exec = g_app_info_get_executable (app_info);
+  char *path = g_find_program_in_path (exec);
+  if (path != NULL)
+  {
+    g_free (path);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static GtkWidget
+*_image_from_app_info (GAppInfo *app_info)
+{
+  GIcon *icon = g_app_info_get_icon (app_info);
+  GtkWidget *image = NULL;
+  if (icon)
+  {
+    image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_BUTTON);
+  }
+  else
+  {
+    const char *icon_name = g_app_info_get_executable (app_info);
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_default ();
+    if (!gtk_icon_theme_has_icon (icon_theme, icon_name))
+      icon_name = "media-playback-start";
+    image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_DIALOG);
+  }
+  gtk_image_set_pixel_size (GTK_IMAGE (image), 64);
+  return image;
+}
+
 static void
-_set_app_table (OlPlayerChooser *window, GtkTable *table, GList *app_list)
+_set_app_table (OlPlayerChooser *window,
+                GtkTable *table,
+                GList *app_list,
+                gboolean (*filter) (GAppInfo *))
 {
   ol_assert (GTK_IS_TABLE (table));
   int count = 0;
   GList *app = NULL;
-  for (app = app_list; app != NULL; app = g_list_next (app))
+  for (app = app_list; app != NULL;)
   {
-    if (g_app_info_should_show (app->data))
+    if (filter == NULL || filter (app->data))
+    {
       count++;
+      app = g_list_next (app);
+    }
+    else
+    {
+      g_object_unref (G_OBJECT (app->data));
+      if (app_list == app)
+        app_list = g_list_next (app);
+      app = g_list_delete_link (app, app);
+    }
   }
   if (count == 0) return;
+  app_list = g_list_sort (app_list, (GCompareFunc)_app_info_cmp);
   guint n_rows, n_columns;
   gtk_table_get_size (table, &n_rows, &n_columns);
   n_rows = (count - 1) / n_columns + 1;
@@ -182,41 +241,37 @@ _set_app_table (OlPlayerChooser *window, GtkTable *table, GList *app_list)
   for (app = app_list; app != NULL; app = g_list_next (app))
   {
     GAppInfo *app_info = app->data;
-    if (g_app_info_should_show (app_info))
-    {
-      GtkWidget *button, *frame, *vbox, *image, *label;
-      image = gtk_image_new_from_gicon (g_app_info_get_icon (app_info),
-                                        GTK_ICON_SIZE_BUTTON);
-      gtk_image_set_pixel_size (GTK_IMAGE (image), 64);
+    GtkWidget *button, *frame, *vbox, *image, *label;
+    image = _image_from_app_info (app_info);
 
-      label = gtk_label_new (g_app_info_get_display_name (app_info));
-      gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
-      gtk_widget_set_size_request (label, 80, -1);
+    label = gtk_label_new (g_app_info_get_display_name (app_info));
+    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+    gtk_widget_set_size_request (label, 80, -1);
 
-      vbox = gtk_vbox_new (FALSE, 0);
-      gtk_box_pack_start (GTK_BOX (vbox), image, FALSE, TRUE, 0);
-      gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, TRUE, 0);
+    vbox = gtk_vbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), image, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, TRUE, 0);
 
-      frame = gtk_aspect_frame_new (NULL, 0.5, 0.5, 1.0, FALSE);
-      gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
-      gtk_container_add (GTK_CONTAINER (frame), vbox);
+    frame = gtk_aspect_frame_new (NULL, 0.5, 0.5, 1.0, FALSE);
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
+    gtk_container_add (GTK_CONTAINER (frame), vbox);
 
-      button = gtk_button_new ();
-      gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
-      gtk_container_add (GTK_CONTAINER (button), frame);
-      g_signal_connect (button,
-                        "clicked",
-                        G_CALLBACK (_player_button_launch),
-                        app_info);
-      g_signal_connect (button,
-                        "clicked",
-                        G_CALLBACK (_player_button_response),
-                        window);
+    button = gtk_button_new ();
+    gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+    gtk_widget_set_tooltip_text (button, g_app_info_get_display_name (app_info));
+    gtk_container_add (GTK_CONTAINER (button), frame);
+    g_signal_connect (button,
+                      "clicked",
+                      G_CALLBACK (_player_button_launch),
+                      app_info);
+    g_signal_connect (button,
+                      "clicked",
+                      G_CALLBACK (_player_button_response),
+                      window);
 
-      gtk_table_attach_defaults (table, button, col, col + 1, row, row + 1);
-      row += (col + 1) / n_columns;
-      col = (col + 1) % n_columns;
-    }
+    gtk_table_attach_defaults (table, button, col, col + 1, row, row + 1);
+    row += (col + 1) / n_columns;
+    col = (col + 1) % n_columns;
   }
   gtk_widget_show_all (GTK_WIDGET (table));
 }
@@ -227,8 +282,18 @@ _set_supported_players (OlPlayerChooser *window,
 {
   ol_assert (OL_IS_PLAYER_CHOOSER (window));
   OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
-  window->supported_players = supported_players;
-  priv->all_app_info = g_app_info_get_all_for_type ("audio/mp3");
-  _set_app_table (window, priv->all_table, priv->all_app_info);
   gtk_expander_set_expanded (priv->all_expander, TRUE);
+  if (supported_players != NULL)
+  {
+    _set_app_table (window,
+                    priv->supported_table,
+                    supported_players,
+                    _app_command_exists);
+    gtk_expander_set_expanded (priv->supported_expander, TRUE);
+    gtk_expander_set_expanded (priv->all_expander, FALSE);
+  }
+  _set_app_table (window,
+                  priv->all_table,
+                  g_app_info_get_all_for_type ("audio/mp3"),
+                  g_app_info_should_show);
 }

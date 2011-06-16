@@ -446,7 +446,8 @@ _player_lost_cb (void)
         g_free (player_cmd);
       }
     }
-    GtkWidget *player_chooser = ol_player_chooser_new (NULL);
+    GList *supported_players = ol_player_get_support_players ();
+    GtkWidget *player_chooser = ol_player_chooser_new (supported_players);
     g_signal_connect (player_chooser,
                       "response",
                       G_CALLBACK (_player_chooser_response_cb),

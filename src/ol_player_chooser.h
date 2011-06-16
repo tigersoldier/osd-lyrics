@@ -36,7 +36,6 @@ typedef struct _OlPlayerChooserClass OlPlayerChooserClass;
 struct _OlPlayerChooser
 {
   GtkDialog parent;
-  GList *supported_players;
 };
 
 struct _OlPlayerChooserClass
