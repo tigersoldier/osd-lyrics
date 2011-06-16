@@ -19,6 +19,7 @@
  */
 #include "ol_player_chooser.h"
 #include "ol_intl.h"
+#include "ol_utils.h"
 #include "ol_debug.h"
 
 #define OL_PLAYER_CHOOSER_GET_PRIVATE(obj)   (G_TYPE_INSTANCE_GET_PRIVATE  \
@@ -36,6 +37,9 @@ typedef struct _OlPlayerChooserPrivate
   GtkTable *all_table;
   GtkExpander *supported_expander;
   GtkExpander *all_expander;
+  GtkWidget *remember_button;
+  GtkEntry *cmd_entry;
+  GtkWidget *launch_button;
 } OlPlayerChooserPrivate;
 
 static void _destroy (GtkObject *object);
@@ -49,6 +53,8 @@ static void _player_button_launch (GtkButton *button,
                                    GAppInfo *app_info);
 static void _player_button_response (GtkButton *button,
                                      GtkDialog *dialog);
+static void _launch_button_clicked_cb (GtkButton *button,
+                                       OlPlayerChooser *window);
 static gboolean _app_command_exists (GAppInfo *app_info);
 static gint _app_info_cmp (GAppInfo *a, GAppInfo *b);
 static GtkWidget *_image_from_app_info (GAppInfo *app_info);
@@ -88,13 +94,23 @@ ol_player_chooser_init (OlPlayerChooser *window)
   GtkWidget *cmd_label = gtk_label_new (_("Use command:"));
   gtk_misc_set_padding (GTK_MISC (cmd_label), 5, 0);
   GtkWidget *cmd_entry = gtk_entry_new ();
-  GtkWidget *cmd_button = gtk_button_new_with_label (_("Launch"));
+  priv->cmd_entry = GTK_ENTRY (cmd_entry);
+  gtk_entry_set_activates_default (priv->cmd_entry, TRUE);
+  GtkWidget *launch_button = gtk_button_new_with_label (_("Launch"));
+  gtk_widget_set_can_default (launch_button, TRUE);
+  gtk_window_set_default (GTK_WINDOW (window), launch_button);
+  priv->launch_button = launch_button;
+  g_signal_connect (launch_button,
+                    "clicked",
+                    G_CALLBACK (_launch_button_clicked_cb),
+                    window);
   gtk_box_pack_start (GTK_BOX (cmd_hbox), cmd_label, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (cmd_hbox), cmd_entry, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (cmd_hbox), cmd_button, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (cmd_hbox), launch_button, FALSE, TRUE, 0);
 
   GtkWidget *final_hbox = gtk_hbox_new (FALSE, 0);
   GtkWidget *remember_button = gtk_check_button_new_with_label (_("Remember my choice"));
+  priv->remember_button = remember_button;
   gtk_box_pack_start (GTK_BOX (final_hbox), remember_button, FALSE, TRUE, 0);
 
   GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
@@ -296,4 +312,17 @@ _set_supported_players (OlPlayerChooser *window,
                   priv->all_table,
                   g_app_info_get_all_for_type ("audio/mp3"),
                   g_app_info_should_show);
+}
+
+static void
+_launch_button_clicked_cb (GtkButton *button,
+                           OlPlayerChooser *window)
+{
+  ol_assert (OL_IS_PLAYER_CHOOSER (window));
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  const char *cmd = gtk_entry_get_text (priv->cmd_entry);
+  if (ol_is_string_empty (cmd))
+    return;
+  g_spawn_command_line_async (cmd, NULL);
+  gtk_dialog_response (GTK_DIALOG (window), OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
 }
