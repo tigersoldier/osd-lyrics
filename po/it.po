@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: l 10n\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
 "PO-Revision-Date: 2011-04-12 04:14+0000\n"
 "Last-Translator: Milo Casagrande <milo@casagrande.name>\n"
 "Language-Team: Italian\n"
@@ -27,7 +27,7 @@ msgstr "Documenti LRC"
 msgid "Choose LRC file to assign"
 msgstr "Scegli il file LRC da assegnare"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -35,32 +35,32 @@ msgstr ""
 "Il livello di messaggi di debug da registrare, può essere 'nessuno', "
 "'errori', 'debug', o 'info'"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
+#: ../src/ol_main.c:62
+msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "Download non riuscito"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
 msgstr "Impossibile creare la cartella dei testi"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "Testi non trovato"
 
-#: ../src/ol_main.c:178
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Ricerca testi"
 
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Nessun lettore supportato sta andando, uscita\n"
 
-#: ../src/ol_main.c:505
+#: ../src/ol_main.c:581
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -68,7 +68,7 @@ msgstr ""
 "Il livello di messaggi di debug da registrare, può essere 'nessuno', "
 "'errori', 'debug', o 'info'"
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Un altro OSD Lyrics è in esecuzione, esco."
 
@@ -85,8 +85,8 @@ msgid "OSD Lyrics"
 msgstr "Testi OSD"
 
 #: ../src/ol_option.c:1711
-msgid "None"
-msgstr "Nulla"
+msgid "Choose on startup"
+msgstr ""
 
 #: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
@@ -121,6 +121,32 @@ msgstr "Ops, nessun testo trovato :("
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "%d testi trovati :)"
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "Comando Pla_yer"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Scegli il file LRC da assegnare"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -268,7 +294,8 @@ msgid "Color _Theme:"
 msgstr "Tema colore"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 The OSD Lyrics project."
 
 #: ../data/dialogs.glade.h:45
@@ -575,6 +602,9 @@ msgstr ""
 "  Milo Casagrande https://launchpad.net/~milo\n"
 "  morphine https://launchpad.net/~maledettopc\n"
 "  simone.sandri https://launchpad.net/~lexluxsox"
+
+#~ msgid "None"
+#~ msgstr "Nulla"
 
 #~ msgid "Sogou"
 #~ msgstr "Sogou"
