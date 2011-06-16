@@ -16,7 +16,11 @@ check_PROGRAMS = \
 	ol_utils_dbus_test \
 	ol_utils_test
 
-INCLUDES = @GTK2_CFLAGS@ \
+AM_CPPFLAGS = \
+	-DDATADIR='"$(datadir)"' \
+	-DICONDIR='"$(OL_ICONDIR)"' \
+	-DGUIDIR='"$(OL_GUIDIR)"' \
+	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@MPD_CFLAGS@ \
 	@XMMS2_CFLAGS@ \
@@ -24,12 +28,7 @@ INCLUDES = @GTK2_CFLAGS@ \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/tests \
 	-I$(top_srcdir)/lib/chardetect/include
-AM_CPPFLAGS = \
-	-DDATADIR='"$(datadir)"' \
-	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGUIDIR='"$(OL_GUIDIR)"'
-AM_LDFLAGS = \
-	-L$(top_builddir)/lib/chardetect
+
 LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -37,7 +36,7 @@ LDADD = \
 	@MPD_LIBS@ \
 	@CURL_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lchardetect \
+	../../lib/chardetect/libchardetect.a \
 	-lstdc++
 
 noinst_HEADERS = \
@@ -106,9 +105,7 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
-	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
-	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
+	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils_network.c \
@@ -131,9 +128,7 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
-	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
-	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
+	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
 	$(top_srcdir)/src/ol_lrc_fetch_module.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_fork.c \
@@ -151,9 +146,7 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
 	$(top_srcdir)/src/ol_lrc_fetch_module.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_sogou.c \
-	$(top_srcdir)/src/ol_lrc_fetch_qianqian.c \
-	$(top_srcdir)/src/ol_lrc_fetch_minilyrics.c \
+	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils.c \

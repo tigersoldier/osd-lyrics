@@ -7,112 +7,147 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-06 20:40+0800\n"
-"PO-Revision-Date: 2010-05-27 09:09+0000\n"
-"Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
+"PO-Revision-Date: 2011-02-25 17:51+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-04 13:48+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2011-06-04 13:40+0000\n"
+"X-Generator: Launchpad (build 13144)\n"
 
-#: ../src/ol_menu.c:105
+#: ../src/ol_menu.c:119
 msgid "LRC files"
 msgstr "LRC Dateien"
 
-#: ../src/ol_menu.c:111
+#: ../src/ol_menu.c:125
 msgid "Choose LRC file to assign"
 msgstr "Wähle LRC Datei für die Zuweisung"
 
-#: ../src/ol_main.c:53
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
 msgstr ""
+"Ausführlichkeit beim Protokollieren von Debug-Meldungen, entweder »none«, "
+"»error«, »debug« oder »info«"
 
-#: ../src/ol_main.c:123
+#: ../src/ol_main.c:62
+msgid "Show version information"
+msgstr ""
+
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "Download fehlgeschlagen"
 
-#: ../src/ol_main.c:138
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
-msgstr "Kann den Liedtexte-Ordner nicht erstellen"
+msgstr "Liedtexte-Ordner kann nicht erstellt werden"
 
-#: ../src/ol_main.c:155
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "Liedtexte nicht gefunden"
 
-#: ../src/ol_main.c:172
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Liedtexte werden gesucht"
 
-#: ../src/ol_main.c:346
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Es laufen keine unterstützten Player, OSD Lyrics wird beendet.\n"
 
-#: ../src/ol_main.c:452
+#: ../src/ol_main.c:581
+#, fuzzy
+msgid ""
+"debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
+msgstr ""
+"Ausführlichkeit beim Protokollieren von Debug-Meldungen, entweder »none«, "
+"»error«, »debug« oder »info«"
+
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr ""
+"Eine andere Instanz von OSD Lyrics läuft bereits, das Programm wird beendet."
 
-#: ../src/ol_trayicon.c:14
+#: ../src/ol_trayicon.c:36 ../src/ol_notify.c:26
 msgid "Unknown title"
 msgstr "Unbekannter Titel"
 
-#: ../src/ol_trayicon.c:15
+#: ../src/ol_trayicon.c:37 ../src/ol_notify.c:27
 msgid "Unknown artist"
 msgstr "Unbekannter Interpret"
 
-#: ../src/ol_trayicon.c:55 ../src/ol_trayicon.c:133
+#: ../src/ol_trayicon.c:71 ../src/ol_trayicon.c:149
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
-#: ../src/ol_option.c:1241
-msgid "None"
+#: ../src/ol_option.c:1711
+msgid "Choose on startup"
 msgstr ""
 
-#: ../src/ol_option.c:1249 ../data/dialogs.glade.h:37
+#: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
 msgstr "Anpassen"
 
-#: ../src/ol_option.c:1313
+#: ../src/ol_option.c:1782
 msgid "Select a folder"
+msgstr "Verzeichnis auswählen"
+
+#: ../src/ol_lrc_fetch_ttplayer.c:274
+msgid "ttPlayer"
 msgstr ""
 
-#: ../src/ol_lrc_fetch_qianqian.c:297
-msgid "Qianqian"
-msgstr ""
-
-#: ../src/ol_lrc_fetch_sogou.c:163
-msgid "Sogou"
-msgstr "Sogou"
-
-#: ../src/ol_lrc_fetch_minilyrics.c:305
-msgid "MiniLyrics"
-msgstr ""
-
-#: ../src/ol_lrc_candidate_list.c:25
+#: ../src/ol_lrc_candidate_list.c:43
 msgid "Title"
 msgstr "Titel"
 
-#: ../src/ol_lrc_candidate_list.c:30
+#: ../src/ol_lrc_candidate_list.c:48
 msgid "Artist"
 msgstr "Interpret"
 
-#: ../src/ol_search_dialog.c:12
+#: ../src/ol_search_dialog.c:31
 #, c-format
 msgid "Searching lyrics from %s..."
 msgstr "Suche auf %s nach Liedtexten"
 
-#: ../src/ol_search_dialog.c:13
+#: ../src/ol_search_dialog.c:32
 msgid "Ooops, no lyric found :("
 msgstr "Ups, kein Liedtext gefunden :("
 
-#: ../src/ol_search_dialog.c:14
+#: ../src/ol_search_dialog.c:33
 #, c-format
 msgid "%d lyrics found :)"
-msgstr "%d Liedtexte gefunden"
+msgstr "%d Liedtexte gefunden :)"
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "_Befehl"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Der Befehl, der den Player startet"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -155,48 +190,69 @@ msgid "%t - Title"
 msgstr "%t - Titel"
 
 #: ../data/dialogs.glade.h:17
-#, fuzzy
-msgid "<b>Display mode</b>"
-msgstr "<b>_Dateiname</b>"
+msgid "<b>Background</b>"
+msgstr ""
 
 #: ../data/dialogs.glade.h:18
+msgid "<b>Download</b>"
+msgstr ""
+
+#: ../data/dialogs.glade.h:19
 msgid "<b>Lyric _Alignment</b>"
 msgstr "<b>Text _Position</b>"
 
-#: ../data/dialogs.glade.h:19
+#: ../data/dialogs.glade.h:20
 msgid "<b>Lyric _Color</b>"
 msgstr "<b>Tex_t Farbe</b>"
 
-#: ../data/dialogs.glade.h:20
+#: ../data/dialogs.glade.h:21
+msgid "<b>Lyrics</b>"
+msgstr ""
+
+#: ../data/dialogs.glade.h:22
 msgid "<b>Preview</b>"
 msgstr "<b>Vorschau</b>"
 
-#: ../data/dialogs.glade.h:21
+#: ../data/dialogs.glade.h:23
+msgid "<b>Proxy</b>"
+msgstr ""
+
+#: ../data/dialogs.glade.h:24
 msgid "<b>_Filename</b>"
 msgstr "<b>_Dateiname</b>"
 
-#: ../data/dialogs.glade.h:22
+#: ../data/dialogs.glade.h:25
 msgid "<b>_Path</b>"
 msgstr "<b>_Pfad</b>"
 
-#: ../data/dialogs.glade.h:24
+#: ../data/dialogs.glade.h:27
 #, no-c-format
 msgid "A single \"%\" means the directory where the playing music is."
-msgstr "Ein einzelnes \"%\" steht für das Verzeichnis, in dem die Musik ist."
+msgstr ""
+"Ein einzelnes \"%\" steht für das Verzeichnis, in dem sich die Musik "
+"befindet."
 
-#: ../data/dialogs.glade.h:25
+#: ../data/dialogs.glade.h:28
+msgid "Ac_tive color:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:29
 msgid "Acti_ve lyrics:"
 msgstr "Aktuelle Lyrics:"
 
-#: ../data/dialogs.glade.h:26
+#: ../data/dialogs.glade.h:30
 msgid "Adjust lyric delay by +0.2 s"
 msgstr "Ändert die Verzögerung um +0,2 Sekunden"
 
-#: ../data/dialogs.glade.h:27
+#: ../data/dialogs.glade.h:31
 msgid "Adjust lyrics delay by -0.2 s"
 msgstr "Ändert die Verzögerung um -0,2 Sekunden"
 
-#: ../data/dialogs.glade.h:28
+#: ../data/dialogs.glade.h:32
+msgid "Always"
+msgstr ""
+
+#: ../data/dialogs.glade.h:33
 msgid ""
 "An OSD lyric show compatible with various media players and supports lyrics "
 "downloading.\n"
@@ -204,69 +260,85 @@ msgstr ""
 "Eine Anzeige von Liedtexten mit Unterstützung für diverse Media-Player und "
 "unterstüzt das Herunterladen von Liedtexten.\n"
 
-#: ../data/dialogs.glade.h:30
+#: ../data/dialogs.glade.h:35
 msgid "Assign local LRC file to current music"
 msgstr "Der aktuellen Musik einen Liedtext zuweisen"
 
-#: ../data/dialogs.glade.h:31
+#: ../data/dialogs.glade.h:36
+msgid "Au_to-detect system settings"
+msgstr ""
+
+#: ../data/dialogs.glade.h:37
 msgid "Auto la_unch player:"
 msgstr "_Player automatisch starten"
 
-#: ../data/dialogs.glade.h:32
+#: ../data/dialogs.glade.h:38
+msgid "By lines"
+msgstr ""
+
+#: ../data/dialogs.glade.h:39
 msgid "C_ustomize colors"
 msgstr "Farben _anpassen"
 
-#: ../data/dialogs.glade.h:33
+#: ../data/dialogs.glade.h:40
 msgid "Choose LRC file to download"
 msgstr "Wähle die passenden Lyrics"
 
-#: ../data/dialogs.glade.h:34
-msgid "Choose witch site you want to download from."
+#: ../data/dialogs.glade.h:41
+msgid "Colo_r:"
 msgstr ""
-"Wähle aus, von welcher Webseite die Lyrics heruntergeladen werden sollen."
 
-#: ../data/dialogs.glade.h:35
+#: ../data/dialogs.glade.h:42
 msgid "Color _Theme:"
 msgstr "_Farbschema:"
 
-#: ../data/dialogs.glade.h:36
-msgid "Copyright 2009 The OSD Lyrics project."
+#: ../data/dialogs.glade.h:43
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 OSD Lyrics Projekt"
 
-#: ../data/dialogs.glade.h:38
+#: ../data/dialogs.glade.h:45
 msgid "D_on't ask me again"
 msgstr "_Nicht mehr nachfragen"
 
+#: ../data/dialogs.glade.h:46
+msgid "Display mode:"
+msgstr ""
+
 #. In preference/download, automately download the most matched lyric
-#: ../data/dialogs.glade.h:40
+#: ../data/dialogs.glade.h:48
 msgid "Do_wnload the first candidate"
 msgstr "_Immer das erste Ergebnis herunterladen"
 
-#: ../data/dialogs.glade.h:41
+#: ../data/dialogs.glade.h:49
+msgid "Doc_k"
+msgstr ""
+
+#: ../data/dialogs.glade.h:50
 msgid "Don't assign lyric to this music"
 msgstr "Dieser Musik keinen Liedtext zuweisen"
 
-#: ../data/dialogs.glade.h:42
-msgid "Download _engine:"
-msgstr "_Suchmaschine"
-
-#: ../data/dialogs.glade.h:43
+#: ../data/dialogs.glade.h:51
 msgid "F_irst line:"
 msgstr "_Erste Zeile:"
 
-#: ../data/dialogs.glade.h:44
+#: ../data/dialogs.glade.h:52
 msgid "GPL v3"
 msgstr "GPL v3"
 
-#: ../data/dialogs.glade.h:45
+#: ../data/dialogs.glade.h:53
+msgid "HTTP"
+msgstr ""
+
+#: ../data/dialogs.glade.h:54
 msgid "Hide the OSD Window"
 msgstr "Versteckt die Lyrics"
 
-#: ../data/dialogs.glade.h:46
+#: ../data/dialogs.glade.h:55
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Wenn gesperrt, können die Lyrics nicht mit der Maus verschoben werden."
 
-#: ../data/dialogs.glade.h:47
+#: ../data/dialogs.glade.h:56
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
@@ -274,185 +346,308 @@ msgstr ""
 "Wenn die Suchmaschine mehr als eine LRC Datei vorschlägt, einfach die erste "
 "herunterladen ohne den Benutzer zu fragen."
 
-#: ../data/dialogs.glade.h:48
+#: ../data/dialogs.glade.h:57
 msgid "Inactiv_e lyrics:"
 msgstr "Inaktive Lyrics:"
 
-#: ../data/dialogs.glade.h:49
+#: ../data/dialogs.glade.h:58
 msgid "Lyric delay +"
 msgstr "Verzögerung +"
 
-#: ../data/dialogs.glade.h:50
+#: ../data/dialogs.glade.h:59
 msgid "Lyric delay -"
 msgstr "Verzögerung -"
 
-#: ../data/dialogs.glade.h:51
+#: ../data/dialogs.glade.h:60
 msgid "Lyric lines:"
 msgstr "Liedtextzeilen"
 
-#: ../data/dialogs.glade.h:52
-#, fuzzy
-msgid "OSD"
-msgstr "_OSD"
+#: ../data/dialogs.glade.h:61
+msgid "Mode:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:62
+msgid "No _proxy"
+msgstr ""
+
+#: ../data/dialogs.glade.h:63
+msgid "Nor_mal"
+msgstr ""
+
+#: ../data/dialogs.glade.h:64
+msgid "OSD _mode"
+msgstr ""
+
+#: ../data/dialogs.glade.h:65
+msgid "OS_D"
+msgstr ""
+
+#: ../data/dialogs.glade.h:66
+msgid "O_pacity:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:67
+msgid "Opaque"
+msgstr ""
 
 #. The outline width of text in OSD window
-#: ../data/dialogs.glade.h:54
+#: ../data/dialogs.glade.h:69
 msgid "Out_line:"
 msgstr "_Umrandung:"
 
-#: ../data/dialogs.glade.h:55
+#: ../data/dialogs.glade.h:70
+msgid "Passwo_rd:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:71
 msgid "Pla_yer command:"
 msgstr "_Befehl"
 
-#: ../data/dialogs.glade.h:56
+#: ../data/dialogs.glade.h:72
+msgid "Po_rt:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:73
 msgid "Preferences"
 msgstr "Einstellungen"
 
-#: ../data/dialogs.glade.h:57
-msgid "Scrolling"
+#: ../data/dialogs.glade.h:74
+msgid "SOCKS4"
 msgstr ""
 
-#: ../data/dialogs.glade.h:58
+#: ../data/dialogs.glade.h:75
+msgid "SOCKS5"
+msgstr ""
+
+#: ../data/dialogs.glade.h:76
+msgid "Sc_rolling"
+msgstr ""
+
+#: ../data/dialogs.glade.h:77
+msgid "Scroll _mode:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:78
+msgid "Scrolling _mode"
+msgstr ""
+
+#: ../data/dialogs.glade.h:79
 msgid "Search lyrics"
 msgstr "Nach Lyrics suchen"
 
-#: ../data/dialogs.glade.h:59
+#: ../data/dialogs.glade.h:80
 msgid "Search lyrics from Internet"
 msgstr "Suche im Internet nach Liedtexten"
 
-#: ../data/dialogs.glade.h:60
+#: ../data/dialogs.glade.h:81
+msgid "Show _bubble notification"
+msgstr ""
+
+#: ../data/dialogs.glade.h:82
+msgid "Show passwor_d"
+msgstr ""
+
+#: ../data/dialogs.glade.h:83
 msgid "Si_ngle line"
 msgstr "_eine"
 
-#: ../data/dialogs.glade.h:61
+#: ../data/dialogs.glade.h:84
 msgid "T_ranslucent on mouse over"
 msgstr "_Transparent bei Mausberührung"
 
-#: ../data/dialogs.glade.h:62
+#: ../data/dialogs.glade.h:85
 msgid "The artist of the current track"
 msgstr "Interpret des aktuellen Liedes"
 
-#: ../data/dialogs.glade.h:63
+#: ../data/dialogs.glade.h:86
 msgid "The filename of the current track"
 msgstr "Der Dateiname des aktuellen Liedes"
 
-#: ../data/dialogs.glade.h:64
+#: ../data/dialogs.glade.h:87
 msgid "The number of the current track"
 msgstr "Die aktuellen Liednummer"
 
-#: ../data/dialogs.glade.h:65
+#: ../data/dialogs.glade.h:88
 msgid "The title of album of the current track"
 msgstr "Titel des aktuellen Albums"
 
-#: ../data/dialogs.glade.h:66
+#: ../data/dialogs.glade.h:89
 msgid "The title of the current track"
 msgstr "Titel des aktuellen Liedes"
 
-#: ../data/dialogs.glade.h:67
+#: ../data/dialogs.glade.h:90
+msgid "Transparent"
+msgstr ""
+
+#: ../data/dialogs.glade.h:91
+msgid "Use _manual settings"
+msgstr ""
+
+#: ../data/dialogs.glade.h:92
 msgid "_Artist:"
 msgstr "_Interpret:"
 
-#: ../data/dialogs.glade.h:68
+#: ../data/dialogs.glade.h:93
 msgid "_Assign lyric..."
 msgstr "_Liedtext zuweisen..."
 
-#: ../data/dialogs.glade.h:69
-msgid "_Display notification"
-msgstr "_Benachrichtigung anzeigen"
-
-#: ../data/dialogs.glade.h:70
+#: ../data/dialogs.glade.h:94
 msgid "_Double lines"
 msgstr "_zwei"
 
-#: ../data/dialogs.glade.h:71
+#: ../data/dialogs.glade.h:95
 msgid "_Download"
 msgstr "_Herunterladen"
 
-#: ../data/dialogs.glade.h:72
+#: ../data/dialogs.glade.h:96
 msgid "_Font:"
 msgstr "_Schriftart:"
 
 #. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:74
+#: ../data/dialogs.glade.h:98
 msgid "_From:"
 msgstr "_Von:"
 
-#: ../data/dialogs.glade.h:75
+#: ../data/dialogs.glade.h:99
 msgid "_General"
 msgstr "_Allgemein"
 
-#: ../data/dialogs.glade.h:76
+#: ../data/dialogs.glade.h:100
 msgid "_Hide"
 msgstr "_Verbergen"
 
-#: ../data/dialogs.glade.h:77
+#: ../data/dialogs.glade.h:101
+msgid "_Host:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:102
+msgid "_Inactive color:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:103
 msgid "_Lock Position"
 msgstr "_Position sperren"
 
-#: ../data/dialogs.glade.h:78
+#: ../data/dialogs.glade.h:104
 msgid "_Lyric Location"
 msgstr "_Speicherort"
 
-#: ../data/dialogs.glade.h:79
+#: ../data/dialogs.glade.h:105
+msgid "_Network"
+msgstr ""
+
+#: ../data/dialogs.glade.h:106
 msgid "_No lyric"
 msgstr "_Kein Liedtext"
 
-#: ../data/dialogs.glade.h:80
+#: ../data/dialogs.glade.h:107
 msgid "_OSD"
 msgstr "_OSD"
 
-#: ../data/dialogs.glade.h:81
+#: ../data/dialogs.glade.h:108
+msgid "_Scrolling"
+msgstr ""
+
+#: ../data/dialogs.glade.h:109
 msgid "_Search"
 msgstr "_Suche"
 
-#: ../data/dialogs.glade.h:82
+#: ../data/dialogs.glade.h:110
 msgid "_Search lyric..."
 msgstr "_Suche Liedtext..."
 
-#: ../data/dialogs.glade.h:83
+#: ../data/dialogs.glade.h:111
 msgid "_Second line:"
 msgstr "_Zweite Zeile:"
 
-#: ../data/dialogs.glade.h:84
+#: ../data/dialogs.glade.h:112
+msgid "_Site:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:113
 msgid "_Title:"
 msgstr "_Titel:"
 
-#. The width of OSD window
-#: ../data/dialogs.glade.h:86
-msgid "_Width:"
-msgstr "_Breite:"
+#: ../data/dialogs.glade.h:114
+msgid "_Type:"
+msgstr ""
 
-#: ../data/dialogs.glade.h:87
+#: ../data/dialogs.glade.h:115
+msgid "_Username:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:116
 msgid "bottom"
 msgstr "Unten"
 
-#: ../data/dialogs.glade.h:88
+#: ../data/dialogs.glade.h:117
 msgid "http://code.google.com/p/osd-lyrics/"
 msgstr "http://code.google.com/p/osd-lyrics/"
 
-#: ../data/dialogs.glade.h:89
+#: ../data/dialogs.glade.h:118
 msgid "middle"
 msgstr "Mitte"
 
-#: ../data/dialogs.glade.h:90
+#: ../data/dialogs.glade.h:119
 msgid "top"
 msgstr "Oben"
 
-#: ../data/dialogs.glade.h:91
+#: ../data/dialogs.glade.h:120
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Dennis Baudys https://launchpad.net/~thecondordb\n"
 "  Jarosław Ogrodnik https://launchpad.net/~goz\n"
 "  Jens Kammann https://launchpad.net/~info-jens-kammann\n"
-"  Philipp Stampfli https://launchpad.net/~stylzp\n"
+"  Jens Maucher https://launchpad.net/~jensmaucher\n"
+"  Max https://launchpad.net/~maxlp-deactivatedaccount\n"
+"  Philipp Stampfli https://launchpad.net/~phildst\n"
+"  Stefan Reichel https://launchpad.net/~bomret\n"
 "  Tiger Soldier https://launchpad.net/~tigersoldi\n"
 "  thoughtcrime https://launchpad.net/~thoughtcrime"
+
+#~ msgid "None"
+#~ msgstr "Kein(e)"
+
+#~ msgid "Sogou"
+#~ msgstr "Sogou"
+
+#~ msgid "Qianqian"
+#~ msgstr "Qianqian"
+
+#~ msgid "_Width:"
+#~ msgstr "_Breite:"
+
+#~ msgid "_Lock"
+#~ msgstr "S_perren"
+
+#~ msgid "Choose witch site you want to download from."
+#~ msgstr ""
+#~ "Wähle aus, von welcher Webseite die Lyrics heruntergeladen werden sollen."
+
+#~ msgid "Download _engine:"
+#~ msgstr "_Suchmaschine"
+
+#~ msgid "_Search lyric"
+#~ msgstr "_Suchen"
+
+#~ msgid "_Player control"
+#~ msgstr "_Player-Steuerung"
+
+#~ msgid "_Display notification"
+#~ msgstr "_Benachrichtigung anzeigen"
 
 #~ msgid "If no player detected, launch the given player"
 #~ msgstr "Falls kein Player gefunden wurde, wird dieser gestartet"
 
-#~ msgid "The command of player to launch"
-#~ msgstr "Der Befehl, der den Player startet"
+#~ msgid "Scrolling"
+#~ msgstr "Bildlauf"
 
-#~ msgid "_Lock"
-#~ msgstr "S_perren"
+#~ msgid "OSD"
+#~ msgstr "OSD"
+
+#~ msgid "<b>Display mode</b>"
+#~ msgstr "<b>Anzeige-Modus</b>"
+
+#~ msgid "MiniLyrics"
+#~ msgstr "MiniLyrics"

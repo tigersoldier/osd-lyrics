@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldi@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #include <stdio.h>
 #include <glib.h>
 #include "ol_path_pattern.h"
@@ -215,24 +234,28 @@ ol_uri_get_path (char *dest,
                  size_t dest_len,
                  const char *uri)
 {
-  if (dest == NULL || dest_len <= 0 || uri == NULL)
-    return NULL;
-  const char *end = ol_uri_get_query_start (uri);
-  if (end == NULL)
-    return NULL;
-  const char *begin = strchr (uri, ':');
-  if (begin == NULL)
-    return NULL;
-  if (begin[1] == '/' && begin[2] == '/')
-    begin += 3;
-  while (*begin != '\0' && *begin != '/')
-    begin++;
-  if (*begin != '/') return NULL;
-  gchar *file_name = g_uri_unescape_segment (begin, end, NULL);
-  if (file_name == NULL)
-    return NULL;
-  char *ret = ol_strnncpy (dest, dest_len, file_name, strlen (file_name));
-  g_free (file_name);
+  ol_assert_ret (uri != NULL, NULL);
+  char *dirname = NULL;
+  if (uri[0] == '/')
+  {
+    dirname = g_path_get_dirname (uri);
+  }
+  else
+  {
+    GError *error = NULL;
+    char *pathname = g_filename_from_uri (uri, NULL, &error);
+    if (pathname == NULL)
+    {
+      ol_errorf ("Cannot get pathname from uri %s: %s\n",
+                 uri, error->message);
+      g_error_free (error);
+      return NULL;
+    }
+    dirname = g_path_get_dirname (pathname);
+    g_free (pathname);
+  }
+  char *ret = ol_strnncpy (dest, dest_len, dirname, strlen (dirname));
+  g_free (dirname);
   return ret;
 }
 

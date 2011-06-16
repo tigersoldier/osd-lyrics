@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +37,7 @@ ol_get_string_from_hash_table (GHashTable *hash_table, const gchar *key)
     return NULL;
   GValue *value;
   value = (GValue *) g_hash_table_lookup(hash_table, key);
-  if (value != NULL && G_VALUE_HOLDS_STRING(value))
+  if (value != NULL && G_VALUE_HOLDS_STRING (value))
   {
     return (const gchar*) g_value_get_string (value);
   }
@@ -38,9 +57,9 @@ ol_get_str_list_from_hash_table (GHashTable *hash_table, const gchar *key)
   GValue *value;
   value = (GValue *) g_hash_table_lookup(hash_table, key);
   if (value != NULL &&
-      (G_VALUE_TYPE (value) == G_TYPE_STRV || G_VALUE_HOLDS_POINTER (value)))
+      (G_VALUE_TYPE (value) == G_TYPE_STRV || G_VALUE_HOLDS_BOXED (value)))
   {
-    return (gchar**) g_value_get_pointer (value);
+    return (gchar**) g_value_get_boxed (value);
   }
   else
   {
@@ -306,4 +325,54 @@ ol_file_len (const char *filename)
   if (stat (filename, &buf) != 0)
     return -1;
   return buf.st_size;
+}
+
+char*
+ol_encode_hex (const char *data, ssize_t len)
+{
+  ol_assert_ret (data != NULL, NULL);
+  if (len < 0)
+    len = strlen (data);
+  size_t hex_len = len * 2 + 1;
+  gchar *hex = g_new (gchar, hex_len);
+  gchar *current = hex;
+  for (; len > 0; len--, current += 2, data++)
+  {
+    sprintf (current, "%02x", (unsigned char)*data);
+  }
+  *current = '\0';
+  return hex;
+}
+
+void
+ol_path_splitext (const char *path, char **root, char **ext)
+{
+  if (path != NULL)
+  {
+    char *period = strrchr (path, '.');
+    if (period != NULL &&
+        (period - path == 0 || *(period - 1) == G_DIR_SEPARATOR))
+      period = NULL;
+    if (period == NULL)
+    {
+      if (root != NULL)
+        *root = g_strdup (path);
+      if (ext != NULL)
+        *ext = NULL;
+    }
+    else
+    {
+      if (root != NULL)
+        *root = g_strndup (path, period - path);
+      if (ext != NULL)
+        *ext = g_strdup (period);
+    }
+  }
+  else
+  {
+    if (root != NULL)
+      *root = NULL;
+    if (ext != NULL)
+      *ext = NULL;
+  }
 }

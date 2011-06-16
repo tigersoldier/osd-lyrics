@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #ifndef __OL_UTILS_H__
 #define __OL_UTILS_H__
 #include <unistd.h>
@@ -130,5 +149,28 @@ gboolean ol_path_is_file (const char *filename);
  */
 ssize_t ol_file_len (const char *filename);
 
+/** 
+ * Converts a string to hex representation.
+ *
+ * @param data The string to encode
+ * @param len The length to encode, or -1 if the string is NUL-terminated
+ * 
+ * @return The encoded string, should be freed with g_free.
+ */
+char* ol_encode_hex (const char *data, ssize_t len);
+
+/** 
+ * Split a path into two parts (root, ext), the ext is the extension of a file
+ * name, which begins with a period and contains at most period. root + ext = path.
+ *
+ * If the filename begins with a period and has no extension, the filename will not
+ * be stored in the ext part.
+ * 
+ * @param path The path to be splited.
+ * @param root The path without ext. Should be freed with g_free.
+ * @param ext The extension of filename, or NULL if no extension found.
+ *            Should be freed with g_free.
+ */
+void ol_path_splitext (const char *path, char **root, char **ext);
 
 #endif // __OL_UTILS_H__

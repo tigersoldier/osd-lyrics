@@ -33,8 +33,8 @@ test_hashtable ()
   g_hash_table_insert (ht, g_strdup ("str"), value);
 
   value = g_new0 (GValue, 1);
-  g_value_init (value, G_TYPE_POINTER);
-  g_value_set_pointer (value, STRV_VALUE);
+  g_value_init (value, G_TYPE_STRV);
+  g_value_set_boxed (value, STRV_VALUE);
   g_hash_table_insert (ht, g_strdup ("strv"), value);
 
   ol_test_expect (ol_get_int_from_hash_table (ht, "int") == INT_VALUE);

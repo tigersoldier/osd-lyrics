@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 /**
  * @file   ol_config_property.h
  * @author Tiger Soldier <tigersoldi@gmail.com>
@@ -15,20 +34,17 @@
 enum {
   PROP_0,
 
-  PROP_XALIGN,
-  PROP_YALIGN,
-  PROP_FONT_SIZE,
-  PROP_OUTLINE_WIDTH,
-  PROP_WIDTH,
-  PROP_LOCKED,
-  PROP_VISIBLE,
-  PROP_FONT_FAMILY,
-  PROP_LRC_ALIGN_0,
-  PROP_LRC_ALIGN_1,
-  PROP_ACTIVE_LRC_COLOR,
-  PROP_INACTIVE_LRC_COLOR,
-  PROP_LINE_COUNT,
-  PROP_TOTAL_COUNT,
+  PROP_OSD_FONT_SIZE,
+  PROP_OSD_OUTLINE_WIDTH,
+  PROP_OSD_WIDTH,
+  PROP_OSD_LOCKED,
+  PROP_OSD_VISIBLE,
+  PROP_OSD_FONT_FAMILY,
+  PROP_OSD_LRC_ALIGN_0,
+  PROP_OSD_LRC_ALIGN_1,
+  PROP_OSD_ACTIVE_LRC_COLOR,
+  PROP_OSD_INACTIVE_LRC_COLOR,
+  PROP_OSD_LINE_COUNT,
   PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER,
   PROP_OSD_X,
   PROP_OSD_Y,
@@ -53,6 +69,7 @@ enum {
   PROP_SCROLL_ACTIVE_LRC_COLOR,
   PROP_SCROLL_INACTIVE_LRC_COLOR,
   PROP_SCROLL_OPACITY,
+  PROP_SCROLL_SCROLL_MODE,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -143,27 +160,11 @@ struct _OlConfigInfo
   char *name;
   char *group;
 };
-static const OlConfigInfo config_info[] = {
-  {PROP_0, NULL, NULL},                    /* PROP_0, */
-
-  {PROP_XALIGN, "xalign", "OSD"},               /* PROP_XALIGN, */
-  {PROP_YALIGN, "yalign", "OSD"},               /* PROP_YALIGN, */
-  {PROP_FONT_SIZE, "font-size", "OSD"},            /* PROP_FONT_SIZE, */
-  {PROP_WIDTH, "width", "OSD"},                /* PROP_WIDTH, */
-  {PROP_LOCKED, "locked", "OSD"},               /* PROP_LOCKED, */
-  {PROP_VISIBLE, "visible", "General"},          /* PROP_VISIBLE, */
-  {PROP_FONT_FAMILY, "font-family", "OSD"},          /* PROP_FONT_FAMILY, */
-  {PROP_LRC_ALIGN_0, "lrc-align-0", "OSD"},          /* PROP_LRC_ALIGN_0, */
-  {PROP_LRC_ALIGN_1, "lrc-align-1", "OSD"},          /* PROP_LRC_ALIGN_1, */
-  {PROP_ACTIVE_LRC_COLOR, "active-lrc-color", "OSD"},     /* PROP_ACTIVE_LRC_COLOR, */
-  {PROP_INACTIVE_LRC_COLOR, "inactive-lrc-color", "OSD"},
-  {PROP_LINE_COUNT, "line-count", "OSD"},
-};
 
 static const OlConfigStrListValue config_str_list[] = {
-  {PROP_ACTIVE_LRC_COLOR, "active-lrc-color", "OSD", "Active lyric color",
+  {PROP_OSD_ACTIVE_LRC_COLOR, "active-lrc-color", "OSD", "Active lyric color",
    "Colors of active lyrics", 3, OL_CONFIG_ACTIVE_LRC_COLOR},
-  {PROP_INACTIVE_LRC_COLOR, "inactive-lrc-color", "OSD", "Inactive lyric color",
+  {PROP_OSD_INACTIVE_LRC_COLOR, "inactive-lrc-color", "OSD", "Inactive lyric color",
    "Colors of inactive lyrics", 3, OL_CONFIG_INACTIVE_LRC_COLOR},
   {PROP_LRC_PATH, "lrc-path", "General", "Path of lrc files",
    "Path lists to search LRC files. Following patterns are allowed:\n"
@@ -182,8 +183,8 @@ static const OlConfigStrListValue config_str_list[] = {
    -1, OL_CONFIG_DEFAULT_LRC_FILENAME},
 };
 static const OlConfigBoolValue config_bool[] = {
-  {PROP_LOCKED, "locked", "OSD", "Lock", "Whether the OSD is locked", TRUE},
-  {PROP_VISIBLE, "visible", "General", "Visible", "Show/hide", TRUE},
+  {PROP_OSD_LOCKED, "locked", "OSD", "Lock", "Whether the OSD is locked", TRUE},
+  {PROP_OSD_VISIBLE, "visible", "OSD", "Visible", "Show/hide", TRUE},
   {PROP_OSD_TRANSLUCENT_ON_MOUSE_OVER, "translucent-on-mouse-over", "OSD",
    "Translucent on mouse over",
    "When the pointer is on the lyrics, make them semi-transparent",
@@ -198,8 +199,8 @@ static const OlConfigBoolValue config_bool[] = {
 };
 
 static const OlConfigIntValue config_int[] = {
-  {PROP_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
-  {PROP_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
+  {PROP_OSD_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
+  {PROP_OSD_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
   {PROP_OSD_X, "x", "OSD", "OSD X position", "The horizontal position of OSD", 0, 10000, 0},
   {PROP_OSD_Y, "y", "OSD", "OSD Y position", "The vertical position of OSD", 0, 10000, 0},
   {PROP_PROXY_PORT, "proxy-port", "Download", "Proxy Port", "The port of proxy", 7070},
@@ -210,21 +211,13 @@ static const OlConfigIntValue config_int[] = {
 };
 
 static const OlConfigDoubleValue config_double[] = {
-  {PROP_XALIGN, "xalign", "OSD", "Horizontal position",
-   "Horizontal position of window in desktop. "
-   "0.0 is left aligned, 1.0 is right aligned",
-   0.0, 1.0, 0.5},
-  {PROP_YALIGN, "yalign", "OSD", "Vertical position",
-   "Vertical position of window in desktop. "
-   "0.0 is left top, 1.0 is bottom aligned",
-   0.0, 1.0, 0.85},
-  {PROP_FONT_SIZE, "font-size", "OSD", "OSD Font Size",
+  {PROP_OSD_FONT_SIZE, "font-size", "OSD", "OSD Font Size",
    "The font size of OSD lyrics",
    0.0, 10000.0, 30.0},
-  {PROP_LRC_ALIGN_0, "lrc-align-0", "OSD", "Lyric alignment 0",
+  {PROP_OSD_LRC_ALIGN_0, "lrc-align-0", "OSD", "Lyric alignment 0",
    "Alignment of the first lyric line",
    0.0, 1.0, 0.0},
-  {PROP_LRC_ALIGN_1, "lrc-align-1", "OSD", "Lyric alignment 1",
+  {PROP_OSD_LRC_ALIGN_1, "lrc-align-1", "OSD", "Lyric alignment 1",
    "Alignment of the second lyric line",
    0.0, 1.0, 1.0},
   {PROP_SCROLL_OPACITY, "opacity", "ScrollMode", "Scroll Window Opacity",
@@ -233,12 +226,12 @@ static const OlConfigDoubleValue config_double[] = {
 };
 
 static const OlConfigStringValue config_str[] = {
-  {PROP_FONT_FAMILY, "font-family", "OSD", "OSD Font family",
+  {PROP_OSD_FONT_FAMILY, "font-family", "OSD", "OSD Font family",
    "Font family of OSD lyrics",
    "serif"},
   {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
    "Download engine", "Select the source where LRC files are downloaded from",
-   "MiniLyrics"},
+   "ttPlayer"},
   {PROP_PROXY, "proxy", "Download",
    "Proxy", "The proxy to download lyrics. Available settings are no, system, or manual", "no"},
   {PROP_PROXY_TYPE, "proxy-type", "Download",
@@ -268,6 +261,9 @@ static const OlConfigStringValue config_str[] = {
    "Active lyric color", "Color of active lyrics", "#E3CF00"},
   {PROP_SCROLL_INACTIVE_LRC_COLOR, "inactive-lrc-color", "ScrollMode",
    "Inactive lyric color", "Colors of inactive lyrics", "#FAEBD6"},
+  {PROP_SCROLL_SCROLL_MODE, "scroll-mode", "ScrollMode", "Scroll Modes",
+   "Means of scrolling. Use \"always\" to keep scrolling by time, "
+   "or \"lines\" to scroll only when lyric changes", "always"},
 };
 
 #endif /* _OL_CONFIG_PROPERTY_H_ */

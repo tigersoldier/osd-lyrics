@@ -1,27 +1,22 @@
-/**
- * @file   ol_scroll_window.h
- * @author Sarlmol Apple <sarlmolapple@gmail.com>
- * @date   Mon May 17 14:16:52 2010
- * 
- * @brief  The definition of an OlOsdWindow widget
- * 
- * Copyright (C) 2009  Sarlmol Apple
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2010  Sarlmol Apple <sarlmolapple@gmail.com>
+ * Copyright (C) 2011  Tiger Soldier <tigersoldier@gmail.com>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
+ * OSD Lyrics is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- * 
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #ifndef __SCROLL_WINDOW_H_
 #define __SCROLL_WINDOW_H_
@@ -37,6 +32,11 @@
 
 typedef struct _OlScrollWindow                  OlScrollWindow;
 typedef struct _OlScrollWindowClass             OlScrollWindowClass;
+
+enum OlScrollWindowScrollMode {
+  OL_SCROLL_WINDOW_ALWAYS,
+  OL_SCROLL_WINDOW_BY_LINES,
+};
 
 struct _OlScrollWindow
 {
@@ -140,4 +140,14 @@ OlColor ol_scroll_window_get_inactive_color (OlScrollWindow *scroll);
 void ol_scroll_window_set_bg_color (OlScrollWindow *scroll,
                                           OlColor color);
 OlColor ol_scroll_window_get_bg_color (OlScrollWindow *scroll);
+
+void ol_scroll_window_add_toolbar (OlScrollWindow *scroll,
+                                   GtkWidget	*widget);
+void ol_scroll_window_remove_toolbar (OlScrollWindow *scroll,
+                                      GtkWidget *widget);
+
+void ol_scroll_window_set_scroll_mode (OlScrollWindow *scroll,
+                                       enum OlScrollWindowScrollMode mode);
+
+enum OlScrollWindowScrollMode ol_scroll_window_get_scroll_mode (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */

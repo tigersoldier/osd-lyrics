@@ -3,10 +3,10 @@ src/ol_menu.c
 src/ol_main.c
 src/ol_trayicon.c
 src/ol_option.c
-src/ol_lrc_fetch_qianqian.c
-src/ol_lrc_fetch_sogou.c
-src/ol_lrc_fetch_minilyrics.c
+src/ol_lrc_fetch_ttplayer.c
+src/ol_lrc_fetch_xiami.c
 src/ol_lrc_candidate_list.c
 src/ol_search_dialog.c
 src/ol_notify.c
+src/ol_player_chooser.c
 data/dialogs.glade

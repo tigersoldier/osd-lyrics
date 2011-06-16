@@ -3,7 +3,9 @@ bin_PROGRAMS = osd-lyrics
 #ol_player_test
 #TEST = $(check_PROGRAMS)
 
-INCLUDES = \
+AM_CFLAGS = -Wall -Werror
+
+AM_CPPFLAGS = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
 	@CURL_CFLAGS@ \
@@ -13,14 +15,10 @@ INCLUDES = \
 	@SQLITE_CFLAGS@ \
 	@X11_CFLAGS@ \
 	@APP_INDICATOR_CFLAGS@ \
-	-I$(top_srcdir)/lib/chardetect/include
-AM_CFLAGS = \
+	-I$(top_srcdir)/lib/chardetect/include \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
-	-DGUIDIR='"$(OL_GUIDIR)"' \
-	-Wall -Wfatal-errors -Werror
-AM_LDFLAGS = \
-	-L$(top_builddir)/lib/chardetect
+	-DGUIDIR='"$(OL_GUIDIR)"'
 LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \
@@ -31,7 +29,7 @@ LDADD = \
 	@SQLITE_LIBS@ \
 	@X11_LIBS@ \
 	@APP_INDICATOR_LIBS@ \
-	-lchardetect \
+	../lib/chardetect/libchardetect.a \
 	-lstdc++
 
 noinst_HEADERS = \
@@ -57,11 +55,9 @@ noinst_HEADERS = \
 	ol_lrc_candidate_list.h \
 	ol_lrc_engine_list.h \
 	ol_lrc_fetch.h \
-	ol_lrc_fetch_minilyrics.h \
 	ol_lrc_fetch_module.h \
-	ol_lrc_fetch_qianqian.h \
-	ol_lrc_fetch_sogou.h \
 	ol_lrc_fetch_xiami.h \
+	ol_lrc_fetch_ttplayer.h \
 	ol_lrc_fetch_ui.h \
 	ol_lrc_fetch_utils.h \
 	ol_lrc.h \
@@ -103,6 +99,7 @@ noinst_HEADERS = \
 	ol_player_vlc.h \
 	ol_player_xmms2.h \
 	ol_player_mpris2.h \
+	ol_player_utils.h \
 	ol_scroll_module.h \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
@@ -155,6 +152,7 @@ osd_lyrics_SOURCES = \
 	ol_player_gmusicbrowser.c \
 	ol_player_vlc.c \
 	ol_player_mpris2.c \
+	ol_player_utils.c \
 	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \
@@ -171,9 +169,7 @@ osd_lyrics_SOURCES = \
 	ol_lrc_fetch_module.c \
 	ol_lrc_fetch_ui.c \
 	ol_lrc_fetch_xiami.c \
-	ol_lrc_fetch_sogou.c \
-	ol_lrc_fetch_qianqian.c \
-	ol_lrc_fetch_minilyrics.c \
+	ol_lrc_fetch_ttplayer.c \
 	ol_lrc_fetch_utils.c \
 	ol_lrc_candidate_list.c \
 	ol_lrc_engine_list.c \
@@ -190,7 +186,9 @@ osd_lyrics_SOURCES = \
 	ol_marshal.c \
 	ol_stock.c \
 	ol_notify.c \
-	ol_lrclib.c
+	ol_lrclib.c \
+	ol_player_chooser.h \
+	ol_player_chooser.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 

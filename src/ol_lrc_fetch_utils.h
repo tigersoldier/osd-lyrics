@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 /** 
  * @file util_lrc_fetch.h
  * @brief utility functions for fetching the lrc from Internet using libcurl
@@ -26,18 +45,13 @@
 /** 
  * @brief converts text from one encoding to another using libiconv
  * 
- * @param icv a conversion descriptor
  * @param src text to be converted
  * @param srclen at most #srclen bytes will be read
  * @param dest buffer to store the convert result
  * @param destlen at most #destlen bytes will be written
  * 
- * @return The iconv function returns the number of characters converted in a non-reversible way during this call; 
- *         reversible conversions are not counted. In case of error, it sets errno and returns (size_t)(−1). 
+ * @return The converted length. In case of error, it sets errno and returns (size_t)(−1). 
  */
-size_t convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen);
-
-/* the same to function: convert_icv */
 size_t convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen);
 
 

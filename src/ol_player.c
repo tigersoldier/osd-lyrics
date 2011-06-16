@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldi@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 
 #include <stdio.h>
 #include "config.h"
@@ -31,6 +50,7 @@
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
 #include "ol_player_mpris2.h"
+#include "ol_player_utils.h"
 
 static GArray *players = NULL;
 
@@ -55,6 +75,7 @@ ol_player_init ()
     ol_player_register (ol_player_deciber_get ());
     ol_player_register (ol_player_gmusicbrowser_get ());
     ol_player_register (ol_player_vlc_get ());
+    ol_player_register (ol_player_qmmp_get ());
 #ifdef ENABLE_XMMS2
     ol_player_register (ol_player_xmms2_get ());
 #endif  /* ENABLE_XMMS2 */
@@ -65,7 +86,6 @@ ol_player_init ()
 #endif  /* ENABLE_MPD */
     ol_player_register (ol_player_moc_get ());
     ol_player_register (ol_player_quodlibet_get ());
-    ol_player_register (ol_player_qmmp_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
 
@@ -74,7 +94,7 @@ ol_player_init ()
 }
 
 void
-ol_player_unload ()
+ol_player_unload (void)
 {
   if (players != NULL)
   {
@@ -84,7 +104,7 @@ ol_player_unload ()
 }
 
 struct OlPlayer **
-ol_player_get_players ()
+ol_player_get_players (void)
 {
   struct OlPlayer **ret = g_new0 (struct OlPlayer *,
                                   players->len + 1);
@@ -97,8 +117,30 @@ ol_player_get_players ()
   return ret;
 }
 
+GList *
+ol_player_get_support_players (void)
+{
+  GList *list = NULL;
+  GList *player_list = NULL;
+  int i;
+  for (i = 0; i < players->len; i++)
+  {
+    struct OlPlayer *player = g_array_index (players, struct OlPlayer*, i);
+    if (player->get_app_info_list)
+    {
+      player_list = player->get_app_info_list ();
+    }
+    else
+    {
+      player_list = ol_player_get_app_info_list (player, NULL);
+    }
+    list = g_list_concat (player_list, list);
+  }
+  return list;
+}
+
 struct OlPlayer*
-ol_player_get_active_player ()
+ol_player_get_active_player (void)
 {
   ol_log_func ();
   if (players == NULL)

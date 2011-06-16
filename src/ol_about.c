@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #include <gtk/gtk.h>
 #include "config.h"
 #include "ol_intl.h"
@@ -38,7 +57,8 @@ ol_about_show ()
   if (window == NULL)
   {
     window = ol_gui_get_widget ("aboutdialog");
-    gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (window), PACKAGE_VERSION);
+    gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (window), PROGRAM_NAME);
+    gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (window), VERSION);
     g_signal_connect (window, "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
     GdkPixbuf *logo = gdk_pixbuf_new_from_file (ICONDIR "/osd-lyrics.png", NULL);
     if (logo)

@@ -1,3 +1,13 @@
+Version 0.4.1: Coming
+
+Version 0.4.0: 2011-06-04
+ * Support more players: Clementine, Deciber-audio-player, Gmusicbrowser, Listen, and VLC.
+ * Display OSD lyrics as a normal window.
+ * Display lyrics in traditional scrolling mode.
+ * Add proxy support.
+ * Use ttPlayer instead of other lyric download sites.
+ - Improve performance with MPRIS-compatible players.
+
 Version 0.3.20100604: 2010-06-04
  * Add Juk and Qmmp support
  - Add app indicator support for Ubuntu 10.04

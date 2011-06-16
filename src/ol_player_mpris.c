@@ -1,3 +1,23 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009 Tiger Soldier <tigersoldier@gmail.com>
+ * Copyright (C) 2010 Sarlmol Apple <sarlmolapple@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #include <stdio.h>
 #include <dbus/dbus-glib.h>
 #include "ol_player.h"
@@ -108,12 +128,12 @@ static void _get_metadata_cb(DBusGProxy *proxy,
       g_free (mpris->uri);
       mpris->uri = g_strdup (ol_get_string_from_hash_table (data_list, "location"));
 
-      const gchar *track_number_str = NULL;
+      const char* track_number_str;
       track_number_str = ol_get_string_from_hash_table (data_list, "tracknumber");
       if (track_number_str != NULL)
-      {
         sscanf (track_number_str, "%d", &mpris->track_number);
-      }
+      else
+        mpris->track_number = ol_get_int_from_hash_table (data_list, "tracknumber");
       g_hash_table_destroy (data_list);
     }
   }

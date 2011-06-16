@@ -1,27 +1,28 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 /**
  * @file   ol_osd_window.h
  * @author Tiger Soldier <tigersoldi@gmail.com>
  * @date   Mon May 11 14:16:52 2009
  * 
  * @brief  The definition of an OlOsdWindow widget
- * 
- * Copyright (C) 2009  Tiger Soldier
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- * 
  */
 #ifndef __OSD_WINDOW_H_
 #define __OSD_WINDOW_H_
@@ -58,12 +59,9 @@ struct _OlOsdWindow
   double line_alignment[OL_OSD_WINDOW_MAX_LINE_COUNT];
   guint current_line;           /* which line is playing currently */
   double percentage[OL_OSD_WINDOW_MAX_LINE_COUNT];
-  GdkPixmap *active_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
-  GdkPixmap *inactive_lyric_pixmap[OL_OSD_WINDOW_MAX_LINE_COUNT];
   OlColor active_colors[OL_LINEAR_COLOR_COUNT];
   OlColor inactive_colors[OL_LINEAR_COLOR_COUNT];
   GdkRectangle lyric_rects[OL_OSD_WINDOW_MAX_LINE_COUNT];
-  GdkPixmap *shape_pixmap;
   OlOsdRenderContext *render_context;
   guint line_count;
   gboolean translucent_on_mouse_over;

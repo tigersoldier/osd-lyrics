@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #ifndef __OL_PLAYER_H__
 #define __OL_PLAYER_H__
 
@@ -29,20 +48,21 @@ struct OlPlayer
 {
   const char * name;
   const char * cmdline;
-  const char *(*get_icon_path) ();
+  const char *(*get_icon_path) (void);
   gboolean (*get_music_info) (OlMusicInfo *info);
-  gboolean (*get_activated) ();
+  gboolean (*get_activated) (void);
   gboolean (*get_played_time) (int *played_time);
   gboolean (*get_music_length) (int *len);
-  enum OlPlayerStatus (*get_status) ();
-  int (*get_capacity) ();
-  gboolean (*stop) ();
-  gboolean (*play) ();
-  gboolean (*pause) ();
-  gboolean (*prev) ();
-  gboolean (*next) ();
+  enum OlPlayerStatus (*get_status) (void);
+  int (*get_capacity) (void);
+  gboolean (*stop) (void);
+  gboolean (*play) (void);
+  gboolean (*pause) (void);
+  gboolean (*prev) (void);
+  gboolean (*next) (void);
   gboolean (*seek) (int pos_ms);
-  void (*free) ();
+  GList *(*get_app_info_list) (void);
+  void (*free) (void);
 };
 
 /**
@@ -50,7 +70,9 @@ struct OlPlayer
  *
  * @return Array of players, end with NULL. You should free it with g_free.
  */
-struct OlPlayer **ol_player_get_players ();
+struct OlPlayer **ol_player_get_players (void);
+
+GList *ol_player_get_support_players (void);
 
 /**
  * Create a new player controller with given name
@@ -131,19 +153,19 @@ void ol_player_register (struct OlPlayer *player);
  *
  * @return A pointer to the controller of the player. If there is not an active player, NULL will be returned
  */
-struct OlPlayer* ol_player_get_active_player ();
+struct OlPlayer* ol_player_get_active_player (void);
 
 /**
  * @brief Initialize all the player controllers, to register the controllers available.
  * This should be called before ol_get_active_player
  */
-void ol_player_init ();
+void ol_player_init (void);
 
 /**
  * @brief Frees all the player controllers
  * This should be called after the the program exits
  */
-void ol_player_unload ();
+void ol_player_unload (void);
 
 /**
  * @brief Gets the infomation of the current music
@@ -253,4 +275,5 @@ gboolean ol_player_seek (struct OlPlayer *player, int pos_ms);
  * @return FALSE if the operation failed or the player controller dosen't support this operation.
  */
 gboolean ol_player_stop (struct OlPlayer *player);
+
 #endif // __OL_PLAYER_H__

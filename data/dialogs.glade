@@ -6,7 +6,7 @@
     <property name="border_width">5</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
-    <property name="copyright" translatable="yes">Copyright 2009 The OSD Lyrics project.</property>
+    <property name="copyright" translatable="yes">Copyright 2009-2011 The OSD Lyrics project.</property>
     <property name="comments" translatable="yes">An OSD lyric show compatible with various media players and supports lyrics downloading.
 </property>
     <property name="website">http://code.google.com/p/osd-lyrics/ </property>
@@ -86,6 +86,20 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="list-scroll-mode">
+    <columns>
+      <!-- column-name item -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Always</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">By lines</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="optiondialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences</property>
@@ -103,96 +117,64 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               <object class="GtkVBox" id="vbox5">
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkFrame" id="display-mode-frame">
+                  <object class="GtkHBox" id="hbox-display-mode">
                     <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment6">
+                      <object class="GtkLabel" id="label-display-mode">
                         <property name="visible">True</property>
-                        <property name="left_padding">12</property>
+                        <property name="xalign">1</property>
+                        <property name="yalign">0</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Display mode:</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkVBox" id="vbox-display-mode">
+                        <property name="visible">True</property>
                         <child>
-                          <object class="GtkVBox" id="vbox9">
+                          <object class="GtkRadioButton" id="display-mode-osd">
+                            <property name="label" translatable="yes">OS_D</property>
+                            <property name="use_underline">True</property>
                             <property name="visible">True</property>
-                            <child>
-                              <object class="GtkHBox" id="hbox14">
-                                <property name="visible">True</property>
-                                <property name="homogeneous">True</property>
-                                <child>
-                                  <object class="GtkImage" id="osd-mode-image">
-                                    <property name="width_request">200</property>
-                                    <property name="stock">gtk-missing-image</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkImage" id="scroll-mode-image">
-                                    <property name="width_request">200</property>
-                                    <property name="stock">gtk-missing-image</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHBox" id="hbox15">
-                                <property name="visible">True</property>
-                                <property name="homogeneous">True</property>
-                                <child>
-                                  <object class="GtkRadioButton" id="display-mode-osd">
-                                    <property name="label" translatable="yes">OSD</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="active">True</property>
-                                    <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="ol_option_display_mode_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkRadioButton" id="display-mode-scroll">
-                                    <property name="label" translatable="yes">Scrolling</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="draw_indicator">True</property>
-                                    <property name="group">display-mode-osd</property>
-                                    <signal name="toggled" handler="ol_option_display_mode_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="ol_option_display_mode_changed"/>
                           </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="display-mode-scroll">
+                            <property name="label" translatable="yes">Sc_rolling</property>
+                            <property name="use_underline">True</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">display-mode-osd</property>
+                            <signal name="toggled" handler="ol_option_display_mode_changed"/>
+                          </object>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label26">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Display mode&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -220,7 +202,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label24">
+                      <object class="GtkLabel" id="label-autolaunch">
                         <property name="visible">True</property>
                         <property name="xalign">1</property>
                         <property name="xpad">5</property>
@@ -234,7 +216,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label25">
+                      <object class="GtkLabel" id="label-player-cmd">
                         <property name="visible">True</property>
                         <property name="xalign">1</property>
                         <property name="xpad">5</property>
@@ -271,14 +253,34 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="notify-music">
-                    <property name="label" translatable="yes">_Display notification</property>
+                  <object class="GtkHBox" id="hbox-track-notification">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="ol_option_notify_music_changed"/>
+                    <child>
+                      <object class="GtkLabel" id="label-notify-music">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="notify-music">
+                        <property name="label" translatable="yes">Show _bubble notification</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="ol_option_notify_music_changed"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1036,6 +1038,45 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox-scroll-mode">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label-scroll-mode">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">Scroll _mode:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">scroll-scroll-mode</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="scroll-scroll-mode">
+                                    <property name="visible">True</property>
+                                    <property name="model">list-scroll-mode</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cell-renderer-scroll-mode"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </object>
@@ -1926,6 +1967,22 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
   <object class="GtkMenu" id="pop-menu">
     <property name="visible">True</property>
     <child>
+      <object class="GtkMenuItem" id="menu-switch-osd">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">OSD _mode</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_menu_switch_osd"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menu-switch-scrolling">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Scrolling _mode</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="ol_menu_switch_scrolling"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkCheckMenuItem" id="menu-lock">
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">If locked, you can't move OSD window by mouse</property>
@@ -1960,44 +2017,36 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-assign-lrc">
+      <object class="GtkMenuItem" id="menu-assign-lrc">
         <property name="label" translatable="yes">_Assign lyric...</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Assign local LRC file to current music</property>
         <property name="use_underline">True</property>
-        <property name="image">image8</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_assign_lrc"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-no-lyric">
+      <object class="GtkMenuItem" id="menu-no-lyric">
         <property name="label" translatable="yes">_No lyric</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Don't assign lyric to this music</property>
         <property name="use_underline">True</property>
-        <property name="image">image7</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_no_lyric"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-advance-lrc">
+      <object class="GtkMenuItem" id="menu-advance-lrc">
         <property name="label" translatable="yes">Lyric delay -</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Adjust lyrics delay by -0.2 s</property>
-        <property name="image">image1</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_advance_lrc"/>
       </object>
     </child>
     <child>
-      <object class="GtkImageMenuItem" id="menu-delay-lrc">
+      <object class="GtkMenuItem" id="menu-delay-lrc">
         <property name="label" translatable="yes">Lyric delay +</property>
         <property name="visible">True</property>
         <property name="tooltip_text" translatable="yes">Adjust lyric delay by +0.2 s</property>
-        <property name="image">image6</property>
-        <property name="use_stock">False</property>
         <signal name="activate" handler="ol_menu_delay_lrc"/>
       </object>
     </child>
@@ -2500,6 +2549,14 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <widget name="label20"/>
     </widgets>
   </object>
+  <object class="GtkSizeGroup" id="group-general-label">
+    <widgets>
+      <widget name="label-display-mode"/>
+      <widget name="label-player-cmd"/>
+      <widget name="label-autolaunch"/>
+      <widget name="label-notify-music"/>
+    </widgets>
+  </object>
   <object class="GtkSizeGroup" id="group-proxy-label">
     <widgets>
       <widget name="label-proxy-passwd"/>
@@ -2522,6 +2579,15 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <widget name="label31"/>
       <widget name="label30"/>
       <widget name="label29"/>
+      <widget name="label-scroll-mode"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup" id="group-osd-radiobuttons">
+    <widgets>
+      <widget name="line-count-1"/>
+      <widget name="line-count-2"/>
+      <widget name="osd-window-mode-dock"/>
+      <widget name="osd-window-mode-normal"/>
     </widgets>
   </object>
   <object class="GtkAdjustment" id="adj-scroll-opacity">

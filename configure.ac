@@ -1,20 +1,27 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-PACKAGE=osd-lyrics
-PACKAGE_NAME="OSD Lyrics"
-MAJOR_VER=0
-MINOR_VER=3
-BUILD=20100604
-AC_SUBST(BUILD)
+m4_define([OL_MAJOR_VER], [0])
+m4_define([OL_MINOR_VER], [4])
+m4_define([OL_MICRO_VER], [1])
+m4_define([OL_BUILD], [-git])
+m4_define(OL_BUILD_VER,
+          m4_esyscmd([if test x]OL_BUILD[ == x-git; then git log -1 --format=format:%ad --date=short | sed 's/-//g'; fi]))
 
-AC_INIT([osd-lyrics], [0.3.20100604], [http://code.google.com/p/osd-lyrics/issues/list])
-AM_INIT_AUTOMAKE
+m4_define([OL_VERSION], [OL_MAJOR_VER.OL_MINOR_VER.OL_MICRO_VER[]OL_BUILD[]OL_BUILD_VER])
+AC_INIT([osdlyrics], [OL_VERSION], [http://code.google.com/p/osd-lyrics/issues/list])
+AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/ol_main.c])
 AC_CONFIG_HEADERS([config.h])
+AC_DEFINE([PROGRAM_NAME], ["OSD Lyrics"], [The full name of the program to display])
+
+# Checks for header files.
+AC_PATH_X
+AC_CHECK_HEADERS([fcntl.h libintl.h limits.h locale.h stddef.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
@@ -26,6 +33,22 @@ AC_CONFIG_FILES([ po/Makefile.in
 	src/tests/Makefile
 	data/Makefile
 ])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+
+# Checks for library functions.
+# AM_GNU_GETTEXT
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([ftruncate gettimeofday memset pathconf strchr strdup strerror strrchr strstr])
 
 #define paths
 OL_ICONDIR="$datadir/$PACKAGE/icons"
@@ -89,7 +112,11 @@ AS_IF([test "x$enable_amarok1" != xno],
   [AC_DEFINE([ENABLE_AMAROK1], [1], [Define if compile to support Amarok 1.4])])
 
 # Checks for libraries.
-PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.16.0, gthread-2.0, gmodule-export-2.0])
+PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0, 
+                          gthread-2.0, 
+                          gmodule-export-2.0,
+                          gio-2.0,
+                          gio-unix-2.0])
 PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
@@ -152,7 +179,7 @@ fi
 AM_CONDITIONAL(HAVE_APP_INDICATOR, test x"$enable_appindicator" = xyes)
 
 # i18n support from GNU gettext.
-GETTEXT_PACKAGE=osd-lyrics
+GETTEXT_PACKAGE=osdlyrics
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 IT_PROG_INTLTOOL([0.35.0])

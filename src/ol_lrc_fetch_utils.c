@@ -1,3 +1,22 @@
+/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
+/*
+ * Copyright (C) 2009-2011  Tiger Soldier <tigersoldi@gmail.com>
+ *
+ * This file is part of OSD Lyrics.
+ * 
+ * OSD Lyrics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OSD Lyrics is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,22 +36,6 @@ const int RANK_SCALE = 100000;
 static gboolean _set_curl_proxy (CURL *curl_handler);
 
 size_t
-convert_icv(iconv_t *icv, char *src, size_t srclen, char *dest, size_t destlen)
-{
-  ol_log_func ();
-  size_t ret;
-  if(icv == NULL)
-    return (size_t)-1;
-
-  char **input = &src;
-  char **output = &dest;
-  memset(dest, 0, destlen);
-
-  ret = iconv(*icv, input, &srclen, output, &destlen);
-  return ret;
-}
-
-size_t
 convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen)
 {
   ol_log_func ();
@@ -41,15 +44,19 @@ convert(const char *from_charset, const char *to_charset, char *src, size_t srcl
   char **input = &src;
   char **output = &dest;
   memset(dest, 0, destlen);
+  size_t destleft = destlen;
 
   if((cv = iconv_open(to_charset, from_charset)) == (iconv_t)-1) {
     ol_errorf ("  the conversion from %s to %s is not supported by the implementation.\n", from_charset, to_charset);
     return (size_t)-1;
   }
 
-  ret = iconv(cv, input, &srclen, output, &destlen);
+  ret = iconv(cv, input, &srclen, output, &destleft);
   iconv_close(cv);
-  return ret;
+  if (ret == (size_t)-1)
+    return ret;
+  else
+    return destlen - destleft;
 }
 
 static gboolean
