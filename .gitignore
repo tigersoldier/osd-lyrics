@@ -9,6 +9,10 @@ src/osd-lyrics
 config.h
 config.h.in
 configure
+config.guess
+config.sub
+configure.scan
+po/POTFILES
 missing
 .deps
 aclocal.m4

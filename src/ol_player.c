@@ -50,6 +50,7 @@
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
 #include "ol_player_mpris2.h"
+#include "ol_player_utils.h"
 
 static GArray *players = NULL;
 
@@ -93,7 +94,7 @@ ol_player_init ()
 }
 
 void
-ol_player_unload ()
+ol_player_unload (void)
 {
   if (players != NULL)
   {
@@ -103,7 +104,7 @@ ol_player_unload ()
 }
 
 struct OlPlayer **
-ol_player_get_players ()
+ol_player_get_players (void)
 {
   struct OlPlayer **ret = g_new0 (struct OlPlayer *,
                                   players->len + 1);
@@ -116,8 +117,30 @@ ol_player_get_players ()
   return ret;
 }
 
+GList *
+ol_player_get_support_players (void)
+{
+  GList *list = NULL;
+  GList *player_list = NULL;
+  int i;
+  for (i = 0; i < players->len; i++)
+  {
+    struct OlPlayer *player = g_array_index (players, struct OlPlayer*, i);
+    if (player->get_app_info_list)
+    {
+      player_list = player->get_app_info_list ();
+    }
+    else
+    {
+      player_list = ol_player_get_app_info_list (player, NULL);
+    }
+    list = g_list_concat (player_list, list);
+  }
+  return list;
+}
+
 struct OlPlayer*
-ol_player_get_active_player ()
+ol_player_get_active_player (void)
 {
   ol_log_func ();
   if (players == NULL)

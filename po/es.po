@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
 "PO-Revision-Date: 2010-11-15 19:25+0000\n"
 "Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "Archivos LRC"
 msgid "Choose LRC file to assign"
 msgstr "Elija el archivo LRC a asignar"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -35,32 +35,32 @@ msgstr ""
 "El nivel de mensajes de depuración para el registro, puede ser «none», "
 "«error», «debug» o «info»"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
+#: ../src/ol_main.c:62
+msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "La descarga ha fallado"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
 msgstr "No se puede crear el directorio de letras"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "No se encontraron letras"
 
-#: ../src/ol_main.c:178
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Buscando letras"
 
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Ningún reproductor soportado está en ejecución, saliendo.\n"
 
-#: ../src/ol_main.c:505
+#: ../src/ol_main.c:581
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -68,7 +68,7 @@ msgstr ""
 "El nivel de mensajes de depuración para el registro, puede ser «none», "
 "«error», «debug» o «info»"
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Ya ha otro OSD Lyrics en ejecución, saliendo."
 
@@ -85,8 +85,8 @@ msgid "OSD Lyrics"
 msgstr "Letras de canciones OSD"
 
 #: ../src/ol_option.c:1711
-msgid "None"
-msgstr "Ninguno"
+msgid "Choose on startup"
+msgstr ""
 
 #: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
@@ -121,6 +121,32 @@ msgstr "Vaya, no se encontró Letra: ("
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "letras encontrado %d :)"
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "Or_den del reproductor:"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "la orden del ereproductor a lanzar"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -265,7 +291,8 @@ msgid "Color _Theme:"
 msgstr "Color del _Tema"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 El proyecto OSD Lyrics"
 
 #: ../data/dialogs.glade.h:45
@@ -584,6 +611,9 @@ msgstr ""
 "  hhlp https://launchpad.net/~hhlp\n"
 "  smaug https://launchpad.net/~marcoantoniofrias"
 
+#~ msgid "None"
+#~ msgstr "Ninguno"
+
 #~ msgid "_Lock"
 #~ msgstr "B_loquear"
 
@@ -613,9 +643,6 @@ msgstr ""
 
 #~ msgid "Choose witch site you want to download from."
 #~ msgstr "Elija desde que sitio desea descargar las letras."
-
-#~ msgid "The command of player to launch"
-#~ msgstr "la orden del ereproductor a lanzar"
 
 #~ msgid "If no player detected, launch the given player"
 #~ msgstr "Si no se detecta ningún reproductor, lanza el reproductor dado"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
 "PO-Revision-Date: 2011-02-25 17:51+0000\n"
 "Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "LRC Dateien"
 msgid "Choose LRC file to assign"
 msgstr "Wähle LRC Datei für die Zuweisung"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -35,32 +35,32 @@ msgstr ""
 "Ausführlichkeit beim Protokollieren von Debug-Meldungen, entweder »none«, "
 "»error«, »debug« oder »info«"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
+#: ../src/ol_main.c:62
+msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "Download fehlgeschlagen"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
 msgstr "Liedtexte-Ordner kann nicht erstellt werden"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "Liedtexte nicht gefunden"
 
-#: ../src/ol_main.c:178
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Liedtexte werden gesucht"
 
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Es laufen keine unterstützten Player, OSD Lyrics wird beendet.\n"
 
-#: ../src/ol_main.c:505
+#: ../src/ol_main.c:581
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -68,7 +68,7 @@ msgstr ""
 "Ausführlichkeit beim Protokollieren von Debug-Meldungen, entweder »none«, "
 "»error«, »debug« oder »info«"
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr ""
 "Eine andere Instanz von OSD Lyrics läuft bereits, das Programm wird beendet."
@@ -86,8 +86,8 @@ msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
 #: ../src/ol_option.c:1711
-msgid "None"
-msgstr "Kein(e)"
+msgid "Choose on startup"
+msgstr ""
 
 #: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
@@ -122,6 +122,32 @@ msgstr "Ups, kein Liedtext gefunden :("
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "%d Liedtexte gefunden :)"
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "_Befehl"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Der Befehl, der den Player startet"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -267,7 +293,8 @@ msgid "Color _Theme:"
 msgstr "_Farbschema:"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 OSD Lyrics Projekt"
 
 #: ../data/dialogs.glade.h:45
@@ -579,6 +606,9 @@ msgstr ""
 "  Tiger Soldier https://launchpad.net/~tigersoldi\n"
 "  thoughtcrime https://launchpad.net/~thoughtcrime"
 
+#~ msgid "None"
+#~ msgstr "Kein(e)"
+
 #~ msgid "Sogou"
 #~ msgstr "Sogou"
 
@@ -603,9 +633,6 @@ msgstr ""
 
 #~ msgid "_Player control"
 #~ msgstr "_Player-Steuerung"
-
-#~ msgid "The command of player to launch"
-#~ msgstr "Der Befehl, der den Player startet"
 
 #~ msgid "_Display notification"
 #~ msgstr "_Benachrichtigung anzeigen"

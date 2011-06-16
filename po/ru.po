@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
 "PO-Revision-Date: 2011-01-27 13:29+0000\n"
 "Last-Translator: Stanislav Hanzhin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -28,7 +28,7 @@ msgstr "LRC-файлы"
 msgid "Choose LRC file to assign"
 msgstr "Выверите назначаемый файл LRC"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -36,32 +36,32 @@ msgstr ""
 "Уровень отладочных сообщений в логе может быть 'none', 'error', 'debug' или "
 "'info'"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
+#: ../src/ol_main.c:62
+msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "Ошибка загрузки данных"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
 msgstr "Невозможно создать папку лирики"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "Текст песни не найден"
 
-#: ../src/ol_main.c:178
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Поиск текста"
 
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Нет доступных плееров.\n"
 
-#: ../src/ol_main.c:505
+#: ../src/ol_main.c:581
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -69,7 +69,7 @@ msgstr ""
 "Уровень отладочных сообщений в логе может быть 'none', 'error', 'debug' или "
 "'info'"
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Приложение уже запущено."
 
@@ -86,8 +86,8 @@ msgid "OSD Lyrics"
 msgstr "OSD-показ текстов."
 
 #: ../src/ol_option.c:1711
-msgid "None"
-msgstr "Пусто"
+msgid "Choose on startup"
+msgstr ""
 
 #: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
@@ -122,6 +122,32 @@ msgstr "Текст не найден."
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "%d текст найден."
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "Команда плеера:"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Выверите назначаемый файл LRC"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -266,7 +292,8 @@ msgid "Color _Theme:"
 msgstr "Цветовая _тема:"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 Проект OSD Lyrics."
 
 #: ../data/dialogs.glade.h:45
@@ -577,6 +604,9 @@ msgstr ""
 "  Vitaly Antonov https://launchpad.net/~legidium\n"
 "  gruzdev https://launchpad.net/~gruzdev\n"
 "  Андрей Моисеев https://launchpad.net/~o2"
+
+#~ msgid "None"
+#~ msgstr "Пусто"
 
 #~ msgid "_Lock"
 #~ msgstr "_Заблокировать"

@@ -1708,7 +1708,7 @@ init_startup_player (GtkWidget *widget)
   GtkComboBox *cb = GTK_COMBO_BOX (widget);
   if (cb == NULL)
     return;
-  gtk_combo_box_append_text (cb, _("None"));
+  gtk_combo_box_append_text (cb, _("Choose on startup"));
   struct OlPlayer **players = ol_player_get_players ();
   int i = 0;
   for (i = 0; players[i] != NULL; i++)
