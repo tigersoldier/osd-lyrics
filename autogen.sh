@@ -4,4 +4,3 @@ set -e
 
 autoreconf --install
 ./configure $@
-make
