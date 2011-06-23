@@ -209,6 +209,7 @@ static const OlConfigBoolValue config_bool[] = {
 
 static const OlConfigIntValue config_int[] = {
   {PROP_OSD_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
+  {PROP_OSD_WIDTH, "outline-width", "OSD", "OSD Outline Width", "The width of the outline of lyrics", 0, 10, 3},
   {PROP_OSD_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
   {PROP_OSD_X, "x", "OSD", "OSD X position", "The horizontal position of OSD", 0, 10000, 0},
   {PROP_OSD_Y, "y", "OSD", "OSD Y position", "The vertical position of OSD", 0, 10000, 0},
