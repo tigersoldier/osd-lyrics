@@ -821,7 +821,6 @@ ol_option_update_widget (OptionWidgets *widgets)
   load_entry_str_options ();
   load_spin_int_options ();
   load_scale_double_options ();
-  load_spin_int_options ();
   load_color_str_options ();
   load_font_str_options ();
   load_combo_str_options ();

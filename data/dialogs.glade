@@ -2,6 +2,22 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkAdjustment" id="adj-lrc-align-0">
+    <property name="upper">1</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">0.10000000000000001</property>
+  </object>
+  <object class="GtkAdjustment" id="adj-lrc-align-1">
+    <property name="upper">1</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">0.10000000000000001</property>
+  </object>
+  <object class="GtkAdjustment" id="adj-scroll-opacity">
+    <property name="value">1</property>
+    <property name="upper">1</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">0.10000000000000001</property>
+  </object>
   <object class="GtkAboutDialog" id="aboutdialog">
     <property name="border_width">5</property>
     <property name="window_position">center-on-parent</property>
@@ -529,7 +545,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                               <object class="GtkHScale" id="lrc-align-0">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">adjustment2</property>
+                                <property name="adjustment">adj-lrc-align-0</property>
                                 <property name="value_pos">right</property>
                                 <signal name="value_changed" handler="ol_option_osd_alignment_changed"/>
                               </object>
@@ -558,7 +574,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                               <object class="GtkHScale" id="lrc-align-1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">adjustment1</property>
+                                <property name="adjustment">adj-lrc-align-1</property>
                                 <property name="value_pos">right</property>
                                 <signal name="value_changed" handler="ol_option_osd_alignment_changed"/>
                               </object>
@@ -2256,16 +2272,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
     <property name="stock">gtk-find</property>
     <property name="icon-size">1</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">1</property>
-    <property name="step_increment">0.01</property>
-    <property name="page_increment">0.10000000000000001</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="upper">1</property>
-    <property name="step_increment">0.01</property>
-    <property name="page_increment">0.10000000000000001</property>
-  </object>
   <object class="GtkAdjustment" id="adj-osd-outline">
     <property name="upper">10</property>
     <property name="step_increment">1</property>
@@ -2566,11 +2572,5 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <widget name="osd-window-mode-dock"/>
       <widget name="osd-window-mode-normal"/>
     </widgets>
-  </object>
-  <object class="GtkAdjustment" id="adj-scroll-opacity">
-    <property name="value">1</property>
-    <property name="upper">1</property>
-    <property name="step_increment">0.01</property>
-    <property name="page_increment">0.10000000000000001</property>
   </object>
 </interface>
