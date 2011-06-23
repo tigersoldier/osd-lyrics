@@ -624,6 +624,7 @@ _initialize (int argc, char **argv)
   g_thread_init(NULL);
   gtk_init (&argc, &argv);
   _parse_cmd_args (&argc, &argv);
+  g_set_prgname (_(PROGRAM_NAME));
   if (ol_is_running ())
   {
     printf ("%s\n", _("Another OSD Lyrics is running, exit."));
