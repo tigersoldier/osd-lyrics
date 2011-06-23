@@ -23,10 +23,30 @@
 #include <gtk/gtk.h>
 #include "ol_lrc_fetch.h"
 
-void ol_lrc_engine_list_init (GtkWidget *list);
-void ol_lrc_engine_list_set_name (GtkWidget *list, 
-                                  const char *name);
-OlLrcFetchEngine *ol_lrc_engine_list_get_engine (GtkWidget *list);
-const char *ol_lrc_engine_list_get_name (GtkWidget *list);
+void ol_lrc_engine_list_init (GtkTreeView *list);
+
+/** 
+ * Sets enabled engines with a list of name of engines.
+ *
+ * The enabled engines will be moved above disabled engines and sorted
+ * according their position in the engine_list
+ * @param list 
+ * @param engine_list A NULL-terminated string list with names of engines.
+ *                    The caller is responsible for freeing it.
+ */
+void ol_lrc_engine_list_set_engine_names (GtkTreeView *list, 
+                                          char **engine_list);
+/** 
+ * Gets a list of name of enabled engines
+ *
+ * The returned list will be sorted according to their position in
+ * the widget
+ * 
+ * @param list The engine list widget
+ * 
+ * @return A NULL-terminated string list with names of engines.
+ * Should be freed with g_strfreev
+ */
+char **ol_lrc_engine_list_get_engine_names (GtkTreeView *list);
 
 #endif /* _OL_LRC_ENGINE_LIST_H_ */

@@ -225,8 +225,11 @@ void ol_option_osd_color_changed (GtkColorButton *widget,
 void ol_option_save_path_pattern ();
 void ol_option_save_file_pattern ();
 /* Download options */
-void ol_option_download_engine_changed (GtkComboBox *cb,
-                                        gpointer user_data);
+static void _connect_download_engine_changed (GtkTreeView *list,
+                                              void (*callback) (GtkTreeModel *model));
+static void _disconnect_download_engine_changed (GtkTreeView *list,
+                                                 void (*callback) (GtkTreeModel *model));
+static void ol_option_download_engine_changed (GtkTreeModel *model);
 void ol_option_download_first_changed (GtkToggleButton *togglebutton,
                                        gpointer user_data);
 void ol_option_about_clicked (GtkWidget *widget, gpointer data);
@@ -585,17 +588,18 @@ ol_option_save_file_pattern ()
 
 /* Download options */
 void
-ol_option_download_engine_changed (GtkComboBox *cb,
-                                   gpointer user_data)
+ol_option_download_engine_changed (GtkTreeModel *model)
 {
   OlConfig *config = ol_config_get_instance ();
-  const char *engine = ol_lrc_engine_list_get_name (options.download_engine);
-  if (engine != NULL)
+  char **engine_names = ol_lrc_engine_list_get_engine_names (GTK_TREE_VIEW (options.download_engine));
+  if (engine_names != NULL)
   {
-    ol_config_set_string (config, 
-                          "Download", 
-                          "download-engine", 
-                          engine);
+    ol_config_set_str_list (config,
+                            "Download",
+                            "download-engine",
+                            (const char**)engine_names,
+                            g_strv_length (engine_names));
+    g_strfreev (engine_names);
   }
   else
   {
@@ -1361,12 +1365,17 @@ load_download ()
 {
   OlConfig *config = ol_config_get_instance ();
   /* Download engine */
-  char *download_engine = ol_config_get_string (config, 
-                                                "Download",
-                                                "download-engine");
-  ol_lrc_engine_list_set_name (options.download_engine,
-                               download_engine);
-  g_free (download_engine);
+  char **download_engines = ol_config_get_str_list (config,
+                                                    "Download",
+                                                    "download-engine",
+                                                    NULL);
+  _disconnect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
+                                       ol_option_download_engine_changed);
+  ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (options.download_engine),
+                                       download_engines);
+  _connect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
+                                    ol_option_download_engine_changed);
+  g_strfreev (download_engines);
 }
 
 static char **
@@ -1703,6 +1712,43 @@ ol_option_menu_filename_activate (GtkMenuItem *menuitem,
 }
 
 static void
+_connect_download_engine_changed (GtkTreeView *list,
+                                  void (*callback) (GtkTreeModel *model))
+{
+  ol_assert (GTK_IS_TREE_VIEW (list));
+  ol_assert (callback != NULL);
+  GtkTreeModel *model = gtk_tree_view_get_model (list);
+  g_signal_connect (G_OBJECT (model),
+                    "row-changed",
+                    (GCallback) callback,
+                    NULL);
+  g_signal_connect (G_OBJECT (model),
+                    "row-deleted",
+                    (GCallback) callback,
+                    NULL);
+  g_signal_connect (G_OBJECT (model),
+                    "row-inserted",
+                    (GCallback) callback,
+                    NULL);
+  g_signal_connect (G_OBJECT (model),
+                    "rows-reordered",
+                    (GCallback) callback,
+                    NULL);
+}
+
+static void
+_disconnect_download_engine_changed (GtkTreeView *list,
+                                     void (*callback) (GtkTreeModel *model))
+{
+  ol_assert (GTK_IS_TREE_VIEW (list));
+  ol_assert (callback != NULL);
+  GtkTreeModel *model = gtk_tree_view_get_model (list);
+  g_signal_handlers_disconnect_by_func (model,
+                                        (GCallback) callback,
+                                        NULL);
+}
+
+static void
 init_startup_player (GtkWidget *widget)
 {
   GtkComboBox *cb = GTK_COMBO_BOX (widget);
@@ -1756,7 +1802,7 @@ ol_option_show ()
     options.startup_player_cb = ol_gui_get_widget ("startup-player-cb");
     init_startup_player (options.startup_player_cb);
     /* Init download engine combobox */
-    ol_lrc_engine_list_init (options.download_engine);
+    ol_lrc_engine_list_init (GTK_TREE_VIEW (options.download_engine));
     lrc_path_widgets.entry = options.lrc_path_text;
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_gui_get_widget ("add-lrc-path");

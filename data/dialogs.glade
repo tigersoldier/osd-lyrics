@@ -40,13 +40,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </object>
     </child>
   </object>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name item -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="liststore2">
+  <object class="GtkListStore" id="list-color-scheme">
     <columns>
       <!-- column-name item -->
       <column type="gchararray"/>
@@ -56,12 +50,6 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
         <col id="0" translatable="yes">Customize</col>
       </row>
     </data>
-  </object>
-  <object class="GtkListStore" id="liststore3">
-    <columns>
-      <!-- column-name item -->
-      <column type="gchararray"/>
-    </columns>
   </object>
   <object class="GtkListStore" id="liststore4">
     <columns>
@@ -633,7 +621,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   <object class="GtkComboBox" id="color-theme">
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
-                                    <property name="model">liststore2</property>
+                                    <property name="model">list-color-scheme</property>
                                     <property name="active">0</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext2"/>
@@ -1537,14 +1525,13 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                           <object class="GtkVBox" id="vbox8">
                             <property name="visible">True</property>
                             <child>
-                              <object class="GtkHBox" id="hbox3">
+                              <object class="GtkVBox" id="vbox-download-engine">
                                 <property name="visible">True</property>
                                 <child>
-                                  <object class="GtkLabel" id="label18">
+                                  <object class="GtkLabel" id="label-downlaod-engine">
                                     <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="xpad">5</property>
-                                    <property name="label" translatable="yes">_Site:</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Lyric _sites:</property>
                                     <property name="use_underline">True</property>
                                     <property name="mnemonic_widget">download-engine</property>
                                   </object>
@@ -1555,16 +1542,10 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="download-engine">
+                                  <object class="GtkTreeView" id="download-engine">
                                     <property name="visible">True</property>
-                                    <property name="model">liststore1</property>
-                                    <signal name="changed" handler="ol_option_download_engine_changed"/>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                                      <attributes>
-                                        <attribute name="text">0</attribute>
-                                      </attributes>
-                                    </child>
+                                    <property name="headers-visible">False</property>
+                                    <property name="reorderable">True</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -2384,6 +2365,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               <object class="GtkLabel" id="label21">
                 <property name="visible">True</property>
                 <property name="xalign">1</property>
+                <property name="yalign">0</property>
                 <property name="xpad">5</property>
                 <property name="label" translatable="yes" comments="From witch web site to search and download lyrics">_From:</property>
                 <property name="use_underline">True</property>
@@ -2394,15 +2376,10 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBox" id="search-engine">
+              <object class="GtkTreeView" id="search-engine">
                 <property name="visible">True</property>
-                <property name="model">liststore3</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext3"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
+                <property name="headers-visible">False</property>
+                <property name="reorderable">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>

@@ -72,6 +72,12 @@ enum {
   PROP_SCROLL_SCROLL_MODE,
 };
 
+static const char *OL_CONFIG_DEFAULT_DOWNLOAD_ENGINE[] = {
+  "ttPlayer",
+  "xiami",
+  NULL,
+};
+
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
   "#662600", "#FFFF00", "#FF8000", NULL,
 };
@@ -162,6 +168,9 @@ struct _OlConfigInfo
 };
 
 static const OlConfigStrListValue config_str_list[] = {
+  {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
+   "Download engine", "Select the source where LRC files are downloaded from",
+   -1, OL_CONFIG_DEFAULT_DOWNLOAD_ENGINE},
   {PROP_OSD_ACTIVE_LRC_COLOR, "active-lrc-color", "OSD", "Active lyric color",
    "Colors of active lyrics", 3, OL_CONFIG_ACTIVE_LRC_COLOR},
   {PROP_OSD_INACTIVE_LRC_COLOR, "inactive-lrc-color", "OSD", "Inactive lyric color",
@@ -229,9 +238,6 @@ static const OlConfigStringValue config_str[] = {
   {PROP_OSD_FONT_FAMILY, "font-family", "OSD", "OSD Font family",
    "Font family of OSD lyrics",
    "serif"},
-  {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
-   "Download engine", "Select the source where LRC files are downloaded from",
-   "ttPlayer"},
   {PROP_PROXY, "proxy", "Download",
    "Proxy", "The proxy to download lyrics. Available settings are no, system, or manual", "no"},
   {PROP_PROXY_TYPE, "proxy-type", "Download",

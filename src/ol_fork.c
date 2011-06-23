@@ -82,7 +82,7 @@ ol_fork_watch_callback (GPid pid,
 }
 
 pid_t
-ol_fork (OlForkCallback callback, void *userdata)
+ol_fork (OlForkCallback callback, void *userdata, guint *watch_id)
 {
   int pipefd[2] = {0, 0};
   if (pipe (pipefd) != 0)

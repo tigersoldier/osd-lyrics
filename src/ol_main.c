@@ -76,6 +76,7 @@ static gint previous_position = -1;
 static struct OlLrc *lrc_file = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
+static int search_id = -1;
 static enum _PlayerLostAction {
   ACTION_NONE = 0,
   ACTION_LAUNCH_DEFAULT,
@@ -143,12 +144,35 @@ _download_callback (struct OlLrcDownloadResult *result)
 }
 
 static void
+_search_msg_callback (int _search_id,
+                      enum OlLrcSearchMsgType msg_type,
+                      const char *message,
+                      void *userdata)
+{
+  ol_assert (_search_id == search_id);
+  switch (msg_type)
+  {
+  case OL_LRC_SEARCH_MSG_ENGINE:
+    if (module != NULL)
+    {
+      char *msg = g_strdup_printf (_("Searching lyrics from %s"), _(message));
+      ol_display_module_search_fail_message (module, msg);
+      g_free (msg);
+    }
+    break;
+  }
+}
+
+
+static void
 _search_callback (struct OlLrcFetchResult *result,
                   void *userdata)
 {
   ol_log_func ();
   ol_assert (result != NULL);
   ol_assert (result->engine != NULL);
+  ol_assert (result->id == search_id);
+  search_id = -1;
   if (result->count > 0 && result->candidates != 0)
   {
     char *filename = ol_lyric_download_path (&result->info);
@@ -160,7 +184,6 @@ _search_callback (struct OlLrcFetchResult *result,
     {
       if (module != NULL) {
         ol_display_module_clear_message (module);
-	ol_display_module_clear_message (module);
       }
       ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
                             &result->info,
@@ -179,16 +202,19 @@ gboolean
 ol_app_download_lyric (OlMusicInfo *music_info)
 {
   ol_log_func ();
+  if (search_id > 0)
+    ol_lrc_fetch_cancel_search (search_id);
   OlConfig *config = ol_config_get_instance ();
-  char *name = ol_config_get_string (config, "Download", "download-engine");
-  ol_debugf ("Download engine: %s\n", name);
-  OlLrcFetchEngine *engine = ol_lrc_fetch_get_engine (name);
-  ol_lrc_fetch_begin_search (engine, 
-                             music_info, 
-                             _search_callback,
-                             NULL);
-  if (module != NULL)
-    ol_display_module_search_message (module, _("Searching lyrics"));
+  char **engine_list = ol_config_get_str_list (config,
+                                               "Download",
+                                               "download-engine",
+                                               NULL);
+  search_id = ol_lrc_fetch_begin_search (engine_list,
+                                         music_info,
+                                         _search_msg_callback,
+                                         _search_callback,
+                                         NULL);
+  g_strfreev (engine_list);
   return TRUE;
 }
 
@@ -647,5 +673,6 @@ main (int argc, char **argv)
   ol_trayicon_free ();
   ol_lrclib_unload ();
   ol_config_unload ();
+  ol_lrc_fetch_module_unload (); 
   return 0;
 }
