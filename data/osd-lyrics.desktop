@@ -2,9 +2,10 @@
 Exec=osd-lyrics
 Version=1.0
 Name=OSD Lyrics
-GenericName=Media Player
-Comment=Download and display lyrics, support multiple media players
-Comment[zh_CN]=支持多种播放器和自动下载歌词的桌面歌词秀
+GenericName=Lyrics Show
+GenericName[zh_CN]=歌词秀
+Comment=Download and show lyrics for your favorite media player
+Comment[zh_CN]=让你的音乐播放器支持下载和显示歌词
 Icon=osd-lyrics
 StartupNotify=true
 Terminal=false
