@@ -17,19 +17,33 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <stdio.h>
+#include <glib.h>
 #include "ol_elapse_emulator.h"
 #include "ol_debug.h"
 
+OlElapseEmulator *
+ol_elapse_emulator_new (int initial_time, int accuracy)
+{
+  OlElapseEmulator *emulator = g_new (OlElapseEmulator, 1);
+  ol_elapse_emulator_init (emulator, initial_time, accuracy);
+  return emulator;
+}
+
+void
+ol_elapse_emulator_free (OlElapseEmulator *emulator)
+{
+  g_free (emulator);
+}
+
 void
 ol_elapse_emulator_init (OlElapseEmulator *emulator,
-                         int time,
+                         int initial_time,
                          int accuracy)
 {
-  if (emulator == NULL)
-    return;
-  emulator->first_time = time;
-  emulator->prev_time = time;
-  emulator->last_time = time;
+  ol_assert (emulator != NULL);
+  emulator->first_time = initial_time;
+  emulator->prev_time = initial_time;
+  emulator->last_time = initial_time;
   gettimeofday (&emulator->begin_time, NULL);
   emulator->accuracy = accuracy;
 }
@@ -78,4 +92,3 @@ ol_elapse_emulator_get_last_ms (OlElapseEmulator *emulator,
   }
   return emulator->last_time;
 }
-

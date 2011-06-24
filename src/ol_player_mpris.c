@@ -19,11 +19,16 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <stdio.h>
+#include <string.h>
 #include <dbus/dbus-glib.h>
+#include <glib.h>
 #include "ol_player.h"
 #include "ol_player_mpris.h"
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
+#include "ol_elapse_emulator.h"
+#include "ol_music_info.h"
+#include "ol_player_utils.h"
 #include "ol_debug.h"
 
 enum MprisCaps {
@@ -36,8 +41,51 @@ enum MprisCaps {
   CAN_HAS_TRACKLIST     = 1 << 6,
 };
 
+struct OlPlayerMpris
+{
+  gchar *app_name;
+  gchar *bus_name;
+  gchar *icon_name;
+  DBusGProxy *proxy;
+  DBusGProxyCall *call_id;
+  DBusGProxyCall *metadata_call_id;
+  DBusGProxyCall *status_call_id;
+  OlElapseEmulator *elapse_emulator;
+  enum OlPlayerStatus status;
+  int played_time;
+  gchar *title;
+  gchar *artist;
+  gchar *album;
+  gchar *uri;
+  int track_number;
+  int music_len;
+};
+
+struct KnownPlayers
+{
+  const char *name;
+  const char *command;
+  const char *bus_name;
+  const char *icon_name;
+  gboolean time_in_ms;
+};
+
+struct KnownPlayers KNOWN_PLAYERS[] = {
+  {"Amarok 2", "amarok", "org.kde.amarok", "amarok", FALSE}, /* Supported in 2.4 */
+  {"Audacious 2", "audacious2", "org.mpris.audacious", "audacious2", TRUE},
+  {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE},
+  {"Decibel", "decibel-audio-player", "org.mpris.dap", "decibel-audio-player", FALSE},
+  {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", TRUE},
+  {"Qmmp", "qmmp", "org.mpris.qmmp", "qmmp", TRUE},
+  {"VLC", "vlc --control dbus", "org.mpris.vlc", "vlc", TRUE},
+};
+
+static const char *MPRIS_PREFIX = "org.mpris.";
+static const char *MPRIS2_PREFIX = "org.mpris.MediaPlayer2";
 static const char *PATH = "/Player";
+static const char *ROOT_PATH = "/";
 static const char *INTERFACE = "org.freedesktop.MediaPlayer";
+static const char *IDENTITY = "Identity";
 static const char *PLAY_METHOD = "Play";
 static const char *PAUSE_METHOD = "Pause";
 static const char *STOP_METHOD = "Stop";
@@ -48,61 +96,43 @@ static const char *GET_STATUS_METHOD = "GetStatus";
 static const char *GET_POSITION_METHOD = "PositionGet";
 static const char *SET_POSITION_METHOD = "PositionSet";
 
-static gboolean ol_player_mpris_init_dbus (OlPlayerMpris *mpris);
-static gboolean ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris);
-static gboolean ol_player_mpris_update_metadata (OlPlayerMpris *mpris);
-static void _clear_str (gchar **str);
+static struct OlPlayerMpris *mpris = NULL;
+
+static struct OlPlayerMpris* _mpris_new (const char *app_name,
+                                         const char *bus_name,
+                                         DBusGProxy *proxy);
+static void _mpris_free (struct OlPlayerMpris *mpris);
+static gboolean _get_music_info (OlMusicInfo *info);
+static gboolean _get_played_time (int *played_time);
+static gboolean _get_music_length (int *len);
+static gboolean _get_activated (void);
+static int _get_capacity (void);
+static enum OlPlayerStatus _get_status (void);
+static gboolean _play (void);
+static gboolean _pause (void);
+static gboolean _stop (void);
+static gboolean _prev (void);
+static gboolean _next (void);
+static gboolean _seek (int pos_ms);
+static struct OlPlayerMpris *_init_dbus (const char *bus_name);
+static gboolean _proxy_free (DBusGProxy *proxy, gpointer userdata);
+static gboolean _update_metadata (struct OlPlayerMpris *mpris);
 static void _get_played_time_cb(DBusGProxy *proxy,
                                 DBusGProxyCall *call_id,
-                                OlPlayerMpris *mpris);
+                                struct OlPlayerMpris *mpris);
 static void _get_metadata_cb(DBusGProxy *proxy,
                              DBusGProxyCall *call_id,
-                             OlPlayerMpris *mpris);
+                             struct OlPlayerMpris *mpris);
 static void _get_status_cb(DBusGProxy *proxy,
                            DBusGProxyCall *call_id,
-                           OlPlayerMpris *mpris);
-
-OlPlayerMpris*
-ol_player_mpris_new (const char *service)
-{
-  OlPlayerMpris *mpris = g_new0 (OlPlayerMpris, 1);
-  mpris->name = g_strdup (service);
-  mpris->proxy = NULL;
-  return mpris;
-}
+                           struct OlPlayerMpris *mpris);
+const char *_get_icon_path (void);
+static void _free (void);
 
 static void
-_clear_str (gchar **str)
-{
-  if (str != NULL && *str != NULL)
-  {
-    g_free (*str);
-    *str = NULL;
-  }
-}
-
-static gboolean
-ol_player_mpris_proxy_free (DBusGProxy *proxy, OlPlayerMpris *mpris)
-{
-  ol_assert_ret (mpris != NULL, FALSE);
-  g_object_unref (mpris->proxy);
-  if (mpris->call_id)
-    dbus_g_proxy_cancel_call (proxy, mpris->call_id);
-  if (mpris->metadata_call_id)
-    dbus_g_proxy_cancel_call (proxy, mpris->metadata_call_id);
-  _clear_str (&mpris->title);
-  _clear_str (&mpris->artist);
-  _clear_str (&mpris->album);
-  _clear_str (&mpris->uri);
-  mpris->music_len = -1;
-  mpris->played_time = -1;
-  mpris->proxy = NULL;
-  return FALSE;
-}
-
-static void _get_metadata_cb(DBusGProxy *proxy,
-                             DBusGProxyCall *call_id,
-                             OlPlayerMpris *mpris)
+_get_metadata_cb (DBusGProxy *proxy,
+                  DBusGProxyCall *call_id,
+                  struct OlPlayerMpris *mpris)
 {
   ol_assert (proxy != NULL);
   ol_assert (mpris != NULL);
@@ -140,10 +170,10 @@ static void _get_metadata_cb(DBusGProxy *proxy,
 }
 
 static gboolean
-ol_player_mpris_update_metadata (OlPlayerMpris *mpris)
+_update_metadata (struct OlPlayerMpris *mpris)
 {
   ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL && !ol_player_mpris_init_dbus (mpris))
+  if (mpris == NULL)
     return FALSE;
   if (mpris->metadata_call_id != NULL)
     return TRUE;
@@ -156,12 +186,13 @@ ol_player_mpris_update_metadata (OlPlayerMpris *mpris)
   return mpris->metadata_call_id != NULL;
 }
 
-gboolean
-ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
+static gboolean
+_get_music_info (OlMusicInfo *info)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
+  if (mpris == NULL)
+    return FALSE;
   ol_assert_ret (info != NULL, FALSE);
-  if (ol_player_mpris_update_metadata (mpris))
+  if (_update_metadata (mpris))
   {
     ol_music_info_clear (info);
     ol_music_info_set_artist (info, mpris->artist);
@@ -176,7 +207,9 @@ ol_player_mpris_get_music_info (OlPlayerMpris *mpris, OlMusicInfo *info)
 }
 
 static void
-_get_played_time_cb(DBusGProxy *proxy, DBusGProxyCall *call_id, OlPlayerMpris *mpris)
+_get_played_time_cb (DBusGProxy *proxy,
+                     DBusGProxyCall *call_id,
+                     struct OlPlayerMpris *mpris)
 {
     mpris->call_id =NULL;
     GError *error = NULL;
@@ -186,18 +219,18 @@ _get_played_time_cb(DBusGProxy *proxy, DBusGProxyCall *call_id, OlPlayerMpris *m
                            G_TYPE_INT,
                            &mpris->played_time,
                            G_TYPE_INVALID);
-    if (error != NULL) { 
+    if (error != NULL) {
       ol_errorf ("Error in method call : %s\n", error->message); 
       g_error_free (error);
     }
 }
       
-gboolean
-ol_player_mpris_get_played_time (OlPlayerMpris *mpris, int *played_time)
+static gboolean
+_get_played_time (int *played_time)
 {
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
+  ol_assert_ret (played_time != NULL, FALSE);
+  if (mpris == NULL)
+    return FALSE;
   if (mpris->call_id == NULL)
     mpris->call_id = dbus_g_proxy_begin_call (mpris->proxy,
                                               GET_POSITION_METHOD,
@@ -205,20 +238,31 @@ ol_player_mpris_get_played_time (OlPlayerMpris *mpris, int *played_time)
                                               mpris,
                                               NULL,
                                               G_TYPE_INVALID);
-  *played_time = mpris->played_time;
+  if (mpris->elapse_emulator)
+  {
+    enum OlPlayerStatus status = _get_status ();
+    if (status == OL_PLAYER_PLAYING)
+      *played_time = ol_elapse_emulator_get_real_ms (mpris->elapse_emulator,
+                                                     mpris->played_time);
+    else
+      *played_time = ol_elapse_emulator_get_last_ms (mpris->elapse_emulator,
+                                                     mpris->played_time);
+  }
+  else
+  {
+    *played_time = mpris->played_time;
+  }
   return TRUE;
 }
 
 
-gboolean
-ol_player_mpris_get_music_length (OlPlayerMpris *mpris, int *len)
+static gboolean
+_get_music_length (int *len)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
   ol_assert_ret (len != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  if (ol_player_mpris_update_metadata (mpris))
+  if (mpris == NULL)
+    return FALSE;
+  if (_update_metadata (mpris))
   {
     *len = mpris->music_len;
   }
@@ -229,41 +273,142 @@ ol_player_mpris_get_music_length (OlPlayerMpris *mpris, int *len)
   return TRUE;
 }
 
-gboolean
-ol_player_mpris_get_activated (OlPlayerMpris *mpris)
+static struct OlPlayerMpris*
+_mpris_new (const char *app_name, const char *bus_name, DBusGProxy *proxy)
 {
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  return TRUE;
+  ol_assert_ret (app_name != NULL, NULL);
+  ol_assert_ret (proxy != NULL, NULL);
+  ol_debug ("New MPRIS player: %s (%s)",
+            app_name, bus_name);
+  struct OlPlayerMpris *mpris = g_new0 (struct OlPlayerMpris, 1);
+  mpris->app_name = g_strdup (app_name);
+  mpris->bus_name = g_strdup (bus_name);
+  mpris->proxy = proxy;
+  int i;
+  gboolean time_in_ms = FALSE;
+  for (i = 0; i < G_N_ELEMENTS (KNOWN_PLAYERS); i++)
+  {
+    if (strcmp (bus_name,
+                KNOWN_PLAYERS[i].bus_name) == 0)
+    {
+      time_in_ms = KNOWN_PLAYERS[i].time_in_ms;
+      mpris->icon_name = g_strdup (KNOWN_PLAYERS[i].icon_name);
+      break;
+    }
+  }
+  if (!time_in_ms)
+    mpris->elapse_emulator = ol_elapse_emulator_new (0, 1000);
+  if (mpris->icon_name == NULL)
+    mpris->icon_name = g_strdup (bus_name + strlen (MPRIS_PREFIX));
+  return mpris;
+}
+
+static void
+_mpris_free (struct OlPlayerMpris *mpris)
+{
+  g_object_unref (mpris->proxy);
+  /* if (mpris->call_id) */
+  /*   dbus_g_proxy_cancel_call (proxy, mpris->call_id); */
+  /* if (mpris->metadata_call_id) */
+  /*   dbus_g_proxy_cancel_call (proxy, mpris->metadata_call_id); */
+  g_free (mpris->title);
+  g_free (mpris->artist);
+  g_free (mpris->album);
+  g_free (mpris->uri);
+  g_free (mpris->app_name);
+  g_free (mpris->icon_name);
+  mpris->music_len = -1;
+  mpris->played_time = -1;
+  mpris->proxy = NULL;
+  if (mpris->elapse_emulator != NULL)
+    ol_elapse_emulator_free (mpris->elapse_emulator);
+}
+
+static struct OlPlayerMpris *
+_init_dbus (const char *bus_name)
+{
+  ol_assert_ret (bus_name != NULL, NULL);
+  ol_assert_ret (mpris == NULL, mpris);
+  DBusGConnection *connection = ol_dbus_get_connection ();
+  char *app_name = NULL;
+  GError *error = NULL;
+  struct OlPlayerMpris *ret = NULL;
+  if (connection == NULL)
+  {
+    return NULL;
+  }
+  DBusGProxy *proxy = dbus_g_proxy_new_for_name_owner (connection,
+                                                       bus_name,
+                                                       PATH,
+                                                       INTERFACE,
+                                                       &error);
+  if (proxy == NULL)
+  {
+    ol_debugf ("get proxy failed: %s\n", error->message);
+    g_error_free (error);
+    return NULL;
+  }
+  DBusGProxy *root_proxy = dbus_g_proxy_new_from_proxy (proxy,
+                                                        INTERFACE,
+                                                        ROOT_PATH);
+  if (root_proxy != NULL)
+  {
+    if (!ol_dbus_get_string (root_proxy, IDENTITY, &app_name))
+    {
+      ol_errorf ("Cannot get identity from %s\n", bus_name);
+    }
+  }
+  g_object_unref (root_proxy);
+  if (app_name == NULL)
+    app_name = g_strdup (bus_name);
+  g_signal_connect (proxy, "destroy", G_CALLBACK (_proxy_free), NULL);
+  ret = _mpris_new (app_name, bus_name, proxy);
+  g_free (app_name);
+  return ret;
 }
 
 static gboolean
-ol_player_mpris_init_dbus (OlPlayerMpris *mpris)
+_proxy_free (DBusGProxy *proxy, gpointer userdata)
 {
-  DBusGConnection *connection = ol_dbus_get_connection ();
-  GError *error = NULL;
-  if (connection == NULL)
-  {
-    return FALSE;
-  }
-  if (mpris->proxy == NULL)
-  {
-    mpris->proxy = dbus_g_proxy_new_for_name_owner (connection, mpris->name, PATH, INTERFACE, &error);
-    if (mpris->proxy == NULL)
-    {
-      ol_debugf ("get proxy failed: %s\n", error->message);
-      g_error_free (error);
-      error = NULL;
-      return FALSE;
-    }
-    g_signal_connect (mpris->proxy, "destroy", G_CALLBACK (ol_player_mpris_proxy_free), (gpointer) mpris);
-  }
-  return TRUE;
+  ol_assert_ret (mpris != NULL, FALSE);
+  ol_assert_ret (mpris->proxy == proxy, FALSE);
+  _mpris_free (mpris);
+  mpris = NULL;
+  return FALSE;
 }
 
-int
-ol_player_mpris_get_capacity (OlPlayerMpris *mpris)
+static gboolean
+_find_player (void)
+{
+  ol_assert_ret (mpris == NULL, TRUE);
+  char **names = ol_dbus_list_names ();
+  if (names == NULL)
+    return FALSE;
+  char **bus_name;
+  for (bus_name = names; *bus_name != NULL; bus_name++)
+  {
+    if (g_str_has_prefix (*bus_name, MPRIS_PREFIX) &&
+        !g_str_has_prefix (*bus_name, MPRIS2_PREFIX))
+    {
+      mpris = _init_dbus (*bus_name);
+      if (mpris != NULL)
+        break;
+    }
+  }
+  g_strfreev (names);
+  return mpris != NULL;
+}
+
+static gboolean
+_get_activated (void)
+{
+  if (mpris != NULL)
+    return TRUE;
+  return _find_player ();
+}
+
+static int
+_get_capacity (void)
 {
   return OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_PAUSE |
     OL_PLAYER_STOP | OL_PLAYER_PREV | OL_PLAYER_NEXT | OL_PLAYER_SEEK;
@@ -272,7 +417,7 @@ ol_player_mpris_get_capacity (OlPlayerMpris *mpris)
 static void
 _get_status_cb(DBusGProxy *proxy,
                DBusGProxyCall *call_id,
-               OlPlayerMpris *mpris)
+               struct OlPlayerMpris *mpris)
 {
   static const enum OlPlayerStatus status_map[] =
     {OL_PLAYER_PLAYING, OL_PLAYER_PAUSED, OL_PLAYER_STOPPED};
@@ -309,13 +454,11 @@ _get_status_cb(DBusGProxy *proxy,
   }
 }
 
-enum OlPlayerStatus
-ol_player_mpris_get_status (OlPlayerMpris *mpris)
+static enum OlPlayerStatus
+_get_status (void)
 {
-  ol_assert_ret (mpris != NULL, OL_PLAYER_ERROR);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return OL_PLAYER_ERROR;
+  if (mpris == NULL)
+    return OL_PLAYER_ERROR;
   if (mpris->status_call_id == NULL)
     mpris->status_call_id = dbus_g_proxy_begin_call (mpris->proxy,
                                                      GET_STATUS_METHOD,
@@ -326,63 +469,49 @@ ol_player_mpris_get_status (OlPlayerMpris *mpris)
   return mpris->status;
 }
 
-gboolean
-ol_player_mpris_play (OlPlayerMpris *mpris)
+static gboolean
+_invoke_cmd (const char *cmd)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  return ol_dbus_invoke (mpris->proxy, PLAY_METHOD);
+  if (mpris == NULL)
+    return FALSE;
+  return ol_dbus_invoke (mpris->proxy, cmd);
 }
 
-gboolean
-ol_player_mpris_pause (OlPlayerMpris *mpris)
+static gboolean
+_play (void)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  return ol_dbus_invoke (mpris->proxy, PAUSE_METHOD);
+  return _invoke_cmd (PLAY_METHOD);
 }
 
-gboolean
-ol_player_mpris_stop (OlPlayerMpris *mpris)
+static gboolean
+_pause (void)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  return ol_dbus_invoke (mpris->proxy, STOP_METHOD);
+  return _invoke_cmd (PAUSE_METHOD);
 }
 
-gboolean
-ol_player_mpris_prev (OlPlayerMpris *mpris)
+static gboolean
+_stop (void)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  return ol_dbus_invoke (mpris->proxy, PREVIOUS_METHOD);
+  return _invoke_cmd (STOP_METHOD);
 }
 
-gboolean
-ol_player_mpris_next (OlPlayerMpris *mpris)
+static gboolean
+_prev (void)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
-  return ol_dbus_invoke (mpris->proxy, NEXT_METHOD);
+  return _invoke_cmd (PREVIOUS_METHOD);
 }
 
-gboolean
-ol_player_mpris_seek (OlPlayerMpris *mpris, int pos_ms)
+static gboolean
+_next (void)
 {
-  ol_assert_ret (mpris != NULL, FALSE);
-  if (mpris->proxy == NULL)
-    if (!ol_player_mpris_init_dbus (mpris))
-      return FALSE;
+  return _invoke_cmd (NEXT_METHOD);
+}
+
+static gboolean
+_seek (int pos_ms)
+{
+  if (mpris == NULL)
+    return FALSE;
   return dbus_g_proxy_call (mpris->proxy,
                             SET_POSITION_METHOD,
                             NULL,
@@ -390,4 +519,55 @@ ol_player_mpris_seek (OlPlayerMpris *mpris, int pos_ms)
                             pos_ms,
                             G_TYPE_INVALID,
                             G_TYPE_INVALID);
+}
+
+const char *_get_icon_path (void)
+{
+  ol_assert_ret (mpris != NULL, NULL);
+  return mpris->icon_name;
+};
+
+static void
+_free (void)
+{
+  if (mpris)
+  {
+    _mpris_free (mpris);
+  }
+  mpris = NULL;
+}
+
+static GList *
+_get_app_info_list (void)
+{
+  GList *ret = NULL;
+  int i;
+  for (i = 0; i < G_N_ELEMENTS (KNOWN_PLAYERS); i++)
+    ret = ol_player_app_info_list_from_cmdline (ret,
+                                                KNOWN_PLAYERS[i].name,
+                                                KNOWN_PLAYERS[i].command);
+  return ret;
+}
+
+struct OlPlayer*
+ol_player_mpris_get (void)
+{
+  ol_log_func ();
+  struct OlPlayer *controller = ol_player_new ("MPRIS");
+  controller->get_music_info = _get_music_info;
+  controller->get_activated = _get_activated;
+  controller->get_played_time = _get_played_time;
+  controller->get_music_length = _get_music_length;
+  controller->get_capacity = _get_capacity;
+  controller->get_status = _get_status;
+  controller->play = _play;
+  controller->pause = _pause;
+  controller->stop = _stop;
+  controller->prev = _prev;
+  controller->next = _next;
+  controller->seek = _seek;
+  controller->get_icon_path = _get_icon_path;
+  controller->get_app_info_list = _get_app_info_list;
+  controller->free = _free;
+  return controller;
 }

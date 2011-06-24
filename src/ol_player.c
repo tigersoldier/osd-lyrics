@@ -26,17 +26,10 @@
 #include "ol_player_exaile02.h"
 #include "ol_player_exaile03.h"
 #include "ol_player_listen.h"
-#include "ol_player_clementine.h"
-#include "ol_player_guayadeque02.h"
-#include "ol_player_deciber.h"
 #include "ol_player_gmusicbrowser.h"
-#include "ol_player_vlc.h"
 #ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
 #endif  /* ENABLE_AMAROK1 */
-#include "ol_player_amarok2.h"
-#include "ol_player_audacious.h"
-#include "ol_player_songbird.h"
 #ifdef ENABLE_XMMS2
 #include "ol_player_xmms2.h"
 #endif  /* ENABLE_XMMS2 */
@@ -46,9 +39,9 @@
 #endif  /* ENABLE_MPD */
 #include "ol_player_moc.h"
 #include "ol_player_quodlibet.h"
-#include "ol_player_qmmp.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
+#include "ol_player_mpris.h"
 #include "ol_player_mpris2.h"
 #include "ol_player_utils.h"
 
@@ -60,36 +53,27 @@ ol_player_init ()
   if (players == NULL)
   {
     players = g_array_new (FALSE, TRUE, sizeof (struct OlPlayer*));
-#ifdef ENABLE_AMAROK1
-    ol_player_register (ol_player_amarok1_get ());
-#endif
-    ol_player_register (ol_player_amarok2_get ());
     ol_player_register (ol_player_banshee_get ());
     ol_player_register (ol_player_exaile02_get ());
     ol_player_register (ol_player_exaile03_get ());
-    ol_player_register (ol_player_audacious_get ());
-    ol_player_register (ol_player_songbird_get ());
-    ol_player_register (ol_player_clementine_get ());
     ol_player_register (ol_player_listen_get ());
-    ol_player_register (ol_player_guayadeque02_get ());
-    ol_player_register (ol_player_deciber_get ());
     ol_player_register (ol_player_gmusicbrowser_get ());
-    ol_player_register (ol_player_vlc_get ());
-    ol_player_register (ol_player_qmmp_get ());
-#ifdef ENABLE_XMMS2
-    ol_player_register (ol_player_xmms2_get ());
-#endif  /* ENABLE_XMMS2 */
+    ol_player_register (ol_player_mpris_get ());
     ol_player_register (ol_player_mpris2_get ());
     ol_player_register (ol_player_rhythmbox_get ());
-#ifdef ENABLE_MPD
-    ol_player_register (ol_player_mpd_get ());
-#endif  /* ENABLE_MPD */
     ol_player_register (ol_player_moc_get ());
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
-
-
+#ifdef ENABLE_AMAROK1
+    ol_player_register (ol_player_amarok1_get ());
+#endif  /* ENABLE_AMAROK1 */
+#ifdef ENABLE_XMMS2
+    ol_player_register (ol_player_xmms2_get ());
+#endif  /* ENABLE_XMMS2 */
+#ifdef ENABLE_MPD
+    ol_player_register (ol_player_mpd_get ());
+#endif  /* ENABLE_MPD */
   }
 }
 
