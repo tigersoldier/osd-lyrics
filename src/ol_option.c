@@ -203,7 +203,7 @@ void ol_option_notify_music_changed (GtkToggleButton *togglebutton,
                                      gpointer user_data);
 void ol_option_startup_player_changed (GtkComboBox *cb,
                                        gpointer user_data);
-void ol_option_save_startup_player ();
+gboolean ol_option_save_startup_player ();
 static void init_startup_player (GtkWidget *widget);
 /* OSD options */
 void ol_option_font_changed (GtkWidget *widget);
@@ -362,7 +362,7 @@ ol_option_startup_player_changed (GtkComboBox *cb,
   ol_option_save_startup_player ();
 }
 
-void
+gboolean
 ol_option_save_startup_player ()
 {
   if (options.startup_player != NULL)
@@ -372,6 +372,7 @@ ol_option_save_startup_player ()
                           "startup-player",
                           gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
   }
+  return FALSE;
 }
 
 /* OSD options */
