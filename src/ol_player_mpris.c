@@ -76,7 +76,7 @@ struct KnownPlayers KNOWN_PLAYERS[] = {
   {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE},
   {"Decibel", "decibel-audio-player", "org.mpris.dap", "decibel-audio-player", FALSE},
   {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", TRUE},
-  {"Qmmp", "qmmp", "org.mpris.qmmp", "qmmp", TRUE},
+  {"Qmmp", "qmmp", "org.mpris.qmmp", "qmmp", FALSE},
   {"VLC", "vlc --control dbus", "org.mpris.vlc", "vlc", TRUE},
 };
 
