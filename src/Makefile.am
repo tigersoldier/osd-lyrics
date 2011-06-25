@@ -102,6 +102,8 @@ noinst_HEADERS = \
 	ol_utils_dbus.h \
 	ol_utils_dcop.h \
 	ol_utils_network.h \
+	ol_gussian_blur.h \
+	ol_player_chooser.h \
 	ol_utils.h
 
 osd_lyrics_SOURCES = \
@@ -171,8 +173,8 @@ osd_lyrics_SOURCES = \
 	ol_stock.c \
 	ol_notify.c \
 	ol_lrclib.c \
-	ol_player_chooser.h \
-	ol_player_chooser.c
+	ol_player_chooser.c \
+	ol_gussian_blur.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 
