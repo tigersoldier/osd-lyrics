@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 21:48+0800\n"
+"POT-Creation-Date: 2011-06-25 18:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,33 +35,34 @@ msgstr ""
 msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:142
+#: ../src/ol_main.c:143
 msgid "Download failed"
 msgstr ""
 
-#: ../src/ol_main.c:157
+#: ../src/ol_main.c:158
+#, c-format
+msgid "Searching lyrics from %s"
+msgstr ""
+
+#: ../src/ol_main.c:181
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: ../src/ol_main.c:174
+#: ../src/ol_main.c:197
 msgid "Lyrics not found"
 msgstr ""
 
-#: ../src/ol_main.c:191
-msgid "Searching lyrics"
-msgstr ""
-
-#: ../src/ol_main.c:460
+#: ../src/ol_main.c:486
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
 
-#: ../src/ol_main.c:581
+#: ../src/ol_main.c:607
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr ""
 
-#: ../src/ol_main.c:603
+#: ../src/ol_main.c:630
 msgid "Another OSD Lyrics is running, exit."
 msgstr ""
 
@@ -77,15 +78,20 @@ msgstr ""
 msgid "OSD Lyrics"
 msgstr ""
 
-#: ../src/ol_option.c:1711
+#: ../src/ol_option.c:1768
 msgid "Choose on startup"
 msgstr ""
 
-#: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
+#. gtk_list_store_append (liststore, &iter);
+#. gtk_list_store_set (liststore, &iter,
+#. 0, "Customize",
+#. 1, "",
+#. -1);
+#: ../src/ol_option.c:1788 ../data/dialogs.glade.h:44
 msgid "Customize"
 msgstr ""
 
-#: ../src/ol_option.c:1782
+#: ../src/ol_option.c:1851
 msgid "Select a folder"
 msgstr ""
 
@@ -119,27 +125,27 @@ msgstr ""
 msgid "%d lyrics found :)"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:84
+#: ../src/ol_player_chooser.c:83
 msgid "Supported players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:89
+#: ../src/ol_player_chooser.c:88
 msgid "All players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:95
+#: ../src/ol_player_chooser.c:94
 msgid "Use command:"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:100
+#: ../src/ol_player_chooser.c:99
 msgid "Launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:113
+#: ../src/ol_player_chooser.c:112
 msgid "Remember my choice"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:146
+#: ../src/ol_player_chooser.c:145
 msgid "Choose a player to launch"
 msgstr ""
 
@@ -333,217 +339,217 @@ msgid "Inactiv_e lyrics:"
 msgstr ""
 
 #: ../data/dialogs.glade.h:58
-msgid "Lyric delay +"
+msgid "Lyric _sites:"
 msgstr ""
 
 #: ../data/dialogs.glade.h:59
-msgid "Lyric delay -"
+msgid "Lyric delay +"
 msgstr ""
 
 #: ../data/dialogs.glade.h:60
-msgid "Lyric lines:"
+msgid "Lyric delay -"
 msgstr ""
 
 #: ../data/dialogs.glade.h:61
-msgid "Mode:"
+msgid "Lyric lines:"
 msgstr ""
 
 #: ../data/dialogs.glade.h:62
-msgid "No _proxy"
+msgid "Mode:"
 msgstr ""
 
 #: ../data/dialogs.glade.h:63
-msgid "Nor_mal"
+msgid "No _proxy"
 msgstr ""
 
 #: ../data/dialogs.glade.h:64
-msgid "OSD _mode"
+msgid "Nor_mal"
 msgstr ""
 
 #: ../data/dialogs.glade.h:65
-msgid "OS_D"
+msgid "OSD _mode"
 msgstr ""
 
 #: ../data/dialogs.glade.h:66
-msgid "O_pacity:"
+msgid "OS_D"
 msgstr ""
 
 #: ../data/dialogs.glade.h:67
+msgid "O_pacity:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:68
 msgid "Opaque"
 msgstr ""
 
 #. The outline width of text in OSD window
-#: ../data/dialogs.glade.h:69
+#: ../data/dialogs.glade.h:70
 msgid "Out_line:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:70
+#: ../data/dialogs.glade.h:71
 msgid "Passwo_rd:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:71
+#: ../data/dialogs.glade.h:72
 msgid "Pla_yer command:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:72
+#: ../data/dialogs.glade.h:73
 msgid "Po_rt:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:73
+#: ../data/dialogs.glade.h:74
 msgid "Preferences"
 msgstr ""
 
-#: ../data/dialogs.glade.h:74
+#: ../data/dialogs.glade.h:75
 msgid "SOCKS4"
 msgstr ""
 
-#: ../data/dialogs.glade.h:75
+#: ../data/dialogs.glade.h:76
 msgid "SOCKS5"
 msgstr ""
 
-#: ../data/dialogs.glade.h:76
+#: ../data/dialogs.glade.h:77
 msgid "Sc_rolling"
 msgstr ""
 
-#: ../data/dialogs.glade.h:77
+#: ../data/dialogs.glade.h:78
 msgid "Scroll _mode:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:78
+#: ../data/dialogs.glade.h:79
 msgid "Scrolling _mode"
 msgstr ""
 
-#: ../data/dialogs.glade.h:79
+#: ../data/dialogs.glade.h:80
 msgid "Search lyrics"
 msgstr ""
 
-#: ../data/dialogs.glade.h:80
+#: ../data/dialogs.glade.h:81
 msgid "Search lyrics from Internet"
 msgstr ""
 
-#: ../data/dialogs.glade.h:81
+#: ../data/dialogs.glade.h:82
 msgid "Show _bubble notification"
 msgstr ""
 
-#: ../data/dialogs.glade.h:82
+#: ../data/dialogs.glade.h:83
 msgid "Show passwor_d"
 msgstr ""
 
-#: ../data/dialogs.glade.h:83
+#: ../data/dialogs.glade.h:84
 msgid "Si_ngle line"
 msgstr ""
 
-#: ../data/dialogs.glade.h:84
+#: ../data/dialogs.glade.h:85
 msgid "T_ranslucent on mouse over"
 msgstr ""
 
-#: ../data/dialogs.glade.h:85
+#: ../data/dialogs.glade.h:86
 msgid "The artist of the current track"
 msgstr ""
 
-#: ../data/dialogs.glade.h:86
+#: ../data/dialogs.glade.h:87
 msgid "The filename of the current track"
 msgstr ""
 
-#: ../data/dialogs.glade.h:87
+#: ../data/dialogs.glade.h:88
 msgid "The number of the current track"
 msgstr ""
 
-#: ../data/dialogs.glade.h:88
+#: ../data/dialogs.glade.h:89
 msgid "The title of album of the current track"
 msgstr ""
 
-#: ../data/dialogs.glade.h:89
+#: ../data/dialogs.glade.h:90
 msgid "The title of the current track"
 msgstr ""
 
-#: ../data/dialogs.glade.h:90
+#: ../data/dialogs.glade.h:91
 msgid "Transparent"
 msgstr ""
 
-#: ../data/dialogs.glade.h:91
+#: ../data/dialogs.glade.h:92
 msgid "Use _manual settings"
 msgstr ""
 
-#: ../data/dialogs.glade.h:92
+#: ../data/dialogs.glade.h:93
 msgid "_Artist:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:93
+#: ../data/dialogs.glade.h:94
 msgid "_Assign lyric..."
 msgstr ""
 
-#: ../data/dialogs.glade.h:94
+#: ../data/dialogs.glade.h:95
 msgid "_Double lines"
 msgstr ""
 
-#: ../data/dialogs.glade.h:95
+#: ../data/dialogs.glade.h:96
 msgid "_Download"
 msgstr ""
 
-#: ../data/dialogs.glade.h:96
+#: ../data/dialogs.glade.h:97
 msgid "_Font:"
 msgstr ""
 
 #. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:98
+#: ../data/dialogs.glade.h:99
 msgid "_From:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:99
+#: ../data/dialogs.glade.h:100
 msgid "_General"
 msgstr ""
 
-#: ../data/dialogs.glade.h:100
+#: ../data/dialogs.glade.h:101
 msgid "_Hide"
 msgstr ""
 
-#: ../data/dialogs.glade.h:101
+#: ../data/dialogs.glade.h:102
 msgid "_Host:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:102
+#: ../data/dialogs.glade.h:103
 msgid "_Inactive color:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:103
+#: ../data/dialogs.glade.h:104
 msgid "_Lock Position"
 msgstr ""
 
-#: ../data/dialogs.glade.h:104
+#: ../data/dialogs.glade.h:105
 msgid "_Lyric Location"
 msgstr ""
 
-#: ../data/dialogs.glade.h:105
+#: ../data/dialogs.glade.h:106
 msgid "_Network"
 msgstr ""
 
-#: ../data/dialogs.glade.h:106
+#: ../data/dialogs.glade.h:107
 msgid "_No lyric"
 msgstr ""
 
-#: ../data/dialogs.glade.h:107
+#: ../data/dialogs.glade.h:108
 msgid "_OSD"
 msgstr ""
 
-#: ../data/dialogs.glade.h:108
+#: ../data/dialogs.glade.h:109
 msgid "_Scrolling"
 msgstr ""
 
-#: ../data/dialogs.glade.h:109
+#: ../data/dialogs.glade.h:110
 msgid "_Search"
 msgstr ""
 
-#: ../data/dialogs.glade.h:110
+#: ../data/dialogs.glade.h:111
 msgid "_Search lyric..."
 msgstr ""
 
-#: ../data/dialogs.glade.h:111
-msgid "_Second line:"
-msgstr ""
-
 #: ../data/dialogs.glade.h:112
-msgid "_Site:"
+msgid "_Second line:"
 msgstr ""
 
 #: ../data/dialogs.glade.h:113
