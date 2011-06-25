@@ -108,7 +108,9 @@ ol_fork (OlForkCallback callback, void *userdata, guint *watch_id)
     data->ret_size = 0;
     data->buf_len = DEFAULT_BUF_SIZE;
     data->ret_data = g_new0 (char, data->buf_len);
-    g_child_watch_add (pid, ol_fork_watch_callback, data);
+    guint source_id = g_child_watch_add (pid, ol_fork_watch_callback, data);
+    if (watch_id)
+      *watch_id = source_id;
     return pid;
   }
 }
