@@ -376,3 +376,10 @@ ol_path_splitext (const char *path, char **root, char **ext)
       *ext = NULL;
   }
 }
+
+gint
+ol_app_info_cmp (GAppInfo *a, GAppInfo *b)
+{
+  return strcasecmp (g_app_info_get_display_name (a),
+                     g_app_info_get_display_name (b));
+}

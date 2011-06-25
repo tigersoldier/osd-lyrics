@@ -347,16 +347,22 @@ ol_option_startup_player_changed (GtkComboBox *cb,
   }
   else
   {
-    struct OlPlayer ** players = ol_player_get_players ();
-    if (players[index - 1] != NULL)
+    GtkTreeModel *liststore = gtk_combo_box_get_model (cb);
+    GtkTreeIter iter;
+    if (gtk_combo_box_get_active_iter (cb, &iter))
     {
-      gtk_entry_set_text (entry,
-                          ol_player_get_cmd (players[index - 1]));
-    }
-    else                        /* Customize */
-    {
-      gtk_widget_set_sensitive (options.startup_player, TRUE);
-      gtk_widget_grab_focus (options.startup_player);
+      char *command = NULL;
+      gtk_tree_model_get (liststore, &iter, 1, &command, -1);
+      if (!ol_is_string_empty (command))
+      {
+        gtk_entry_set_text (entry, command);
+      }
+      else                        /* Customize */
+      {
+        gtk_widget_set_sensitive (options.startup_player, TRUE);
+        gtk_widget_grab_focus (options.startup_player);
+      }
+      g_free (command);
     }
   }
   ol_option_save_startup_player ();
@@ -1427,7 +1433,6 @@ static void
 load_general ()
 {
   OlConfig *config = ol_config_get_instance ();
-  int i;
   if (options.lrc_path != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
@@ -1469,22 +1474,28 @@ load_general ()
      }
      else
      {
-       struct OlPlayer **players = ol_player_get_players ();
-       for (i = 0; players[i] != NULL; i++)
+       int i = 1;
+       GtkTreeModel *liststore = gtk_combo_box_get_model (GTK_COMBO_BOX (options.startup_player_cb));
+       GtkTreeIter iter;
+       gboolean valid;
+       for (valid = gtk_tree_model_get_iter_from_string (liststore, &iter, "1");
+            valid && startup_custom;
+            valid = gtk_tree_model_iter_next (liststore, &iter), i++)
        {
-         const char *cmd = ol_player_get_cmd (players[i]);
+         char *cmd = NULL;
+         gtk_tree_model_get (liststore, &iter, 1, &cmd, -1);
          if (cmd != NULL &&
              strcmp (player_cmd, cmd) == 0)
          {
-           gtk_combo_box_set_active (cb, i + 1);
-          startup_custom = FALSE;
-          break;
-        }
-      }
-    }
-    if (startup_custom)
-    {
-      gtk_combo_box_set_active (cb, i + 1);
+           gtk_combo_box_set_active (cb, i);
+           startup_custom = FALSE;
+         }
+         g_free (cmd);
+       }
+       if (startup_custom)
+       {
+         gtk_combo_box_set_active (cb, i - 1);
+       }
     }
   }
   if (options.startup_player != NULL)
@@ -1755,13 +1766,25 @@ init_startup_player (GtkWidget *widget)
   if (cb == NULL)
     return;
   gtk_combo_box_append_text (cb, _("Choose on startup"));
-  struct OlPlayer **players = ol_player_get_players ();
-  int i = 0;
-  for (i = 0; players[i] != NULL; i++)
+  GtkListStore *liststore = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
+  GList *players = g_list_sort (ol_player_get_support_players (),
+                                (GCompareFunc) ol_app_info_cmp);
+  for (; players != NULL; players = g_list_delete_link (players, players))
   {
-    gtk_combo_box_append_text (cb,
-                               ol_player_get_name (players[i]));
+    GAppInfo *app_info = players->data;
+    GtkTreeIter iter;
+    gtk_list_store_append (liststore, &iter);
+    gtk_list_store_set (liststore, &iter,
+                        0, g_app_info_get_display_name (app_info),
+                        1, g_app_info_get_commandline (app_info),
+                        -1);
+    g_object_unref (G_OBJECT (app_info));
   }
+  /* gtk_list_store_append (liststore, &iter); */
+  /* gtk_list_store_set (liststore, &iter, */
+  /*                     0, "Customize", */
+  /*                     1, "", */
+  /*                     -1); */
   gtk_combo_box_append_text (cb, _("Customize"));
 }
 

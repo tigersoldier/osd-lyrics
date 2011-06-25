@@ -55,7 +55,6 @@ static void _player_button_launch (GtkButton *button,
 static void _launch_button_clicked_cb (GtkButton *button,
                                        OlPlayerChooser *window);
 static gboolean _app_command_exists (GAppInfo *app_info);
-static gint _app_info_cmp (GAppInfo *a, GAppInfo *b);
 static GtkWidget *_image_from_app_info (GAppInfo *app_info);
 static void _remember_cmd_if_needed (OlPlayerChooser *window,
                                      const char *cmd);
@@ -183,13 +182,6 @@ _player_button_launch (GtkButton *button,
   }
 }
 
-static gint
-_app_info_cmp (GAppInfo *a, GAppInfo *b)
-{
-  return strcasecmp (g_app_info_get_display_name (a),
-                     g_app_info_get_display_name (b));
-}
-
 static gboolean
 _app_command_exists (GAppInfo *app_info)
 {
@@ -250,7 +242,7 @@ _set_app_table (OlPlayerChooser *window,
     }
   }
   if (count == 0) return;
-  app_list = g_list_sort (app_list, (GCompareFunc)_app_info_cmp);
+  app_list = g_list_sort (app_list, (GCompareFunc)ol_app_info_cmp);
   guint n_rows, n_columns;
   gtk_table_get_size (table, &n_rows, &n_columns);
   n_rows = (count - 1) / n_columns + 1;

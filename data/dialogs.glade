@@ -67,9 +67,10 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       </row>
     </data>
   </object>
-  <object class="GtkListStore" id="liststore4">
+  <object class="GtkListStore" id="list-startup-player">
     <columns>
       <!-- column-name item -->
+      <column type="gchararray"/>
       <column type="gchararray"/>
     </columns>
   </object>
@@ -190,7 +191,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     <child>
                       <object class="GtkComboBox" id="startup-player-cb">
                         <property name="visible">True</property>
-                        <property name="model">liststore4</property>
+                        <property name="model">list-startup-player</property>
                         <signal name="changed" handler="ol_option_startup_player_changed"/>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext4"/>
