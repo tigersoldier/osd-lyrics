@@ -35,7 +35,6 @@
 /* libcurl */
 /* http://curl.haxx.se/libcurl/c */
 #include<curl/curl.h>
-#include<curl/types.h>
 #include<curl/easy.h>
 
 #include<limits.h>
