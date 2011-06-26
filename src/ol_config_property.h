@@ -56,6 +56,7 @@ enum {
   PROP_NOTIFY_MUSIC,
   PROP_DISPLAY_MODE,
   PROP_OSD_WINDOW_MODE,
+  PROP_OSD_BLUR_RADIUS,
   PROP_PROXY,
   PROP_PROXY_HOST,
   PROP_PROXY_PORT,
@@ -233,6 +234,9 @@ static const OlConfigDoubleValue config_double[] = {
   {PROP_SCROLL_OPACITY, "opacity", "ScrollMode", "Scroll Window Opacity",
    "The background opacity of the scroll window",
    0.0, 1.0, 0.9},
+  {PROP_OSD_BLUR_RADIUS, "blur-radius", "OSD", "OSD Blur Radius",
+   "Blur radius of shadow of texts in OSD window",
+   0.0, 5.0, 1.0},
 };
 
 static const OlConfigStringValue config_str[] = {

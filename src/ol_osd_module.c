@@ -313,6 +313,10 @@ config_change_handler (OlConfig *config,
       ol_osd_window_set_mode (window, OL_OSD_WINDOW_NORMAL);
     g_free (mode);
   }
+  else if (strcmp (name, "blur-radius") == 0)
+  {
+    ol_osd_window_set_blur_radius (window, ol_config_get_double (config, group, name));
+  }
 }
 
 static void
@@ -355,6 +359,7 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   config_change_handler (config, "OSD", "inactive-lrc-color", osd);
   config_change_handler (config, "OSD", "translucent-on-mouse-over", osd);
   config_change_handler (config, "OSD", "outline-width", osd);
+  config_change_handler (config, "OSD", "blur-radius", osd);
   g_signal_connect (osd->window, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);

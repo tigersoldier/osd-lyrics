@@ -18,7 +18,9 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <string.h>
+#include <math.h>
 #include "ol_osd_render.h"
+#include "ol_gussian_blur.h"
 #include "ol_debug.h"
 
 static const int DEFAULT_OUTLINE_WIDTH = 3;
@@ -44,6 +46,7 @@ ol_osd_render_context_new ()
   context->pango_context = gdk_pango_context_get ();
   context->pango_layout = pango_layout_new (context->pango_context);
   context->text = NULL;
+  context->blur_radius = 0.0;
   ol_osd_render_update_font (context);
   ol_osd_render_set_outline_width (context, DEFAULT_OUTLINE_WIDTH);
   return context;
@@ -76,8 +79,8 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   ol_assert (text != NULL);
   ol_osd_render_set_text (context, text);
   int width, height;
-  xpos += context->outline_width / 2.0;
-  ypos += context->outline_width / 2.0;
+  xpos += context->outline_width / 2.0 + context->blur_radius;
+  ypos += context->outline_width / 2.0 + context->blur_radius;
   pango_layout_get_pixel_size (context->pango_layout, &width, &height);
   /* draws the outline of the text */
   cairo_move_to (cr, xpos, ypos);
@@ -88,6 +91,11 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   {
     cairo_set_line_width (cr, context->outline_width);
     cairo_stroke (cr);
+    if (context->blur_radius > 1e-4)
+    {
+      cairo_fill (cr);
+      ol_gussian_blur (cairo_get_target (cr), context->blur_radius);
+    }
   }
   cairo_restore (cr);
   cairo_save (cr);
@@ -125,9 +133,9 @@ ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
   int w, h;
   pango_layout_get_pixel_size (context->pango_layout, &w, &h);
   if (width != NULL)
-    *width = w + context->outline_width;
+    *width = round (w + context->outline_width + context->blur_radius * 2);
   if (height != NULL)
-    *height = h + context->outline_width;
+    *height = round (h + context->outline_width + context->blur_radius * 2);
 }
 
 void
@@ -241,4 +249,21 @@ ol_osd_render_update_font (OlOsdRenderContext *context)
   g_free (font_string);
   pango_layout_set_font_description (context->pango_layout, font_desc);
   pango_font_description_free (font_desc);
+}
+
+void
+ol_osd_render_set_blur_radius (OlOsdRenderContext *context,
+                               double radius)
+{
+  ol_assert (context != NULL);
+  if (radius < 0.0)
+    radius = 0.0;
+  context->blur_radius = radius;
+}
+
+double
+ol_osd_render_get_blur_radius (OlOsdRenderContext *context)
+{
+  ol_assert_ret (context != NULL, 0.0);
+  return context->blur_radius;
 }

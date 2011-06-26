@@ -318,4 +318,22 @@ enum OlOsdWindowMode ol_osd_window_get_mode (OlOsdWindow *osd);
  */
 void ol_osd_window_move (OlOsdWindow *osd, int x, int y);
 void ol_osd_window_get_pos (OlOsdWindow *osd, int *x, int *y);
+
+/** 
+ * Sets the blur radius of the shadow of text.
+ *
+ * The outline will be blurred as shadow if radius is greater than 0.
+ * @param osd 
+ * @param radius The blur radius.
+ */
+void ol_osd_window_set_blur_radius (OlOsdWindow *osd, double radius);
+
+/** 
+ * Gets the blur radius of the shadow of text.
+ * 
+ * @param osd 
+ * 
+ * @return 
+ */
+double ol_osd_window_get_blur_radius (OlOsdWindow *osd);
 #endif // __OSD_WINDOW_H__

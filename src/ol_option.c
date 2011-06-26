@@ -123,6 +123,7 @@ static struct WidgetConfigOptions spin_int_options[] = {
 
 static struct WidgetConfigOptions scale_double_options[] = {
   {.widget_name = "scroll-opacity", .config_group = "ScrollMode", .config_name = "opacity"},
+  {.widget_name = "osd-blur-radius", .config_group = "OSD", .config_name = "blur-radius"},
 };
 
 static struct WidgetConfigOptions color_str_options[] = {

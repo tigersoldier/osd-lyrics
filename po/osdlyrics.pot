@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-25 18:52+0800\n"
+"POT-Creation-Date: 2011-06-26 15:06+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,7 +78,7 @@ msgstr ""
 msgid "OSD Lyrics"
 msgstr ""
 
-#: ../src/ol_option.c:1768
+#: ../src/ol_option.c:1769
 msgid "Choose on startup"
 msgstr ""
 
@@ -87,11 +87,11 @@ msgstr ""
 #. 0, "Customize",
 #. 1, "",
 #. -1);
-#: ../src/ol_option.c:1788 ../data/dialogs.glade.h:44
+#: ../src/ol_option.c:1789 ../data/dialogs.glade.h:44
 msgid "Customize"
 msgstr ""
 
-#: ../src/ol_option.c:1851
+#: ../src/ol_option.c:1852
 msgid "Select a folder"
 msgstr ""
 
@@ -444,142 +444,154 @@ msgid "Si_ngle line"
 msgstr ""
 
 #: ../data/dialogs.glade.h:85
-msgid "T_ranslucent on mouse over"
+msgid "Strong"
 msgstr ""
 
 #: ../data/dialogs.glade.h:86
-msgid "The artist of the current track"
+msgid "T_ranslucent on mouse over"
 msgstr ""
 
 #: ../data/dialogs.glade.h:87
-msgid "The filename of the current track"
+msgid "The artist of the current track"
 msgstr ""
 
 #: ../data/dialogs.glade.h:88
-msgid "The number of the current track"
+msgid "The filename of the current track"
 msgstr ""
 
 #: ../data/dialogs.glade.h:89
-msgid "The title of album of the current track"
+msgid "The number of the current track"
 msgstr ""
 
 #: ../data/dialogs.glade.h:90
-msgid "The title of the current track"
+msgid "The title of album of the current track"
 msgstr ""
 
 #: ../data/dialogs.glade.h:91
-msgid "Transparent"
+msgid "The title of the current track"
 msgstr ""
 
 #: ../data/dialogs.glade.h:92
-msgid "Use _manual settings"
+msgid "Transparent"
 msgstr ""
 
 #: ../data/dialogs.glade.h:93
-msgid "_Artist:"
+msgid "Use _manual settings"
 msgstr ""
 
 #: ../data/dialogs.glade.h:94
-msgid "_Assign lyric..."
+msgid "Weak"
 msgstr ""
 
 #: ../data/dialogs.glade.h:95
-msgid "_Double lines"
+msgid "_Artist:"
 msgstr ""
 
 #: ../data/dialogs.glade.h:96
-msgid "_Download"
+msgid "_Assign lyric..."
 msgstr ""
 
 #: ../data/dialogs.glade.h:97
+msgid "_Blur:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:98
+msgid "_Double lines"
+msgstr ""
+
+#: ../data/dialogs.glade.h:99
+msgid "_Download"
+msgstr ""
+
+#: ../data/dialogs.glade.h:100
 msgid "_Font:"
 msgstr ""
 
 #. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:99
+#: ../data/dialogs.glade.h:102
 msgid "_From:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:100
+#: ../data/dialogs.glade.h:103
 msgid "_General"
 msgstr ""
 
-#: ../data/dialogs.glade.h:101
+#: ../data/dialogs.glade.h:104
 msgid "_Hide"
 msgstr ""
 
-#: ../data/dialogs.glade.h:102
+#: ../data/dialogs.glade.h:105
 msgid "_Host:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:103
+#: ../data/dialogs.glade.h:106
 msgid "_Inactive color:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:104
+#: ../data/dialogs.glade.h:107
 msgid "_Lock Position"
 msgstr ""
 
-#: ../data/dialogs.glade.h:105
+#: ../data/dialogs.glade.h:108
 msgid "_Lyric Location"
 msgstr ""
 
-#: ../data/dialogs.glade.h:106
+#: ../data/dialogs.glade.h:109
 msgid "_Network"
 msgstr ""
 
-#: ../data/dialogs.glade.h:107
+#: ../data/dialogs.glade.h:110
 msgid "_No lyric"
 msgstr ""
 
-#: ../data/dialogs.glade.h:108
+#: ../data/dialogs.glade.h:111
 msgid "_OSD"
 msgstr ""
 
-#: ../data/dialogs.glade.h:109
+#: ../data/dialogs.glade.h:112
 msgid "_Scrolling"
 msgstr ""
 
-#: ../data/dialogs.glade.h:110
+#: ../data/dialogs.glade.h:113
 msgid "_Search"
 msgstr ""
 
-#: ../data/dialogs.glade.h:111
+#: ../data/dialogs.glade.h:114
 msgid "_Search lyric..."
 msgstr ""
 
-#: ../data/dialogs.glade.h:112
+#: ../data/dialogs.glade.h:115
 msgid "_Second line:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:113
+#: ../data/dialogs.glade.h:116
 msgid "_Title:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:114
+#: ../data/dialogs.glade.h:117
 msgid "_Type:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:115
+#: ../data/dialogs.glade.h:118
 msgid "_Username:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:116
+#: ../data/dialogs.glade.h:119
 msgid "bottom"
 msgstr ""
 
-#: ../data/dialogs.glade.h:117
+#: ../data/dialogs.glade.h:120
 msgid "http://code.google.com/p/osd-lyrics/"
 msgstr ""
 
-#: ../data/dialogs.glade.h:118
+#: ../data/dialogs.glade.h:121
 msgid "middle"
 msgstr ""
 
-#: ../data/dialogs.glade.h:119
+#: ../data/dialogs.glade.h:122
 msgid "top"
 msgstr ""
 
-#: ../data/dialogs.glade.h:120
+#: ../data/dialogs.glade.h:123
 msgid "translator-credits"
 msgstr ""

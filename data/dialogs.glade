@@ -2,6 +2,11 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkAdjustment" id="adj-osd-blur-radius">
+    <property name="upper">5.0</property>
+    <property name="step_increment">0.1</property>
+    <property name="page_increment">1.0</property>
+  </object>
   <object class="GtkAdjustment" id="adj-lrc-align-0">
     <property name="upper">1</property>
     <property name="step_increment">0.01</property>
@@ -380,6 +385,64 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkHBox" id="hbox-osd-blur-radius">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label-osd-blur-radius">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">_Blur:</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">osd-blur-radius</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label-osd-blur-radius-weak">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Weak</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHScale" id="osd-blur-radius">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="adjustment">adj-osd-blur-radius</property>
+                        <property name="draw_value">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label-osd-blur-radius-strong">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Strong</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkHBox" id="hbox10">
                     <property name="visible">True</property>
                     <child>
@@ -478,7 +541,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -511,7 +574,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -602,7 +665,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -908,7 +971,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                   </packing>
                 </child>
               </object>
@@ -2527,6 +2590,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
       <widget name="lrc-align-1-label"/>
       <widget name="lrc-align-0-label"/>
       <widget name="label-osd-window-mode"/>
+      <widget name="label-osd-blur-radius"/>
       <widget name="label-osd-lyric-lines"/>
       <widget name="label17"/>
       <widget name="label4"/>

@@ -47,7 +47,7 @@ static const int MOUSE_TIMER_INTERVAL = 100;
 
 static const int DEFAULT_LINE_HEIGHT = 45;
 static const int DEFAULT_HEIGHT = 100;
-static const double LINE_PADDING = 0.1;
+static const double LINE_PADDING = 0.0;
 static const int BORDER_WIDTH = 5;
 static const int DEFAULT_WIDTH = 1024;
 static const int MAX_LYRIC_LEN = 256;
@@ -86,6 +86,7 @@ struct __OlOsdWindowPrivate
   cairo_surface_t *active_lyric_surfaces[OL_OSD_WINDOW_MAX_LINE_COUNT];
   cairo_surface_t *inactive_lyric_surfaces[OL_OSD_WINDOW_MAX_LINE_COUNT];
   GdkPixmap *shape_pixmap;
+  double blur_radius;
   enum OlOsdWindowMode mode;
   enum DragState drag_state;
 };
@@ -167,6 +168,8 @@ static void ol_osd_window_screen_composited_changed (GdkScreen *screen,
 static gboolean ol_osd_window_mouse_timer (gpointer data);
 static void ol_osd_window_update_child_allocation (OlOsdWindow *osd);
 static void ol_osd_window_check_mouse_leave (OlOsdWindow *osd);
+static gboolean ol_osd_window_should_blur (OlOsdWindow *osd);
+static void ol_osd_window_update_render_blur_radius (OlOsdWindow *osd);
 /* static void ol_osd_window_update_child_visibility (OlOsdWindow *osd); */
 
 static void _paint_rect (cairo_t *cr, GdkPixbuf *source,
@@ -316,6 +319,13 @@ ol_osd_window_screen_composited_changed (GdkScreen *screen, gpointer userdata)
   GtkWidget *widget = GTK_WIDGET (userdata);
   OlOsdWindow *osd = OL_OSD_WINDOW (userdata);
   priv->composited = gdk_screen_is_composited (screen);
+  if (priv->blur_radius > 0)
+  {
+    ol_osd_window_update_render_blur_radius (osd);
+    int i;
+    for (i = 0; i < osd->line_count; i++)
+      ol_osd_window_update_lyric_surface (osd, i);
+  }
   ol_osd_window_queue_reshape (osd);
   gtk_widget_queue_draw (widget);
 }
@@ -902,8 +912,14 @@ ol_osd_window_compute_osd_height (OlOsdWindow *osd)
 {
   ol_assert_ret (OL_IS_OSD_WINDOW (osd) && osd->render_context != NULL,
                  DEFAULT_HEIGHT);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   int font_height = ol_osd_render_get_font_height (osd->render_context);
-  int height = font_height * (osd->line_count + (osd->line_count - 1) * LINE_PADDING);
+  
+  int height = font_height *
+    (osd->line_count + (osd->line_count - 1) * LINE_PADDING) +
+    ol_osd_render_get_outline_width (osd->render_context);
+  if (ol_osd_window_should_blur (osd))
+    height += priv->blur_radius * 2.0;
   return height;
 }
 
@@ -1644,6 +1660,7 @@ ol_osd_window_init (OlOsdWindow *osd)
   priv->raw_y = 0;
   priv->drag_state = DRAG_NONE;
   priv->update_shape = FALSE;
+  priv->blur_radius = 0.0;
   /* ol_osd_window_set_mode (osd, OL_OSD_WINDOW_DOCK); */
   ol_osd_window_set_mode (osd, OL_OSD_WINDOW_NORMAL);
   ol_osd_window_update_colormap (osd);
@@ -1911,6 +1928,7 @@ ol_osd_window_set_mode (OlOsdWindow *osd, enum OlOsdWindowMode mode)
     mode = priv->mode;
   }
   priv->mode = mode;
+  ol_osd_window_update_render_blur_radius (osd);
   if (realized)
     gtk_widget_realize (widget);
   if (mapped) {
@@ -1927,4 +1945,48 @@ ol_osd_window_get_mode (OlOsdWindow *osd)
   ol_assert_ret (OL_IS_OSD_WINDOW (osd), OL_OSD_WINDOW_NORMAL);
   OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
   return priv->mode;
+}
+
+static gboolean
+ol_osd_window_should_blur (OlOsdWindow *osd)
+{
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), FALSE);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  return priv->composited || priv->mode == OL_OSD_WINDOW_NORMAL;
+}
+
+/** 
+ * Sets the blur radius of renderer if possible.
+ */
+static void
+ol_osd_window_update_render_blur_radius (OlOsdWindow *osd)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  if (ol_osd_window_should_blur (osd))
+    ol_osd_render_set_blur_radius (osd->render_context, priv->blur_radius);
+  else
+    ol_osd_render_set_blur_radius (osd->render_context, 0.0);
+}
+
+void
+ol_osd_window_set_blur_radius (OlOsdWindow *osd, double radius)
+{
+  ol_assert (OL_IS_OSD_WINDOW (osd));
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  int i;
+  priv->blur_radius = radius;
+  ol_osd_window_update_render_blur_radius (osd);
+  for (i = 0; i < osd->line_count; i++)
+    ol_osd_window_update_lyric_surface (osd, i);
+  ol_osd_window_queue_resize (osd);
+  gtk_widget_queue_draw (GTK_WIDGET (osd));
+}
+
+double
+ol_osd_window_get_blur_radius (OlOsdWindow *osd)
+{
+  ol_assert_ret (OL_IS_OSD_WINDOW (osd), 0.0);
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  return priv->blur_radius;
 }

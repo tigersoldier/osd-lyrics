@@ -37,6 +37,7 @@ typedef struct
   PangoContext *pango_context;
   PangoLayout *pango_layout;
   char *text;
+  double blur_radius;
 } OlOsdRenderContext;
 
 /** 
@@ -161,4 +162,17 @@ void ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
  */
 void ol_osd_render_set_text (OlOsdRenderContext* context,
                              const char *text);
+
+/** 
+ * Sets the blur radius of shadow.
+ *
+ * If the radius is greater than 0, the outline of text will be blurred as shadow.
+ * 
+ * @param context 
+ * @param radius The blur radius in pixel, non-positive value to disable blurring.
+ */
+void ol_osd_render_set_blur_radius (OlOsdRenderContext *context,
+                                    double radius);
+
+double ol_osd_render_get_blur_radius (OlOsdRenderContext *context);
 #endif /* __OL_OSD_RENDER_H__ */
