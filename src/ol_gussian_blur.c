@@ -36,7 +36,7 @@ static double *_calc_kernel (double sigma, int *size);
 static void _apply_kernel (cairo_surface_t *surface,
                            const double *kernel,
                            int kernel_size);
-static inline int _pos_to_index (int x, int y, int width);
+static inline int _pos_to_index (int x, int y, int width, int height);
 static inline struct _pixel _num_to_pixel_with_factor (guint32 value,
                                                        double factor);
 static inline guint32 _pixel_to_num_with_factor (struct _pixel *pixel,
@@ -45,8 +45,10 @@ static inline void _pixel_plus (struct _pixel *adder_sum,
                                 const struct _pixel *adder2);
 
 static inline int
-_pos_to_index (int x, int y, int width)
+_pos_to_index (int x, int y, int width, int height)
 {
+  if (x >= width || y >= height || x < 0 || y < 0)
+    return -1;
   return y * width + x;
 }
 
@@ -135,7 +137,7 @@ static void _apply_kernel (cairo_surface_t *surface,
         {
           int x1 = x + (i - kernel_orig) * DIR[d][0];
           int y1 = y + (i - kernel_orig) * DIR[d][1];
-          int index1 = _pos_to_index (x1, y1, width);
+          int index1 = _pos_to_index (x1, y1, width, height);
           if (index > 0)
           {
             factor += kernel[i];
@@ -144,7 +146,7 @@ static void _apply_kernel (cairo_surface_t *surface,
             _pixel_plus (&final_value, &value);
           }
         }
-        int index = _pos_to_index (x, y, width);
+        int index = _pos_to_index (x, y, width, height);
         pixels[index] = _pixel_to_num_with_factor (&final_value, 1 / factor);
       }
     g_free (old_pixels);
