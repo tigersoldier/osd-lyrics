@@ -47,9 +47,9 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([ftruncate gettimeofday memset pathconf strchr strdup strerror strrchr strstr])
 
 #define paths
-OL_ICONDIR="$datadir/$PACKAGE/icons"
+OL_ICONDIR='${datadir}/${PACKAGE}/icons'
 AC_SUBST(OL_ICONDIR)
-OL_GUIDIR="$datadir/$PACKAGE"
+OL_GUIDIR='${datadir}/${PACKAGE}'
 AC_SUBST(OL_GUIDIR)
 
 # gprof support
