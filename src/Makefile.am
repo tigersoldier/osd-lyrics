@@ -1,4 +1,4 @@
-bin_PROGRAMS = osd-lyrics
+bin_PROGRAMS = osdlyrics
 
 #ol_player_test
 #TEST = $(check_PROGRAMS)
@@ -110,7 +110,7 @@ noinst_HEADERS = \
 	ol_utils_network.h \
 	ol_utils.h
 
-osd_lyrics_SOURCES = \
+osdlyrics_SOURCES = \
 	ol_debug.c \
 	ol_main.c \
 	ol_singleton.c \

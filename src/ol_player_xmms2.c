@@ -234,7 +234,7 @@ ol_player_xmms2_init ()
   ol_debug ("init XMMS2");
   if (connection == NULL)
   {
-    connection = xmmsc_init ("osd-lyrics");
+    connection = xmmsc_init ("osdlyrics");
     if (!connection)
     {
       ol_error ("Initialize XMMS2 connection failed.");
