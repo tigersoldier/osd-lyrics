@@ -60,7 +60,7 @@ ol_about_show ()
     gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (window), PROGRAM_NAME);
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (window), VERSION);
     g_signal_connect (window, "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
-    GdkPixbuf *logo = gdk_pixbuf_new_from_file (ICONDIR "/osd-lyrics.png", NULL);
+    GdkPixbuf *logo = gdk_pixbuf_new_from_file (ICONDIR "/osdlyrics.png", NULL);
     if (logo)
     {
       gtk_about_dialog_set_logo (GTK_ABOUT_DIALOG (window),

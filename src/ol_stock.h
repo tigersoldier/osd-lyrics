@@ -20,15 +20,15 @@
 #ifndef _OL_STOCK_H_
 #define _OL_STOCK_H_
 
-#define OL_STOCK_TRAYICON  "osd-lyrics-trayicon"
-#define OL_STOCK_LOADING  "osd-lyrics-loading"
-#define OL_STOCK_OSD_BG "osd-lyrics-osd-bg"
-#define OL_STOCK_OSD_PLAY "osd-lyrics-osd-play"
-#define OL_STOCK_OSD_PAUSE "osd-lyrics-osd-pause"
-#define OL_STOCK_OSD_STOP "osd-lyrics-osd-stop"
-#define OL_STOCK_OSD_PREV "osd-lyrics-osd-prev"
-#define OL_STOCK_OSD_NEXT "osd-lyrics-osd-next"
-#define OL_STOCK_SCROLL_CLOSE "osd-lyrics-scroll-close"
+#define OL_STOCK_TRAYICON  "osdlyrics-trayicon"
+#define OL_STOCK_LOADING  "osdlyrics-loading"
+#define OL_STOCK_OSD_BG "osdlyrics-osd-bg"
+#define OL_STOCK_OSD_PLAY "osdlyrics-osd-play"
+#define OL_STOCK_OSD_PAUSE "osdlyrics-osd-pause"
+#define OL_STOCK_OSD_STOP "osdlyrics-osd-stop"
+#define OL_STOCK_OSD_PREV "osdlyrics-osd-prev"
+#define OL_STOCK_OSD_NEXT "osdlyrics-osd-next"
+#define OL_STOCK_SCROLL_CLOSE "osdlyrics-scroll-close"
 void ol_stock_init ();
 
 #endif /* _OL_STOCK_H_ */

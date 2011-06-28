@@ -1,15 +1,15 @@
 [Desktop Entry]
-Exec=osd-lyrics
+Exec=osdlyrics
 Version=1.0
 Name=OSD Lyrics
 GenericName=Lyrics Show
 GenericName[zh_CN]=歌词秀
 Comment=Download and show lyrics for your favorite media player
 Comment[zh_CN]=让你的音乐播放器支持下载和显示歌词
-Icon=osd-lyrics
+Icon=osdlyrics
 StartupNotify=true
 Terminal=false
 Type=Application
 Categories=GTK;AudioVideo;Audio;Player;X-Ximian-Main;X-Novell-Main;X-Red-Hat-Base;
 MimeType=
-X-Ubuntu-Gettext-Domain=osd-lyrics
+X-Ubuntu-Gettext-Domain=osdlyrics
