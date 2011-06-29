@@ -224,17 +224,12 @@ config_change_handler (OlConfig *config,
                         ol_config_get_int (config, group, "x"),
                         ol_config_get_int (config, group, "y"));
   }
-  else if (strcmp (name, "font-family") == 0)
+  else if (strcmp (name, "font-name") == 0)
   {
     gchar *font = ol_config_get_string (config, group, name);
     ol_assert (font != NULL);
-    ol_osd_window_set_font_family (window, font);
+    ol_osd_window_set_font_name (window, font);
     g_free (font);
-  }
-  else if (strcmp (name, "font-size") == 0)
-  {
-    ol_osd_window_set_font_size (window,
-                                 ol_config_get_double (config, group, name));
   }
   else if (strcmp (name, "width") == 0)
   {
@@ -350,8 +345,7 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   config_change_handler (config, "OSD", "visible", osd);
   config_change_handler (config, "OSD", "locked", osd);
   config_change_handler (config, "OSD", "line-count", osd);
-  config_change_handler (config, "OSD", "font-family", osd);
-  config_change_handler (config, "OSD", "font-size", osd);
+  config_change_handler (config, "OSD", "font-name", osd);
   config_change_handler (config, "OSD", "x", osd);
   config_change_handler (config, "OSD", "lrc-align-0", osd);
   config_change_handler (config, "OSD", "lrc-align-1", osd);

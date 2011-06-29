@@ -24,8 +24,7 @@
 #include "ol_debug.h"
 
 static const int DEFAULT_OUTLINE_WIDTH = 3;
-static const char *DEFAULT_FONT_FAMILY = "serif";
-static const double DEFAULT_FONT_SIZE = 30.0;
+static const char *DEFAULT_FONT_NAME = "serif 30";
 
 void ol_osd_render_update_font (OlOsdRenderContext *context);
 
@@ -33,8 +32,7 @@ OlOsdRenderContext *
 ol_osd_render_context_new ()
 {
   OlOsdRenderContext *context = g_new (OlOsdRenderContext, 1);
-  context->font_family = g_strdup (DEFAULT_FONT_FAMILY);
-  context->font_size = DEFAULT_FONT_SIZE;
+  context->font_name = g_strdup (DEFAULT_FONT_NAME);
   int i;
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
@@ -56,8 +54,8 @@ void
 ol_osd_render_context_destroy (OlOsdRenderContext *context)
 {
   ol_assert (context != NULL);
-  if (context->font_family != NULL)
-    g_free (context->font_family);
+  if (context->font_name != NULL)
+    g_free (context->font_name);
   if (context->pango_layout != NULL)
     g_object_unref (context->pango_layout);
   if (context->pango_context != NULL)
@@ -165,34 +163,25 @@ ol_osd_render_set_text (OlOsdRenderContext* context,
 }
 
 void
-ol_osd_render_set_font_family (OlOsdRenderContext *context,
-                               const char *font_family)
+ol_osd_render_set_font_name (OlOsdRenderContext *context,
+                             const char *font_name)
 {
   ol_assert (context != NULL);
-  ol_assert (font_family != NULL);
-  char *new_family = g_strdup (font_family);
-  if (context->font_family != NULL)
+  ol_assert (font_name != NULL);
+  char *new_name = g_strdup (font_name);
+  if (context->font_name != NULL)
   {
-    g_free (context->font_family);
+    g_free (context->font_name);
   }
-  context->font_family = new_family;
+  context->font_name = new_name;
   ol_osd_render_update_font (context);
 }
 
 char *
-ol_osd_render_get_font_family (OlOsdRenderContext *context)
+ol_osd_render_get_font_name (OlOsdRenderContext *context)
 {
   ol_assert_ret (context != NULL, NULL);
-  return g_strdup (context->font_family);
-}
-
-void
-ol_osd_render_set_font_size (OlOsdRenderContext *context,
-                             double font_size)
-{
-  ol_assert (context != NULL);
-  context->font_size = font_size;
-  ol_osd_render_update_font (context);
+  return g_strdup (context->font_name);
 }
 
 int
@@ -204,7 +193,8 @@ ol_osd_render_get_font_height (OlOsdRenderContext *context)
                                                          NULL); /* languague */
   if (metrics == NULL)
   {
-    return ol_osd_render_get_font_size (context);
+    ol_errorf ("Cannot get font metrics\n");
+    return 0;
   }
   int height = 0;
   int ascent, descent;
@@ -214,13 +204,6 @@ ol_osd_render_get_font_height (OlOsdRenderContext *context)
     
   height += PANGO_PIXELS (ascent + descent) + context->outline_width;
   return height;
-}
-
-double
-ol_osd_render_get_font_size (OlOsdRenderContext *context)
-{
-  ol_assert_ret (context != NULL, 0.0);
-  return context->font_size;
 }
 
 void
@@ -243,10 +226,7 @@ void
 ol_osd_render_update_font (OlOsdRenderContext *context)
 {
   ol_assert (context != NULL);
-  gchar *font_string = g_strdup_printf ("%s %0.0lf", context->font_family, context->font_size);
-  PangoFontDescription *font_desc = pango_font_description_from_string (font_string);
-  ol_debugf ("%s\n", font_string);
-  g_free (font_string);
+  PangoFontDescription *font_desc = pango_font_description_from_string (context->font_name);
   pango_layout_set_font_description (context->pango_layout, font_desc);
   pango_font_description_free (font_desc);
 }

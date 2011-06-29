@@ -34,12 +34,11 @@
 enum {
   PROP_0,
 
-  PROP_OSD_FONT_SIZE,
   PROP_OSD_OUTLINE_WIDTH,
   PROP_OSD_WIDTH,
   PROP_OSD_LOCKED,
   PROP_OSD_VISIBLE,
-  PROP_OSD_FONT_FAMILY,
+  PROP_OSD_FONT_NAME,
   PROP_OSD_LRC_ALIGN_0,
   PROP_OSD_LRC_ALIGN_1,
   PROP_OSD_ACTIVE_LRC_COLOR,
@@ -222,9 +221,6 @@ static const OlConfigIntValue config_int[] = {
 };
 
 static const OlConfigDoubleValue config_double[] = {
-  {PROP_OSD_FONT_SIZE, "font-size", "OSD", "OSD Font Size",
-   "The font size of OSD lyrics",
-   0.0, 10000.0, 30.0},
   {PROP_OSD_LRC_ALIGN_0, "lrc-align-0", "OSD", "Lyric alignment 0",
    "Alignment of the first lyric line",
    0.0, 1.0, 0.0},
@@ -240,9 +236,9 @@ static const OlConfigDoubleValue config_double[] = {
 };
 
 static const OlConfigStringValue config_str[] = {
-  {PROP_OSD_FONT_FAMILY, "font-family", "OSD", "OSD Font family",
-   "Font family of OSD lyrics",
-   "serif"},
+  {PROP_OSD_FONT_NAME, "font-name", "OSD", "OSD Font Name",
+   "Lyrics font in OSD window, like ``serif 30",
+   "serif 30"},
   {PROP_PROXY, "proxy", "Download",
    "Proxy", "The proxy to download lyrics. Available settings are no, system, or manual", "no"},
   {PROP_PROXY_TYPE, "proxy-type", "Download",

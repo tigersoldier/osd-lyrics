@@ -1749,13 +1749,13 @@ ol_osd_window_destroy (GtkObject *object)
 }
 
 void
-ol_osd_window_set_font_family (OlOsdWindow *osd,
-                               const char *font_family)
+ol_osd_window_set_font_name (OlOsdWindow *osd,
+                             const char *font_name)
 {
-  if (osd == NULL || osd->render_context == NULL || font_family == NULL)
+  if (osd == NULL || osd->render_context == NULL || font_name == NULL)
     return;
-  ol_osd_render_set_font_family (osd->render_context,
-                                 font_family);
+  ol_osd_render_set_font_name (osd->render_context,
+                               font_name);
   int i;
   for (i = 0; i < osd->line_count; i++)
     ol_osd_window_update_lyric_surface (osd, i);
@@ -1765,34 +1765,11 @@ ol_osd_window_set_font_family (OlOsdWindow *osd,
 }
 
 char*
-ol_osd_window_get_font_family (OlOsdWindow *osd)
+ol_osd_window_get_font_name (OlOsdWindow *osd)
 {
   if (osd == NULL || osd->render_context == NULL)
     return NULL;
-  return ol_osd_render_get_font_family (osd->render_context);
-}
-
-void
-ol_osd_window_set_font_size (OlOsdWindow *osd,
-                             const double font_size)
-{
-  if (osd == NULL || osd->render_context == NULL)
-    return;
-  ol_osd_render_set_font_size (osd->render_context, font_size);
-  int i;
-  for (i = 0; i < osd->line_count; i++)
-    ol_osd_window_update_lyric_surface (osd, i);
-  ol_osd_window_queue_resize (osd);
-  ol_osd_window_queue_reshape (osd);
-  gtk_widget_queue_draw (GTK_WIDGET (osd));
-}
-
-double
-ol_osd_window_get_font_size (OlOsdWindow *osd)
-{
-  ol_assert_ret (osd != NULL, 0.0);
-  ol_assert_ret (osd->render_context != NULL, 0.0);
-  return ol_osd_render_get_font_size (osd->render_context);
+  return ol_osd_render_get_font_name (osd->render_context);
 }
 
 void

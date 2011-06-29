@@ -134,6 +134,7 @@ static struct WidgetConfigOptions color_str_options[] = {
 
 static struct WidgetConfigOptions font_str_options[] = {
   {.widget_name = "scroll-font", .config_group = "ScrollMode", .config_name = "font-name"},
+  {.widget_name = "osd-font", .config_group = "OSD", .config_name = "font-name"},
 };
 
 static const char *proxy_types[] = {"http", "socks4", "socks5", NULL};
@@ -207,7 +208,6 @@ void ol_option_startup_player_changed (GtkComboBox *cb,
 gboolean ol_option_save_startup_player ();
 static void init_startup_player (GtkWidget *widget);
 /* OSD options */
-void ol_option_font_changed (GtkWidget *widget);
 void ol_option_update_preview (GtkWidget *widget);
 void ol_option_preview_expose (GtkWidget *widget,
                                GdkEventExpose *event,
@@ -266,17 +266,6 @@ static void list_remove_clicked (GtkCellRenderer *cell,
                                  gchar *path,
                                  GtkTreeView *view);
 
-/** 
- * @brief Get font family and font size from a GtkFontButton
- * 
- * @param font A GtkFontButton
- * @param font_family Ppointer to a string, should point to NULL and
- *                    freed by g_free
- * @param font_size Size of the font
- */
-static void ol_option_get_font_info (GtkFontButton *font,
-                                     gchar **font_family,
-                                     double *font_size);
 static void load_osd ();
 static void load_download ();
 static void load_general ();
@@ -383,27 +372,6 @@ ol_option_save_startup_player ()
 }
 
 /* OSD options */
-void
-ol_option_font_changed (GtkWidget *widget)
-{
-  GtkFontButton *font = GTK_FONT_BUTTON (widget);
-  if (font != NULL)
-  {
-    OlConfig *config = ol_config_get_instance ();
-    gchar *font_family = NULL;
-    double font_size;
-    ol_option_get_font_info (font, &font_family, &font_size);
-    ol_config_set_string (config,
-                          "OSD",
-                          "font-family",
-                          font_family);
-    ol_config_set_double (config,
-                          "OSD",
-                          "font-size",
-                          font_size);
-    g_free (font_family);
-  }
-}
 
 void
 ol_option_update_preview (GtkWidget *widget)
@@ -417,13 +385,10 @@ ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   ol_assert (options.font != NULL);
   static const char *preview_text = "OSD Lyrics";
   cairo_t *cr = gdk_cairo_create (widget->window);
-  gchar *font_family = NULL;
-  double font_size;
-  ol_option_get_font_info (GTK_FONT_BUTTON (options.font), &font_family, &font_size);
+  const gchar *font_name = gtk_font_button_get_font_name (GTK_FONT_BUTTON (options.font));
   static OlOsdRenderContext *render = NULL;
   render = ol_osd_render_context_new ();
-  ol_osd_render_set_font_family (render, font_family);
-  ol_osd_render_set_font_size (render, font_size);
+  ol_osd_render_set_font_name (render, font_name);
   if (options.outline_width != NULL)
   {
     int outline = gtk_spin_button_get_value (GTK_SPIN_BUTTON (options.outline_width));
@@ -473,7 +438,6 @@ ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   cairo_restore (cr);
   ol_osd_render_context_destroy (render);
   cairo_destroy (cr);
-  g_free (font_family);
 }
 
 void
@@ -626,26 +590,6 @@ void
 ol_option_about_clicked (GtkWidget *widget, gpointer data)
 {
   ol_about_show ();
-}
-
-static void
-ol_option_get_font_info (GtkFontButton *font,
-                         gchar **font_family,
-                         double *font_size)
-{
-  const gchar *font_name = gtk_font_button_get_font_name (font);
-  PangoFontDescription *font_desc = pango_font_description_from_string (font_name);
-  if (font_size != NULL)
-  {
-    *font_size = pango_font_description_get_size (font_desc);
-    if (!pango_font_description_get_size_is_absolute (font_desc))
-    {
-      *font_size /= PANGO_SCALE;
-    }
-  }
-  if (font_family)
-    *font_family = g_strdup (pango_font_description_get_family (font_desc));
-  pango_font_description_free (font_desc);
 }
 
 static OlColor
@@ -841,16 +785,6 @@ load_osd ()
   int i;
   OlConfig *config = ol_config_get_instance ();
   ol_assert (config != NULL);
-  /* Updates font */
-  GtkFontButton *font = GTK_FONT_BUTTON (options.font);
-  if (font != NULL)
-  {
-    gchar *font_family = ol_config_get_string (config,"OSD", "font-family");
-    gchar *font_name = g_strdup_printf ("%s %0.0lf", font_family, ol_config_get_double (config, "OSD", "font-size"));
-    gtk_font_button_set_font_name (font, font_name);
-    g_free (font_name);
-    g_free (font_family);
-  }
   /* Lrc align */
   for (i = 0; i < 2; i++)
   {
