@@ -70,7 +70,7 @@ struct KnownPlayers
   gboolean time_in_ms;
 };
 
-struct KnownPlayers KNOWN_PLAYERS[] = {
+static struct KnownPlayers KNOWN_PLAYERS[] = {
   {"Amarok 2", "amarok", "org.kde.amarok", "amarok", FALSE}, /* Supported in 2.4 */
   {"Audacious 2", "audacious2", "org.mpris.audacious", "audacious2", TRUE},
   {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE},
@@ -126,7 +126,8 @@ static void _get_metadata_cb(DBusGProxy *proxy,
 static void _get_status_cb(DBusGProxy *proxy,
                            DBusGProxyCall *call_id,
                            struct OlPlayerMpris *mpris);
-const char *_get_icon_path (void);
+static const char *_get_icon_path (void);
+static GList *_get_app_info_list (void);
 static void _free (void);
 
 static void
@@ -521,7 +522,8 @@ _seek (int pos_ms)
                             G_TYPE_INVALID);
 }
 
-const char *_get_icon_path (void)
+static const char *
+_get_icon_path (void)
 {
   ol_assert_ret (mpris != NULL, NULL);
   return mpris->icon_name;

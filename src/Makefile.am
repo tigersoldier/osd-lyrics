@@ -88,7 +88,6 @@ noinst_HEADERS = \
 	ol_player_mpris.h \
 	ol_player_muine.h \
 	ol_player_quodlibet.h \
-	ol_player_rhythmbox.h \
 	ol_player_xmms2.h \
 	ol_player_mpris2.h \
 	ol_player_utils.h \
@@ -130,7 +129,6 @@ osdlyrics_SOURCES = \
 	ol_player_mpris.c \
 	ol_player_quodlibet.c \
 	ol_player_xmms2.c \
-	ol_player_rhythmbox.c \
 	ol_player_juk.c \
 	ol_player_moc.c \
 	ol_player_mpd.c \
