@@ -14,7 +14,8 @@ check_PROGRAMS = \
 	ol_music_info_test \
 	ol_lrclib_test \
 	ol_utils_dbus_test \
-	ol_utils_test
+	ol_utils_test \
+	ol_gussian_blur_test
 
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
@@ -185,4 +186,9 @@ ol_utils_dbus_test_SOURCES = \
 ol_utils_test_SOURCES = \
 	ol_utils_test.c \
 	$(top_srcdir)/src/ol_utils.c \
+	$(top_srcdir)/src/ol_debug.c
+
+ol_gussian_blur_test_SOURCES = \
+	ol_gussian_blur_test.c \
+	$(top_srcdir)/src/ol_gussian_blur.c \
 	$(top_srcdir)/src/ol_debug.c
