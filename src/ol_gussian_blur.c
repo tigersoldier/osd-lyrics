@@ -26,21 +26,21 @@
 
 struct _pixel
 {
-  double alpha;
-  double red;
-  double green;
-  double blue;
+  guint64 alpha;
+  guint64 red;
+  guint64 green;
+  guint64 blue;
 };
 
-static double *_calc_kernel (double sigma, int *size);
+static int *_calc_kernel (double sigma, int *size);
 static void _apply_kernel (cairo_surface_t *surface,
-                           const double *kernel,
+                           const int *kernel,
                            int kernel_size);
 static inline int _pos_to_index (int x, int y, int width, int height);
 static inline struct _pixel _num_to_pixel_with_factor (guint32 value,
-                                                       double factor);
-static inline guint32 _pixel_to_num_with_factor (struct _pixel *pixel,
-                                                 double factor);
+                                                       int factor);
+static inline guint32 _pixel_to_num_with_divisor (struct _pixel *pixel,
+                                                  int divisor);
 static inline void _pixel_plus (struct _pixel *adder_sum,
                                 const struct _pixel *adder2);
 
@@ -54,7 +54,7 @@ _pos_to_index (int x, int y, int width, int height)
 
 static inline struct _pixel
 _num_to_pixel_with_factor (guint32 value,
-                           double factor)
+                           int factor)
 {
   /* This only works for type CAIRO_FORMAT_ARGB32 */
   struct _pixel pixel;
@@ -66,16 +66,16 @@ _num_to_pixel_with_factor (guint32 value,
 }
 
 static inline guint32
-_pixel_to_num_with_factor (struct _pixel *pixel,
-                           double factor)
+_pixel_to_num_with_divisor (struct _pixel *pixel,
+                            int divisor)
 {
-  guint32 alpha = pixel->alpha * factor;
+  guint32 alpha = pixel->alpha / divisor;
   if (alpha > 0xff) alpha = 0xff;
-  guint32 red = pixel->red * factor;
+  guint32 red = pixel->red / divisor;
   if (red > 0xff) red = 0xff;
-  guint32 green = pixel->green * factor;
+  guint32 green = pixel->green / divisor;
   if (green > 0xff) green = 0xff;
-  guint32 blue = pixel->blue * factor;
+  guint32 blue = pixel->blue / divisor;
   if (blue > 0xff) blue = 0xff;
   return (alpha << 24) | (red << 16) | (green << 8) | blue;
 }
@@ -90,7 +90,7 @@ _pixel_plus (struct _pixel *adder_sum,
   adder_sum->blue += adder2->blue;
 }
 
-static double *
+static int *
 _calc_kernel (double sigma, int *size)
 {
   int kernel_size = ceil (sigma * 6);
@@ -98,17 +98,28 @@ _calc_kernel (double sigma, int *size)
     kernel_size++;
   int orig = kernel_size / 2;
   if (size) *size = kernel_size;
-  double *kernel = g_new (double, kernel_size);
+  double *kernel_double = g_new (double, kernel_size);
+  double sum = 0.0;
+  int *kernel = g_new (int, kernel_size);
   int i;
   double factor = 1.0 / sqrt (2.0 * M_PI * sigma * sigma);
   double denom = 1.0 / (2.0 * sigma * sigma);
   for (i = 0; i < kernel_size; i++)
-    kernel[i] = factor * exp (- (i - orig) * (i - orig) * denom);
+  {
+    kernel_double[i] = factor * exp (- (i - orig) * (i - orig) * denom);
+    sum += kernel_double[i];
+  }
+  /* convert to pixed point number */
+  for (i = 0; i < kernel_size; i++)
+  {
+    kernel[i] = kernel_double[i] / sum * (1 << (sizeof (int) / 2 * 8));
+  }
+  g_free (kernel_double);
   return kernel;
 }
 
 static void _apply_kernel (cairo_surface_t *surface,
-                           const double *kernel,
+                           const int *kernel,
                            int kernel_size)
 {
   ol_assert (kernel_size > 0 && kernel_size % 2 == 1);
@@ -132,7 +143,7 @@ static void _apply_kernel (cairo_surface_t *surface,
       for (y = 0; y < height; y++)
       {
         struct _pixel final_value = {0};
-        double factor = 0.0;
+        int sum = 0;
         for (i = 0; i < kernel_size; i++)
         {
           int x1 = x + (i - kernel_orig) * DIR[d][0];
@@ -140,14 +151,14 @@ static void _apply_kernel (cairo_surface_t *surface,
           int index1 = _pos_to_index (x1, y1, width, height);
           if (index > 0)
           {
-            factor += kernel[i];
+            sum += kernel[i];
             struct _pixel value = _num_to_pixel_with_factor (old_pixels[index1],
                                                              kernel[i]);
             _pixel_plus (&final_value, &value);
           }
         }
         int index = _pos_to_index (x, y, width, height);
-        pixels[index] = _pixel_to_num_with_factor (&final_value, 1 / factor);
+        pixels[index] = _pixel_to_num_with_divisor (&final_value, sum);
       }
     g_free (old_pixels);
   }
@@ -167,7 +178,7 @@ ol_gussian_blur (cairo_surface_t *surface,
     return;
   }
   int kernel_size;
-  double *kernel = _calc_kernel (sigma, &kernel_size);
+  int *kernel = _calc_kernel (sigma, &kernel_size);
   _apply_kernel (surface, kernel, kernel_size);
   g_free (kernel);
 }
