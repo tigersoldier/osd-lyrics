@@ -77,6 +77,8 @@ _get_lyric_url (const char *song_id)
                                    0,    /* postdata len */
                                    &content)) < 0)
   {
+    if (content.mem_base != NULL)
+      free (content.mem_base);
     return NULL;
   }
   ol_info ("result: %d\nurl: %s\ncontent: %s\n", result, url, content.mem_base);
@@ -96,6 +98,7 @@ _get_lyric_url (const char *song_id)
   if (end == start)
     return NULL;
   char *ret = g_strndup (start, end - start);
+  free (content.mem_base);
   return ret;
 }
 

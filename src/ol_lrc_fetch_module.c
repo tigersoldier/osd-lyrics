@@ -243,6 +243,7 @@ internal_download_callback (void *ret_data,
     result->filepath = filepath;
     internal_invoke_callback (download_listeners, result);
   }
+  g_free (result);
 }
 
 void

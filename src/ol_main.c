@@ -575,6 +575,7 @@ _parse_cmd_args (int *argc, char ***argv)
     printf ("%s %s\n", PROGRAM_NAME, VERSION);
     exit (0);
   }
+  g_option_context_free (context);
 }
 
 gboolean
