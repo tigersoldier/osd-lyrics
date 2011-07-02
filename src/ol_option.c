@@ -23,8 +23,8 @@
 #include "ol_about.h"
 #include "ol_gui.h"
 #include "ol_config.h"
-#include "ol_osd_render.h"      /* For getting preview for OSD font and color */
 #include "ol_lrc_fetch.h"
+#include "ol_osd_render.h"
 #include "ol_path_pattern.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
 #include "ol_debug.h"
@@ -153,7 +153,6 @@ static struct _OptionWidgets
   GtkWidget *lrc_align[2];
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
-  GtkWidget *osd_preview;
   GtkWidget *line_count[2];
   GtkWidget *download_engine;
   GtkWidget *lrc_path;
@@ -208,10 +207,6 @@ void ol_option_startup_player_changed (GtkComboBox *cb,
 gboolean ol_option_save_startup_player ();
 static void init_startup_player (GtkWidget *widget);
 /* OSD options */
-void ol_option_update_preview (GtkWidget *widget);
-void ol_option_preview_expose (GtkWidget *widget,
-                               GdkEventExpose *event,
-                               gpointer data);
 void ol_option_osd_outline_changed (GtkSpinButton *spinbutton,
                                     gpointer user_data);
 void ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
@@ -372,73 +367,6 @@ ol_option_save_startup_player ()
 }
 
 /* OSD options */
-
-void
-ol_option_update_preview (GtkWidget *widget)
-{
-  gtk_widget_queue_draw (options.osd_preview);
-}
-
-void
-ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
-{
-  ol_assert (options.font != NULL);
-  static const char *preview_text = "OSD Lyrics";
-  cairo_t *cr = gdk_cairo_create (widget->window);
-  const gchar *font_name = gtk_font_button_get_font_name (GTK_FONT_BUTTON (options.font));
-  static OlOsdRenderContext *render = NULL;
-  render = ol_osd_render_context_new ();
-  ol_osd_render_set_font_name (render, font_name);
-  if (options.outline_width != NULL)
-  {
-    int outline = gtk_spin_button_get_value (GTK_SPIN_BUTTON (options.outline_width));
-    ol_osd_render_set_outline_width (render, outline);
-  }
-  int tw, th, w, h;
-  gdk_drawable_get_size (widget->window, &w, &h);
-  ol_osd_render_get_pixel_size (render, preview_text, &tw, &th);
-  double x = (w - tw) / 2.0;
-  double y = (h - th) / 2.0;
-  int i;
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    if (options.active_lrc_color[i] != NULL)
-    {
-      OlColor color;
-      GdkColor c;
-      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.active_lrc_color[i]),
-                                  &c);
-      color = ol_color_from_gdk_color (c);
-      ol_osd_render_set_linear_color (render, i, color);
-    }
-  }
-  cairo_save (cr);
-  cairo_rectangle (cr, 0, 0, w / 2, h);
-  cairo_clip (cr);
-  ol_osd_render_paint_text (render, cr, preview_text, x, y);
-  cairo_restore (cr);
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    if (options.inactive_lrc_color[i] != NULL)
-    {
-      OlColor color;
-      GdkColor c;
-      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.inactive_lrc_color[i]),
-                                  &c);
-      color.r = c.red / 65535.0;
-      color.g = c.green / 65535.0;
-      color.b = c.blue / 65535.0;
-      ol_osd_render_set_linear_color (render, i, color);
-    }
-  }
-  cairo_save (cr);
-  cairo_rectangle (cr, w / 2, 0, w / 2, h);
-  cairo_clip (cr);
-  ol_osd_render_paint_text (render, cr, preview_text, x, y);
-  cairo_restore (cr);
-  ol_osd_render_context_destroy (render);
-  cairo_destroy (cr);
-}
 
 void
 ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
@@ -1747,7 +1675,6 @@ ol_option_show ()
     options.inactive_lrc_color[0] = ol_gui_get_widget ("inactive-lrc-color-0");
     options.inactive_lrc_color[1] = ol_gui_get_widget ("inactive-lrc-color-1");
     options.inactive_lrc_color[2] = ol_gui_get_widget ("inactive-lrc-color-2");
-    options.osd_preview = ol_gui_get_widget ("osd-preview");
     options.line_count[0] = ol_gui_get_widget ("line-count-1");
     options.line_count[1] = ol_gui_get_widget ("line-count-2");
     options.download_engine = ol_gui_get_widget ("download-engine");
