@@ -37,6 +37,7 @@ typedef struct
   PangoLayout *pango_layout;
   char *text;
   double blur_radius;
+  int font_height;
 } OlOsdRenderContext;
 
 /** 

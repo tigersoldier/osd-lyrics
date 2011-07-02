@@ -26,7 +26,8 @@
 static const int DEFAULT_OUTLINE_WIDTH = 3;
 static const char *DEFAULT_FONT_NAME = "serif 30";
 
-void ol_osd_render_update_font (OlOsdRenderContext *context);
+static void ol_osd_render_update_font (OlOsdRenderContext *context);
+static void ol_osd_render_update_font_height (OlOsdRenderContext *context);
 
 OlOsdRenderContext *
 ol_osd_render_context_new ()
@@ -188,22 +189,7 @@ int
 ol_osd_render_get_font_height (OlOsdRenderContext *context)
 {
   ol_assert_ret (context != NULL, 0);
-  PangoFontMetrics *metrics = pango_context_get_metrics (context->pango_context,
-                                                         pango_layout_get_font_description (context->pango_layout), /* font desc */
-                                                         NULL); /* languague */
-  if (metrics == NULL)
-  {
-    ol_errorf ("Cannot get font metrics\n");
-    return 0;
-  }
-  int height = 0;
-  int ascent, descent;
-  ascent = pango_font_metrics_get_ascent (metrics);
-  descent = pango_font_metrics_get_descent (metrics);
-  pango_font_metrics_unref (metrics);
-    
-  height += PANGO_PIXELS (ascent + descent) + context->outline_width;
-  return height;
+  return context->font_height;
 }
 
 void
@@ -222,13 +208,32 @@ ol_osd_render_get_outline_width (OlOsdRenderContext *context)
   return context->outline_width;
 }
 
-void
+static void
+ol_osd_render_update_font_height (OlOsdRenderContext *context)
+{
+  PangoFontMetrics *metrics = pango_context_get_metrics (context->pango_context,
+                                                         pango_layout_get_font_description (context->pango_layout), /* font desc */
+                                                         NULL); /* languague */
+  if (metrics == NULL)
+  {
+    ol_errorf ("Cannot get font metrics\n");
+  }
+  context->font_height = 0;
+  int ascent, descent;
+  ascent = pango_font_metrics_get_ascent (metrics);
+  descent = pango_font_metrics_get_descent (metrics);
+  pango_font_metrics_unref (metrics);
+  context->font_height += PANGO_PIXELS (ascent + descent);
+}
+
+static void
 ol_osd_render_update_font (OlOsdRenderContext *context)
 {
   ol_assert (context != NULL);
   PangoFontDescription *font_desc = pango_font_description_from_string (context->font_name);
   pango_layout_set_font_description (context->pango_layout, font_desc);
   pango_font_description_free (font_desc);
+  ol_osd_render_update_font_height (context);
 }
 
 void
