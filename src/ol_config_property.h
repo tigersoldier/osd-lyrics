@@ -232,7 +232,7 @@ static const OlConfigDoubleValue config_double[] = {
    0.0, 1.0, 0.9},
   {PROP_OSD_BLUR_RADIUS, "blur-radius", "OSD", "OSD Blur Radius",
    "Blur radius of shadow of texts in OSD window",
-   0.0, 5.0, 1.0},
+   0.0, 5.0, 2.0},
 };
 
 static const OlConfigStringValue config_str[] = {
