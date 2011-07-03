@@ -5,7 +5,7 @@ src/tests/*test
 Makefile
 Makefile.in
 *.a
-src/osd-lyrics
+src/osdlyrics
 config.h
 config.h.in
 configure
