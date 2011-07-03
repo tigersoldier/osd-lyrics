@@ -23,8 +23,8 @@
 #include "ol_about.h"
 #include "ol_gui.h"
 #include "ol_config.h"
-#include "ol_osd_render.h"      /* For getting preview for OSD font and color */
 #include "ol_lrc_fetch.h"
+#include "ol_osd_render.h"
 #include "ol_path_pattern.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
 #include "ol_debug.h"
@@ -123,6 +123,7 @@ static struct WidgetConfigOptions spin_int_options[] = {
 
 static struct WidgetConfigOptions scale_double_options[] = {
   {.widget_name = "scroll-opacity", .config_group = "ScrollMode", .config_name = "opacity"},
+  {.widget_name = "osd-blur-radius", .config_group = "OSD", .config_name = "blur-radius"},
 };
 
 static struct WidgetConfigOptions color_str_options[] = {
@@ -133,6 +134,7 @@ static struct WidgetConfigOptions color_str_options[] = {
 
 static struct WidgetConfigOptions font_str_options[] = {
   {.widget_name = "scroll-font", .config_group = "ScrollMode", .config_name = "font-name"},
+  {.widget_name = "osd-font", .config_group = "OSD", .config_name = "font-name"},
 };
 
 static const char *proxy_types[] = {"http", "socks4", "socks5", NULL};
@@ -151,7 +153,6 @@ static struct _OptionWidgets
   GtkWidget *lrc_align[2];
   GtkWidget *active_lrc_color[OL_LINEAR_COLOR_COUNT];
   GtkWidget *inactive_lrc_color[OL_LINEAR_COLOR_COUNT];
-  GtkWidget *osd_preview;
   GtkWidget *line_count[2];
   GtkWidget *download_engine;
   GtkWidget *lrc_path;
@@ -203,14 +204,9 @@ void ol_option_notify_music_changed (GtkToggleButton *togglebutton,
                                      gpointer user_data);
 void ol_option_startup_player_changed (GtkComboBox *cb,
                                        gpointer user_data);
-void ol_option_save_startup_player ();
+gboolean ol_option_save_startup_player ();
 static void init_startup_player (GtkWidget *widget);
 /* OSD options */
-void ol_option_font_changed (GtkWidget *widget);
-void ol_option_update_preview (GtkWidget *widget);
-void ol_option_preview_expose (GtkWidget *widget,
-                               GdkEventExpose *event,
-                               gpointer data);
 void ol_option_osd_outline_changed (GtkSpinButton *spinbutton,
                                     gpointer user_data);
 void ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
@@ -225,8 +221,11 @@ void ol_option_osd_color_changed (GtkColorButton *widget,
 void ol_option_save_path_pattern ();
 void ol_option_save_file_pattern ();
 /* Download options */
-void ol_option_download_engine_changed (GtkComboBox *cb,
-                                        gpointer user_data);
+static void _connect_download_engine_changed (GtkTreeView *list,
+                                              void (*callback) (GtkTreeModel *model));
+static void _disconnect_download_engine_changed (GtkTreeView *list,
+                                                 void (*callback) (GtkTreeModel *model));
+static void ol_option_download_engine_changed (GtkTreeModel *model);
 void ol_option_download_first_changed (GtkToggleButton *togglebutton,
                                        gpointer user_data);
 void ol_option_about_clicked (GtkWidget *widget, gpointer data);
@@ -262,17 +261,6 @@ static void list_remove_clicked (GtkCellRenderer *cell,
                                  gchar *path,
                                  GtkTreeView *view);
 
-/** 
- * @brief Get font family and font size from a GtkFontButton
- * 
- * @param font A GtkFontButton
- * @param font_family Ppointer to a string, should point to NULL and
- *                    freed by g_free
- * @param font_size Size of the font
- */
-static void ol_option_get_font_info (GtkFontButton *font,
-                                     gchar **font_family,
-                                     double *font_size);
 static void load_osd ();
 static void load_download ();
 static void load_general ();
@@ -344,22 +332,28 @@ ol_option_startup_player_changed (GtkComboBox *cb,
   }
   else
   {
-    struct OlPlayer ** players = ol_player_get_players ();
-    if (players[index - 1] != NULL)
+    GtkTreeModel *liststore = gtk_combo_box_get_model (cb);
+    GtkTreeIter iter;
+    if (gtk_combo_box_get_active_iter (cb, &iter))
     {
-      gtk_entry_set_text (entry,
-                          ol_player_get_cmd (players[index - 1]));
-    }
-    else                        /* Customize */
-    {
-      gtk_widget_set_sensitive (options.startup_player, TRUE);
-      gtk_widget_grab_focus (options.startup_player);
+      char *command = NULL;
+      gtk_tree_model_get (liststore, &iter, 1, &command, -1);
+      if (!ol_is_string_empty (command))
+      {
+        gtk_entry_set_text (entry, command);
+      }
+      else                        /* Customize */
+      {
+        gtk_widget_set_sensitive (options.startup_player, TRUE);
+        gtk_widget_grab_focus (options.startup_player);
+      }
+      g_free (command);
     }
   }
   ol_option_save_startup_player ();
 }
 
-void
+gboolean
 ol_option_save_startup_player ()
 {
   if (options.startup_player != NULL)
@@ -369,101 +363,10 @@ ol_option_save_startup_player ()
                           "startup-player",
                           gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
   }
+  return FALSE;
 }
 
 /* OSD options */
-void
-ol_option_font_changed (GtkWidget *widget)
-{
-  GtkFontButton *font = GTK_FONT_BUTTON (widget);
-  if (font != NULL)
-  {
-    OlConfig *config = ol_config_get_instance ();
-    gchar *font_family = NULL;
-    double font_size;
-    ol_option_get_font_info (font, &font_family, &font_size);
-    ol_config_set_string (config,
-                          "OSD",
-                          "font-family",
-                          font_family);
-    ol_config_set_double (config,
-                          "OSD",
-                          "font-size",
-                          font_size);
-    g_free (font_family);
-  }
-}
-
-void
-ol_option_update_preview (GtkWidget *widget)
-{
-  gtk_widget_queue_draw (options.osd_preview);
-}
-
-void
-ol_option_preview_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
-{
-  ol_assert (options.font != NULL);
-  static const char *preview_text = "OSD Lyrics";
-  cairo_t *cr = gdk_cairo_create (widget->window);
-  gchar *font_family = NULL;
-  double font_size;
-  ol_option_get_font_info (GTK_FONT_BUTTON (options.font), &font_family, &font_size);
-  static OlOsdRenderContext *render = NULL;
-  render = ol_osd_render_context_new ();
-  ol_osd_render_set_font_family (render, font_family);
-  ol_osd_render_set_font_size (render, font_size);
-  if (options.outline_width != NULL)
-  {
-    int outline = gtk_spin_button_get_value (GTK_SPIN_BUTTON (options.outline_width));
-    ol_osd_render_set_outline_width (render, outline);
-  }
-  int tw, th, w, h;
-  gdk_drawable_get_size (widget->window, &w, &h);
-  ol_osd_render_get_pixel_size (render, preview_text, &tw, &th);
-  double x = (w - tw) / 2.0;
-  double y = (h - th) / 2.0;
-  int i;
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    if (options.active_lrc_color[i] != NULL)
-    {
-      OlColor color;
-      GdkColor c;
-      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.active_lrc_color[i]),
-                                  &c);
-      color = ol_color_from_gdk_color (c);
-      ol_osd_render_set_linear_color (render, i, color);
-    }
-  }
-  cairo_save (cr);
-  cairo_rectangle (cr, 0, 0, w / 2, h);
-  cairo_clip (cr);
-  ol_osd_render_paint_text (render, cr, preview_text, x, y);
-  cairo_restore (cr);
-  for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
-  {
-    if (options.inactive_lrc_color[i] != NULL)
-    {
-      OlColor color;
-      GdkColor c;
-      gtk_color_button_get_color (GTK_COLOR_BUTTON (options.inactive_lrc_color[i]),
-                                  &c);
-      color.r = c.red / 65535.0;
-      color.g = c.green / 65535.0;
-      color.b = c.blue / 65535.0;
-      ol_osd_render_set_linear_color (render, i, color);
-    }
-  }
-  cairo_save (cr);
-  cairo_rectangle (cr, w / 2, 0, w / 2, h);
-  cairo_clip (cr);
-  ol_osd_render_paint_text (render, cr, preview_text, x, y);
-  cairo_restore (cr);
-  ol_osd_render_context_destroy (render);
-  cairo_destroy (cr);
-  g_free (font_family);
-}
 
 void
 ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
@@ -585,17 +488,18 @@ ol_option_save_file_pattern ()
 
 /* Download options */
 void
-ol_option_download_engine_changed (GtkComboBox *cb,
-                                   gpointer user_data)
+ol_option_download_engine_changed (GtkTreeModel *model)
 {
   OlConfig *config = ol_config_get_instance ();
-  const char *engine = ol_lrc_engine_list_get_name (options.download_engine);
-  if (engine != NULL)
+  char **engine_names = ol_lrc_engine_list_get_engine_names (GTK_TREE_VIEW (options.download_engine));
+  if (engine_names != NULL)
   {
-    ol_config_set_string (config, 
-                          "Download", 
-                          "download-engine", 
-                          engine);
+    ol_config_set_str_list (config,
+                            "Download",
+                            "download-engine",
+                            (const char**)engine_names,
+                            g_strv_length (engine_names));
+    g_strfreev (engine_names);
   }
   else
   {
@@ -614,26 +518,6 @@ void
 ol_option_about_clicked (GtkWidget *widget, gpointer data)
 {
   ol_about_show ();
-}
-
-static void
-ol_option_get_font_info (GtkFontButton *font,
-                         gchar **font_family,
-                         double *font_size)
-{
-  const gchar *font_name = gtk_font_button_get_font_name (font);
-  PangoFontDescription *font_desc = pango_font_description_from_string (font_name);
-  if (font_size != NULL)
-  {
-    *font_size = pango_font_description_get_size (font_desc);
-    if (!pango_font_description_get_size_is_absolute (font_desc))
-    {
-      *font_size /= PANGO_SCALE;
-    }
-  }
-  if (font_family)
-    *font_family = g_strdup (pango_font_description_get_family (font_desc));
-  pango_font_description_free (font_desc);
 }
 
 static OlColor
@@ -817,7 +701,6 @@ ol_option_update_widget (OptionWidgets *widgets)
   load_entry_str_options ();
   load_spin_int_options ();
   load_scale_double_options ();
-  load_spin_int_options ();
   load_color_str_options ();
   load_font_str_options ();
   load_combo_str_options ();
@@ -830,16 +713,6 @@ load_osd ()
   int i;
   OlConfig *config = ol_config_get_instance ();
   ol_assert (config != NULL);
-  /* Updates font */
-  GtkFontButton *font = GTK_FONT_BUTTON (options.font);
-  if (font != NULL)
-  {
-    gchar *font_family = ol_config_get_string (config,"OSD", "font-family");
-    gchar *font_name = g_strdup_printf ("%s %0.0lf", font_family, ol_config_get_double (config, "OSD", "font-size"));
-    gtk_font_button_set_font_name (font, font_name);
-    g_free (font_name);
-    g_free (font_family);
-  }
   /* Lrc align */
   for (i = 0; i < 2; i++)
   {
@@ -1361,12 +1234,17 @@ load_download ()
 {
   OlConfig *config = ol_config_get_instance ();
   /* Download engine */
-  char *download_engine = ol_config_get_string (config, 
-                                                "Download",
-                                                "download-engine");
-  ol_lrc_engine_list_set_name (options.download_engine,
-                               download_engine);
-  g_free (download_engine);
+  char **download_engines = ol_config_get_str_list (config,
+                                                    "Download",
+                                                    "download-engine",
+                                                    NULL);
+  _disconnect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
+                                       ol_option_download_engine_changed);
+  ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (options.download_engine),
+                                       download_engines);
+  _connect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
+                                    ol_option_download_engine_changed);
+  g_strfreev (download_engines);
 }
 
 static char **
@@ -1418,7 +1296,6 @@ static void
 load_general ()
 {
   OlConfig *config = ol_config_get_instance ();
-  int i;
   if (options.lrc_path != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
@@ -1460,22 +1337,28 @@ load_general ()
      }
      else
      {
-       struct OlPlayer **players = ol_player_get_players ();
-       for (i = 0; players[i] != NULL; i++)
+       int i = 1;
+       GtkTreeModel *liststore = gtk_combo_box_get_model (GTK_COMBO_BOX (options.startup_player_cb));
+       GtkTreeIter iter;
+       gboolean valid;
+       for (valid = gtk_tree_model_get_iter_from_string (liststore, &iter, "1");
+            valid && startup_custom;
+            valid = gtk_tree_model_iter_next (liststore, &iter), i++)
        {
-         const char *cmd = ol_player_get_cmd (players[i]);
+         char *cmd = NULL;
+         gtk_tree_model_get (liststore, &iter, 1, &cmd, -1);
          if (cmd != NULL &&
              strcmp (player_cmd, cmd) == 0)
          {
-           gtk_combo_box_set_active (cb, i + 1);
-          startup_custom = FALSE;
-          break;
-        }
-      }
-    }
-    if (startup_custom)
-    {
-      gtk_combo_box_set_active (cb, i + 1);
+           gtk_combo_box_set_active (cb, i);
+           startup_custom = FALSE;
+         }
+         g_free (cmd);
+       }
+       if (startup_custom)
+       {
+         gtk_combo_box_set_active (cb, i - 1);
+       }
     }
   }
   if (options.startup_player != NULL)
@@ -1703,19 +1586,68 @@ ol_option_menu_filename_activate (GtkMenuItem *menuitem,
 }
 
 static void
+_connect_download_engine_changed (GtkTreeView *list,
+                                  void (*callback) (GtkTreeModel *model))
+{
+  ol_assert (GTK_IS_TREE_VIEW (list));
+  ol_assert (callback != NULL);
+  GtkTreeModel *model = gtk_tree_view_get_model (list);
+  g_signal_connect (G_OBJECT (model),
+                    "row-changed",
+                    (GCallback) callback,
+                    NULL);
+  g_signal_connect (G_OBJECT (model),
+                    "row-deleted",
+                    (GCallback) callback,
+                    NULL);
+  g_signal_connect (G_OBJECT (model),
+                    "row-inserted",
+                    (GCallback) callback,
+                    NULL);
+  g_signal_connect (G_OBJECT (model),
+                    "rows-reordered",
+                    (GCallback) callback,
+                    NULL);
+}
+
+static void
+_disconnect_download_engine_changed (GtkTreeView *list,
+                                     void (*callback) (GtkTreeModel *model))
+{
+  ol_assert (GTK_IS_TREE_VIEW (list));
+  ol_assert (callback != NULL);
+  GtkTreeModel *model = gtk_tree_view_get_model (list);
+  g_signal_handlers_disconnect_by_func (model,
+                                        (GCallback) callback,
+                                        NULL);
+}
+
+static void
 init_startup_player (GtkWidget *widget)
 {
   GtkComboBox *cb = GTK_COMBO_BOX (widget);
   if (cb == NULL)
     return;
-  gtk_combo_box_append_text (cb, _("None"));
-  struct OlPlayer **players = ol_player_get_players ();
-  int i = 0;
-  for (i = 0; players[i] != NULL; i++)
+  gtk_combo_box_append_text (cb, _("Choose on startup"));
+  GtkListStore *liststore = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
+  GList *players = g_list_sort (ol_player_get_support_players (),
+                                (GCompareFunc) ol_app_info_cmp);
+  for (; players != NULL; players = g_list_delete_link (players, players))
   {
-    gtk_combo_box_append_text (cb,
-                               ol_player_get_name (players[i]));
+    GAppInfo *app_info = players->data;
+    GtkTreeIter iter;
+    gtk_list_store_append (liststore, &iter);
+    gtk_list_store_set (liststore, &iter,
+                        0, g_app_info_get_display_name (app_info),
+                        1, g_app_info_get_commandline (app_info),
+                        -1);
+    g_object_unref (G_OBJECT (app_info));
   }
+  /* gtk_list_store_append (liststore, &iter); */
+  /* gtk_list_store_set (liststore, &iter, */
+  /*                     0, "Customize", */
+  /*                     1, "", */
+  /*                     -1); */
   gtk_combo_box_append_text (cb, _("Customize"));
 }
 
@@ -1743,7 +1675,6 @@ ol_option_show ()
     options.inactive_lrc_color[0] = ol_gui_get_widget ("inactive-lrc-color-0");
     options.inactive_lrc_color[1] = ol_gui_get_widget ("inactive-lrc-color-1");
     options.inactive_lrc_color[2] = ol_gui_get_widget ("inactive-lrc-color-2");
-    options.osd_preview = ol_gui_get_widget ("osd-preview");
     options.line_count[0] = ol_gui_get_widget ("line-count-1");
     options.line_count[1] = ol_gui_get_widget ("line-count-2");
     options.download_engine = ol_gui_get_widget ("download-engine");
@@ -1756,7 +1687,7 @@ ol_option_show ()
     options.startup_player_cb = ol_gui_get_widget ("startup-player-cb");
     init_startup_player (options.startup_player_cb);
     /* Init download engine combobox */
-    ol_lrc_engine_list_init (options.download_engine);
+    ol_lrc_engine_list_init (GTK_TREE_VIEW (options.download_engine));
     lrc_path_widgets.entry = options.lrc_path_text;
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_gui_get_widget ("add-lrc-path");

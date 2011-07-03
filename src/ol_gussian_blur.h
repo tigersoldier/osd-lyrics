@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Sarlmol Apple <sarlmolapple@gmail.com>
+ * Copyright (C) 2011  Tiger Soldier <tigersoldier@gmail.com>
  *
  * This file is part of OSD Lyrics.
  * 
@@ -17,19 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-/* Time-stamp: <2010-11-25 23:40:33 Thursday by sarlmolapple> */
 
-/**
- * @file
- * @author Sarlmol Apple
- * @brief Supports Clementine
+#include <cairo.h>
+
+/** 
+ * Apply Gussian blur to a cairo image surface
+ *
+ * @param surface A cairo image surface. Currently only an image surface in
+ *        CAIRO_FORMAT_ARGB32 format is supported.
+ * @param sigma The variance of Gussian function.
  */
-
-#ifndef _OL_PLAYER_CLEMENTINE_H_
-#define _OL_PLAYER_CLEMENTINE_H_
-
-#include "ol_player.h"
-
-struct OlPlayer* ol_player_clementine_get ();
-
-#endif /*_OL_PLAYER_CLEMENTINE_H */
+void ol_gussian_blur (cairo_surface_t *surface,
+                      double sigma);

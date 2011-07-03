@@ -54,17 +54,23 @@ typedef void (*OlForkCallback) (void *ret_data,
 
 /** 
  * @brief Fork a child process
+ * 
  * To return data to parent process, child process just need to
  * write the return data to the file descriptor ret_fd, or to the
  * C file stream fret.
+ * 
  * Once the child process exits, the callback function will be
- * called.
+ * called. The child process is watched by g_child_watch_add, whose
+ * source id will be returned in the watch_id. You can use g_source_remove
+ * to cancel watching child process.
+ * 
  * @param callback Callback function
  * @param userdata Userdata to pass to callback function
+ * @param watch_id source 
  * 
  * @return 0 if it's a child process, or the pid of the forked child process,
- * or -1 if failed withou child process created
+ * or -1 if failed without child process created
  */
-pid_t ol_fork (OlForkCallback callback, void *userdata);
+pid_t ol_fork (OlForkCallback callback, void *userdata, guint *watch_id);
 //@}
 #endif /* _OL_FORK_H_ */

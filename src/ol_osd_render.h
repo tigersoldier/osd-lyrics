@@ -29,14 +29,15 @@ enum {
 
 typedef struct
 {
-  char *font_family;
-  double font_size;
+  char *font_name;
   int outline_width;
   OlColor linear_colors[OL_LINEAR_COLOR_COUNT];
   double linear_pos[OL_LINEAR_COLOR_COUNT];
   PangoContext *pango_context;
   PangoLayout *pango_layout;
   char *text;
+  double blur_radius;
+  int font_height;
 } OlOsdRenderContext;
 
 /** 
@@ -54,38 +55,20 @@ OlOsdRenderContext* ol_osd_render_context_new ();
 void ol_osd_render_context_destroy (OlOsdRenderContext *context);
 
 /** 
- * @brief Sets the font family for a context
+ * @brief Sets the font name for a context
  * 
  * @param context An OlOsdRenderContext;
- * @param font_family Font family, must not be NULL
+ * @param font_family Font name, must not be NULL
  */
-void ol_osd_render_set_font_family (OlOsdRenderContext *context,
-                                    const char *font_family);
+void ol_osd_render_set_font_name (OlOsdRenderContext *context,
+                                  const char *font_name);
 /** 
- * @brief Gets the font family for a context
+ * @brief Gets the font name for a context
  * 
  * @param context An OlOsdRenderContext
- * @return The font family of the context, must be freed by g_free
+ * @return The font name of the context, must be freed by g_free
  */
-char* ol_osd_render_get_font_family (OlOsdRenderContext *context);
-
-/** 
- * @brief Sets the font size for a contexnt
- * 
- * @param context An OlOsdRenderContext;
- * @param font_size Font size, must be positive
- */
-void ol_osd_render_set_font_size (OlOsdRenderContext *context,
-                                  const double font_size);
-
-/** 
- * @brief Gets the font size for a context
- * 
- * @param context An OlOsdRenderContext;
- * 
- * @return The font size for the context
- */
-double ol_osd_render_get_font_size (OlOsdRenderContext *context);
+char* ol_osd_render_get_font_name (OlOsdRenderContext *context);
 
 /** 
  * @brief Sets the outline width
@@ -161,4 +144,17 @@ void ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
  */
 void ol_osd_render_set_text (OlOsdRenderContext* context,
                              const char *text);
+
+/** 
+ * Sets the blur radius of shadow.
+ *
+ * If the radius is greater than 0, the outline of text will be blurred as shadow.
+ * 
+ * @param context 
+ * @param radius The blur radius in pixel, non-positive value to disable blurring.
+ */
+void ol_osd_render_set_blur_radius (OlOsdRenderContext *context,
+                                    double radius);
+
+double ol_osd_render_get_blur_radius (OlOsdRenderContext *context);
 #endif /* __OL_OSD_RENDER_H__ */

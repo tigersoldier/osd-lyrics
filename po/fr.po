@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
 "PO-Revision-Date: 2011-04-05 22:41+0000\n"
 "Last-Translator: Nabil Psychoman <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "Fichiers LRC"
 msgid "Choose LRC file to assign"
 msgstr "Assigner un fichier LRC"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -35,32 +35,32 @@ msgstr ""
 "Le quantité de messages à enregistrer, peut-être "
 "'none' (aucun),'error' (erreurs), 'debug' (débogage) ou 'info' (informations)"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
+#: ../src/ol_main.c:62
+msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "Échec du téléchargement"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
 msgstr "Impossible de créer le dossier de paroles"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "Paroles introuvables"
 
-#: ../src/ol_main.c:178
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Recherche des paroles en cours"
 
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Pas de lecteur pris en charge détecté, arrêt.\n"
 
-#: ../src/ol_main.c:505
+#: ../src/ol_main.c:581
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -68,7 +68,7 @@ msgstr ""
 "Le quantité de messages à enregistrer, peut-être "
 "'none' (aucun),'error' (erreurs), 'debug' (débogage) ou 'info' (informations)"
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr ""
 "Une autre instance de OSD Lyrics est en cours d'exécution, arrêt en cours."
@@ -86,8 +86,8 @@ msgid "OSD Lyrics"
 msgstr "Paroles OSD"
 
 #: ../src/ol_option.c:1711
-msgid "None"
-msgstr "Aucun"
+msgid "Choose on startup"
+msgstr ""
 
 #: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
@@ -122,6 +122,32 @@ msgstr "Woops, pas de paroles trouvées =("
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "%d paroles trouvées =)"
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "Commandes du Lec_teur:"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Assigner un fichier LRC"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -268,7 +294,8 @@ msgid "Color _Theme:"
 msgstr "Couleur du _Thème :"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 Le projet OSD Lyrics."
 
 #: ../data/dialogs.glade.h:45
@@ -576,6 +603,9 @@ msgstr ""
 "  Nabil Psychoman https://launchpad.net/~bele-nyx\n"
 "  Pierre Slamich https://launchpad.net/~pierre-slamich\n"
 "  Thibault Févry https://launchpad.net/~thibaultfevry"
+
+#~ msgid "None"
+#~ msgstr "Aucun"
 
 #~ msgid "Sogou"
 #~ msgstr "Sogou"

@@ -224,17 +224,12 @@ config_change_handler (OlConfig *config,
                         ol_config_get_int (config, group, "x"),
                         ol_config_get_int (config, group, "y"));
   }
-  else if (strcmp (name, "font-family") == 0)
+  else if (strcmp (name, "font-name") == 0)
   {
     gchar *font = ol_config_get_string (config, group, name);
     ol_assert (font != NULL);
-    ol_osd_window_set_font_family (window, font);
+    ol_osd_window_set_font_name (window, font);
     g_free (font);
-  }
-  else if (strcmp (name, "font-size") == 0)
-  {
-    ol_osd_window_set_font_size (window,
-                                 ol_config_get_double (config, group, name));
   }
   else if (strcmp (name, "width") == 0)
   {
@@ -313,6 +308,10 @@ config_change_handler (OlConfig *config,
       ol_osd_window_set_mode (window, OL_OSD_WINDOW_NORMAL);
     g_free (mode);
   }
+  else if (strcmp (name, "blur-radius") == 0)
+  {
+    ol_osd_window_set_blur_radius (window, ol_config_get_double (config, group, name));
+  }
 }
 
 static void
@@ -346,8 +345,7 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   config_change_handler (config, "OSD", "visible", osd);
   config_change_handler (config, "OSD", "locked", osd);
   config_change_handler (config, "OSD", "line-count", osd);
-  config_change_handler (config, "OSD", "font-family", osd);
-  config_change_handler (config, "OSD", "font-size", osd);
+  config_change_handler (config, "OSD", "font-name", osd);
   config_change_handler (config, "OSD", "x", osd);
   config_change_handler (config, "OSD", "lrc-align-0", osd);
   config_change_handler (config, "OSD", "lrc-align-1", osd);
@@ -355,6 +353,7 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   config_change_handler (config, "OSD", "inactive-lrc-color", osd);
   config_change_handler (config, "OSD", "translucent-on-mouse-over", osd);
   config_change_handler (config, "OSD", "outline-width", osd);
+  config_change_handler (config, "OSD", "blur-radius", osd);
   g_signal_connect (osd->window, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);

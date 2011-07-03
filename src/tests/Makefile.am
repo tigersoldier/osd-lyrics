@@ -14,7 +14,8 @@ check_PROGRAMS = \
 	ol_music_info_test \
 	ol_lrclib_test \
 	ol_utils_dbus_test \
-	ol_utils_test
+	ol_utils_test \
+	ol_gussian_blur_test
 
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
@@ -50,6 +51,7 @@ ol_utils_cmdline_test_SOURCES = ol_utils_cmdline_test.c \
 ol_osd_window_test_SOURCES = ol_osd_window_test.c \
 	$(top_srcdir)/src/ol_osd_window.c \
 	$(top_srcdir)/src/ol_osd_render.c \
+	$(top_srcdir)/src/ol_gussian_blur.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_color.c \
 	$(top_srcdir)/src/ol_image_button.c \
@@ -59,35 +61,26 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_player.c \
 	$(top_srcdir)/src/ol_player_amarok1.c \
-	$(top_srcdir)/src/ol_player_amarok2.c \
 	$(top_srcdir)/src/ol_player_banshee.c \
 	$(top_srcdir)/src/ol_player_mpris.c \
 	$(top_srcdir)/src/ol_player_mpris2.c \
 	$(top_srcdir)/src/ol_player_exaile02.c \
 	$(top_srcdir)/src/ol_player_exaile03.c \
-	$(top_srcdir)/src/ol_player_audacious.c \
-	$(top_srcdir)/src/ol_player_rhythmbox.c \
-	$(top_srcdir)/src/ol_player_guayadeque02.c \
 	$(top_srcdir)/src/ol_player_muine.c \
 	$(top_srcdir)/src/ol_player_mpd.c \
 	$(top_srcdir)/src/ol_player_moc.c \
 	$(top_srcdir)/src/ol_player_xmms2.c \
-	$(top_srcdir)/src/ol_player_songbird.c \
 	$(top_srcdir)/src/ol_player_quodlibet.c \
 	$(top_srcdir)/src/ol_player_juk.c \
-	$(top_srcdir)/src/ol_player_qmmp.c \
-	$(top_srcdir)/src/ol_player_clementine.c \
 	$(top_srcdir)/src/ol_player_listen.c \
-	$(top_srcdir)/src/ol_player_deciber.c \
 	$(top_srcdir)/src/ol_player_gmusicbrowser.c \
-	$(top_srcdir)/src/ol_player_vlc.c \
+	$(top_srcdir)/src/ol_player_utils.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
 	$(top_srcdir)/src/ol_marshal.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c \
 	$(top_srcdir)/src/ol_utils_dbus.c \
-	$(top_srcdir)/src/ol_utils_dcop.c \
 	$(top_srcdir)/src/ol_music_info.c 
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
@@ -106,6 +99,7 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
+	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils_network.c \
@@ -129,6 +123,7 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
+	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
 	$(top_srcdir)/src/ol_lrc_fetch_module.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_fork.c \
@@ -191,4 +186,9 @@ ol_utils_dbus_test_SOURCES = \
 ol_utils_test_SOURCES = \
 	ol_utils_test.c \
 	$(top_srcdir)/src/ol_utils.c \
+	$(top_srcdir)/src/ol_debug.c
+
+ol_gussian_blur_test_SOURCES = \
+	ol_gussian_blur_test.c \
+	$(top_srcdir)/src/ol_gussian_blur.c \
 	$(top_srcdir)/src/ol_debug.c

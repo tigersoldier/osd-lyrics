@@ -17,20 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-/**
- * @file   ol_player_amarok2.h
- * @author Tiger Soldier <tigersoldi@gmail.com>
- * @date   Sun Jun  7 15:56:12 2009
+#ifndef _OL_LRC_FETCH_XIAMI_H_
+#define _OL_LRC_FETCH_XIAMI_H_
+
+#include "ol_lrc_fetch.h"
+
+/** 
+ * @brief Returns the fetch engine of Xiami
  * 
- * @brief  Supports Amarok 2.x
- * 
- * 
+ * @return 
  */
-#ifndef _OL_PLAYER_AMAROK2_H_
-#define _OL_PLAYER_AMAROK2_H_
+OlLrcFetchEngine *ol_lrc_fetch_xiami_engine ();
 
-#include "ol_player.h"
-
-struct OlPlayer* ol_player_amarok2_get ();
-
-#endif /* _OL_PLAYER_AMAROK2_H_ */
+#endif /* _OL_LRC_FETCH_XIAMI_H_ */

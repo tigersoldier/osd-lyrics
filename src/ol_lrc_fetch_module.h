@@ -40,6 +40,16 @@ struct OlLrcDownloadResult
   void *userdata;
 };
 
+enum OlLrcSearchMsgType {
+  OL_LRC_SEARCH_MSG_ENGINE = 0, /* Begin to search with an engine, the message
+                                   is the non-localized engine name */
+};
+
+typedef void (*OlLrcSearchMsgCallback) (int search_id,
+                                        enum OlLrcSearchMsgType msg_type,
+                                        const char *message,
+                                        void *userdata);
+
 typedef void (*OlLrcSearchCallback) (struct OlLrcFetchResult *result,
                                      void *userdata);
 
@@ -74,22 +84,39 @@ void ol_lrc_fetch_add_async_download_callback (OlLrcDownloadCallback callbackFun
 /** 
  * @brief Begin searching lyrics. Once finished, search callbacks will be invoked.
  * 
+ * The searching request is removed after result_callback is called. You can
+ * cancel a searching request with ol_lrc_fetch_cancel_search before
+ * result_callback called. 
+ * 
  * @param engine The engine to use for searching
  * @param music_info The music info for searching
- * @param callback The callback function for searching done
+ * @param msg_callback Callback when there is message from fetch module
+ * @param result_callback The callback function when searching is done or failed
  * @return a unique id identifies the search result
  */
-int ol_lrc_fetch_begin_search (OlLrcFetchEngine *engine, 
-                               OlMusicInfo *music_info, 
-                               OlLrcSearchCallback callback,
+int ol_lrc_fetch_begin_search (char **engine_list, 
+                               OlMusicInfo *music_info,
+                               OlLrcSearchMsgCallback msg_callback,
+                               OlLrcSearchCallback result_callback,
                                void *userdata);
+
+/** 
+ * Cancels a searching request.
+ *
+ * You only need to cancel a request before the result_callback in
+ * ol_lrc_fetch_begin_search is called.
+ * 
+ * @param search_id The id returned from ol_lrc_fetch_begin_search
+ */
+void ol_lrc_fetch_cancel_search (int search_id);
 
 /** 
  * @brief Begin downloading lyrics. Once finished, download callbacks will be invoked.
  * 
  * @param engine The engine to be used.
  * @param candidate The candidate to be downloaded. The function will keep a copy of it.
- * @param pathname The filename with full path of the target lrc file. The function will keep a copy of it
+ * @param pathname The filename with full path of the target lrc file. The function
+ *                 will keep a copy of it
  */
 void ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                                   OlLrcCandidate *candidate,
@@ -98,5 +125,6 @@ void ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                                   void *userdata);
 
 void ol_lrc_fetch_module_init ();
+void ol_lrc_fetch_module_unload ();
 
 #endif /* _OL_LRC_FETCH_MODULE_H_ */

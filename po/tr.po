@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
+"POT-Creation-Date: 2011-06-16 17:00+0800\n"
 "PO-Revision-Date: 2010-11-27 04:10+0000\n"
 "Last-Translator: Engin BAHADIR <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "LRC Dosyaları"
 msgid "Choose LRC file to assign"
 msgstr "Atamak için LRC dosyası seçin"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -35,32 +35,32 @@ msgstr ""
 "Kayda alınacak hata iletilerinin seviyesi, 'none', 'error', 'debug', veya "
 "'info' olarak belirtilebilir"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
+#: ../src/ol_main.c:62
+msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:142
 msgid "Download failed"
 msgstr "İndirme başarısız"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:157
 msgid "Cannot create the lyric directory"
 msgstr "Şarkı Sözleri dizini oluşturulamıyor"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:174
 msgid "Lyrics not found"
 msgstr "Şarkı sözleri bulunamadı"
 
-#: ../src/ol_main.c:178
+#: ../src/ol_main.c:191
 msgid "Searching lyrics"
 msgstr "Şarkı Sözleri aranıyor"
 
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:460
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Desteklenen bir ortam oynatıcı yok, çık.\n"
 
-#: ../src/ol_main.c:505
+#: ../src/ol_main.c:581
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -68,7 +68,7 @@ msgstr ""
 "Kayda alınacak hata iletilerinin seviyesi, 'none', 'error', 'debug', veya "
 "'info' olarak belirtilebilir"
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:603
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Başka bir OSD Lyrics çalışıyor, çık."
 
@@ -85,8 +85,8 @@ msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
 #: ../src/ol_option.c:1711
-msgid "None"
-msgstr "Hiçbiri"
+msgid "Choose on startup"
+msgstr ""
 
 #: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
 msgid "Customize"
@@ -121,6 +121,32 @@ msgstr "Şarkı sözü bulunamadı :("
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "%d adet şarkı sözü bulundu :)"
+
+#: ../src/ol_player_chooser.c:84
+msgid "Supported players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:89
+msgid "All players"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:95
+#, fuzzy
+msgid "Use command:"
+msgstr "Oynatıcı komutu:"
+
+#: ../src/ol_player_chooser.c:100
+msgid "Launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:113
+msgid "Remember my choice"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:146
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Atamak için LRC dosyası seçin"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -264,7 +290,8 @@ msgid "Color _Theme:"
 msgstr "Renk _Teması:"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
+#, fuzzy
+msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Copyright 2009 The OSD Lyrics project."
 
 #: ../data/dialogs.glade.h:45
@@ -570,6 +597,9 @@ msgstr ""
 "  GüneyTekfidan https://launchpad.net/~ubuntuturk-hotmail\n"
 "  Tiger Soldier https://launchpad.net/~tigersoldi\n"
 "  zeugma https://launchpad.net/~sunder67"
+
+#~ msgid "None"
+#~ msgstr "Hiçbiri"
 
 #~ msgid "_Width:"
 #~ msgstr "_Genişlik:"

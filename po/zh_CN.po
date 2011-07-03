@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-04 13:46+0800\n"
-"PO-Revision-Date: 2011-05-13 18:42+0800\n"
+"POT-Creation-Date: 2011-06-26 15:06+0800\n"
+"PO-Revision-Date: 2011-06-26 15:07+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "Language: \n"
@@ -26,44 +26,44 @@ msgstr "LRC文件"
 msgid "Choose LRC file to assign"
 msgstr "选择要关联的LRC文件"
 
-#: ../src/ol_main.c:58
+#: ../src/ol_main.c:60
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
-msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'info"
+msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'info'"
 
-#: ../src/ol_main.c:60
-msgid "Shows the version of "
-msgstr ""
+#: ../src/ol_main.c:62
+msgid "Show version information"
+msgstr "显示版本信息"
 
-#: ../src/ol_main.c:129
+#: ../src/ol_main.c:143
 msgid "Download failed"
 msgstr "下载失败"
 
-#: ../src/ol_main.c:144
+#: ../src/ol_main.c:158
+#, c-format
+msgid "Searching lyrics from %s"
+msgstr "正在从%s搜索歌词"
+
+#: ../src/ol_main.c:181
 msgid "Cannot create the lyric directory"
 msgstr "无法创建歌词目录"
 
-#: ../src/ol_main.c:161
+#: ../src/ol_main.c:197
 msgid "Lyrics not found"
 msgstr "找不到匹配的歌词"
 
-#: ../src/ol_main.c:178
-msgid "Searching lyrics"
-msgstr "正在搜索歌词"
-
-#: ../src/ol_main.c:398
+#: ../src/ol_main.c:486
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "没有检测到支持的播放器，程序自动退出。\n"
 
-#: ../src/ol_main.c:505
-#, fuzzy
+#: ../src/ol_main.c:607
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
-msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'info"
+msgstr "调试级别应该为\"none\"、\"error\"、\"debug\"或\"info\""
 
-#: ../src/ol_main.c:529
+#: ../src/ol_main.c:630
 msgid "Another OSD Lyrics is running, exit."
 msgstr "OSD Lyrics已经运行，程序自动退出。"
 
@@ -79,21 +79,30 @@ msgstr "未知歌手"
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
-#: ../src/ol_option.c:1711
-msgid "None"
-msgstr "无"
+#: ../src/ol_option.c:1769
+msgid "Choose on startup"
+msgstr "启动时选择"
 
-#: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
+#. gtk_list_store_append (liststore, &iter);
+#. gtk_list_store_set (liststore, &iter,
+#. 0, "Customize",
+#. 1, "",
+#. -1);
+#: ../src/ol_option.c:1789 ../data/dialogs.glade.h:44
 msgid "Customize"
 msgstr "自定义"
 
-#: ../src/ol_option.c:1782
+#: ../src/ol_option.c:1852
 msgid "Select a folder"
 msgstr "选择文件夹"
 
 #: ../src/ol_lrc_fetch_ttplayer.c:274
 msgid "ttPlayer"
 msgstr "千千静听"
+
+#: ../src/ol_lrc_fetch_xiami.c:234
+msgid "Xiami"
+msgstr "虾米"
 
 #: ../src/ol_lrc_candidate_list.c:43
 msgid "Title"
@@ -116,6 +125,30 @@ msgstr "囧, 找不到歌词:("
 #, c-format
 msgid "%d lyrics found :)"
 msgstr "找到%d个歌词:)"
+
+#: ../src/ol_player_chooser.c:83
+msgid "Supported players"
+msgstr "支持的播放器"
+
+#: ../src/ol_player_chooser.c:88
+msgid "All players"
+msgstr "所有播放器"
+
+#: ../src/ol_player_chooser.c:94
+msgid "Use command:"
+msgstr "自定义命令:"
+
+#: ../src/ol_player_chooser.c:99
+msgid "Launch"
+msgstr "运行"
+
+#: ../src/ol_player_chooser.c:112
+msgid "Remember my choice"
+msgstr "记住我的选择"
+
+#: ../src/ol_player_chooser.c:145
+msgid "Choose a player to launch"
+msgstr "选择要运行的播放器"
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -257,8 +290,8 @@ msgid "Color _Theme:"
 msgstr "配色方案(_T):"
 
 #: ../data/dialogs.glade.h:43
-msgid "Copyright 2009 The OSD Lyrics project."
-msgstr "版权所有 2009 OSD Lyrics 项目组。"
+msgid "Copyright 2009-2011 The OSD Lyrics project."
+msgstr "版权所有 2009-2011 OSD Lyrics 项目组。"
 
 #: ../data/dialogs.glade.h:45
 msgid "D_on't ask me again"
@@ -312,255 +345,273 @@ msgid "Inactiv_e lyrics:"
 msgstr "未唱歌词(_E):"
 
 #: ../data/dialogs.glade.h:58
+msgid "Lyric _sites:"
+msgstr "歌词站点(_S):"
+
+#: ../data/dialogs.glade.h:59
 msgid "Lyric delay +"
 msgstr "延后歌词"
 
-#: ../data/dialogs.glade.h:59
+#: ../data/dialogs.glade.h:60
 msgid "Lyric delay -"
 msgstr "提前歌词"
 
-#: ../data/dialogs.glade.h:60
+#: ../data/dialogs.glade.h:61
 msgid "Lyric lines:"
 msgstr "歌词行数:"
 
-#: ../data/dialogs.glade.h:61
+#: ../data/dialogs.glade.h:62
 msgid "Mode:"
 msgstr "模式:"
 
-#: ../data/dialogs.glade.h:62
+#: ../data/dialogs.glade.h:63
 msgid "No _proxy"
 msgstr "不使用代理(_P)"
 
-#: ../data/dialogs.glade.h:63
+#: ../data/dialogs.glade.h:64
 msgid "Nor_mal"
 msgstr "普通(_M)"
 
-#: ../data/dialogs.glade.h:64
+#: ../data/dialogs.glade.h:65
 msgid "OSD _mode"
 msgstr "桌面歌词模式(M)"
 
-#: ../data/dialogs.glade.h:65
+#: ../data/dialogs.glade.h:66
 msgid "OS_D"
 msgstr "桌面歌词(_D)"
 
-#: ../data/dialogs.glade.h:66
+#: ../data/dialogs.glade.h:67
 msgid "O_pacity:"
 msgstr "透明度(_P):"
 
-#: ../data/dialogs.glade.h:67
+#: ../data/dialogs.glade.h:68
 msgid "Opaque"
 msgstr "不透明"
 
 #. The outline width of text in OSD window
-#: ../data/dialogs.glade.h:69
+#: ../data/dialogs.glade.h:70
 msgid "Out_line:"
 msgstr "轮廓(_L):"
 
-#: ../data/dialogs.glade.h:70
+#: ../data/dialogs.glade.h:71
 msgid "Passwo_rd:"
 msgstr "密码(_R):"
 
-#: ../data/dialogs.glade.h:71
+#: ../data/dialogs.glade.h:72
 msgid "Pla_yer command:"
 msgstr "播放器命令(_P):"
 
-#: ../data/dialogs.glade.h:72
+#: ../data/dialogs.glade.h:73
 msgid "Po_rt:"
 msgstr "端口(_R):"
 
-#: ../data/dialogs.glade.h:73
+#: ../data/dialogs.glade.h:74
 msgid "Preferences"
 msgstr "首选项"
 
-#: ../data/dialogs.glade.h:74
+#: ../data/dialogs.glade.h:75
 msgid "SOCKS4"
 msgstr "SOCKS4"
 
-#: ../data/dialogs.glade.h:75
+#: ../data/dialogs.glade.h:76
 msgid "SOCKS5"
 msgstr "SOCKS5"
 
-#: ../data/dialogs.glade.h:76
+#: ../data/dialogs.glade.h:77
 msgid "Sc_rolling"
 msgstr "滚动歌词(_R)"
 
-#: ../data/dialogs.glade.h:77
+#: ../data/dialogs.glade.h:78
 msgid "Scroll _mode:"
 msgstr "滚动方式(_M):"
 
-#: ../data/dialogs.glade.h:78
+#: ../data/dialogs.glade.h:79
 msgid "Scrolling _mode"
 msgstr "滚动歌词模式(_M)"
 
-#: ../data/dialogs.glade.h:79
+#: ../data/dialogs.glade.h:80
 msgid "Search lyrics"
 msgstr "搜索歌词"
 
-#: ../data/dialogs.glade.h:80
+#: ../data/dialogs.glade.h:81
 msgid "Search lyrics from Internet"
 msgstr "从网上搜索歌词"
 
-#: ../data/dialogs.glade.h:81
+#: ../data/dialogs.glade.h:82
 msgid "Show _bubble notification"
 msgstr "显示气泡通知(_B)"
 
-#: ../data/dialogs.glade.h:82
+#: ../data/dialogs.glade.h:83
 msgid "Show passwor_d"
 msgstr "显示密码(_D)"
 
-#: ../data/dialogs.glade.h:83
+#: ../data/dialogs.glade.h:84
 msgid "Si_ngle line"
 msgstr "单行(_N)"
 
-#: ../data/dialogs.glade.h:84
+#: ../data/dialogs.glade.h:85
+msgid "Strong"
+msgstr "强"
+
+#: ../data/dialogs.glade.h:86
 msgid "T_ranslucent on mouse over"
 msgstr "鼠标移到歌词上时半透明(_R)"
 
-#: ../data/dialogs.glade.h:85
+#: ../data/dialogs.glade.h:87
 msgid "The artist of the current track"
 msgstr "当前歌曲歌手"
 
-#: ../data/dialogs.glade.h:86
+#: ../data/dialogs.glade.h:88
 msgid "The filename of the current track"
 msgstr "当前歌曲的文件名"
 
-#: ../data/dialogs.glade.h:87
+#: ../data/dialogs.glade.h:89
 msgid "The number of the current track"
 msgstr "当前歌曲的编号"
 
-#: ../data/dialogs.glade.h:88
+#: ../data/dialogs.glade.h:90
 msgid "The title of album of the current track"
 msgstr "当前歌曲的专辑名"
 
-#: ../data/dialogs.glade.h:89
+#: ../data/dialogs.glade.h:91
 msgid "The title of the current track"
 msgstr "当前歌曲名"
 
-#: ../data/dialogs.glade.h:90
+#: ../data/dialogs.glade.h:92
 msgid "Transparent"
 msgstr "透明"
 
-#: ../data/dialogs.glade.h:91
+#: ../data/dialogs.glade.h:93
 msgid "Use _manual settings"
 msgstr "手动设置代理(_M)"
 
-#: ../data/dialogs.glade.h:92
+#: ../data/dialogs.glade.h:94
+msgid "Weak"
+msgstr "弱"
+
+#: ../data/dialogs.glade.h:95
 msgid "_Artist:"
 msgstr "歌手(_A):"
 
-#: ../data/dialogs.glade.h:93
+#: ../data/dialogs.glade.h:96
 msgid "_Assign lyric..."
 msgstr "关联歌词(_A)..."
 
-#: ../data/dialogs.glade.h:94
+#: ../data/dialogs.glade.h:97
+msgid "_Blur:"
+msgstr "模糊(_B):"
+
+#: ../data/dialogs.glade.h:98
 msgid "_Double lines"
 msgstr "双行(_D)"
 
-#: ../data/dialogs.glade.h:95
+#: ../data/dialogs.glade.h:99
 msgid "_Download"
 msgstr "下载(_D)"
 
-#: ../data/dialogs.glade.h:96
+#: ../data/dialogs.glade.h:100
 msgid "_Font:"
 msgstr "字体(_F):"
 
 #. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:98
+#: ../data/dialogs.glade.h:102
 msgid "_From:"
 msgstr "下载自(_F):"
 
-#: ../data/dialogs.glade.h:99
+#: ../data/dialogs.glade.h:103
 msgid "_General"
 msgstr "常规(_G)"
 
-#: ../data/dialogs.glade.h:100
+#: ../data/dialogs.glade.h:104
 msgid "_Hide"
 msgstr "隐藏(_H)"
 
-#: ../data/dialogs.glade.h:101
+#: ../data/dialogs.glade.h:105
 msgid "_Host:"
 msgstr "主机(_H):"
 
-#: ../data/dialogs.glade.h:102
+#: ../data/dialogs.glade.h:106
 msgid "_Inactive color:"
 msgstr "未唱颜色(_I):"
 
-#: ../data/dialogs.glade.h:103
+#: ../data/dialogs.glade.h:107
 msgid "_Lock Position"
 msgstr "锁定位置(_L)"
 
-#: ../data/dialogs.glade.h:104
+#: ../data/dialogs.glade.h:108
 msgid "_Lyric Location"
 msgstr "歌词位置(_L)"
 
-#: ../data/dialogs.glade.h:105
+#: ../data/dialogs.glade.h:109
 msgid "_Network"
 msgstr "网络(_N)"
 
-#: ../data/dialogs.glade.h:106
+#: ../data/dialogs.glade.h:110
 msgid "_No lyric"
 msgstr "不要歌词(_N)"
 
-#: ../data/dialogs.glade.h:107
+#: ../data/dialogs.glade.h:111
 msgid "_OSD"
 msgstr "桌面歌词(_O)"
 
-#: ../data/dialogs.glade.h:108
+#: ../data/dialogs.glade.h:112
 msgid "_Scrolling"
 msgstr "滚动歌词(_S)"
 
-#: ../data/dialogs.glade.h:109
+#: ../data/dialogs.glade.h:113
 msgid "_Search"
 msgstr "搜索(_S)"
 
-#: ../data/dialogs.glade.h:110
+#: ../data/dialogs.glade.h:114
 msgid "_Search lyric..."
 msgstr "搜索歌词(_S)..."
 
-#: ../data/dialogs.glade.h:111
+#: ../data/dialogs.glade.h:115
 msgid "_Second line:"
 msgstr "次行(_S):"
 
-#: ../data/dialogs.glade.h:112
-msgid "_Site:"
-msgstr "站点(_S):"
-
-#: ../data/dialogs.glade.h:113
+#: ../data/dialogs.glade.h:116
 msgid "_Title:"
 msgstr "歌名(_T):"
 
-#: ../data/dialogs.glade.h:114
+#: ../data/dialogs.glade.h:117
 msgid "_Type:"
 msgstr "类型(_T):"
 
-#: ../data/dialogs.glade.h:115
+#: ../data/dialogs.glade.h:118
 msgid "_Username:"
 msgstr "用户名(_U):"
 
-#: ../data/dialogs.glade.h:116
+#: ../data/dialogs.glade.h:119
 msgid "bottom"
 msgstr "下"
 
-#: ../data/dialogs.glade.h:117
+#: ../data/dialogs.glade.h:120
 msgid "http://code.google.com/p/osd-lyrics/"
 msgstr "http://code.google.com/p/osd-lyrics/"
 
-#: ../data/dialogs.glade.h:118
+#: ../data/dialogs.glade.h:121
 msgid "middle"
 msgstr "中"
 
-#: ../data/dialogs.glade.h:119
+#: ../data/dialogs.glade.h:122
 msgid "top"
 msgstr "上"
 
-#: ../data/dialogs.glade.h:120
+#: ../data/dialogs.glade.h:123
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Tiger Soldier https://launchpad.net/~tigersoldi"
 
-#~ msgid "OSD"
-#~ msgstr "桌面歌词"
+#~ msgid "Searching lyrics"
+#~ msgstr "正在搜索歌词"
+
+#~ msgid "_Site:"
+#~ msgstr "站点(_S):"
+
+#~ msgid "None"
+#~ msgstr "无"
 
 #~ msgid "Qianqian"
 #~ msgstr "千千"
@@ -588,9 +639,6 @@ msgstr ""
 
 #~ msgid "If no player detected, launch the given player"
 #~ msgstr "如果没有检测到播放器，则运行指定播放器"
-
-#~ msgid "The command of player to launch"
-#~ msgstr "启动播放器的命令"
 
 #~ msgid "_Lock"
 #~ msgstr "锁定(_L)"

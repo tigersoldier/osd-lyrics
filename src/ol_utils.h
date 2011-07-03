@@ -21,6 +21,7 @@
 #define __OL_UTILS_H__
 #include <unistd.h>
 #include <glib.h>
+#include <gio/gio.h>
 
 #define ol_get_array_len(arr) (sizeof (arr) / sizeof (arr[0]))
 
@@ -172,5 +173,19 @@ char* ol_encode_hex (const char *data, ssize_t len);
  *            Should be freed with g_free.
  */
 void ol_path_splitext (const char *path, char **root, char **ext);
+
+/** 
+ * Compares two GAppInfo according to its name.
+ *
+ * The comparison is case-insensitive
+ *
+ * @param a 
+ * @param b 
+ * 
+ * @return 0 if the name of a equals to be.
+ *         Negative if a is less than b.
+ *         Otherwise a is greater than b.
+ */
+gint ol_app_info_cmp (GAppInfo *a, GAppInfo *b);
 
 #endif // __OL_UTILS_H__

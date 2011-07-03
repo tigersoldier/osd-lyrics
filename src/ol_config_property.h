@@ -34,12 +34,11 @@
 enum {
   PROP_0,
 
-  PROP_OSD_FONT_SIZE,
   PROP_OSD_OUTLINE_WIDTH,
   PROP_OSD_WIDTH,
   PROP_OSD_LOCKED,
   PROP_OSD_VISIBLE,
-  PROP_OSD_FONT_FAMILY,
+  PROP_OSD_FONT_NAME,
   PROP_OSD_LRC_ALIGN_0,
   PROP_OSD_LRC_ALIGN_1,
   PROP_OSD_ACTIVE_LRC_COLOR,
@@ -56,6 +55,7 @@ enum {
   PROP_NOTIFY_MUSIC,
   PROP_DISPLAY_MODE,
   PROP_OSD_WINDOW_MODE,
+  PROP_OSD_BLUR_RADIUS,
   PROP_PROXY,
   PROP_PROXY_HOST,
   PROP_PROXY_PORT,
@@ -70,6 +70,12 @@ enum {
   PROP_SCROLL_INACTIVE_LRC_COLOR,
   PROP_SCROLL_OPACITY,
   PROP_SCROLL_SCROLL_MODE,
+};
+
+static const char *OL_CONFIG_DEFAULT_DOWNLOAD_ENGINE[] = {
+  "ttPlayer",
+  "xiami",
+  NULL,
 };
 
 static const char *OL_CONFIG_ACTIVE_LRC_COLOR[] = {
@@ -162,6 +168,9 @@ struct _OlConfigInfo
 };
 
 static const OlConfigStrListValue config_str_list[] = {
+  {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
+   "Download engine", "Select the source where LRC files are downloaded from",
+   -1, OL_CONFIG_DEFAULT_DOWNLOAD_ENGINE},
   {PROP_OSD_ACTIVE_LRC_COLOR, "active-lrc-color", "OSD", "Active lyric color",
    "Colors of active lyrics", 3, OL_CONFIG_ACTIVE_LRC_COLOR},
   {PROP_OSD_INACTIVE_LRC_COLOR, "inactive-lrc-color", "OSD", "Inactive lyric color",
@@ -200,6 +209,7 @@ static const OlConfigBoolValue config_bool[] = {
 
 static const OlConfigIntValue config_int[] = {
   {PROP_OSD_WIDTH, "width", "OSD", "OSD Width", "The width of the OSD", 1, 10000, 1024},
+  {PROP_OSD_WIDTH, "outline-width", "OSD", "OSD Outline Width", "The width of the outline of lyrics", 0, 10, 3},
   {PROP_OSD_LINE_COUNT, "line-count", "OSD", "OSD line count", "The number of lyric lines in OSD", 1, 2, 1},
   {PROP_OSD_X, "x", "OSD", "OSD X position", "The horizontal position of OSD", 0, 10000, 0},
   {PROP_OSD_Y, "y", "OSD", "OSD Y position", "The vertical position of OSD", 0, 10000, 0},
@@ -211,9 +221,6 @@ static const OlConfigIntValue config_int[] = {
 };
 
 static const OlConfigDoubleValue config_double[] = {
-  {PROP_OSD_FONT_SIZE, "font-size", "OSD", "OSD Font Size",
-   "The font size of OSD lyrics",
-   0.0, 10000.0, 30.0},
   {PROP_OSD_LRC_ALIGN_0, "lrc-align-0", "OSD", "Lyric alignment 0",
    "Alignment of the first lyric line",
    0.0, 1.0, 0.0},
@@ -223,15 +230,15 @@ static const OlConfigDoubleValue config_double[] = {
   {PROP_SCROLL_OPACITY, "opacity", "ScrollMode", "Scroll Window Opacity",
    "The background opacity of the scroll window",
    0.0, 1.0, 0.9},
+  {PROP_OSD_BLUR_RADIUS, "blur-radius", "OSD", "OSD Blur Radius",
+   "Blur radius of shadow of texts in OSD window",
+   0.0, 5.0, 1.0},
 };
 
 static const OlConfigStringValue config_str[] = {
-  {PROP_OSD_FONT_FAMILY, "font-family", "OSD", "OSD Font family",
-   "Font family of OSD lyrics",
-   "serif"},
-  {PROP_DOWNLOAD_ENGINE, "download-engine", "Download",
-   "Download engine", "Select the source where LRC files are downloaded from",
-   "ttPlayer"},
+  {PROP_OSD_FONT_NAME, "font-name", "OSD", "OSD Font Name",
+   "Lyrics font in OSD window, like ``serif 30",
+   "serif 30"},
   {PROP_PROXY, "proxy", "Download",
    "Proxy", "The proxy to download lyrics. Available settings are no, system, or manual", "no"},
   {PROP_PROXY_TYPE, "proxy-type", "Download",

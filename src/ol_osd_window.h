@@ -179,39 +179,23 @@ void ol_osd_window_set_lyric (OlOsdWindow *osd, gint line, const char *lyric);
 void ol_osd_window_set_line_alignment (OlOsdWindow *osd, gint line, double alignment);
 
 /** 
- * @brief Sets the font family for an OSD Window
+ * @brief Sets the font name for an OSD Window
+ * 
+ * This name includes style and size information as well. The format follows the
+ * format in pango_font_description_from_string
  * 
  * @param osd An OlOsdWindow;
- * @param font_family Font family, must not be NULL
+ * @param font_family Font name, 
  */
-void ol_osd_window_set_font_family (OlOsdWindow *osd,
-                                    const char *font_family);
+void ol_osd_window_set_font_name (OlOsdWindow *osd,
+                                  const char *font_name);
 /** 
- * @brief Gets the font family for an OSD Window
- * 
+ * @brief Gets the font name for an OSD Window
+ *
  * @param osd An OlOsdWindow
- * @return The font family of the context, must be freed by g_free
+ * @return The font name of the context, must be freed by g_free
  */
-char* ol_osd_window_get_font_family (OlOsdWindow *osd);
-
-/** 
- * @brief Sets the font size for an OSD Window
- * 
- * @param osd An OlOsdWindow;
- * @param font_size Font size, must be positive
- */
-void ol_osd_window_set_font_size (OlOsdWindow *osd,
-                                  const double font_size);
-
-/** 
- * @brief Gets the font size for an OSD Window
- * 
- * @param osd An OlOsdWindow;
- * 
- * @return The font size for the context
- */
-double ol_osd_window_get_font_size (OlOsdWindow *osd);
-
+char* ol_osd_window_get_font_name (OlOsdWindow *osd);
 
 /** 
  * @brief Sets the outline width
@@ -318,4 +302,22 @@ enum OlOsdWindowMode ol_osd_window_get_mode (OlOsdWindow *osd);
  */
 void ol_osd_window_move (OlOsdWindow *osd, int x, int y);
 void ol_osd_window_get_pos (OlOsdWindow *osd, int *x, int *y);
+
+/** 
+ * Sets the blur radius of the shadow of text.
+ *
+ * The outline will be blurred as shadow if radius is greater than 0.
+ * @param osd 
+ * @param radius The blur radius.
+ */
+void ol_osd_window_set_blur_radius (OlOsdWindow *osd, double radius);
+
+/** 
+ * Gets the blur radius of the shadow of text.
+ * 
+ * @param osd 
+ * 
+ * @return 
+ */
+double ol_osd_window_get_blur_radius (OlOsdWindow *osd);
 #endif // __OSD_WINDOW_H__

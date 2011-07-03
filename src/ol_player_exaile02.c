@@ -51,13 +51,13 @@ static OlElapseEmulator *elapse_emulator = NULL;
 static gboolean ol_player_exaile02_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_exaile02_get_played_time (int *played_time);
 static gboolean ol_player_exaile02_get_music_length (int *len);
-static gboolean ol_player_exaile02_get_activated ();
-static gboolean ol_player_exaile02_init_dbus ();
-static enum OlPlayerStatus ol_player_exaile02_get_status ();
-static int ol_player_exaile02_get_capacity ();
+static gboolean ol_player_exaile02_get_activated (void);
+static gboolean ol_player_exaile02_init_dbus (void);
+static enum OlPlayerStatus ol_player_exaile02_get_status (void);
+static int ol_player_exaile02_get_capacity (void);
 
 static enum OlPlayerStatus
-ol_player_exaile02_get_status ()
+ol_player_exaile02_get_status (void)
 {
   if (connection == NULL || proxy == NULL)
     if (!ol_player_exaile02_init_dbus ())
@@ -196,7 +196,7 @@ ol_player_exaile02_get_music_length (int *len)
 }
 
 static gboolean
-ol_player_exaile02_get_activated ()
+ol_player_exaile02_get_activated (void)
 {
   ol_log_func ();
   if (connection == NULL || proxy == NULL)
@@ -220,7 +220,7 @@ ol_player_exaile02_get_activated ()
 }
 
 static gboolean
-ol_player_exaile02_init_dbus ()
+ol_player_exaile02_init_dbus (void)
 {
   ol_log_func ();
   if (connection == NULL)
@@ -253,13 +253,13 @@ ol_player_exaile02_init_dbus ()
 }
 
 static int
-ol_player_exaile02_get_capacity ()
+ol_player_exaile02_get_capacity (void)
 {
   return OL_PLAYER_STATUS;
 }
 
 struct OlPlayer*
-ol_player_exaile02_get ()
+ol_player_exaile02_get (void)
 {
   ol_log_func ();
   struct OlPlayer *controller = ol_player_new ("Exaile 0.2");
@@ -269,6 +269,6 @@ ol_player_exaile02_get ()
   controller->get_played_time = ol_player_exaile02_get_played_time;
   controller->get_music_length = ol_player_exaile02_get_music_length;
   controller->get_capacity = ol_player_exaile02_get_capacity;
-  controller->get_status = ol_player_get_status;
+  controller->get_status = ol_player_exaile02_get_status;
   return controller;
 }

@@ -18,21 +18,22 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <string.h>
+#include <math.h>
 #include "ol_osd_render.h"
+#include "ol_gussian_blur.h"
 #include "ol_debug.h"
 
 static const int DEFAULT_OUTLINE_WIDTH = 3;
-static const char *DEFAULT_FONT_FAMILY = "serif";
-static const double DEFAULT_FONT_SIZE = 30.0;
+static const char *DEFAULT_FONT_NAME = "serif 30";
 
-void ol_osd_render_update_font (OlOsdRenderContext *context);
+static void ol_osd_render_update_font (OlOsdRenderContext *context);
+static void ol_osd_render_update_font_height (OlOsdRenderContext *context);
 
 OlOsdRenderContext *
 ol_osd_render_context_new ()
 {
   OlOsdRenderContext *context = g_new (OlOsdRenderContext, 1);
-  context->font_family = g_strdup (DEFAULT_FONT_FAMILY);
-  context->font_size = DEFAULT_FONT_SIZE;
+  context->font_name = g_strdup (DEFAULT_FONT_NAME);
   int i;
   for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
   {
@@ -44,6 +45,7 @@ ol_osd_render_context_new ()
   context->pango_context = gdk_pango_context_get ();
   context->pango_layout = pango_layout_new (context->pango_context);
   context->text = NULL;
+  context->blur_radius = 0.0;
   ol_osd_render_update_font (context);
   ol_osd_render_set_outline_width (context, DEFAULT_OUTLINE_WIDTH);
   return context;
@@ -53,8 +55,8 @@ void
 ol_osd_render_context_destroy (OlOsdRenderContext *context)
 {
   ol_assert (context != NULL);
-  if (context->font_family != NULL)
-    g_free (context->font_family);
+  if (context->font_name != NULL)
+    g_free (context->font_name);
   if (context->pango_layout != NULL)
     g_object_unref (context->pango_layout);
   if (context->pango_context != NULL)
@@ -76,8 +78,8 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   ol_assert (text != NULL);
   ol_osd_render_set_text (context, text);
   int width, height;
-  xpos += context->outline_width / 2.0;
-  ypos += context->outline_width / 2.0;
+  xpos += context->outline_width / 2.0 + context->blur_radius;
+  ypos += context->outline_width / 2.0 + context->blur_radius;
   pango_layout_get_pixel_size (context->pango_layout, &width, &height);
   /* draws the outline of the text */
   cairo_move_to (cr, xpos, ypos);
@@ -88,6 +90,11 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   {
     cairo_set_line_width (cr, context->outline_width);
     cairo_stroke (cr);
+    if (context->blur_radius > 1e-4)
+    {
+      cairo_fill (cr);
+      ol_gussian_blur (cairo_get_target (cr), context->blur_radius);
+    }
   }
   cairo_restore (cr);
   cairo_save (cr);
@@ -125,9 +132,9 @@ ol_osd_render_get_pixel_size (OlOsdRenderContext *context,
   int w, h;
   pango_layout_get_pixel_size (context->pango_layout, &w, &h);
   if (width != NULL)
-    *width = w + context->outline_width;
+    *width = round (w + context->outline_width + context->blur_radius * 2);
   if (height != NULL)
-    *height = h + context->outline_width;
+    *height = round (h + context->outline_width + context->blur_radius * 2);
 }
 
 void
@@ -157,62 +164,32 @@ ol_osd_render_set_text (OlOsdRenderContext* context,
 }
 
 void
-ol_osd_render_set_font_family (OlOsdRenderContext *context,
-                               const char *font_family)
+ol_osd_render_set_font_name (OlOsdRenderContext *context,
+                             const char *font_name)
 {
   ol_assert (context != NULL);
-  ol_assert (font_family != NULL);
-  char *new_family = g_strdup (font_family);
-  if (context->font_family != NULL)
+  ol_assert (font_name != NULL);
+  char *new_name = g_strdup (font_name);
+  if (context->font_name != NULL)
   {
-    g_free (context->font_family);
+    g_free (context->font_name);
   }
-  context->font_family = new_family;
+  context->font_name = new_name;
   ol_osd_render_update_font (context);
 }
 
 char *
-ol_osd_render_get_font_family (OlOsdRenderContext *context)
+ol_osd_render_get_font_name (OlOsdRenderContext *context)
 {
   ol_assert_ret (context != NULL, NULL);
-  return g_strdup (context->font_family);
-}
-
-void
-ol_osd_render_set_font_size (OlOsdRenderContext *context,
-                             double font_size)
-{
-  ol_assert (context != NULL);
-  context->font_size = font_size;
-  ol_osd_render_update_font (context);
+  return g_strdup (context->font_name);
 }
 
 int
 ol_osd_render_get_font_height (OlOsdRenderContext *context)
 {
   ol_assert_ret (context != NULL, 0);
-  PangoFontMetrics *metrics = pango_context_get_metrics (context->pango_context,
-                                                         pango_layout_get_font_description (context->pango_layout), /* font desc */
-                                                         NULL); /* languague */
-  if (metrics == NULL)
-  {
-    return ol_osd_render_get_font_size (context);
-  }
-  int height = 0;
-  int ascent, descent;
-  ascent = pango_font_metrics_get_ascent (metrics);
-  descent = pango_font_metrics_get_descent (metrics);
-  pango_font_metrics_unref (metrics);
-    
-  height += PANGO_PIXELS (ascent + descent) + context->outline_width;
-  return height;
-}
-
-double
-ol_osd_render_get_font_size (OlOsdRenderContext *context)
-{
-  ol_assert_ret (context != NULL, 0.0);
-  return context->font_size;
+  return context->font_height;
 }
 
 void
@@ -231,14 +208,47 @@ ol_osd_render_get_outline_width (OlOsdRenderContext *context)
   return context->outline_width;
 }
 
-void
+static void
+ol_osd_render_update_font_height (OlOsdRenderContext *context)
+{
+  PangoFontMetrics *metrics = pango_context_get_metrics (context->pango_context,
+                                                         pango_layout_get_font_description (context->pango_layout), /* font desc */
+                                                         NULL); /* languague */
+  if (metrics == NULL)
+  {
+    ol_errorf ("Cannot get font metrics\n");
+  }
+  context->font_height = 0;
+  int ascent, descent;
+  ascent = pango_font_metrics_get_ascent (metrics);
+  descent = pango_font_metrics_get_descent (metrics);
+  pango_font_metrics_unref (metrics);
+  context->font_height += PANGO_PIXELS (ascent + descent);
+}
+
+static void
 ol_osd_render_update_font (OlOsdRenderContext *context)
 {
   ol_assert (context != NULL);
-  gchar *font_string = g_strdup_printf ("%s %0.0lf", context->font_family, context->font_size);
-  PangoFontDescription *font_desc = pango_font_description_from_string (font_string);
-  ol_debugf ("%s\n", font_string);
-  g_free (font_string);
+  PangoFontDescription *font_desc = pango_font_description_from_string (context->font_name);
   pango_layout_set_font_description (context->pango_layout, font_desc);
   pango_font_description_free (font_desc);
+  ol_osd_render_update_font_height (context);
+}
+
+void
+ol_osd_render_set_blur_radius (OlOsdRenderContext *context,
+                               double radius)
+{
+  ol_assert (context != NULL);
+  if (radius < 0.0)
+    radius = 0.0;
+  context->blur_radius = radius;
+}
+
+double
+ol_osd_render_get_blur_radius (OlOsdRenderContext *context)
+{
+  ol_assert_ret (context != NULL, 0.0);
+  return context->blur_radius;
 }

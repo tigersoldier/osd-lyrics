@@ -1,4 +1,4 @@
-bin_PROGRAMS = osd-lyrics
+bin_PROGRAMS = osdlyrics
 
 #ol_player_test
 #TEST = $(check_PROGRAMS)
@@ -56,6 +56,7 @@ noinst_HEADERS = \
 	ol_lrc_engine_list.h \
 	ol_lrc_fetch.h \
 	ol_lrc_fetch_module.h \
+	ol_lrc_fetch_xiami.h \
 	ol_lrc_fetch_ttplayer.h \
 	ol_lrc_fetch_ui.h \
 	ol_lrc_fetch_utils.h \
@@ -75,15 +76,10 @@ noinst_HEADERS = \
 	ol_osd_window.h \
 	ol_path_pattern.h \
 	ol_player_amarok1.h \
-	ol_player_amarok2.h \
-	ol_player_audacious.h \
 	ol_player_banshee.h \
-	ol_player_clementine.h \
-	ol_player_deciber.h \
 	ol_player_exaile02.h \
 	ol_player_exaile03.h \
 	ol_player_gmusicbrowser.h \
-	ol_player_guayadeque02.h \
 	ol_player.h \
 	ol_player_juk.h \
 	ol_player_listen.h \
@@ -91,13 +87,10 @@ noinst_HEADERS = \
 	ol_player_mpd.h \
 	ol_player_mpris.h \
 	ol_player_muine.h \
-	ol_player_qmmp.h \
 	ol_player_quodlibet.h \
-	ol_player_rhythmbox.h \
-	ol_player_songbird.h \
-	ol_player_vlc.h \
 	ol_player_xmms2.h \
 	ol_player_mpris2.h \
+	ol_player_utils.h \
 	ol_scroll_module.h \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
@@ -108,9 +101,11 @@ noinst_HEADERS = \
 	ol_utils_dbus.h \
 	ol_utils_dcop.h \
 	ol_utils_network.h \
+	ol_gussian_blur.h \
+	ol_player_chooser.h \
 	ol_utils.h
 
-osd_lyrics_SOURCES = \
+osdlyrics_SOURCES = \
 	ol_debug.c \
 	ol_main.c \
 	ol_singleton.c \
@@ -131,25 +126,17 @@ osd_lyrics_SOURCES = \
 	ol_player_exaile02.c \
 	ol_player_exaile03.c \
 	ol_player_amarok1.c \
-	ol_player_amarok2.c \
 	ol_player_mpris.c \
-	ol_player_audacious.c \
 	ol_player_quodlibet.c \
-	ol_player_songbird.c \
 	ol_player_xmms2.c \
-	ol_player_rhythmbox.c \
-	ol_player_qmmp.c \
 	ol_player_juk.c \
 	ol_player_moc.c \
 	ol_player_mpd.c \
 	ol_player_muine.c \
-	ol_player_guayadeque02.c \
-	ol_player_clementine.c    \
 	ol_player_listen.c \
-	ol_player_deciber.c \
 	ol_player_gmusicbrowser.c \
-	ol_player_vlc.c \
 	ol_player_mpris2.c \
+	ol_player_utils.c \
 	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \
@@ -165,6 +152,7 @@ osd_lyrics_SOURCES = \
 	ol_lrc_fetch.c \
 	ol_lrc_fetch_module.c \
 	ol_lrc_fetch_ui.c \
+	ol_lrc_fetch_xiami.c \
 	ol_lrc_fetch_ttplayer.c \
 	ol_lrc_fetch_utils.c \
 	ol_lrc_candidate_list.c \
@@ -182,7 +170,9 @@ osd_lyrics_SOURCES = \
 	ol_marshal.c \
 	ol_stock.c \
 	ol_notify.c \
-	ol_lrclib.c
+	ol_lrclib.c \
+	ol_player_chooser.c \
+	ol_gussian_blur.c
 
 #osd_lyrics_CXXFLAGS = @GTK2_CFLAGS@
 

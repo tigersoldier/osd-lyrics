@@ -41,8 +41,10 @@ struct _OlElapseEmulator
   int accuracy;
 };
 
+OlElapseEmulator *ol_elapse_emulator_new (int initial_time, int accuracy);
+void ol_elapse_emulator_free (OlElapseEmulator *emulator);
 void ol_elapse_emulator_init (OlElapseEmulator *emulator,
-                              int time,
+                              int initial_time,
                               int accuracy);
 int ol_elapse_emulator_get_real_ms (OlElapseEmulator *emulator,
                                     int time);

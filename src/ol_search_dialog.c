@@ -98,11 +98,15 @@ ol_search_dialog_cancel_click (GtkWidget *widget,
 }
 
 static gboolean internal_init ();
+static void internal_search_msg_callback (int search_id,
+                                          enum OlLrcSearchMsgType msg_type,
+                                          const char *message,
+                                          void *userdata);
 static void internal_search_callback (struct OlLrcFetchResult *result,
                                       void *userdata);
 
 gboolean
-ol_search_dialog_search_click (GtkWidget *widget, 
+ol_search_dialog_search_click (GtkWidget *widget,
                                gpointer data)
 {
   ol_log_func ();
@@ -115,22 +119,40 @@ ol_search_dialog_search_click (GtkWidget *widget,
   if (widgets.artist != NULL)
     ol_music_info_set_artist (info,
                               gtk_entry_get_text (widgets.artist));
-  engine = ol_lrc_engine_list_get_engine (widgets.engine);
-  if (widgets.msg != NULL)
-  {
-    char *msg = g_strdup_printf (_(MSG_SEARCHING), 
-                                 _(ol_lrc_fetch_engine_get_name (engine)));
-    gtk_label_set_text (widgets.msg, msg);
-  }
   gtk_widget_set_sensitive (GTK_WIDGET (widgets.list),
                             FALSE);
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
-  search_id = ol_lrc_fetch_begin_search (engine,
+  char **engine_list = (char**)ol_lrc_engine_list_get_engine_names (GTK_TREE_VIEW(widgets.engine));
+  search_id = ol_lrc_fetch_begin_search (engine_list,
                                          info,
+                                         internal_search_msg_callback,
                                          internal_search_callback,
                                          NULL);
+  g_strfreev (engine_list);
   return TRUE;
+}
+
+static void
+internal_search_msg_callback (int search_id,
+                              enum OlLrcSearchMsgType msg_type,
+                              const char *message,
+                              void *userdata)
+{
+  switch (msg_type)
+  {
+  case OL_LRC_SEARCH_MSG_ENGINE:
+    if (widgets.msg != NULL)
+    {
+      char *msg = g_strdup_printf (_(MSG_SEARCHING),
+                                   _(message));
+      gtk_label_set_text (widgets.msg, msg);
+    }
+    break;
+  default:
+    ol_errorf ("Unknown search message type %d: %s\n",
+               (int)msg_type, message);
+  }
 }
 
 static void
@@ -151,6 +173,7 @@ internal_search_callback (struct OlLrcFetchResult *result,
   {
     if (result->count > 0)
     {
+      engine = result->engine;
       char *msg = g_strdup_printf (_(MSG_FOUND), result->count);
       gtk_label_set_text (widgets.msg, msg);
     }
@@ -185,7 +208,7 @@ internal_init ()
     ol_lrc_candidate_list_init (widgets.list, 
                                 G_CALLBACK (internal_select_changed));
     widgets.engine = ol_gui_get_widget ("search-engine");
-    ol_lrc_engine_list_init (widgets.engine);
+    ol_lrc_engine_list_init (GTK_TREE_VIEW (widgets.engine));
   }
   return widgets.window != NULL;
 }
@@ -207,12 +230,13 @@ ol_search_dialog_show ()
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
   OlConfig *config = ol_config_get_instance ();
-  char *engine = ol_config_get_string (config, 
-                                       "Download",
-                                       "download-engine");
-  ol_lrc_engine_list_set_name (widgets.engine,
-                               engine);
-  g_free (engine);
+  char **engine_names = ol_config_get_str_list (config, 
+                                                "Download",
+                                                "download-engine",
+                                                NULL);
+  ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (widgets.engine),
+                                       engine_names);
+  g_strfreev (engine_names);
 
   gtk_widget_show (widgets.window);
 }

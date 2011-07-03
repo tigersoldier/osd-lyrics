@@ -26,8 +26,8 @@
 
 #define MAX_CANDIDATE 5
 
-const char *PREFIX_SEARCH_URL = "http://lrcct2.ttplayer.com/dll/lyricsvr.dll?sh?";
-const char *DOWNLOAD_URL = "http://lrcct2.ttplayer.com/dll/lyricsvr.dll?dl?Id=%d&Code=%d&uid=01&mac=%012x";
+const char *PREFIX_SEARCH_URL = "http://ttlrcct.qianqian.com/dll/lyricsvr.dll?sh?";
+const char *DOWNLOAD_URL = "http://ttlrcct.qianqian.com/dll/lyricsvr.dll?dl?Id=%d&Code=%d&uid=01&mac=%012x";
 
 struct CandidateParserData
 {
