@@ -142,6 +142,7 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_module.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
+	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
 	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils.c \
