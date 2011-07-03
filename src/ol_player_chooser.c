@@ -226,6 +226,7 @@ _set_app_table (OlPlayerChooser *window,
   ol_assert (GTK_IS_TABLE (table));
   int count = 0;
   GList *app = NULL;
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
   for (app = app_list; app != NULL;)
   {
     if (filter == NULL || filter (app->data))
@@ -244,7 +245,7 @@ _set_app_table (OlPlayerChooser *window,
   if (count == 0) return;
   app_list = g_list_sort (app_list, (GCompareFunc)ol_app_info_cmp);
   guint n_rows, n_columns;
-  gtk_table_get_size (table, &n_rows, &n_columns);
+  n_columns = priv->n_columns;
   n_rows = (count - 1) / n_columns + 1;
   gtk_table_resize (table, n_rows, n_columns);
   guint row = 0, col = 0;
