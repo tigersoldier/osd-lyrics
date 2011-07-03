@@ -91,6 +91,14 @@ main (int argc, char **argv)
   ol_music_info_set_title (&info, "title");
   ol_music_info_set_artist (&info, "artist");
   ol_music_info_set_album (&info, "album");
-  search_id = ol_lrc_fetch_begin_search (&engine, &info, dummy_search_callback, "Callback User data");
+  char *engines[] = {
+    "dummy",
+    NULL,
+  };
+  search_id = ol_lrc_fetch_begin_search (engines,
+                                         &info,
+                                         NULL,
+                                         dummy_search_callback,
+                                         "Callback User data");
   gtk_main ();
 }

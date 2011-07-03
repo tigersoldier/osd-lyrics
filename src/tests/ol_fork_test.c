@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -24,7 +25,7 @@ test_normal ()
 {
   static const char msg[] = "Fork Message";
   printf ("Forking\n");
-  if (ol_fork (callback, msg) == 0)
+  if (ol_fork (callback, (void*)msg, NULL) == 0)
   {
     sleep (2);
     fprintf (fret, msg);
@@ -40,7 +41,7 @@ void
 test_multiple_output ()
 {
   printf ("Forking\n");
-  if (ol_fork (callback, NULL) == 0)
+  if (ol_fork (callback, NULL, NULL) == 0)
   {
     fprintf (fret, "Before Sleep\n");
     sleep (2);
@@ -57,7 +58,7 @@ void
 test_no_output ()
 {
   printf ("Forking\n");
-  if (ol_fork (callback, NULL) == 0)
+  if (ol_fork (callback, NULL, NULL) == 0)
   {
     exit (0);
   }
@@ -71,7 +72,7 @@ void
 test_exit_status ()
 {
   printf ("Forking\n");
-  if (ol_fork (callback, NULL) == 0)
+  if (ol_fork (callback, NULL, NULL) == 0)
   {
     exit (10);
   }
