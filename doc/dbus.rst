@@ -12,7 +12,7 @@ Data Structures
 
 Lyrics Data
 -----------
-``a{sv}``
+``aa{sv}``
 
 Lyrics are repesented as array of dicts. Each dict in array represent a line of lyric. dicts are in ascending order by timestamp.
 
@@ -27,17 +27,63 @@ Lyric Path
 ``s``
 
 The path of an LRC file. It is in url format. Currently available schemas are:
+
  - file:
+
+Player Info
+--------
+``a{sv}``
+
+An dict of information of supported player application. Avaliable fields are:
+
+ - name: string. The name used to identify the player in OSD Lyrics. It SHOULD be composed with alphabet, underscore, or digits only.
+ - appname: string. The display name of the player application.
+ - binname: string. The name of executable file of the player applicatoin.
+ - cmd: string. The command line to launch the player.
+ - icon: string. The name of icon of the player application. May be empty if it is a cli player.
 
 Interfaces
 ==========
 
-Player Control
---------------
+Player Controlling
+------------------
 
 OSD Lyrics follows `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players. 
 
 OSD Lyrics uses the bus name ``org.mpris.MediaPlayer2.osdlyrics`` as an alias name according to the specification of MPRIS2.
+
+Player Support
+--------------
+
+These are features about players not covered by MPRIS2.
+
+The object path is ``/org/osdlyrics/player``.
+
+The interface is ``org.osdlyrics.player``
+
+Methods
+~~~~~~~
+
+GetSupportedPlayers() -> aa{sv}
+  Gets an array of infomation of supported players.
+
+  The returned value is an array of dicts. The fields of the dict is described in `Player Info`_.
+
+GetActivatablePlayers() -> aa{sv}
+  Similar to ``GetSupportedPlayers``, but the array contains the supported players which are installed in the computer only.
+
+GetCurrentPlayer() -> b, a{sv}
+  Gets the infomation of player currently connected to.
+
+  If no supported player is running, the first returned value is False. Otherwise the first returned value is True, and the second value is the infomation of the player in the format described in `Player Info`_.
+
+Signals
+~~~~~~~
+PlayerLost()
+  Emit when the currently connected player quits.
+
+PlayerConnected()
+  Emit when a support player is launched and connected as current player.
 
 Lyrics
 ------
@@ -49,7 +95,7 @@ The interface is ``org.osdlyrics.lyrics``.
 Methods
 ~~~~~~~
 
-GetLyrics(a{sv}:metadata) -> b, a{sv}
+GetLyrics(a{sv}:metadata) -> b, aa{sv}
   Gets the lyircs of specified metadata.
   
   If lyrics found for given metadata, the first returned value is True, and the second returned value is the array of lyrics described in `Lyrics Data`_. If no lyrics found, the first value will be False and the second is an empty array.
@@ -135,3 +181,33 @@ Lyrics searching
 ----------------
 
 TODO:
+
+
+Player Proxy
+============
+
+A player proxy is a client to support one or more players.
+
+A player proxy MUST have a unique name, like ``mpris`` or ``exaile03``. The well-known bus name and object path MUST be of the form ``org.osdlyrics.PlayerProxy.proxyname`` and ``/org/osdlyrics/PlayerProxy/proxyname``, where ``proxyname`` is the unique name.
+
+For instance, a player proxy of MPRIS2 may have a unique name ``mpris2``, and provides the bus name ``org.osdlyrics.PlayerClient.mpris2`` with object path ``/org/osdlyrics/PlayerProxy/mpris2``.
+
+The interface of player proxy is ``org.osdlyrics.PlayerProxy``
+
+Methods
+-------
+
+ListActivePlayers() -> aa{sv}
+  Lists supported players that are already running.
+
+  Returns an array of dict. The dict represents the information of a player described in `Player Info`_.
+
+ListActivatablePlayers() -> aa{sv}
+  Lists supported players that are not running but can be launched.
+
+  Returns an array of dict. The dict represents the information of a player described in `Player Info`_.
+
+ConnectPlayer(s:player_name) -> o
+  Connect to an active player. The player proxy SHOULD create an dbus object with the path of ``/org/osdlyrics/PlayerProxy/proxyname/player_name``. The ``player_name`` is the ``name`` field described in `Player Info`_.
+
+  The path of created object is returned. The created player object MUST implement interfaces described in `Player Object`_.
