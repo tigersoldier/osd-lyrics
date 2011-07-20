@@ -11,6 +11,7 @@ config.h.in
 configure
 config.guess
 config.sub
+py-compile
 configure.scan
 po/POTFILES
 missing
@@ -24,4 +25,5 @@ po/stamp-it
 autom4te.cache
 config.status
 cscope.out
+*.pyc
 *~

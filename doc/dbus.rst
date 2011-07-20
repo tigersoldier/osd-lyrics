@@ -40,7 +40,7 @@ An dict of information of supported player application. Avaliable fields are:
  - appname: string. The display name of the player application.
  - binname: string. The name of executable file of the player applicatoin.
  - cmd: string. The command line to launch the player.
- - icon: string. The name of icon of the player application. May be empty if it is a cli player.
+ - icon: string. *(optional)* The name of icon of the player application. May be empty if it is a cli player.
 
 Interfaces
 ==========
@@ -188,9 +188,9 @@ Player Proxy
 
 A player proxy is a client to support one or more players.
 
-A player proxy MUST have a unique name, like ``mpris`` or ``exaile03``. The well-known bus name and object path MUST be of the form ``org.osdlyrics.PlayerProxy.proxyname`` and ``/org/osdlyrics/PlayerProxy/proxyname``, where ``proxyname`` is the unique name.
+A player proxy MUST have a unique name, like ``Mpris`` or ``Exaile03``. The well-known bus name and object path MUST be of the form ``org.osdlyrics.PlayerProxy.proxyname`` and ``/org/osdlyrics/PlayerProxy/proxyname``, where ``proxyname`` is the unique name.
 
-For instance, a player proxy of MPRIS2 may have a unique name ``mpris2``, and provides the bus name ``org.osdlyrics.PlayerClient.mpris2`` with object path ``/org/osdlyrics/PlayerProxy/mpris2``.
+For instance, a player proxy of MPRIS2 may have a unique name ``Mpris2``, and provides the bus name ``org.osdlyrics.PlayerProxy.Mpris2`` with object path ``/org/osdlyrics/PlayerProxy/Mpris2``.
 
 The interface of player proxy is ``org.osdlyrics.PlayerProxy``
 

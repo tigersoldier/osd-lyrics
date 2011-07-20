@@ -24,15 +24,10 @@ AC_PROG_CXX
 AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
-AC_CONFIG_FILES([ po/Makefile.in
-	Makefile
-	lib/Makefile
-        lib/chardetect/Makefile
-	dailydeb.sh
-	src/Makefile
-	src/tests/Makefile
-	data/Makefile
-])
+AM_PATH_PYTHON([2.5])
+dnl fix pythondir to the site-package directory of python config
+pythondir=`$PYTHON -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
+AC_SUBST(pythondir)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -191,5 +186,20 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+
+AC_CONFIG_FILES([
+        po/Makefile.in
+	Makefile
+	lib/Makefile
+        lib/chardetect/Makefile
+	dailydeb.sh
+	src/Makefile
+	src/tests/Makefile
+	data/Makefile
+        players/Makefile
+        players/mpris2/Makefile
+        python/Makefile
+        python/dbus/Makefile
+])
 
 AC_OUTPUT
