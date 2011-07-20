@@ -100,8 +100,7 @@ class ProxyObject(dbus.service.Object):
         busObj = dbus.Interface(self._bus.get_object(dbus.BUS_DAEMON_NAME,
                                                      dbus.BUS_DAEMON_PATH),
                                 dbus_interface=dbus.BUS_DAEMON_IFACE)
-        players = self._get_player_from_bus_names(busObj.ListActivatableNames());
-        print players
+        players = self._get_player_from_bus_names(busObj.ListActivatableNames())
         return players
 
     @dbus.service.method(dbus_interface=PROXY_IFACE,
@@ -131,6 +130,8 @@ class PlayerObject(osdlyrics.dbus.Object):
             self._player_prop = dbus.Interface(self._bus.get_object(MPRIS2_PREFIX + player_name,
                                                                MPRIS2_PATH),
                                                dbus.PROPERTIES_IFACE)
+            self._player_prop.connect_to_signal('PropertiesChanged',
+                                                self._player_properties_changed)
             self._connected = True
         except:
             self.disconnect()
