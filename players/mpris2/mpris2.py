@@ -137,6 +137,8 @@ class PlayerObject(osdlyrics.dbus.Object):
         self._bus = bus
         self._disconnect_cb = disconnect_cb
         self._name = player_name
+        self._signal_math = None
+        self._name_watch = None
         try:
             self._player = dbus.Interface(self._bus.get_object(MPRIS2_PREFIX + player_name,
                                                                MPRIS2_PATH),
@@ -145,10 +147,10 @@ class PlayerObject(osdlyrics.dbus.Object):
             self._player_prop = dbus.Interface(self._bus.get_object(mpris2_object_path,
                                                                     MPRIS2_PATH),
                                                dbus.PROPERTIES_IFACE)
-            self._player_prop.connect_to_signal('PropertiesChanged',
-                                                self._player_properties_changed)
-            self.connection.watch_name_owner(mpris2_object_path,
-                                             self._name_lost)
+            self._signal_math = self._player_prop.connect_to_signal('PropertiesChanged',
+                                                                    self._player_properties_changed)
+            self._name_watch = self.connection.watch_name_owner(mpris2_object_path,
+                                                                self._name_lost)
             self._connected = True
         except:
             self.disconnect()
@@ -167,6 +169,14 @@ class PlayerObject(osdlyrics.dbus.Object):
     def disconnect(self):
         if self._connected:
             self._connected = False
+            if self._signal_math:
+                self._signal_math.remove()
+                self._signal_math = None
+            if self._name_watch:
+                self._name_watch.cancel()
+                self._name_watch = None
+            self._player = None
+            self._player_prop = None
             self.remove_from_connection()
 
     def _player_properties_changed(self, iface, changed, invalidated):
