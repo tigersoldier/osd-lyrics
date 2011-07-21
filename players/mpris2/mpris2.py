@@ -21,18 +21,19 @@
 import dbus
 import dbus.service
 import dbus.types
+import osdlyrics
 import osdlyrics.dbus
 
 from dbus.mainloop.glib import DBusGMainLoop
 
 PROXY_NAME = 'Mpris2'
-BUS_NAME = 'org.osdlyrics.PlayerProxy.' + PROXY_NAME
-PROXY_IFACE = 'org.osdlyrics.PlayerProxy'
-PROXY_PATH = '/org/osdlyrics/PlayerProxy/' + PROXY_NAME
+BUS_NAME = osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX + PROXY_NAME
+PROXY_IFACE = osdlyrics.PLAYER_PROXY_INTERFACE
+PROXY_PATH = osdlyrics.PLAYER_PROXY_OBJECT_PATH_PREFIX + PROXY_NAME
 MPRIS2_PREFIX = 'org.mpris.MediaPlayer2.'
 MPRIS2_IFACE = 'org.mpris.MediaPlayer2.Player'
 MPRIS2_PATH = '/org/mpris/MediaPlayer2'
-MPRIS1_IFACE = 'org.freedesktop.MediaPlayer'
+MPRIS1_IFACE = osdlyrics.MPRIS1_INTERFACE
 
 MPRIS_CAPS_GO_NEXT = 1 << 0
 MPRIS_CAPS_GO_PREV = 1 << 1
@@ -81,26 +82,24 @@ class ProxyObject(dbus.service.Object):
         """
         return [player_info_from_name(name[len(MPRIS2_PREFIX):]) for name in names
                 if name.startswith(MPRIS2_PREFIX)]
-        
-
 
     @dbus.service.method(dbus_interface=PROXY_IFACE,
                          in_signature='',
                          out_signature='aa{sv}')
     def ListActivePlayers(self):
-        busObj = dbus.Interface(self._bus.get_object(dbus.BUS_DAEMON_NAME,
-                                                     dbus.BUS_DAEMON_PATH),
-                                dbus_interface=dbus.BUS_DAEMON_IFACE)
-        return self._get_player_from_bus_names(busObj.ListNames());
+        return self._get_player_from_bus_names(self.connection.list_names());
+
+    @dbus.service.method(dbus_interface=PROXY_IFACE,
+                         in_signature='',
+                         out_signature='aa{sv}')
+    def ListSupportedPlayers(self):
+        return self.ListActivatablePlayers()
 
     @dbus.service.method(dbus_interface=PROXY_IFACE,
                          in_signature='',
                          out_signature='aa{sv}')
     def ListActivatablePlayers(self):
-        busObj = dbus.Interface(self._bus.get_object(dbus.BUS_DAEMON_NAME,
-                                                     dbus.BUS_DAEMON_PATH),
-                                dbus_interface=dbus.BUS_DAEMON_IFACE)
-        players = self._get_player_from_bus_names(busObj.ListActivatableNames())
+        players = self._get_player_from_bus_names(self.connection.list_activatable_names())
         return players
 
     @dbus.service.method(dbus_interface=PROXY_IFACE,
@@ -109,36 +108,66 @@ class ProxyObject(dbus.service.Object):
     def ConnectPlayer(self, player_name):
         if self._connected_players.setdefault(player_name, None):
             return self._connected_players[player_name].object_path
-        player = PlayerObject(bus=self.connection, player_name=player_name)
+        player = PlayerObject(bus=self.connection,
+                              player_name=player_name,
+                              disconnect_cb=self._player_lost_cb)
         if player.connected:
             self._connected_players[player_name] = player
             return player.object_path
         else:
             raise Exception('%s cannot be connected' % player_name)
 
+    def _player_lost_cb(self, player):
+        if player.name in self._connected_players:
+            del self._connected_players[player.name]
+            self.PlayerLost(player.name)
+
+    @dbus.service.signal(dbus_interface=PROXY_IFACE,
+                         signature='s')
+    def PlayerLost(self, player_name):
+        print 'name lost %s' % player_name
+        pass
+
 class PlayerObject(osdlyrics.dbus.Object):
-    def __init__(self, player_name, bus):
+    def __init__(self, player_name, bus, disconnect_cb=None):
         self._object_path = PROXY_PATH + '/' + player_name
         dbus.service.Object.__init__(self,
                                      conn=bus,
                                      object_path=self._object_path)
         self._bus = bus
+        self._disconnect_cb = disconnect_cb
+        self._name = player_name
         try:
             self._player = dbus.Interface(self._bus.get_object(MPRIS2_PREFIX + player_name,
                                                                MPRIS2_PATH),
                                           MPRIS2_IFACE)
-            self._player_prop = dbus.Interface(self._bus.get_object(MPRIS2_PREFIX + player_name,
-                                                               MPRIS2_PATH),
+            mpris2_object_path = MPRIS2_PREFIX + player_name
+            self._player_prop = dbus.Interface(self._bus.get_object(mpris2_object_path,
+                                                                    MPRIS2_PATH),
                                                dbus.PROPERTIES_IFACE)
             self._player_prop.connect_to_signal('PropertiesChanged',
                                                 self._player_properties_changed)
+            self.connection.watch_name_owner(mpris2_object_path,
+                                             self._name_lost)
             self._connected = True
         except:
             self.disconnect()
 
+    @property
+    def name(self):
+        return self._name
+    
+    def _name_lost(self, name):
+        if len(name) > 0:
+            return
+        if callable(self._disconnect_cb):
+            self._disconnect_cb(self)
+        self.disconnect()
+            
     def disconnect(self):
-        self._connected = False
-        self.remove_from_connection()
+        if self._connected:
+            self._connected = False
+            self.remove_from_connection()
 
     def _player_properties_changed(self, iface, changed, invalidated):
         caps_props = ['CanGoNext', 'CanGoPrevious', 'CanPlay', 'CanPause', 'CanSeek']
@@ -334,11 +363,36 @@ class PlayerObject(osdlyrics.dbus.Object):
 
 def run():
     import glib
+    def daemon_name_changed(name):
+        if len(name) == 0:
+            print 'Daemon is not running, exit'
+            loop.quit()
+    
+    def watch_daemon_bus(name):
+        if len(name) > 0:
+            bus.watch_name_owner(osdlyrics.BUS_NAME, daemon_name_changed)
+
+    def get_options():
+        from optparse import OptionParser
+        parser = OptionParser()
+        parser.add_option('-w', '--watch-daemon',
+                          dest='watch_daemon',
+                          action='store',
+                          default=osdlyrics.BUS_NAME,
+                          metavar='BUS_NAME',
+                          help='A well-known bus name on DBus. Exit when the ' \
+                          'name disappears. If set to empty string, this player ' \
+                          'proxy will not exit.')
+        (options, args) = parser.parse_args()
+        return options
+
+    options = get_options()
     loop = glib.MainLoop()
     dbus_mainloop = DBusGMainLoop()
     bus = dbus.SessionBus(mainloop=dbus_mainloop)
     bus_name = dbus.service.BusName(BUS_NAME, bus)
     mpris_proxy = ProxyObject(bus_name)
+    watch_daemon_bus(options.watch_daemon)
     loop.run()
 
 if __name__ == '__main__':
