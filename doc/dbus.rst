@@ -48,7 +48,7 @@ Interfaces
 Player Controlling
 ------------------
 
-OSD Lyrics follows `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players. 
+OSD Lyrics follows `MPRIS1 http://xmms2.org/wiki/MPRIS`_ and `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players. 
 
 OSD Lyrics uses the bus name ``org.mpris.MediaPlayer2.osdlyrics`` as an alias name according to the specification of MPRIS2.
 
@@ -57,19 +57,19 @@ Player Support
 
 These are features about players not covered by MPRIS2.
 
-The object path is ``/org/osdlyrics/player``.
+The object path is ``/org/osdlyrics/Player``.
 
-The interface is ``org.osdlyrics.player``
+The interface is ``org.osdlyrics.Player``
 
 Methods
 ~~~~~~~
 
-GetSupportedPlayers() -> aa{sv}
+ListSupportedPlayers() -> aa{sv}
   Gets an array of infomation of supported players.
 
   The returned value is an array of dicts. The fields of the dict is described in `Player Info`_.
 
-GetActivatablePlayers() -> aa{sv}
+ListActivatablePlayers() -> aa{sv}
   Similar to ``GetSupportedPlayers``, but the array contains the supported players which are installed in the computer only.
 
 GetCurrentPlayer() -> b, a{sv}
@@ -82,15 +82,17 @@ Signals
 PlayerLost()
   Emit when the currently connected player quits.
 
-PlayerConnected()
+PlayerConnected(a{sv})
   Emit when a support player is launched and connected as current player.
+
+  player_info(a{sv}): The info of connected player. The format is described in `Player Info`_
 
 Lyrics
 ------
 
-The object path for lyrics manipulation is ``/org/osdlyrics/lyrics``.
+The object path for lyrics manipulation is ``/org/osdlyrics/Lyrics``.
 
-The interface is ``org.osdlyrics.lyrics``.
+The interface is ``org.osdlyrics.Lyrics``.
 
 Methods
 ~~~~~~~
@@ -130,9 +132,9 @@ CurrentLyricsChanged()
 Configure
 ---------
 
-The object path of configuration is ``/org/osdlyrics/config``.
+The object path of configuration is ``/org/osdlyrics/Config``.
 
-The interface is ``org.osdlyrics.config``.
+The interface is ``org.osdlyrics.Config``.
 
 The name of configure options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -203,11 +205,20 @@ ListActivePlayers() -> aa{sv}
   Returns an array of dict. The dict represents the information of a player described in `Player Info`_.
 
 ListActivatablePlayers() -> aa{sv}
-  Lists supported players that are not running but can be launched.
+  Lists supported players installed on the system.
 
   Returns an array of dict. The dict represents the information of a player described in `Player Info`_.
+
+ListSupportedPlayers() -> aa{sv}
+  Lists all supported players which can be launched on system.
 
 ConnectPlayer(s:player_name) -> o
   Connect to an active player. The player proxy SHOULD create an dbus object with the path of ``/org/osdlyrics/PlayerProxy/proxyname/player_name``. The ``player_name`` is the ``name`` field described in `Player Info`_.
 
   The path of created object is returned. The created player object MUST implement interfaces described in `Player Object`_.
+
+Signals
+-------
+
+PlayerLost(s)
+  The player of name s is lost
