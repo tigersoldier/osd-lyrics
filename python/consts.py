@@ -24,6 +24,7 @@ __all__ = (
     'PLAYER_OBJECT_PATH',
     'LYRICS_INTERFACE',
     'LYRICS_OBJECT_PATH',
+    'CONFIG_BUS_NAME',
     'CONFIG_INTERFACE',
     'CONFIG_OBJECT_PATH',
     'PLAYER_PROXY_BUS_NAME_PREFIX',
@@ -39,9 +40,17 @@ PLAYER_INTERFACE = 'org.osdlyrics.Player'
 PLAYER_OBJECT_PATH = '/org/osdlyrics/Player'
 LYRICS_INTERFACE = 'org.osdlyrics.Lyrics'
 LYRICS_OBJECT_PATH = '/org/osdlyrics/Lyrics'
+CONFIG_BUS_NAME = 'org.osdlyrics.Config'
 CONFIG_INTERFACE = 'org.osdlyrics.Config'
 CONFIG_OBJECT_PATH = '/org/osdlyrics/Config'
 PLAYER_PROXY_BUS_NAME_PREFIX = 'org.osdlyrics.PlayerProxy.'
 PLAYER_PROXY_INTERFACE = 'org.osdlyrics.PlayerProxy'
 PLAYER_PROXY_OBJECT_PATH_PREFIX = '/org/osdlyrics/PlayerProxy/'
 MPRIS1_INTERFACE = 'org.freedesktop.MediaPlayer'
+
+# Metadata keys
+METADATA_TITLE = 'title'
+METADATA_ARTIST = 'artist'
+METADATA_ALBUM = 'album'
+METADATA_TRACKNUM = 'tracknumber'
+METADATA_URI = 'location'
