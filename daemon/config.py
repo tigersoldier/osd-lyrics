@@ -19,3 +19,4 @@
 #/
 
 PROGRAM_NAME = 'OSD Lyrics'
+PACKAGE_NAME = 'osdlyrics'
