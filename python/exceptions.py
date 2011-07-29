@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2011  Tiger Soldier
 #
@@ -17,17 +18,11 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
-SUBDIRS = dbus
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return repr(self.message)
 
-ol_PYTHON = \
-	__init__.py \
-	consts.py \
-	config.py \
-	pattern.py \
-	lrc.py \
-	utils.py \
-	exceptions.py \
-	$(NULL)
-
-oldir = @pkgpythondir@
-
+class PatternException(Error):
+    pass

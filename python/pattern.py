@@ -22,12 +22,7 @@ import consts
 import urlparse
 import urllib
 import os.path
-
-class PatternException(Exception):
-    def __init__(self, message):
-        self.message = message
-    def __str__(self):
-        return repr(self.message)
+from exceptions import PatternException
 
 def expand_file(pattern, metadata):
     """
