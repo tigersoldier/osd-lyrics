@@ -19,16 +19,17 @@
 #/
 
 import consts
-# make sure we import the dbus package in the site-packages rather than the
-# local dbus directory
-import sys
-first = sys.path[0]
-sys.path = sys.path[1:]
 import dbus
-sys.path = [first] + sys.path
 
 class Config(object):
-    """ Retrive configs from OSD Lyrics
+    """ Helper class to retrive configs from OSD Lyrics through DBus
+
+    It provides a set of get_<type> functions to get config values with default
+    values. If the value with given key exists, return the value. Otherwise the value
+    to the key is set to the default value, and returns it. If no default value
+    specified and the key does not exist, raise an exception.
+
+    Values can be monitored by connect_change function.
     """
     
     def __init__(self, conn):
@@ -121,6 +122,12 @@ class Config(object):
         self._proxy.SetStringList(key, value)
 
     def connect_change(self, key, func):
+        """
+        Calls func once a config value with specified key is changed
+
+        The callback function `func` receives one argument, the key that
+        has changed
+        """
         if not callable(func):
             return
         self._signals.setdefault(key, []).append(func)
