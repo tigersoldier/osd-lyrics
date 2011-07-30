@@ -20,7 +20,7 @@
 
 import dbus.service
 import osdlyrics
-import osdlyrics.dbus
+import osdlyrics.dbusext
 import glib
 import config
 
@@ -182,12 +182,12 @@ class PlayerSupport(dbus.service.Object):
     def PlayerConnected(self, player_info):
         pass
 
-class Mpris1Root(osdlyrics.dbus.Object):
+class Mpris1Root(osdlyrics.dbusext.Object):
     """ Root object of MPRIS1
     """
     
     def __init__(self, conn):
-        osdlyrics.dbus.Object.__init__(self, conn=conn, object_path='/')
+        osdlyrics.dbusext.Object.__init__(self, conn=conn, object_path='/')
 
     @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
                          in_signature='',
@@ -209,12 +209,12 @@ class Mpris1Root(osdlyrics.dbus.Object):
         return (1, 0)
 
 
-class Mpris1Player(osdlyrics.dbus.Object):
+class Mpris1Player(osdlyrics.dbusext.Object):
     """
     /Player object of MPRIS1
     """
     def __init__(self, conn):
-        osdlyrics.dbus.Object.__init__(self, conn=conn, object_path='/Player')
+        osdlyrics.dbusext.Object.__init__(self, conn=conn, object_path='/Player')
         self._player = None
         self._player_bus = ''
         self._player_path = ''

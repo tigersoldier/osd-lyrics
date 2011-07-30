@@ -28,13 +28,7 @@ __all__ = (
 
 import re
 
-# make sure we import the dbus package in the site-packages rather than the
-# local dbus directory
-import sys
-first = sys.path[0]
-sys.path = sys.path[1:]
 import dbus.types
-sys.path = [first].extend(sys.path)
 
 LINE_PATTERN = re.compile(r'(\[[^\[]*?\])')
 TIMESTAMP_PATTERN = re.compile(r'^\[(\d+(:\d+){0,2}(\.\d+)?)\]$')

@@ -24,7 +24,7 @@ ol_dbus_PYTHON = \
 	property.py \
 	$(NULL)
 
-ol_dbusdir = @pkgpythondir@/dbus
+ol_dbusdir = @pkgpythondir@/dbusext
 
 CLEANFILES = \
 	*.pyc \

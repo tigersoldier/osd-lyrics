@@ -22,7 +22,7 @@ import dbus
 import dbus.service
 import dbus.types
 import osdlyrics
-import osdlyrics.dbus
+import osdlyrics.dbusext
 
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -128,7 +128,7 @@ class ProxyObject(dbus.service.Object):
         print 'name lost %s' % player_name
         pass
 
-class PlayerObject(osdlyrics.dbus.Object):
+class PlayerObject(osdlyrics.dbusext.Object):
     def __init__(self, player_name, bus, disconnect_cb=None):
         self._object_path = PROXY_PATH + '/' + player_name
         dbus.service.Object.__init__(self,

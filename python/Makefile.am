@@ -17,7 +17,7 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
-SUBDIRS = dbus
+SUBDIRS = dbusext
 
 ol_PYTHON = \
 	__init__.py \

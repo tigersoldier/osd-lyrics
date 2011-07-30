@@ -199,7 +199,7 @@ AC_CONFIG_FILES([
         players/Makefile
         players/mpris2/Makefile
         python/Makefile
-        python/dbus/Makefile
+        python/dbusext/Makefile
 ])
 
 AC_OUTPUT
