@@ -42,6 +42,18 @@ An dict of information of supported player application. Avaliable fields are:
  - cmd: string. The command line to launch the player.
  - icon: string. *(optional)* The name of icon of the player application. May be empty if it is a cli player.
 
+Metadata
+--------
+``a{sv}``
+
+Use the format described in `MPRIS1 http://xmms2.org/wiki/MPRIS`_, with the following fields:
+
+ - title:
+ - artist:
+ - album:
+ - location:
+ - tracknumber:
+
 Interfaces
 ==========
 
@@ -131,6 +143,7 @@ CurrentLyricsChanged()
 
 Configure
 ---------
+The well-known bus name of configure module is ``org.osdlyrics.config``
 
 The object path of configuration is ``/org/osdlyrics/Config``.
 
@@ -143,31 +156,31 @@ All the name used in configure options MUST be in the format of "group_name/opti
 Methods
 ~~~~~~~
 
-GetInt(s:name, int32:default_value) -> int32
+GetInt(s:name) -> int32
     Gets an int32 in config. If the value of name does not exists, default_value will be returned.
 
 SetInt(s:name, int32:value)
   Sets an int32 value.
 
-GetString(s:name, s:default_value) -> s
+GetString(s:name) -> s
   Gets a string. If the value of name does not exists, default_value will be returned.
 
 SetString(s:name, s:value)
   Sets a string value.
 
-GetBool(s:name, b:default_value) -> b
+GetBool(s:name) -> b
   Gets a boolean value. If the value of name does not exists, default_value will be returned.
 
 SetBool(s:name, b:value)
   Sets a boolean value.
 
-GetDouble(s:name, d:default_value) -> d
+GetDouble(s:name) -> d
   Gets a double value. If the value of name does not exists, default_value will be returned.
 
 SetDouble(s:name, d:value)
   Sets a double value.
 
-GetStringList(s:name, as:default_value) -> as
+GetStringList(s:name) -> as
   Gets an array of strings. If the value of name does not exists, default_value will be returned.
 
 SetStringList(s:name, as:value)
@@ -176,8 +189,8 @@ SetStringList(s:name, as:value)
 Signals
 ~~~~~~~
 
-ConfigChanged(s:name)
-  Emit when one or more config value has been changed.
+ValueChanged(as:name_list)
+  Emit when one or more config value has been changed. ``name_list`` is a list of names of changed values.
 
 Lyrics searching
 ----------------
