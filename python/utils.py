@@ -18,8 +18,10 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 import os.path
+import urllib
 __all__ = (
     'get_config_path',
+    'path2uri',
     )
 
 def get_config_path(filename='', expanduser=True):
@@ -40,6 +42,32 @@ def get_config_path(filename='', expanduser=True):
     if expanduser:
         path = os.path.expanduser(path)
     return path
+
+def path2uri(path):
+    r"""
+    Converts a path to URI with file sheme.
+    
+    If a path does not start with a slash (/), it is considered to be an invalid
+    path and returned directly.
+
+    >>> path2uri('/path/to/file')
+    'file:///path/to/file'
+    >>> path2uri('file:///path/to/file')
+    'file:///path/to/file'
+    >>> path2uri(u'/path/to/file')
+    'file:///path/to/file'
+    >>> path2uri('invalid/path')
+    'invalid/path'
+    >>> path2uri('/\xe8\xb7\xaf\xe5\xbe\x84/\xe6\x96\x87\xe4\xbb\xb6')
+    'file:///%E8%B7%AF%E5%BE%84/%E6%96%87%E4%BB%B6'
+    """
+    if path.startswith('~'):
+        path = os.path.expanduser(path)
+    if not path.startswith('/'):
+        return path
+    if isinstance(path, unicode):
+        path = path.encode('utf8')
+    return 'file://' + urllib.pathname2url(path)
 
 if __name__ == '__main__':
     import doctest
