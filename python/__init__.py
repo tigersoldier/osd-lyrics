@@ -19,3 +19,4 @@
 #/
 
 from consts import *
+from app import *

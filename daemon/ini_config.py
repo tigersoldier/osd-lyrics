@@ -239,21 +239,16 @@ def test():
     doctest.testmod()
 
 def run():
-    import sys
-    from dbus.mainloop.glib import DBusGMainLoop
-    loop = glib.MainLoop()
-    dbus_mainloop = DBusGMainLoop()
-    conn = dbus.SessionBus(mainloop=dbus_mainloop)
-    bus_name = dbus.service.BusName(osdlyrics.CONFIG_BUS_NAME, conn)
+    app = osdlyrics.App('Config')
     if len(sys.argv) > 1:
-        ini_conf = IniConfig(conn, sys.argv[1])
+        ini_conf = IniConfig(app.connection, sys.argv[1])
     else:
-        ini_conf = IniConfig(conn)
-    loop.run()
+        ini_conf = IniConfig(app.connection)
+    app.run()
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == '--test':
+    if '--test' in sys.argv:
         test()
     else:
         run()

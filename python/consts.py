@@ -31,6 +31,13 @@ __all__ = (
     'PLAYER_PROXY_INTERFACE',
     'PLAYER_PROXY_OBJECT_PATH_PREFIX',
     'MPRIS1_INTERFACE',
+    'APP_BUS_PREFIX',
+    
+    'METADATA_TITLE',
+    'METADATA_ARTIST',
+    'METADATA_ALBUM',
+    'METADATA_TRACKNUM',
+    'METADATA_URI',
     )
 
 # DBus names, interfaces and object paths
@@ -47,6 +54,7 @@ PLAYER_PROXY_BUS_NAME_PREFIX = 'org.osdlyrics.PlayerProxy.'
 PLAYER_PROXY_INTERFACE = 'org.osdlyrics.PlayerProxy'
 PLAYER_PROXY_OBJECT_PATH_PREFIX = '/org/osdlyrics/PlayerProxy/'
 MPRIS1_INTERFACE = 'org.freedesktop.MediaPlayer'
+APP_BUS_PREFIX = 'org.osdlyrics.'
 
 # Metadata keys
 METADATA_TITLE = 'title'

@@ -359,13 +359,9 @@ class Mpris1Player(osdlyrics.dbusext.Object):
         pass
 
 def test():
-    from dbus.mainloop.glib import DBusGMainLoop
-    loop = glib.MainLoop()
-    dbus_mainloop = DBusGMainLoop()
-    conn = dbus.SessionBus(mainloop=dbus_mainloop)
-    bus_name = dbus.service.BusName(osdlyrics.BUS_NAME, conn)
-    player_support = PlayerSupport(conn)
-    loop.run()
+    app = osdlyrics.App('osdlyrics')
+    player_support = PlayerSupport(app.connection)
+    app.run()
         
 if __name__ == '__main__':
     test()

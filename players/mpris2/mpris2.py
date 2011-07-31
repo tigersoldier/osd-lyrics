@@ -58,18 +58,16 @@ class ProxyObject(dbus.service.Object):
     """ The DBus object for MPRIS2 player proxy
     """
     
-    def __init__(self, bus_name):
+    def __init__(self, conn):
         """
         
         Arguments:
         - `bus_name`: A well-known bus name object
         """
-        self._bus = bus_name.get_bus()
-        self._bus_name = bus_name
         self._connected_players = {}
         dbus.service.Object.__init__(self,
-                                     bus_name = self._bus_name,
-                                     object_path = PROXY_PATH)
+                                     conn=conn,
+                                     object_path=PROXY_PATH)
 
     def _get_player_from_bus_names(self, names):
         """ Returns list of player info dicts according to names.
@@ -108,7 +106,7 @@ class ProxyObject(dbus.service.Object):
     def ConnectPlayer(self, player_name):
         if self._connected_players.setdefault(player_name, None):
             return self._connected_players[player_name].object_path
-        player = PlayerObject(bus=self.connection,
+        player = PlayerObject(conn=self.connection,
                               player_name=player_name,
                               disconnect_cb=self._player_lost_cb)
         if player.connected:
@@ -129,23 +127,22 @@ class ProxyObject(dbus.service.Object):
         pass
 
 class PlayerObject(osdlyrics.dbusext.Object):
-    def __init__(self, player_name, bus, disconnect_cb=None):
+    def __init__(self, player_name, conn, disconnect_cb=None):
         self._object_path = PROXY_PATH + '/' + player_name
         dbus.service.Object.__init__(self,
-                                     conn=bus,
+                                     conn=conn,
                                      object_path=self._object_path)
-        self._bus = bus
         self._disconnect_cb = disconnect_cb
         self._name = player_name
         self._signal_math = None
         self._name_watch = None
         try:
-            self._player = dbus.Interface(self._bus.get_object(MPRIS2_PREFIX + player_name,
-                                                               MPRIS2_PATH),
+            self._player = dbus.Interface(self.connection.get_object(MPRIS2_PREFIX + player_name,
+                                                                     MPRIS2_PATH),
                                           MPRIS2_IFACE)
             mpris2_object_path = MPRIS2_PREFIX + player_name
-            self._player_prop = dbus.Interface(self._bus.get_object(mpris2_object_path,
-                                                                    MPRIS2_PATH),
+            self._player_prop = dbus.Interface(self.connection.get_object(mpris2_object_path,
+                                                                          MPRIS2_PATH),
                                                dbus.PROPERTIES_IFACE)
             self._signal_math = self._player_prop.connect_to_signal('PropertiesChanged',
                                                                     self._player_properties_changed)
@@ -372,38 +369,9 @@ class PlayerObject(osdlyrics.dbusext.Object):
         pass
 
 def run():
-    import glib
-    def daemon_name_changed(name):
-        if len(name) == 0:
-            print 'Daemon is not running, exit'
-            loop.quit()
-    
-    def watch_daemon_bus(name):
-        if len(name) > 0:
-            bus.watch_name_owner(osdlyrics.BUS_NAME, daemon_name_changed)
-
-    def get_options():
-        from optparse import OptionParser
-        parser = OptionParser()
-        parser.add_option('-w', '--watch-daemon',
-                          dest='watch_daemon',
-                          action='store',
-                          default=osdlyrics.BUS_NAME,
-                          metavar='BUS_NAME',
-                          help='A well-known bus name on DBus. Exit when the ' \
-                          'name disappears. If set to empty string, this player ' \
-                          'proxy will not exit.')
-        (options, args) = parser.parse_args()
-        return options
-
-    options = get_options()
-    loop = glib.MainLoop()
-    dbus_mainloop = DBusGMainLoop()
-    bus = dbus.SessionBus(mainloop=dbus_mainloop)
-    bus_name = dbus.service.BusName(BUS_NAME, bus)
-    mpris_proxy = ProxyObject(bus_name)
-    watch_daemon_bus(options.watch_daemon)
-    loop.run()
+    app = osdlyrics.App(PROXY_NAME)
+    mpris_proxy = ProxyObject(app.connection)
+    app.run()
 
 if __name__ == '__main__':
     run()
