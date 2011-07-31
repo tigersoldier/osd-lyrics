@@ -32,14 +32,15 @@ class Config(object):
     Values can be monitored by connect_change function.
     """
     
-    def __init__(self, conn):
+    def __init__(self, conn, follow_name_owner_changes=True):
         """
         Arguments:
         - `conn`: DBus connection
         """
         self._conn = conn
         self._proxy = conn.get_object(consts.CONFIG_BUS_NAME,
-                                      consts.CONFIG_OBJECT_PATH)
+                                      consts.CONFIG_OBJECT_PATH,
+                                      follow_name_owner_changes=follow_name_owner_changes)
         self._proxy = dbus.Interface(self._proxy,
                                      consts.CONFIG_INTERFACE)
         self._signals = {}
