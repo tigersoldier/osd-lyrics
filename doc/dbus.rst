@@ -130,7 +130,7 @@ GetCurrentRawLyrics() -> b, s
 SetLyricContent(a{sv}:metadata, s:content) -> s
   Sets the lyrics of specified metadata by content of LRC file.
   
-  Returns the path of assigned lyrics. Path is a URI and follows the format described in `Lyric Path`_.
+  Returns the path of assigned lyrics. Path is a URI and follows the format described in `Lyric Path`_. If the given metadata cannot be expended to a valid path, or errors raised when saving the content to the file, an empty string is returned and the lyrics to the metadata is not changed.
 
 AssignLyricFile(a{sv}:metadata, s:filepath) -> nothing
   Assigns an LRC file to given metadata.
