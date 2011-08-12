@@ -1,4 +1,11 @@
-Version 0.4.1: Coming
+Version 0.4.1: 2011-07-19
+ * Choose player if no supported player running on launch
+ * Outline blur on OSD mode
+ * Support all MPRIS-compatible players
+ * New lyrics search site: xiami.com
+ * Fix ttPlayer search
+ * Search lyrics from more than one sites
+ * All files with the name of `osd-lyrics' are replaced to `osdlyrics'
 
 Version 0.4.0: 2011-06-04
  * Support more players: Clementine, Deciber-audio-player, Gmusicbrowser, Listen, and VLC.
