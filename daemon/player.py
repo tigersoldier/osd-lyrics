@@ -233,7 +233,7 @@ class Mpris1Player(osdlyrics.dbusext.Object):
         self._signals.append(self._player.connect_to_signal('StatusChange',
                                                             self.StatusChange))
 
-    def disconnect_player():
+    def disconnect_player(self):
         for signal in self._signals:
             signal.remove()
         self._signals = []

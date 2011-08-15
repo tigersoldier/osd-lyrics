@@ -25,6 +25,7 @@ import osdlyrics
 import osdlyrics.dbusext
 
 from dbus.mainloop.glib import DBusGMainLoop
+from osdlyrics.player_proxy import *
 
 PROXY_NAME = 'Mpris2'
 BUS_NAME = osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX + PROXY_NAME
@@ -35,42 +36,22 @@ MPRIS2_IFACE = 'org.mpris.MediaPlayer2.Player'
 MPRIS2_PATH = '/org/mpris/MediaPlayer2'
 MPRIS1_IFACE = osdlyrics.MPRIS1_INTERFACE
 
-MPRIS_CAPS_GO_NEXT = 1 << 0
-MPRIS_CAPS_GO_PREV = 1 << 1
-MPRIS_CAPS_PAUSE = 1 << 2
-MPRIS_CAPS_PLAY = 1 << 3
-MPRIS_CAPS_SEEK = 1 << 4
-MPRIS_CAPS_PROVIDE_METADATA = 1 << 5
-MPRIS_CAPS_HAS_TRACKLIST = 1 << 6
-
 def player_info_from_name(name):
     """ Returns a dict representing a player info by the given name
     """
-    return { 'name': name,
-             'appname': name,
-             'binname': name,
-             'cmd': name,
-             'icon': name
-             }
+    return PlayerInfo(name)
 
-
-class ProxyObject(dbus.service.Object):
+class ProxyObject(BasePlayerProxy):
     """ The DBus object for MPRIS2 player proxy
     """
     
-    def __init__(self, conn):
+    def __init__(self):
         """
-        
-        Arguments:
-        - `bus_name`: A well-known bus name object
         """
-        self._connected_players = {}
-        dbus.service.Object.__init__(self,
-                                     conn=conn,
-                                     object_path=PROXY_PATH)
+        super(ProxyObject, self).__init__('Mpris2')
 
     def _get_player_from_bus_names(self, names):
-        """ Returns list of player info dicts according to names.
+        """ Returns list of `PlayerInfo` objects according to names.
 
         The bus names in names with prefix of MPRIS2_PREFIX will be treated as MPRIS2
         players. The suffix of these names will be treated as player name
@@ -81,59 +62,24 @@ class ProxyObject(dbus.service.Object):
         return [player_info_from_name(name[len(MPRIS2_PREFIX):]) for name in names
                 if name.startswith(MPRIS2_PREFIX)]
 
-    @dbus.service.method(dbus_interface=PROXY_IFACE,
-                         in_signature='',
-                         out_signature='aa{sv}')
-    def ListActivePlayers(self):
+    def do_list_active_players(self):
         return self._get_player_from_bus_names(self.connection.list_names());
 
-    @dbus.service.method(dbus_interface=PROXY_IFACE,
-                         in_signature='',
-                         out_signature='aa{sv}')
-    def ListSupportedPlayers(self):
-        return self.ListActivatablePlayers()
+    def do_list_supported_players(self):
+        return self.do_list_activatable_players()
 
-    @dbus.service.method(dbus_interface=PROXY_IFACE,
-                         in_signature='',
-                         out_signature='aa{sv}')
-    def ListActivatablePlayers(self):
+    def do_list_activatable_players(self):
         players = self._get_player_from_bus_names(self.connection.list_activatable_names())
         return players
 
-    @dbus.service.method(dbus_interface=PROXY_IFACE,
-                         in_signature='s',
-                         out_signature='o')
-    def ConnectPlayer(self, player_name):
-        if self._connected_players.setdefault(player_name, None):
-            return self._connected_players[player_name].object_path
-        player = PlayerObject(conn=self.connection,
-                              player_name=player_name,
-                              disconnect_cb=self._player_lost_cb)
-        if player.connected:
-            self._connected_players[player_name] = player
-            return player.object_path
-        else:
-            raise Exception('%s cannot be connected' % player_name)
+    def do_connect_player(self, player_name):
+        player = Mpris2Player(self, player_name)
+        return player
 
-    def _player_lost_cb(self, player):
-        if player.name in self._connected_players:
-            del self._connected_players[player.name]
-            self.PlayerLost(player.name)
-
-    @dbus.service.signal(dbus_interface=PROXY_IFACE,
-                         signature='s')
-    def PlayerLost(self, player_name):
-        print 'name lost %s' % player_name
-        pass
-
-class PlayerObject(osdlyrics.dbusext.Object):
-    def __init__(self, player_name, conn, disconnect_cb=None):
-        self._object_path = PROXY_PATH + '/' + player_name
-        dbus.service.Object.__init__(self,
-                                     conn=conn,
-                                     object_path=self._object_path)
-        self._disconnect_cb = disconnect_cb
-        self._name = player_name
+class Mpris2Player(BasePlayer):
+    def __init__(self, proxy, player_name):
+        super(Mpris2Player, self).__init__(proxy,
+                                           player_name)
         self._signal_math = None
         self._name_watch = None
         try:
@@ -148,33 +94,25 @@ class PlayerObject(osdlyrics.dbusext.Object):
                                                                     self._player_properties_changed)
             self._name_watch = self.connection.watch_name_owner(mpris2_object_path,
                                                                 self._name_lost)
-            self._connected = True
         except:
             self.disconnect()
 
-    @property
-    def name(self):
-        return self._name
-    
     def _name_lost(self, name):
         if len(name) > 0:
             return
-        if callable(self._disconnect_cb):
-            self._disconnect_cb(self)
         self.disconnect()
-            
+
     def disconnect(self):
-        if self._connected:
-            self._connected = False
-            if self._signal_math:
-                self._signal_math.remove()
-                self._signal_math = None
-            if self._name_watch:
-                self._name_watch.cancel()
-                self._name_watch = None
-            self._player = None
-            self._player_prop = None
-            self.remove_from_connection()
+        if self._signal_math:
+            self._signal_math.remove()
+            self._signal_math = None
+        if self._name_watch:
+            self._name_watch.cancel()
+            self._name_watch = None
+        self._player = None
+        self._player_prop = None
+        self.remove_from_connection()
+        BasePlayer.disconnect(self)
 
     def _player_properties_changed(self, iface, changed, invalidated):
         caps_props = ['CanGoNext', 'CanGoPrevious', 'CanPlay', 'CanPause', 'CanSeek']
@@ -197,181 +135,89 @@ class PlayerObject(osdlyrics.dbusext.Object):
     def connected(self):
         return self._connected
 
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='')
-    def Next(self):
+    def next(self):
         self._player.Next()
 
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='')
-    def Prev(self):
+    def prev(self):
         self._player.Previous()
 
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='')
-    def Pause(self):
+    def pause(self):
         self._player.Pause()
 
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='')
-    def Stop(self):
+    def stop(self):
         self._player.Stop()
     
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='')
-    def Play(self):
+    def play(self):
         self._player.Play()
     
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='b',
-                         out_signature='')
-    def Repeat(self, repeat):
+    def set_repeat(self, repeat):
         try:
-            if repeat:
+            if repeat == REPEAT_TRACK:
+                self._player_prop.Set(MPRIS2_IFACE, 'LoopStatus', 'Track')
+            elif repeat == REPEAT_ALL:
                 self._player_prop.Set(MPRIS2_IFACE, 'LoopStatus', 'Playlist')
             else:
                 self._player_prop.Set(MPRIS2_IFACE, 'LoopStatus', 'None')
         except:
             pass
 
-    def _get_status(self):
-        playback_status = 0
-        shuffle_status = 0
-        repeat_current = 0
-        rewind = 0
+    def get_status(self):
+        playback_dict = {'Playing': STATUS_PLAYING,
+                         'Paused': STATUS_PAUSED,
+                         'Stopped': STATUS_STOPPED}
         try:
-            playback_dict = {'Playing': 0,
-                             'Paused': 1,
-                             'Stopped': 2}
-            playback_status = status_dict.setdefault(
-                self._player_prop.Get(MPRIS2_IFACE, 'PlaybackStatus'), 0)
+            return status_dict[self._player_prop.Get(MPRIS2_IFACE, 'PlaybackStatus')]
         except:
-            pass
+            return STATUS_PLAYING
 
+    def get_repeat(self):
+        repeat_dict = {'None': REPEAT_NONE,
+                       'Track': REPEAT_TRACK,
+                       'Playlist': REPEAT_ALL}
         try:
-            if self._player_prop.Get(MPRIS2_IFACE, 'Shuffle'):
-                shuffle_status = 1
+            return repeat_dict[self._player_prop.Get(MPRIS2_IFACE, 'LoopStatus')]
         except:
-            pass
-        
-        try:
-            loop = self._player_prop.Get(MPRIS2_IFACE, 'LoopStatus')
-            if loop == 'Track':
-                repeat_current = 1
-            elif loop == 'Playlist':
-                rewind = 1
-        except:
-            pass
-        return (playback_status, shuffle_status, repeat_current, rewind)
-    
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='(iiii)')
-    def GetStatus(self):
-        return self._get_status()
+            return REPEAT_NONE
 
-    def _get_metadata(self):
+    def get_shuffle(self):
+        try:
+            return True if self._player_prop.Get(MPRIS2_IFACE, 'Shuffle') else False
+        except:
+            return False
+
+    def get_metadata(self):
         metadata = self._player_prop.Get(MPRIS2_IFACE, 'Metadata')
-        print metadata
-        ret = {}
-        string_dict = {'title': 'xesam:title',
-                       'album': 'xesam:album',
-                       'arturl': 'mpris:artUrl',
-                       'location': 'xesam:url',
-                       }
-        string_list_dict = {'artist': 'xesam:artist',
-                            'genre': 'xesam:genre',
-                            'comment': 'xesam:comment',
-                            }
-        for k, v in string_dict.items():
-            if v in metadata:
-                ret[k] = metadata[v]
-        for k, v in string_list_dict.items():
-            if v in metadata:
-                ret[k] = ', '.join(metadata[v])
+        return Metadata.from_mpris2(metadata)
 
-        if 'xesam:trackNumber' in metadata:
-            ret['tracknumber'] = str(metadata['xesam:trackNumber'])
-        ret['time'] = dbus.types.UInt32(metadata.setdefault('mpris:length', 0) / 1000000)
-        ret['mtime'] = dbus.types.UInt32(metadata.setdefault('mpris:length', 0) / 1000)
-        return ret
-
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='a{sv}')
-    def GetMetadata(self):
-        return self._get_metadata()
-
-    def _get_caps(self):
-        caps = 0
-        caps_dict = { 'CanGoNext': MPRIS_CAPS_GO_NEXT,
-                      'CanGoPrevious': MPRIS_CAPS_GO_PREV,
-                      'CanPlay': MPRIS_CAPS_PLAY,
-                      'CanPause': MPRIS_CAPS_PAUSE,
-                      'CanSeek': MPRIS_CAPS_SEEK,
+    def get_caps(self):
+        caps = set()
+        caps_dict = { 'CanGoNext': CAPS_NEXT,
+                      'CanGoPrevious': CAPS_PREV,
+                      'CanPlay': CAPS_PLAY,
+                      'CanPause': CAPS_PAUSE,
+                      'CanSeek': CAPS_SEEK,
             }
         for k, v in caps_dict.items():
             if self._player_prop.Get(MPRIS2_IFACE, k):
-                caps = caps | v
-
-        caps = caps | MPRIS_CAPS_PROVIDE_METADATA
+                caps.add(v)
         return caps
 
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='i')
-    def GetCaps(self):
-        return self._get_caps()
-        
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='i',
-                         out_signature='')
-    def VolumeSet(self, volume):
-        self._player_prop.Set(MPRIS2_IFACE, 'Volume', volume / 100.0)
+    def set_volume(self, volume):
+        self._player_prop.Set(MPRIS2_IFACE, 'Volume', volume)
     
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='i')
-    def VolumeGet(self):
-        return self._player_prop.Get(MPRIS2_IFACE, 'Volume') * 100
+    def get_volume(self):
+        return self._player_prop.Get(MPRIS2_IFACE, 'Volume')
     
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='i',
-                         out_signature='')
-    def PositionSet(self, time_in_mili):
+    def set_position(self, time_in_mili):
         track_id = self._player_prop.Get(MPRIS2_IFACE, 'Metadata')['mpris:trackid']
         self._player.SetPosition(track_id, time_in_mili * 1000)
     
-    @dbus.service.method(dbus_interface=MPRIS1_IFACE,
-                         in_signature='',
-                         out_signature='i')
-    def PositionGet(self):
+    def get_position(self):
         return self._player_prop.Get(MPRIS2_IFACE, 'Position') / 1000
 
-    @dbus.service.signal(dbus_interface=MPRIS1_IFACE,
-                         signature='a{sv}')
-    def TrackChange(self, metadata):
-        pass
-
-    @dbus.service.signal(dbus_interface=MPRIS1_IFACE,
-                         signature='(iiii)')
-    def StatusChange(self, status):
-        pass
-
-    @dbus.service.signal(dbus_interface=MPRIS1_IFACE,
-                         signature='i')
-    def CapsChange(self, caps):
-        pass
-
 def run():
-    app = osdlyrics.App(PROXY_NAME)
-    mpris_proxy = ProxyObject(app.connection)
-    app.run()
+    mpris2 = ProxyObject()
+    mpris2.run()
 
 if __name__ == '__main__':
     run()
