@@ -503,6 +503,13 @@ class BasePlayer(dbusext.Object):
         """
         self.CapsChange(self.GetCaps())
 
+    def position_changed(self):
+        """
+        Notify that the position has been changed
+        """
+        #DOTO: notify in MPRIS2
+        pass
+
     @dbus.service.signal(dbus_interface=MPRIS1_INTERFACE,
                          signature='a{sv}')
     def TrackChange(self, metadata):
