@@ -364,6 +364,7 @@ class Mpris1Player(osdlyrics.dbusext.Object):
 
 def test():
     app = osdlyrics.App('osdlyrics')
+    mpris1_name = dbus.service.BusName('org.mpris.osdlyrics', app.connection)
     player_support = PlayerSupport(app.connection)
     app.run()
         
