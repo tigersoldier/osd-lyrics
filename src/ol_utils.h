@@ -188,4 +188,12 @@ void ol_path_splitext (const char *path, char **root, char **ext);
  */
 gint ol_app_info_cmp (GAppInfo *a, GAppInfo *b);
 
+/** 
+ * Launch a commandline from GAppInfo
+ * 
+ * @param cmdline The commandline to launch. %f and %U will be ignored
+ * 
+ * @return TRUE on successful launch, FALSE otherwise.
+ */
+gboolean ol_launch_app (const char *cmdline);
 #endif // __OL_UTILS_H__

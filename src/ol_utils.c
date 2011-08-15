@@ -383,3 +383,13 @@ ol_app_info_cmp (GAppInfo *a, GAppInfo *b)
   return strcasecmp (g_app_info_get_display_name (a),
                      g_app_info_get_display_name (b));
 }
+
+gboolean
+ol_launch_app (const char *cmdline)
+{
+  ol_assert_ret (cmdline != NULL, FALSE);
+  GAppInfo* app = g_app_info_create_from_commandline (cmdline, "", 0, NULL);
+  gboolean ret = g_app_info_launch (app, NULL, NULL, NULL);
+  g_object_unref (G_OBJECT (app));
+  return ret;
+}

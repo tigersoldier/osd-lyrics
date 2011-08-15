@@ -462,7 +462,7 @@ _player_lost_cb (void)
       if (!ol_is_string_empty (player_cmd))
       {
         ol_debugf ("Running %s\n", player_cmd);
-        g_spawn_command_line_async (player_cmd, NULL);
+        ol_launch_app (player_cmd);
         _wait_for_player_launch ();
         g_free (player_cmd);
         break;
