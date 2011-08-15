@@ -165,6 +165,7 @@ _get_metadata_cb (DBusGProxy *proxy,
         sscanf (track_number_str, "%d", &mpris->track_number);
       else
         mpris->track_number = ol_get_int_from_hash_table (data_list, "tracknumber");
+      mpris->music_len = ol_get_uint_from_hash_table (data_list, "mtime");
       g_hash_table_destroy (data_list);
     }
   }
