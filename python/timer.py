@@ -70,7 +70,17 @@ class Timer(object):
 
     @time.setter
     def time(self, value):
+        self.set_time(value)
+
+    def set_time(self, value):
+        """
+        Adjust the time.
+
+        If the time needs to be adjusted, return True.
+        """
         time = self.time
         if abs(time - value) > self._accuracy:
             self._time = value
             self._begintime = datetime.now()
+            return True
+        return False
