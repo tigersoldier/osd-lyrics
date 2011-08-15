@@ -236,11 +236,17 @@ class BasePlayer(dbusext.Object):
     def name(self):
         return self._name
 
+    @property
+    def proxy(self):
+        return self._proxy
+
     def disconnect(self):
         if self._connected:
             self._connected = False
-        if callable(self._disconnect_cb):
-            self._disconnect_cb(self)
+            self.remove_from_connection()
+            print 'removed'
+            if callable(self._disconnect_cb):
+                self._disconnect_cb(self)
 
     def get_status(self):
         """

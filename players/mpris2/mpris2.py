@@ -111,7 +111,6 @@ class Mpris2Player(BasePlayer):
             self._name_watch = None
         self._player = None
         self._player_prop = None
-        self.remove_from_connection()
         BasePlayer.disconnect(self)
 
     def _player_properties_changed(self, iface, changed, invalidated):
