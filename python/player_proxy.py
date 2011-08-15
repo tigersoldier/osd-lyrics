@@ -475,6 +475,9 @@ class BasePlayer(dbusext.Object):
                          out_signature='i')
     def PositionGet(self):
         return int(self.get_position())
+
+    def track_changed(self):
+        self.TrackChange(self.GetMetadata())
     
     def status_changed(self):
         """
@@ -527,9 +530,9 @@ class Metadata(object):
                  arturl=None,
                  tracknum=-1,
                  location=None,
-                 length=-1):
-        """
-        """
+                 length=-1,
+                 *args,
+                 **kargs):
         self.title = title
         self.artist = artist
         self.album = album
@@ -545,7 +548,7 @@ class Metadata(object):
         ret = {}
         for k in ['title', 'artist', 'album', 'arturl', 'location']:
             if getattr(self, k) is not None:
-                ret[k] = dbus.String(getattr(self, k))
+                ret[k] = dbus.String(getattr(self, k).decode('utf8'))
         if self.tracknum >= 0:
             ret['tracknumber'] = dbus.UInt32(self.tracknum)
         if self.length >= 0:
