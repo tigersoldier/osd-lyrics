@@ -40,7 +40,7 @@ class PlayerSupport(dbus.service.Object):
                                      object_path=osdlyrics.PLAYER_OBJECT_PATH)
         self._active_player = None
         self._player_proxies = {}
-        self._activate_player_proxies()
+        self._connect_player_proxies()
         self._start_detect_player()
         self._mpris1_root = Mpris1Root(conn)
         self._mpris1_player = Mpris1Player(conn)
@@ -73,21 +73,25 @@ class PlayerSupport(dbus.service.Object):
             self._detect_timer = None
         return True
 
-    def _activate_player_proxies(self):
+    def _connect_proxy(self, bus_name, activate):
+        if not bus_name.startswith(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):
+            return
+        proxy_name = bus_name[len(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):]
+        if activate:
+            self.connection.activate_name_owner(bus_name)
+        self.connection.watch_name_owner(bus_name,
+                                         lambda name: self._proxy_name_changed(proxy_name, len(name) == 0))
+
+    def _connect_player_proxies(self):
         """
         Activates all player proxy services
         """
+        active_names = self.connection.list_names()
+        for bus_name in active_names:
+            self._connect_proxy(bus_name, False)
         activatable_names = self.connection.list_activatable_names()
         for bus_name in activatable_names:
-            if not bus_name.startswith(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):
-                continue
-            try:
-                proxy_name = bus_name[len(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):]
-                self.connection.activate_name_owner(bus_name)
-                self.connection.watch_name_owner(bus_name,
-                                                 lambda name: self._proxy_name_changed(proxy_name, len(name) == 0))
-            except Exception, err:
-                pass
+            self._connect_proxy(bus_name, True)
 
     def _connect_player(self, proxy, player_info):
         """
