@@ -1,1 +1,4 @@
-SUBDIRS = mpris2
+SUBDIRS = \
+	mpris2 \
+	http \
+	$(NULL)

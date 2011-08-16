@@ -198,6 +198,7 @@ AC_CONFIG_FILES([
 	data/Makefile
         players/Makefile
         players/mpris2/Makefile
+        players/http/Makefile
         python/Makefile
         python/dbusext/Makefile
 ])
