@@ -34,6 +34,7 @@ Notifies the track has been changed.
 
 - path: `track_changed`
 - parameters: the metadata of the track
+
   - `id`: The id returned from `connect`
   - `status`: Playing status, described in `Status`_
   - `title`: Title of the track
@@ -87,6 +88,7 @@ returned by server. The timestamp of the first query should be 0.
   - `timestamp`: New timestamp
 
 An command object has two members: `cmd` and `params`. `params` is a object, and differs according to `cmd`. Available `cmd` are:
+
 - `play`: no param
 - `pause`: no param
 - `stop`: no param
