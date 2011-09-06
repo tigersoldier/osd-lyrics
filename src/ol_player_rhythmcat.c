@@ -34,28 +34,26 @@ static const char *PATH = "/org/supercat/RhythmCat/Shell";
 static const char *INTERFACE = "org.supercat.RhythmCat.Shell";
 static const char *PLAY = "Play";
 static const char *PAUSE = "Pause";
-static const char *STOP = "Close";
+static const char *STOP = "Stop";
 static const char *NEXT = "Next";
 static const char *PREVIOUS = "Prev";
 static const char *SEEK = "SetPosition";
-static const char *GET_TITLE = "GetTracksMetadata";
+static const char *GET_METADATA = "GetCurrentTrack";
 static const char *GET_STATUS = "GetState";
-static const char *DURATION = "GetDuration";
+/* static const char *DURATION = "GetDuration"; */
 static const char *CURRENT_POSITION = "GetPosition";
 static const char *ICON_PATHS[] = {
   "/usr/share/RhythmCat/images/RhythmCat_128x128.PNG",
   "/usr/local/share/RhythmCat/images/RhythmCat_128x128.PNG",
 };
 static DBusGProxy *proxy = NULL;
-static DBusGProxy *control_proxy = NULL;
 static GError *error = NULL;
 
 static gboolean ol_player_rhythmcat_get_music_info (OlMusicInfo *info);
 static gboolean ol_player_rhythmcat_get_played_time (int *played_time);
 static gboolean ol_player_rhythmcat_get_music_length (int *len);
-static gboolean ol_player_rhythmcat_init_dbus ();
+static gboolean ol_player_rhythmcat_ensure_dbus ();
 static gboolean ol_player_rhythmcat_get_activated ();
-static gboolean ol_player_rhythmcat_proxy_destroy_handler (DBusGProxy *proxy, gpointer userdata);
 static enum OlPlayerStatus ol_player_rhythmcat_get_status ();
 static int ol_player_rhythmcat_get_capacity ();
 static gboolean ol_player_rhythmcat_play ();
@@ -67,16 +65,6 @@ static gboolean ol_player_rhythmcat_seek (int pos);
 static const char *ol_player_rhythmcat_get_icon_path ();
 
 static gboolean
-ol_player_rhythmcat_proxy_destroy_handler (DBusGProxy *_proxy, 
-                                           gpointer userdata)
-{
-  ol_log_func ();
-  g_object_unref (_proxy);
-  *(void**)userdata = NULL;
-  return FALSE;
-}
-
-static gboolean
 ol_player_rhythmcat_get_music_info (OlMusicInfo *info)
 {
   ol_log_func ();
@@ -84,16 +72,16 @@ ol_player_rhythmcat_get_music_info (OlMusicInfo *info)
 
   gboolean ret = TRUE;
   GError *error = NULL;
-  
+
   gchar *artist, *album, *title, *uri;
   guint track_number;
-  
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
   if (dbus_g_proxy_call (proxy,
-                         GET_TITLE,
+                         GET_METADATA,
                          &error,
+                         G_TYPE_INVALID,
                          G_TYPE_STRING,
                          &uri,
                          G_TYPE_STRING,
@@ -113,24 +101,20 @@ ol_player_rhythmcat_get_music_info (OlMusicInfo *info)
                          G_TYPE_UINT,
                          NULL,
                          G_TYPE_UINT,
-                         NULL
+                         NULL,
+                         G_TYPE_INVALID
                          ))
   {
     ol_music_info_clear (info);
-    info->artist = g_strdup (artist);
-    g_free(artist);
-    info->album = g_strdup (album);
-    g_free(album);
-    info->title = g_strdup (title);
-    g_free(title);
-    info->uri = g_strdup (uri);
-    g_free(uri);
+    ol_music_info_set_title (info, title);
+    ol_music_info_set_artist (info, artist);
+    ol_music_info_set_album (info, album);
+    ol_music_info_set_uri (info, uri);
     info->track_number = track_number;
-    
   }
   else
   {
-    ol_debugf ("%s fail: %s\n", GET_TITLE, error->message);
+    ol_debugf ("%s fail: %s\n", GET_METADATA, error->message);
     g_error_free (error);
     error = NULL;
     ret = FALSE;
@@ -143,17 +127,39 @@ ol_player_rhythmcat_get_music_length (int *len)
 {
   ol_log_func ();
   ol_assert_ret (len != NULL, FALSE);
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
+  guint64 duration;
+  /* The GetDuration call returns wrong value in build 20110821, use the value
+     in metadata */
   if (dbus_g_proxy_call (proxy,
-                         DURATION,
-                         NULL,
+                         GET_METADATA,
+                         &error,
                          G_TYPE_INVALID,
+                         G_TYPE_STRING,
+                         NULL,  /* uri */
+                         G_TYPE_STRING,
+                         NULL,  /* title */
+                         G_TYPE_STRING,
+                         NULL,  /* artist */
+                         G_TYPE_STRING,
+                         NULL,  /* album */
+                         G_TYPE_STRING,
+                         NULL,  /* comment */
+                         G_TYPE_UINT64,
+                         &duration,
                          G_TYPE_UINT,
-                         len,
-                         G_TYPE_INVALID))
+                         NULL,  /* track number */
+                         G_TYPE_UINT,
+                         NULL,
+                         G_TYPE_UINT,
+                         NULL,
+                         G_TYPE_UINT,
+                         NULL,
+                         G_TYPE_INVALID
+                         ))
   {
+    *len = duration / 1000000;
   }
   else
   {
@@ -166,15 +172,14 @@ static gboolean
 ol_player_rhythmcat_get_played_time (int *played_time)
 {
   ol_assert_ret (played_time != NULL, FALSE);
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
   gint64 ns;
   if (ol_dbus_get_int64 (proxy,
                          CURRENT_POSITION,
                          &ns))
   {
-    *played_time = ns * 1000000;
+    *played_time = ns / 1000000;
   }
   else
   {
@@ -187,64 +192,32 @@ static gboolean
 ol_player_rhythmcat_get_activated ()
 {
   ol_log_func ();
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
-  return TRUE;
+  return (ol_player_rhythmcat_ensure_dbus ());
 }
 
 
 static gboolean
-ol_player_rhythmcat_init_dbus ()
+ol_player_rhythmcat_ensure_dbus ()
 {
-  /* ol_log_func (); */
-  DBusGConnection *connection = ol_dbus_get_connection ();
-  if (connection == NULL)
-  {
-    return FALSE;
-  }
   if (proxy != NULL)
-  {
-    g_object_unref (proxy);
-    proxy = NULL;
-  }
-  if (proxy == NULL)
-  {
-    proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH, INTERFACE, &error);
-    if (proxy == NULL)
-    {
-      ol_debugf ("get proxy failed: %s\n", error->message);
-      g_error_free (error);
-      error = NULL;
-      return FALSE;
-    }
-    g_signal_connect (proxy, "destroy", G_CALLBACK (ol_player_rhythmcat_proxy_destroy_handler), &proxy);
-  }
-  if (control_proxy == NULL)
-  {
-    control_proxy = dbus_g_proxy_new_for_name_owner (connection, SERVICE, PATH, INTERFACE, &error);
-    if (control_proxy == NULL)
-    {
-      ol_debugf ("get proxy failed: %s\n", error->message);
-      g_error_free (error);
-      error = NULL;
-      return FALSE;
-    }
-    g_signal_connect (control_proxy, "destroy", G_CALLBACK (ol_player_rhythmcat_proxy_destroy_handler), &control_proxy);
-  }
-  return TRUE;
+    return TRUE;
+  return ol_dbus_connect (SERVICE,
+                          PATH,
+                          INTERFACE,
+                          G_CALLBACK (ol_dbus_unref_proxy),
+                          NULL,
+                          &proxy);
 }
 
 static enum
 OlPlayerStatus ol_player_rhythmcat_get_status ()
 {
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
+  if (!ol_player_rhythmcat_ensure_dbus ())
       return OL_PLAYER_ERROR;
   int state_no;
   if (ol_dbus_get_int (proxy,
-                        GET_STATUS,
-                        &state_no))
+                       GET_STATUS,
+                       &state_no))
   {
     enum OlPlayerStatus status;
     if (state_no == 1 || state_no == 2) /* GST_STATE_NULL, GST_STATE_READY */
@@ -273,9 +246,8 @@ ol_player_rhythmcat_get_capacity ()
 static gboolean
 ol_player_rhythmcat_play ()
 {
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
   return ol_dbus_invoke (proxy,
                          PLAY);
 }
@@ -283,9 +255,8 @@ ol_player_rhythmcat_play ()
 static gboolean
 ol_player_rhythmcat_pause ()
 {
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
   return ol_dbus_invoke (proxy,
                          PAUSE);
 }
@@ -293,9 +264,8 @@ ol_player_rhythmcat_pause ()
 static gboolean
 ol_player_rhythmcat_stop ()
 {
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
   return ol_dbus_invoke (proxy,
                          STOP);
 }
@@ -303,42 +273,33 @@ ol_player_rhythmcat_stop ()
 static gboolean
 ol_player_rhythmcat_prev ()
 {
-  if (control_proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
-  return dbus_g_proxy_call (control_proxy,
-                            PREVIOUS,
-                            NULL,
-                            G_TYPE_BOOLEAN,
-                            TRUE,
-                            G_TYPE_INVALID,
-                            G_TYPE_INVALID);
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
+  return ol_dbus_invoke (proxy,
+                         PREVIOUS);
 }
 
 static gboolean
 ol_player_rhythmcat_next ()
 {
-  if (control_proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
-  return dbus_g_proxy_call (control_proxy,
-                            NEXT,
-                            NULL,
-                            G_TYPE_INVALID,
-                            G_TYPE_INVALID);
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
+  return ol_dbus_invoke (proxy,
+                         NEXT);
 }
 
 static gboolean
 ol_player_rhythmcat_seek (int pos)
 {
-  if (proxy == NULL)
-    if (!ol_player_rhythmcat_init_dbus ())
-      return FALSE;
+  if (!ol_player_rhythmcat_ensure_dbus ())
+    return FALSE;
+  gint64 position = pos;
+  position *= 1000000;
   return dbus_g_proxy_call (proxy,
                             SEEK,
                             NULL,
-                            G_TYPE_UINT,
-                            (guint) pos * 1000000,
+                            G_TYPE_INT64,
+                            position,
                             G_TYPE_INVALID,
                             G_TYPE_INVALID);
 }
@@ -360,7 +321,7 @@ ol_player_rhythmcat_get ()
 {
   ol_log_func ();
   struct OlPlayer *controller = ol_player_new ("RhythmCat");
-  ol_player_set_cmd (controller, "rhythmcat");
+  ol_player_set_cmd (controller, "RhythmCat");
   controller->get_music_info = ol_player_rhythmcat_get_music_info;
   controller->get_activated = ol_player_rhythmcat_get_activated;
   controller->get_played_time = ol_player_rhythmcat_get_played_time;
@@ -376,5 +337,3 @@ ol_player_rhythmcat_get ()
   controller->get_icon_path = ol_player_rhythmcat_get_icon_path;
   return controller;
 }
-
-

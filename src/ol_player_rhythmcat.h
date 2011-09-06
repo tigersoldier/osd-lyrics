@@ -23,6 +23,11 @@
 
 #include "ol_player.h"
 
+/** 
+ * @brief Creates a controller of RhythmCat
+ * 
+ * @return The controller of RhythmCat. It's allocated by g_new, so use g_free to free the memory
+ */
 struct OlPlayer* ol_player_rhythmcat_get ();
 
 #endif
