@@ -1,0 +1,10 @@
+daemon_PYTHON = \
+	config.py \
+	ini_config.py \
+	lrcdb.py \
+	lyrics.py \
+	player.py \
+	$(NULL)
+
+daemondir = $(pkglibdir)/daemon
+

@@ -196,6 +196,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	src/tests/Makefile
 	data/Makefile
+        daemon/Makefile
         players/Makefile
         players/mpris2/Makefile
         players/http/Makefile
