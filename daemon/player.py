@@ -114,7 +114,7 @@ class PlayerSupport(dbus.service.Object):
             return False
 
     def _player_lost_cb(self, player_name):
-        if self._active_player['info']['name'] == player_name:
+        if self._active_player and self._active_player['info']['name'] == player_name:
             self._active_player = None
             self._mpris1_player.disconnect_player()
             self.PlayerLost()
