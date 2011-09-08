@@ -140,6 +140,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         player = self.get_player(params['id'])
         player.do_update_position(params['pos'])
 
+    @validate_params({'id': param_str()})
+    def do_disconnect(self, params):
+        player = self.get_player(params['id'])
+        player.disconnect()
+
     def get_player(self, name):
         try:
             return self.server.player_proxy.get_player(name)

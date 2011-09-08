@@ -102,8 +102,12 @@ class HttpPlayer(BasePlayer):
         duration = now - self._last_ping
         if duration.total_seconds() * 1000 > CONNECTION_TIMEOUT * 2:
             print '%s connection timeout' % self.name
-            self.proxy.remove_player(self.name)
             self.disconnect()
+
+    def disconnect(self):
+        self.proxy.remove_player(self.name)
+        BasePlayer.disconnect(self)
+        
 
     def do_update_track(self, metadata):
         self._ping()

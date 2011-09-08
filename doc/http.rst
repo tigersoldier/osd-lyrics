@@ -17,6 +17,7 @@ Comma seperated string with values of `play`, `pause`, `stop`, `next`, `prev`, `
 
 Connect
 =======
+Connect to OSD Lyrics. This MUST be called first.
 
 - path: `connect`
 - parameters:
@@ -27,6 +28,17 @@ Connect
 - return values:
 
   - `id`: The id of the player connection.
+
+Disconnect
+==========
+Disconnect to OSD Lyrics. This SHOULD be called when the player is going to be closed. After calling that, the connection created by `Connect`_ is closed. You need to call `Connect`_ again if you want to create a new connection.
+
+- path: `disconnect`
+- parameters:
+
+  - `id`: The id returned from `connect`.
+
+- return values: nothing
 
 Track Change
 ============
