@@ -28,3 +28,33 @@ defaulticondir = @OL_ICONDIR@
 dist_defaulticon_DATA = osdlyrics.png
 #svgdir = ${datadir}/icons/hicolor/scalable/apps
 #svg_DATA = osdlyrics.svg
+
+bin_SCRIPTS = osdlyrics-daemon
+osdlyricsdaemondir = $(pkgdatadir)/setup
+
+servicedir = $(datadir)/dbus-1/services
+service_in_files = \
+	org.osdlyrics.osdlyrics.service.in \
+	org.osdlyrics.Config.service.in\
+	$(NULL)
+
+service_DATA = $(service_in_files:.service.in=.service)
+EXTRA_DIST = \
+	$(service_in_files) \
+	osdlyrics-daemon.in \
+	$(NULL)
+
+osdlyrics-daemon: osdlyrics-daemon.in
+	@sed -e "s|\@pkglibdir\@|$(pkglibdir)|" -e "s|\@PYTHON\@|$(PYTHON)|" $< > $@
+
+org.osdlyrics.osdlyrics.service: org.osdlyrics.osdlyrics.service.in
+	@sed -e "s|\@pkglibdir\@|$(pkglibdir)|" -e "s|\@PYTHON\@|$(PYTHON)|" $< > $@
+
+org.osdlyrics.Config.service: org.osdlyrics.Config.service.in
+	@sed -e "s|\@pkglibdir\@|$(pkglibdir)|" -e "s|\@PYTHON\@|$(PYTHON)|" $< > $@
+
+CLEANFILES = \
+	org.osdlyrics.osdlyrics.service \
+	org.osdlyrics.Config.service \
+	$(bin_SCRIPTS) \
+	$(NULL)

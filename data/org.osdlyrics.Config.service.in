@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.osdlyrics.Config
+Exec=@PYTHON@ @pkglibdir@/daemon/ini_config.py

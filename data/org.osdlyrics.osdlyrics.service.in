@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.osdlyrics.osdlyrics
+Exec=@PYTHON@ @pkglibdir@/daemon/main.py
