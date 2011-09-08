@@ -60,8 +60,9 @@ class App(object):
         self._watch_daemon = watch_daemon
         self._loop = glib.MainLoop()
         self._conn = dbus.SessionBus(mainloop=DBusGMainLoop())
-        self._bus_name = dbus.service.BusName(consts.APP_BUS_PREFIX + name,
-                                              self._conn)
+        self._bus_names = [dbus.service.BusName(consts.APP_BUS_PREFIX + name,
+                                                self._conn)
+                           ]
         self._parse_options()
         
     def _parse_options(self):
@@ -103,3 +104,7 @@ class App(object):
         """Quits the main loop"""
         self._loop.quit()
 
+    def request_bus_name(self, bus_name):
+        """Request for additional well-known name on DBus"""
+        self._bus_names.append(dbus.service.BusName(bus_name, self.connection))
+        

@@ -18,28 +18,6 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
-__all__ = (
-    'BUS_NAME',
-    'PLAYER_INTERFACE',
-    'PLAYER_OBJECT_PATH',
-    'LYRICS_INTERFACE',
-    'LYRICS_OBJECT_PATH',
-    'CONFIG_BUS_NAME',
-    'CONFIG_INTERFACE',
-    'CONFIG_OBJECT_PATH',
-    'PLAYER_PROXY_BUS_NAME_PREFIX',
-    'PLAYER_PROXY_INTERFACE',
-    'PLAYER_PROXY_OBJECT_PATH_PREFIX',
-    'MPRIS1_INTERFACE',
-    'APP_BUS_PREFIX',
-    
-    'METADATA_TITLE',
-    'METADATA_ARTIST',
-    'METADATA_ALBUM',
-    'METADATA_TRACKNUM',
-    'METADATA_URI',
-    )
-
 # DBus names, interfaces and object paths
 
 BUS_NAME = 'org.osdlyrics.osdlyrics'
@@ -55,6 +33,7 @@ PLAYER_PROXY_INTERFACE = 'org.osdlyrics.PlayerProxy'
 PLAYER_PROXY_OBJECT_PATH_PREFIX = '/org/osdlyrics/PlayerProxy/'
 MPRIS1_INTERFACE = 'org.freedesktop.MediaPlayer'
 APP_BUS_PREFIX = 'org.osdlyrics.'
+APP_MPRIS1_NAME = 'org.mpris.osdlyrics'
 
 # Metadata keys
 METADATA_TITLE = 'title'
