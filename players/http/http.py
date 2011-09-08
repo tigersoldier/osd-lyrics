@@ -25,7 +25,7 @@ import time
 import osdlyrics.timer
 from osdlyrics.player_proxy import *
 
-CONNECTION_TIMEOUT = 5000
+CONNECTION_TIMEOUT = 1000
 
 class HttpPlayerProxy(BasePlayerProxy):
     def __init__(self):
