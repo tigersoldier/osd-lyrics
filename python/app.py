@@ -24,10 +24,17 @@ import dbus
 import dbus.service
 import consts
 from dbus.mainloop.glib import DBusGMainLoop
+from exceptions import Error
 
 __all__ = (
+    'AlreadyRunningException',
     'App',
     )
+
+class AlreadyRunningException(Error):
+    """ Raised when a process with given bus name exists.
+    """
+    pass
 
 class App(object):
     """ Basic class to create a component application for OSD Lyrics.
@@ -47,22 +54,27 @@ class App(object):
       app.run()
     """
     
-    def __init__(self, name, watch_daemon=True):
+    def __init__(self, name, watch_daemon=True, singleton=True):
         """
         
         Arguments:
         - `name`: The suffix of the bus name. The full bus name is
           `org.osdlyrics.` + name
         - `watch_daemon`: Whether to watch daemon bus
+        - `singleton`: If True, raise AlreadyRunningException if the bus name already
+                       has an owner.
         """
         self._name = name
         self._namewatch = None
         self._watch_daemon = watch_daemon
         self._loop = glib.MainLoop()
         self._conn = dbus.SessionBus(mainloop=DBusGMainLoop())
-        self._bus_names = [dbus.service.BusName(consts.APP_BUS_PREFIX + name,
-                                                self._conn)
-                           ]
+        self._bus_names = []
+        try:
+            self.request_bus_name(consts.APP_BUS_PREFIX + name,
+                                  singleton)
+        except dbus.NameExistsException:
+            raise AlreadyRunningException('Process with bus name %s is already running' % consts.APP_BUS_PREFIX + name)
         self._parse_options()
         
     def _parse_options(self):
@@ -104,7 +116,10 @@ class App(object):
         """Quits the main loop"""
         self._loop.quit()
 
-    def request_bus_name(self, bus_name):
-        """Request for additional well-known name on DBus"""
-        self._bus_names.append(dbus.service.BusName(bus_name, self.connection))
-        
+    def request_bus_name(self, bus_name, do_not_queue=False):
+        """
+        Request for additional well-known name on DBus
+        """
+        self._bus_names.append(dbus.service.BusName(bus_name,
+                                                    self.connection,
+                                                    do_not_queue=do_not_queue))

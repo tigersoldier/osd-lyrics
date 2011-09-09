@@ -53,8 +53,11 @@ class MainApp(osdlyrics.App):
         self._lyrics.set_current_metadata(metadata)
 
 def main():
-    app = MainApp()
-    app.run()
+    try:
+        app = MainApp()
+        app.run()
+    except osdlyrics.AlreadyRunningException:
+        print 'OSD Lyrics is running'
 
 if __name__ == '__main__':
     main()
