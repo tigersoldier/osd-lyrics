@@ -18,10 +18,13 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
+import logging
 import osdlyrics
 import player
 import lyrics
 import dbus
+
+logging.basicConfig(level=logging.INFO)
 
 class MainApp(osdlyrics.App):
     def __init__(self, ):

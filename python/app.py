@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 from optparse import OptionParser
@@ -46,17 +46,17 @@ class App(object):
 
      - `-w`, `--watch-daemon`: If not empty, watch the daemon with given bus name.
        The default value is the bus name of OSD Lyrics
-    
+
     To create an component application owning the bus name ``org.osdlyrics.MyApp``,
     just simply follow the code below:
 
       app = osdlyrics.App('MyApp')
       app.run()
     """
-    
+
     def __init__(self, name, watch_daemon=True, singleton=True):
         """
-        
+
         Arguments:
         - `name`: The suffix of the bus name. The full bus name is
           `org.osdlyrics.` + name
@@ -76,7 +76,7 @@ class App(object):
         except dbus.NameExistsException:
             raise AlreadyRunningException('Process with bus name %s is already running' % consts.APP_BUS_PREFIX + name)
         self._parse_options()
-        
+
     def _parse_options(self):
         parser = OptionParser()
         parser.add_option('-w', '--watch-daemon',
@@ -90,7 +90,7 @@ class App(object):
         (options, args) = parser.parse_args()
         if self._watch_daemon:
             self._watch_daemon_bus(options.watch_daemon)
-        
+
     def _watch_daemon_bus(self, name):
         if len(name) > 0:
             self._namewatch = self._conn.watch_name_owner(name,

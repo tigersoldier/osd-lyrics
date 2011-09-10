@@ -18,6 +18,7 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
+import logging
 import dbus.service
 import osdlyrics
 import osdlyrics.dbusext
@@ -76,6 +77,7 @@ class PlayerSupport(dbus.service.Object):
     def _connect_proxy(self, bus_name, activate):
         if not bus_name.startswith(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):
             return
+        logging.info('Connecting to player proxy %s', bus_name)
         proxy_name = bus_name[len(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):]
         if activate:
             self.connection.activate_name_owner(bus_name)
@@ -115,6 +117,7 @@ class PlayerSupport(dbus.service.Object):
 
     def _player_lost_cb(self, player_name):
         if self._active_player and self._active_player['info']['name'] == player_name:
+            logging.info('Player %s lost', player_name)
             self._active_player = None
             self._mpris1_player.disconnect_player()
             self.PlayerLost()
@@ -123,16 +126,16 @@ class PlayerSupport(dbus.service.Object):
     def _proxy_name_changed(self, proxy_name, lost):
         bus_name = osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX + proxy_name
         if not lost:
-            print 'Get proxy %s' % proxy_name
+            logging.info('Get player proxy %s' % proxy_name)
             proxy = self.connection.get_object(bus_name,
                                                osdlyrics.PLAYER_PROXY_OBJECT_PATH_PREFIX + proxy_name)
             proxy.connect_to_signal('PlayerLost',
-                                        self._player_lost_cb)
+                                    self._player_lost_cb)
             self._player_proxies[proxy_name] = dbus.Interface(proxy, osdlyrics.PLAYER_PROXY_INTERFACE)
         else:
             if not proxy_name in self._player_proxies:
                 return
-            print 'Proxy %s lost' % proxy_name
+            logging.info('Player proxy %s lost' % proxy_name)
             proxy = self._player_proxies[proxy_name]
             # If current player is provided by the proxy, it is lost.
             if self._active_player and self._active_player['proxy'] == proxy:
@@ -173,7 +176,7 @@ class PlayerSupport(dbus.service.Object):
                          out_signature='ba{sv}')
     def GetCurrentPlayer(self):
         if not self._active_player:
-            return False, None
+            return False, {}
         return True, self._active_player['info']
 
     @dbus.service.signal(dbus_interface=osdlyrics.PLAYER_INTERFACE,

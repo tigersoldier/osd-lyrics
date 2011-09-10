@@ -18,6 +18,7 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
+import logging
 import urlparse
 import urllib
 import os.path
@@ -100,7 +101,6 @@ class LyricsService(dbus.service.Object):
                          in_signature='a{sv}',
                          out_signature='bs')
     def GetRawLyrics(self, metadata):
-        print metadata
         path = self._db.find(metadata)
         if path is None:
             return False, ''
@@ -188,6 +188,7 @@ class LyricsService(dbus.service.Object):
         return None
 
     def set_current_metadata(self, metadata):
+        logging.debug('Setting current metadata: %s' % metadata)
         self._metadata = metadata
 
 def doc_test():

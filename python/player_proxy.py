@@ -21,6 +21,7 @@ import dbus
 import dbus.service
 import dbusext
 import app
+import logging
 from consts import \
     PLAYER_PROXY_OBJECT_PATH_PREFIX, \
     PLAYER_PROXY_INTERFACE, \
@@ -78,7 +79,7 @@ class BasePlayerProxy(dbus.service.Object):
         if player and player.connected:
             player.set_disconnect_cb(self._player_lost_cb)
             self._connected_players[player_name] = player
-            print 'Connected to %s' % player.object_path
+            logging.info('Connected to %s' % player.object_path)
             return player.object_path
         else:
             raise Exception('%s cannot be connected' % player_name)
@@ -244,7 +245,6 @@ class BasePlayer(dbusext.Object):
         if self._connected:
             self._connected = False
             self.remove_from_connection()
-            print 'removed'
             if callable(self._disconnect_cb):
                 self._disconnect_cb(self)
 
