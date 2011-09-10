@@ -109,8 +109,16 @@ class App(object):
         return self._conn
 
     def run(self):
-        """Runs the main loop"""
-        self._loop.run()
+        """
+        Runs the main loop
+
+        Return True if the loop is quited by the program. False if quited by Ctrl+C
+        """
+        try:
+            self._loop.run()
+        except KeyboardInterrupt:
+            return False
+        return True
 
     def quit(self):
         """Quits the main loop"""
