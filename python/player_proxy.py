@@ -174,7 +174,7 @@ class PlayerInfo(object):
         keys = ['name', 'appname', 'binname', 'cmd', 'icon']
         ret = {}
         for k in keys:
-            ret[k] = getattr(self, '_' + k)
+            ret[k] = utils.ensure_unicode(getattr(self, '_' + k))
         return ret
 
 CAPS_NEXT = 1 << 0
@@ -558,7 +558,7 @@ class Metadata(object):
             if getattr(self, k) is not None:
                 ret[k] = dbus.String(utils.ensure_unicode(getattr(self, k)))
         if self.tracknum >= 0:
-            ret['tracknumber'] = dbus.UInt32(self.tracknum)
+            ret['tracknumber'] = dbus.String(self.tracknum)
         if self.length >= 0:
             ret['time'] = dbus.UInt32(self.length / 1000)
             ret['mtime'] = dbus.UInt32(self.length)
