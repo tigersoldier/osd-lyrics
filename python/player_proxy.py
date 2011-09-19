@@ -17,11 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
+import logging
 import dbus
 import dbus.service
-import dbusext
 import app
-import logging
+import dbusext
+import utils
 from consts import \
     PLAYER_PROXY_OBJECT_PATH_PREFIX, \
     PLAYER_PROXY_INTERFACE, \
@@ -555,7 +556,7 @@ class Metadata(object):
         ret = {}
         for k in ['title', 'artist', 'album', 'arturl', 'location']:
             if getattr(self, k) is not None:
-                ret[k] = dbus.String(getattr(self, k).decode('utf8'))
+                ret[k] = dbus.String(utils.ensure_unicode(getattr(self, k)))
         if self.tracknum >= 0:
             ret['tracknumber'] = dbus.UInt32(self.tracknum)
         if self.length >= 0:

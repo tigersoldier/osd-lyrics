@@ -69,6 +69,14 @@ def path2uri(path):
         path = path.encode('utf8')
     return 'file://' + urllib.pathname2url(path)
 
+def ensure_unicode(value):
+    r"""
+    If value is a string, decode with utf-8. Otherwise return it directly.
+    """
+    if isinstance(value, str):
+        return value.decode('utf8')
+    return value
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
