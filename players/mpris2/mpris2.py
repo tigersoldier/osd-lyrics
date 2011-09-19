@@ -39,7 +39,7 @@ MPRIS1_IFACE = osdlyrics.MPRIS1_INTERFACE
 def player_info_from_name(name):
     """ Returns a dict representing a player info by the given name
     """
-    return PlayerInfo(name)
+    return PlayerInfo(name, icon=name)
 
 class ProxyObject(BasePlayerProxy):
     """ The DBus object for MPRIS2 player proxy
@@ -116,15 +116,17 @@ class Mpris2Player(BasePlayer):
     def _player_properties_changed(self, iface, changed, invalidated):
         caps_props = ['CanGoNext', 'CanGoPrevious', 'CanPlay', 'CanPause', 'CanSeek']
         status_props = ['PlaybackStatus', 'LoopStatus', 'Shuffle']
+        logging.debug('Status changed: %s' % changed)
         for caps in caps_props:
             if caps in changed:
-                self.CapsChange(self._get_caps())
+                self.caps_changed()
                 break
         for status in status_props:
             if status in changed:
-                self.StatusChange(self._get_status())
+                self.status_changed()
+                break
         if 'Metadata' in changed:
-            self.TrackChange(self._get_metadata())
+            self.track_changed()
 
     @property
     def object_path(self):
@@ -165,8 +167,9 @@ class Mpris2Player(BasePlayer):
                          'Paused': STATUS_PAUSED,
                          'Stopped': STATUS_STOPPED}
         try:
-            return status_dict[self._player_prop.Get(MPRIS2_IFACE, 'PlaybackStatus')]
-        except:
+            return playback_dict[self._player_prop.Get(MPRIS2_IFACE, 'PlaybackStatus')]
+        except Exception, e:
+            logging.error('Failed to get status: %s' % e)
             return STATUS_PLAYING
 
     def get_repeat(self):
