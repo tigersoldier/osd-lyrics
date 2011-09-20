@@ -581,6 +581,7 @@ static void
 _init_dbus_connection (void)
 {
   player = ol_player_new ();
+  g_object_ref_sink (player);
   g_signal_connect (player,
                     "track-changed",
                     _track_changed_cb,
@@ -623,13 +624,14 @@ main (int argc, char **argv)
 {
   _initialize (argc, argv);
   gtk_main ();
+  g_signal_handlers_disconnect_by_func (player, _status_changed_cb, NULL);
+  g_signal_handlers_disconnect_by_func (player, _track_changed_cb, NULL);
   g_object_unref (player);
   player = NULL;
   ol_music_info_free (metadata);
   metadata = NULL;
   ol_notify_unload ();
   ol_display_module_free (module);
-  if (display_mode != NULL) g_free (display_mode);
   display_mode = NULL;
   module = NULL;
   ol_display_module_unload ();
