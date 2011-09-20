@@ -96,7 +96,7 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
     gtk_tooltip_set_markup (tooltip, markup);
     g_free (markup);
     
-    struct OlPlayer *player = ol_app_get_player ();
+    OlPlayer *player = ol_app_get_player ();
     const char *icon_path = ol_player_get_icon_path (player);
     GdkPixbuf *icon = NULL;
     if (icon_path != NULL)
@@ -128,7 +128,7 @@ popup (GtkStatusIcon *status_icon,
 }
 #endif  /* HAVE_APP_INDICATOR */
 
-void ol_trayicon_inital ()
+void ol_trayicon_init ()
 {
 #if HAVE_APP_INDICATOR
   if (indicator == NULL)

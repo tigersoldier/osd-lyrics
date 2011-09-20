@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
  *
  * This file is part of OSD Lyrics.
- * 
+ *
  * OSD Lyrics is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,15 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef __OL_PLAYER_H__
 #define __OL_PLAYER_H__
 
 #include <glib.h>
+#include <glib-object.h>
 #include "ol_music_info.h"
 
-enum OlPlayerStatus{
+enum OlPlayerStatus {
   OL_PLAYER_PLAYING = 0,
   OL_PLAYER_PAUSED,
   OL_PLAYER_STOPPED,
@@ -44,236 +45,176 @@ enum OlPlayerCapacity {
   OL_PLAYER_PLAY_PAUSE =  OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_PAUSE,
 };
 
-struct OlPlayer
+#define OL_TYPE_PLAYER                          \
+  (ol_player_get_type ())
+#define OL_PLAYER(obj)                                  \
+  (G_TYPE_CHECK_INSTANCE_CAST (obj, OL_TYPE_PLAYER, OlPlayer))
+#define OL_PLAYER_CLASS(klass)                                        \
+  (G_TYPE_CHECK_CLASS_CAST (klass, OL_TYPE_PLAYER, OlPlayerClass))
+#define OL_IS_PLAYER(obj)                       \
+  (G_TYPE_CHECK_INSTANCE_TYPE (obj, OL_TYPE_PLAYER))
+#define OL_IS_PLAYER_CLASS(klass)                       \
+  (G_TYPE_CHECK_CLASS_TYPE (klass, OL_TYPE_PLAYER))
+#define OL_PLAYER_GET_CLASS(obj)                                        \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), OL_TYPE_PLAYER, OlPlayerClass))
+
+typedef struct _OlPlayer OlPlayer;
+
+typedef struct _OlPlayerClass OlPlayerClass;
+
+struct _OlPlayer
 {
-  const char * name;
-  const char * cmdline;
-  const char *(*get_icon_path) (void);
-  gboolean (*get_music_info) (OlMusicInfo *info);
-  gboolean (*get_activated) (void);
-  gboolean (*get_played_time) (int *played_time);
-  gboolean (*get_music_length) (int *len);
-  enum OlPlayerStatus (*get_status) (void);
-  int (*get_capacity) (void);
-  gboolean (*stop) (void);
-  gboolean (*play) (void);
-  gboolean (*pause) (void);
-  gboolean (*prev) (void);
-  gboolean (*next) (void);
-  gboolean (*seek) (int pos_ms);
-  GList *(*get_app_info_list) (void);
-  void (*free) (void);
+  GObject parent;
 };
 
-/**
- * @brief Gets all registered players
- *
- * @return Array of players, end with NULL. You should free it with g_free.
- */
-struct OlPlayer **ol_player_get_players (void);
+struct _OlPlayerClass
+{
+  GObjectClass parent_class;
+};
 
-GList *ol_player_get_support_players (void);
+GType ol_player_get_type (void);
 
-/**
- * Create a new player controller with given name
- *
- * You can use ol_player_register to register the created
- * controller into the system
- *
- * @param name The name of controller, must not be NULL.
- *             The controller will take ownership of the string.
- *
- * @return The new controller, or NULL if failed. The created
- *         controller should be freed with ol_player_free
+/** 
+ * Creates a new instance of OlPlayer
+ * 
+ * 
+ * @return 
  */
-struct OlPlayer *ol_player_new (const char *name);
+OlPlayer *ol_player_new (void);
 
 /**
- * @brief Free the player
+ * @brief Checks whether OSD Lyrics has connected to a supported player.
  *
- * If you have set the cmd of the player, you need to set cmd as NULL,
- * and free the returned string manually.
- *
- * @param player
+ * @return TRUE if a supported player is running
  */
-void ol_player_free (struct OlPlayer *player);
-
+gboolean ol_player_is_connected (OlPlayer *player);
 
 /**
  * @brief Gets the name of player
  *
- * @param player
- *
  * @return The returned string is owned by player and should not be freed.
+ *         If no supported player is running, NULL will be returned.
  */
-const char *ol_player_get_name (struct OlPlayer *player);
+const char *ol_player_get_name (OlPlayer *player);
 
 /**
- * @brief Sets the command to launch the player.
- *
- * @param player
- * @param cmd The launch command. The player will take ownership
- *            of it.
- * @return The old command string of player.
- */
-const char *ol_player_set_cmd (struct OlPlayer *player,
-                               const char *cmd);
-
-/**
- * @brief Gets the command to launch the player
- *
- * @param player
- *
- * @return The returned string is owned by the player and should not
- *         be freed
- */
-const char *ol_player_get_cmd (struct OlPlayer *player);
-
-/**
- * @brief Gets the full path of the icon of the player.
+ * @brief Gets the full path of the icon of the current player.
  *
  * @param player
  *
  * @return The path of the icon file, or NULL. The string is owned by the player
  *         and should not be freed.
  */
-const char *ol_player_get_icon_path (struct OlPlayer *player);
+const char *ol_player_get_icon_path (OlPlayer *player);
 
 /**
- * @brief Registers a player controller
+ * @brief Gets the metadata of the current metadata
  *
- * A player controller should be registered so that we can get
- * information from this player.
- * @param player The player controller to be registered
+ * @param metadata Return location of music info
+ *
+ * @return If no support player is connected, return FALSE. In this case,
+ *         parameter metadata will not be changed.
  */
-void ol_player_register (struct OlPlayer *player);
+gboolean ol_player_get_metadata (OlPlayer *player, OlMusicInfo *metadata);
 
-/**
- * @brief Gets the controller of the player available
- *
- * @return A pointer to the controller of the player. If there is not an active player, NULL will be returned
- */
-struct OlPlayer* ol_player_get_active_player (void);
-
-/**
- * @brief Initialize all the player controllers, to register the controllers available.
- * This should be called before ol_get_active_player
- */
-void ol_player_init (void);
-
-/**
- * @brief Frees all the player controllers
- * This should be called after the the program exits
- */
-void ol_player_unload (void);
-
-/**
- * @brief Gets the infomation of the current music
- *
- * @param player The player to operate
- * @param info Return location of music info
- *
- * @return TRUE if succeeded
- */
-gboolean ol_player_get_music_info (struct OlPlayer *player, OlMusicInfo *info);
-/**
- * @brief Checks whether the player is running.
- *
- * @param player The player to check
- *
- * @return TRUE if the player is running
- */
-gboolean ol_player_get_activated (struct OlPlayer *player);
 /**
  * @brief Gets the elapsed time of the current music
  *
- * @param player The player to operate
- * @param played_time Return location of the elasped time, in millisecond
+ * @param position Return location of the elasped time, in millisecond
  *
  * @return TRUE if succeeded
  */
-gboolean ol_player_get_played_time (struct OlPlayer *player, int *played_time);
+gboolean ol_player_get_position (OlPlayer *player, guint64 *pos_ms);
+
 /**
  * @brief Gets the duration of the current music
  *
- * @param player The player to operate
- * @param len Return location of the duration, in millisecond
+ * @param duration Return location of the duration, in millisecond
  *
  * @return TRUE if succeeded
  */
-gboolean ol_player_get_music_length (struct OlPlayer *player, int *len);
+gboolean ol_player_get_duration (OlPlayer *player, guint64 *duration);
+
 /**
  * @brief Gets the status of the player.
  * The status of a player can be playing, paused or stopped.
- * @param player The player to operate
  *
  * @return The status of the player, or OL_PLAYER_ERROR if failed
  */
-enum OlPlayerStatus ol_player_get_status (struct OlPlayer *player);
+enum OlPlayerStatus ol_player_get_status (OlPlayer *player);
+
 /**
  * @brief Gets which operations are supported by the player controller
  *
- * @param player The player to operate
- *
  * @return A combination of OlPlayerCapacity, or -1 if failed.
  */
-int ol_player_get_capacity (struct OlPlayer *player);
+int ol_player_get_caps (OlPlayer *player);
+
 /**
- * @brief Starts playing music. If the player supports this operation, OL_PLAYER_PLAY will be set in its capacity
+ * @brief Starts playing music. If the player supports this operation,
+ * OL_PLAYER_PLAY will be set in its capacity
+ *
+ * @return FALSE if the operation failed or the player controller dosen't support
+ *         this operation.
+ */
+gboolean ol_player_play (OlPlayer *player);
+
+/**
+ * @brief Pauses the current music. The elasped time will not change. If the player
+ * supports this operation, OL_PLAYER_STOP will be set in its capacity
  *
  * @param player
  *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
+ * @return FALSE if the operation failed or the player controller dosen't support
+ *         this operation.
  */
-gboolean ol_player_play (struct OlPlayer *player);
+gboolean ol_player_pause (OlPlayer *player);
+
 /**
- * @brief Pauses the current music. The elasped time will not change. If the player supports this operation, OL_PLAYER_STOP will be set in its capacity
+ * @brief Stop playing music. The elapsed time will be reset to 0. If the player
+ * supports this operation, OL_PLAYER_STOP will be set in its capacity
  *
  * @param player
  *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
+ * @return FALSE if the operation failed or the player controller dosen't support
+ *         this operation.
  */
-gboolean ol_player_pause (struct OlPlayer *player);
+gboolean ol_player_stop (OlPlayer *player);
+
 /**
- * @brief If the player is paused or stopped, resume or play the current music. If it is playing, pause it.
+ * @brief Plays the previous music. If the player supports this operation,
+ * OL_PLAYER_PREV will be set in its capacity
  *
  * @param player
  *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
+ * @return FALSE if the operation failed or the player controller dosen't support
+ *         this operation.
  */
-gboolean ol_player_play_pause (struct OlPlayer *player);
+gboolean ol_player_prev (OlPlayer *player);
+
 /**
- * @brief Plays the previous music. If the player supports this operation, OL_PLAYER_PREV will be set in its capacity
+ * @brief Plays the next music. If the player supports this operation,
+ * OL_PLAYER_NEXT will be set in its capacity
  *
  * @param player
  *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
+ * @return FALSE if the operation failed or the player controller dosen't support
+ *         this operation.
  */
-gboolean ol_player_prev (struct OlPlayer *player);
+gboolean ol_player_next (OlPlayer *player);
+
 /**
- * @brief Plays the next music. If the player supports this operation, OL_PLAYER_NEXT will be set in its capacity
+ * @brief Seek the current music to a given position. If the player supports this
+ * operation, OL_PLAYER_SEEK will be set in its capacity
  *
- * @param player
+ * Note that the actuall time may not equals to the given posision. You may need to
+ * call ol_player_get_played_time after this function is called.
  *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
- */
-gboolean ol_player_next (struct OlPlayer *player);
-/**
- * @brief Seek the current music to a given position. If the player supports this operation, OL_PLAYER_SEEK will be set in its capacity
- * Note that the actuall time may not equals to the given posision. You may need to call ol_player_get_played_time after this function is called.
- * @param player The player to operate
  * @param pos_ms The target position in millisecond.
  *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
+ * @return FALSE if the operation failed or the player controller dosen't support
+ *         this operation.
  */
-gboolean ol_player_seek (struct OlPlayer *player, int pos_ms);
-/**
- * @brief Stop playing music. The elapsed time will be reset to 0. If the player supports this operation, OL_PLAYER_STOP will be set in its capacity
- *
- * @param player
- *
- * @return FALSE if the operation failed or the player controller dosen't support this operation.
- */
-gboolean ol_player_stop (struct OlPlayer *player);
+gboolean ol_player_seek (OlPlayer *player, guint64 pos_ms);
 
 #endif // __OL_PLAYER_H__

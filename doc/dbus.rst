@@ -46,13 +46,16 @@ Metadata
 --------
 ``a{sv}``
 
-Use the format described in `MPRIS1 http://xmms2.org/wiki/MPRIS`_, with the following fields:
+Use the format described in `MPRIS Metadata <http://xmms2.org/wiki/MPRIS_Metadata>`_, with the following fields:
 
- - title:
- - artist:
- - album:
- - location:
- - tracknumber:
+ - title: (string)
+ - artist: (string)
+ - album: (string)
+ - location: (string)
+ - tracknumber: (string)
+ - arturl: (string)
+ - time: (uint32) The duration in seconds 
+ - mtime: (uint32) The duration in milliseconds 
 
 Interfaces
 ==========
@@ -60,7 +63,7 @@ Interfaces
 Player Controlling
 ------------------
 
-OSD Lyrics follows `MPRIS1 http://xmms2.org/wiki/MPRIS`_ and `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players. 
+OSD Lyrics follows `MPRIS1 <http://xmms2.org/wiki/MPRIS>`_ and `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players. 
 
 OSD Lyrics uses the bus name ``org.mpris.MediaPlayer2.osdlyrics`` as an alias name according to the specification of MPRIS2.
 

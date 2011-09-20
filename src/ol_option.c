@@ -1630,8 +1630,10 @@ init_startup_player (GtkWidget *widget)
     return;
   gtk_combo_box_append_text (cb, _("Choose on startup"));
   GtkListStore *liststore = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
-  GList *players = g_list_sort (ol_player_get_support_players (),
-                                (GCompareFunc) ol_app_info_cmp);
+  /* TODO: */
+  GList *players = NULL;
+  /* GList *players = g_list_sort (ol_player_get_support_players (), */
+  /*                               (GCompareFunc) ol_app_info_cmp); */
   for (; players != NULL; players = g_list_delete_link (players, players))
   {
     GAppInfo *app_info = players->data;

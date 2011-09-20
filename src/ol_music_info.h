@@ -35,6 +35,7 @@ struct _OlMusicInfo
 };
 
 OlMusicInfo *ol_music_info_new ();
+void ol_music_info_free (OlMusicInfo *music_info);
 
 /** 
  * @brief Initialize an OlMusicInfo
@@ -88,6 +89,8 @@ const char *ol_music_info_get_album (const OlMusicInfo *music_info);
 
 void ol_music_info_set_track_number (OlMusicInfo *music_info,
                                      int track_number);
+void ol_music_info_set_track_number_from_string (OlMusicInfo *music_info,
+                                                 const char *track_number);
 int ol_music_info_get_track_number (const OlMusicInfo *music_info);
 
 /** 

@@ -26,7 +26,7 @@ enum OlPlayerStatus;
  * @brief give a Entrance to do trayicon job
  * 
  */
-void ol_trayicon_inital ();
+void ol_trayicon_init ();
 
 /** 
  * @brief Notifiy the trayicon that the playing status has changed

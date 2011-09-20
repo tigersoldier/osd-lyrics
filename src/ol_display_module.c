@@ -125,7 +125,8 @@ ol_display_module_get_data (struct OlDisplayModule *module)
 }
 
 struct OlDisplayModule*
-ol_display_module_new (const char *name)
+ol_display_module_new (const char *name,
+                       OlPlayer *player)
 {
   ol_assert_ret (name != NULL, NULL);
   struct OlDisplayModule *module = NULL;
@@ -133,11 +134,12 @@ ol_display_module_new (const char *name)
   if (klass == NULL)
   {
     ol_error ("Module %s not exists.\n", name);
-    return NULL;
+    /* Fall back to the first display module. */
+    return g_ptr_array_index (classes, 0);
   }
   module = g_new0 (struct OlDisplayModule, 1);
   module->klass = klass;
-  _set_data (module, klass->init (module));
+  _set_data (module, klass->init (module, player));
   return module;
 }
 
@@ -150,33 +152,8 @@ ol_display_module_free (struct OlDisplayModule *module)
 }
 
 void
-ol_display_module_set_music_info (struct OlDisplayModule *module,
-                                  OlMusicInfo *music_info)
-{
-  ol_log_func ();
-  ol_assert (module != NULL);
-  call (module->klass->set_music_info, module, music_info);
-}
-
-void
-ol_display_module_set_player (struct OlDisplayModule *module,
-                              struct OlPlayer *player)
-{
-  ol_assert (module != NULL);
-  call (module->klass->set_player, module, player);
-}
-
-void
-ol_display_module_set_status (struct OlDisplayModule *module,
-                              enum OlPlayerStatus status)
-{
-  ol_assert (module != NULL);
-  call (module->klass->set_status, module, status);
-}
-
-void
 ol_display_module_set_played_time (struct OlDisplayModule *module,
-                                   int played_time)
+                                   guint64 played_time)
 {
   ol_assert (module != NULL);
   call (module->klass->set_played_time, module, played_time);
@@ -188,15 +165,6 @@ ol_display_module_set_lrc (struct OlDisplayModule *module,
 {
   ol_assert (module != NULL);
   call (module->klass->set_lrc, module, lrc_file);
-}
-
-void
-ol_display_module_set_duration (struct OlDisplayModule *module,
-                                int duration)
-{
-  ol_log_func ();
-  ol_assert (module != NULL);
-  call (module->klass->set_duration, module, duration);
 }
 
 void

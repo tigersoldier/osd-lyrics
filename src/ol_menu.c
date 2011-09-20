@@ -239,7 +239,7 @@ ol_menu_preference (GtkWidget *widget, gpointer data)
 void
 ol_menu_play (GtkWidget *widget, gpointer data)
 {
-  struct OlPlayer *player = ol_app_get_player ();
+  OlPlayer *player = ol_app_get_player ();
   if (player == NULL)
     return;
   ol_log_func ();
@@ -249,7 +249,7 @@ ol_menu_play (GtkWidget *widget, gpointer data)
 void
 ol_menu_pause (GtkWidget *widget, gpointer data)
 {
-  struct OlPlayer *player = ol_app_get_player ();
+  OlPlayer *player = ol_app_get_player ();
   if (player == NULL)
     return;
   ol_player_pause (player);
@@ -258,7 +258,7 @@ ol_menu_pause (GtkWidget *widget, gpointer data)
 void
 ol_menu_stop (GtkWidget *widget, gpointer data)
 {
-  struct OlPlayer *player = ol_app_get_player ();
+  OlPlayer *player = ol_app_get_player ();
   if (player == NULL)
     return;
   ol_player_stop (player);
@@ -267,7 +267,7 @@ ol_menu_stop (GtkWidget *widget, gpointer data)
 void
 ol_menu_prev (GtkWidget *widget, gpointer data)
 {
-  struct OlPlayer *player = ol_app_get_player ();
+  OlPlayer *player = ol_app_get_player ();
   if (player == NULL)
     return;
   ol_player_prev (player);
@@ -276,7 +276,7 @@ ol_menu_prev (GtkWidget *widget, gpointer data)
 void
 ol_menu_next (GtkWidget *widget, gpointer data)
 {
-  struct OlPlayer *player = ol_app_get_player ();
+  OlPlayer *player = ol_app_get_player ();
   if (player == NULL)
     return;
   ol_player_next (player);
@@ -331,12 +331,12 @@ static void
 ol_menu_update_player_control ()
 {
   ol_log_func ();
-  struct OlPlayer *player = ol_app_get_player ();
+  OlPlayer *player = ol_app_get_player ();
   if (menu.play)
   {
     if (player != NULL)
     {
-      if ((ol_player_get_capacity (player) & OL_PLAYER_STATUS) &&
+      if ((ol_player_get_caps (player) & OL_PLAYER_STATUS) &&
           ol_player_get_status (player) == OL_PLAYER_PLAYING)
       {
         gtk_widget_hide (menu.play);
@@ -345,7 +345,7 @@ ol_menu_update_player_control ()
       {
         gtk_widget_show (menu.play);
         gtk_widget_set_sensitive (menu.play,
-                                  ol_player_get_capacity (player) & OL_PLAYER_PLAY);
+                                  ol_player_get_caps (player) & OL_PLAYER_PLAY);
       }
     }
     else
@@ -358,7 +358,7 @@ ol_menu_update_player_control ()
   {
     if (player != NULL)
     {
-      if ((ol_player_get_capacity (player) & OL_PLAYER_STATUS))
+      if ((ol_player_get_caps (player) & OL_PLAYER_STATUS))
       {
         if (ol_player_get_status (player) == OL_PLAYER_PLAYING)
           gtk_widget_show (menu.pause);
@@ -370,7 +370,7 @@ ol_menu_update_player_control ()
         gtk_widget_show(menu.pause);
       }
       gtk_widget_set_sensitive (menu.pause,
-                                ol_player_get_capacity (player) & OL_PLAYER_PAUSE);
+                                ol_player_get_caps (player) & OL_PLAYER_PAUSE);
     }
     else
     {
@@ -380,15 +380,15 @@ ol_menu_update_player_control ()
   if (menu.stop)
     gtk_widget_set_sensitive (menu.stop,
                               player != NULL &&
-                              (ol_player_get_capacity (player) & OL_PLAYER_STOP));
+                              (ol_player_get_caps (player) & OL_PLAYER_STOP));
   if (menu.prev)
     gtk_widget_set_sensitive (menu.prev,
                               player != NULL &&
-                              (ol_player_get_capacity (player) & OL_PLAYER_PREV));
+                              (ol_player_get_caps (player) & OL_PLAYER_PREV));
   if (menu.next)
     gtk_widget_set_sensitive (menu.next,
                               player != NULL &&
-                              (ol_player_get_capacity (player) & OL_PLAYER_NEXT));
+                              (ol_player_get_caps (player) & OL_PLAYER_NEXT));
 }
 
 GtkWidget*

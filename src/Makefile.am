@@ -41,6 +41,7 @@ noinst_HEADERS = \
 	ol_commands.h \
 	ol_config.h \
 	ol_config_property.h \
+	ol_consts.h \
 	ol_debug.h \
 	ol_display_module.h \
 	ol_eggaccelerators.h \
@@ -75,22 +76,7 @@ noinst_HEADERS = \
 	ol_osd_toolbar.h \
 	ol_osd_window.h \
 	ol_path_pattern.h \
-	ol_player_amarok1.h \
-	ol_player_banshee.h \
-	ol_player_exaile02.h \
-	ol_player_exaile03.h \
-	ol_player_gmusicbrowser.h \
 	ol_player.h \
-	ol_player_juk.h \
-	ol_player_listen.h \
-	ol_player_moc.h \
-	ol_player_mpd.h \
-	ol_player_mpris.h \
-	ol_player_muine.h \
-	ol_player_quodlibet.h \
-	ol_player_xmms2.h \
-	ol_player_mpris2.h \
-	ol_player_utils.h \
 	ol_scroll_module.h \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
@@ -114,29 +100,14 @@ osdlyrics_SOURCES = \
 	ol_about.c \
 	ol_option.c \
 	ol_display_module.c \
-	ol_scroll_window.c \
-	ol_scroll_module.c \
 	ol_osd_window.c \
 	ol_osd_toolbar.c \
 	ol_osd_render.c \
 	ol_osd_module.c \
+	ol_scroll_module.c \
+	ol_scroll_window.c \
 	ol_image_button.c \
 	ol_player.c \
-	ol_player_banshee.c \
-	ol_player_exaile02.c \
-	ol_player_exaile03.c \
-	ol_player_amarok1.c \
-	ol_player_mpris.c \
-	ol_player_quodlibet.c \
-	ol_player_xmms2.c \
-	ol_player_juk.c \
-	ol_player_moc.c \
-	ol_player_mpd.c \
-	ol_player_muine.c \
-	ol_player_listen.c \
-	ol_player_gmusicbrowser.c \
-	ol_player_mpris2.c \
-	ol_player_utils.c \
 	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \

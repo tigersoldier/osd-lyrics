@@ -21,6 +21,8 @@
 #define _OL_DISPLAY_MODULE_H_
 
 #include "ol_music_info.h"
+#include "ol_player.h"
+
 struct OlLrc;
 struct OlPlayer;
 enum OlPlayerStatus;
@@ -31,7 +33,8 @@ struct OlDisplayModule
   void *data;
 };
 
-typedef void* (*OlDisplayInitFunc) (struct OlDisplayModule *module);
+typedef void* (*OlDisplayInitFunc) (struct OlDisplayModule *module,
+                                    OlPlayer *player);
 typedef void (*OlDisplayFreeFunc) (struct OlDisplayModule *module);
 
 struct OlDisplayClass
@@ -39,18 +42,10 @@ struct OlDisplayClass
   char *name;
   OlDisplayInitFunc init;
   OlDisplayFreeFunc free;
-  void (*set_music_info) (struct OlDisplayModule *module,
-                          OlMusicInfo *music_info);
-  void (*set_player) (struct OlDisplayModule *module,
-                      struct OlPlayer *player);
-  void (*set_status) (struct OlDisplayModule *module,
-                      enum OlPlayerStatus status);
-  void (*set_played_time) (struct OlDisplayModule *module,
-                           int played_time);
   void (*set_lrc) (struct OlDisplayModule *module,
                    struct OlLrc *lrc_file);
-  void (*set_duration) (struct OlDisplayModule *module,
-                        int duration);
+  void (*set_played_time) (struct OlDisplayModule *module,
+                           guint64 played_time);
   void (*set_message) (struct OlDisplayModule *module,
                        const char *message,
                        int duration_ms);
@@ -97,26 +92,20 @@ void ol_display_module_unload ();
  * @brief Create a display module of given type
  * 
  * @param name The name of the type of display module, case insensitive
+ * @param player The player proxy to use
  * 
  * @return The new display module. If the display module with the given name
  *         not exists, a default display module is returned. The returned module
  *         must be freed with ol_display_module_free.
  */
-struct OlDisplayModule *ol_display_module_new (const char *name);
+struct OlDisplayModule *ol_display_module_new (const char *name,
+                                               OlPlayer *player);
 
 void ol_display_module_free (struct OlDisplayModule *module);
-void ol_display_module_set_music_info (struct OlDisplayModule *module,
-                                       OlMusicInfo *music_info);
-void ol_display_module_set_player (struct OlDisplayModule *module,
-                                   struct OlPlayer *player);
-void ol_display_module_set_status (struct OlDisplayModule *module,
-                                   enum OlPlayerStatus status);
 void ol_display_module_set_played_time (struct OlDisplayModule *module,
-                                        int played_time);
+                                        guint64 played_time);
 void ol_display_module_set_lrc (struct OlDisplayModule *module,
                                 struct OlLrc *lrc_file);
-void ol_display_module_set_duration (struct OlDisplayModule *module,
-                                     int duration);
 void ol_display_module_set_message (struct OlDisplayModule *module,
                                     const char *message,
                                     int duration_ms);

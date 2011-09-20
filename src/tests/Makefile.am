@@ -60,28 +60,10 @@ ol_osd_window_test_SOURCES = ol_osd_window_test.c \
 ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_player.c \
-	$(top_srcdir)/src/ol_player_amarok1.c \
-	$(top_srcdir)/src/ol_player_banshee.c \
-	$(top_srcdir)/src/ol_player_mpris.c \
-	$(top_srcdir)/src/ol_player_mpris2.c \
-	$(top_srcdir)/src/ol_player_exaile02.c \
-	$(top_srcdir)/src/ol_player_exaile03.c \
-	$(top_srcdir)/src/ol_player_muine.c \
-	$(top_srcdir)/src/ol_player_mpd.c \
-	$(top_srcdir)/src/ol_player_moc.c \
-	$(top_srcdir)/src/ol_player_xmms2.c \
-	$(top_srcdir)/src/ol_player_quodlibet.c \
-	$(top_srcdir)/src/ol_player_juk.c \
-	$(top_srcdir)/src/ol_player_listen.c \
-	$(top_srcdir)/src/ol_player_gmusicbrowser.c \
-	$(top_srcdir)/src/ol_player_utils.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
-	$(top_srcdir)/src/ol_config.c \
-	$(top_srcdir)/src/ol_marshal.c \
+	$(top_srcdir)/src/ol_music_info.c \
 	$(top_srcdir)/src/ol_utils.c \
-	$(top_srcdir)/src/ol_utils_cmdline.c \
-	$(top_srcdir)/src/ol_utils_dbus.c \
-	$(top_srcdir)/src/ol_music_info.c 
+	$(NULL)
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
 	$(top_srcdir)/src/ol_debug.c \

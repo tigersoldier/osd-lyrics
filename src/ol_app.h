@@ -21,6 +21,7 @@
 #define _OL_APP_H_
 
 #include <glib.h>
+#include "ol_player.h"
 #include "ol_music_info.h"
 
 gboolean ol_app_download_lyric (OlMusicInfo *music_info);
@@ -35,7 +36,7 @@ struct OlLrc;
  */
 OlMusicInfo* ol_app_get_current_music (void);
 
-struct OlPlayer* ol_app_get_player (void);
+OlPlayer* ol_app_get_player (void);
 
 struct OlLrc *ol_app_get_current_lyric (void);
 

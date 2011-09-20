@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier <tigersoldi@gmail.com>
+ * Copyright (C) 2011  Tiger Soldier <tigersoldi@gmail.com>
  *
  * This file is part of OSD Lyrics.
  * 
@@ -18,331 +18,1096 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-#include <stdio.h>
-#include "config.h"
+#include <gio/gio.h>
 #include "ol_player.h"
+#include "ol_consts.h"
+#include "ol_elapse_emulator.h"
 #include "ol_debug.h"
-#include "ol_player_banshee.h"
-#include "ol_player_exaile02.h"
-#include "ol_player_exaile03.h"
-#include "ol_player_listen.h"
-#include "ol_player_gmusicbrowser.h"
-#include "ol_player_moc.h"
-#include "ol_player_quodlibet.h"
-#include "ol_player_juk.h"
-#include "ol_player_muine.h"
-#include "ol_player_mpris.h"
-#include "ol_player_mpris2.h"
-#include "ol_player_utils.h"
-#ifdef ENABLE_AMAROK1
-#include "ol_player_amarok1.h"
-#endif  /* ENABLE_AMAROK1 */
-#ifdef ENABLE_XMMS2
-#include "ol_player_xmms2.h"
-#endif  /* ENABLE_XMMS2 */
-#ifdef ENABLE_MPD
-#include "ol_player_mpd.h"
-#endif  /* ENABLE_MPD */
 
-static GArray *players = NULL;
-
-void
-ol_player_init ()
-{
-  if (players == NULL)
-  {
-    players = g_array_new (FALSE, TRUE, sizeof (struct OlPlayer*));
-    ol_player_register (ol_player_banshee_get ());
-    ol_player_register (ol_player_exaile02_get ());
-    ol_player_register (ol_player_exaile03_get ());
-    ol_player_register (ol_player_listen_get ());
-    ol_player_register (ol_player_gmusicbrowser_get ());
-    ol_player_register (ol_player_mpris_get ());
-    ol_player_register (ol_player_mpris2_get ());
-    ol_player_register (ol_player_moc_get ());
-    ol_player_register (ol_player_quodlibet_get ());
-    ol_player_register (ol_player_juk_get ());
-    ol_player_register (ol_player_muine_get ());
-#ifdef ENABLE_AMAROK1
-    ol_player_register (ol_player_amarok1_get ());
-#endif  /* ENABLE_AMAROK1 */
-#ifdef ENABLE_XMMS2
-    ol_player_register (ol_player_xmms2_get ());
-#endif  /* ENABLE_XMMS2 */
-#ifdef ENABLE_MPD
-    ol_player_register (ol_player_mpd_get ());
-#endif  /* ENABLE_MPD */
-  }
-}
-
-void
-ol_player_unload (void)
-{
-  if (players != NULL)
-  {
-    g_array_free (players, TRUE);
-    players = NULL;
-  }
-}
-
-struct OlPlayer **
-ol_player_get_players (void)
-{
-  struct OlPlayer **ret = g_new0 (struct OlPlayer *,
-                                  players->len + 1);
-  int i;
+#define assert_variant_type(value, type)        \
+  do {                                          \
+    if (!g_variant_is_of_type ((value), G_VARIANT_TYPE (type))) \
+    {                                                           \
+      ol_errorf ("Except variant type of %s, but %s got\n",     \
+                 type, g_variant_get_type_string ((value)));    \
+    }                                                           \
+  } while (0);
   
-  for (i = 0; i < players->len; i++)
-  {
-    ret[i] = g_array_index (players, struct OlPlayer*, i);
-  }
-  return ret;
+
+#define OL_PLAYER_GET_PRIVATE(object)                                   \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((object), OL_TYPE_PLAYER, OlPlayerPrivate))
+
+const int POSITION_ACCURACY_MS = 1000;
+
+enum Mpris1Status {
+  MPRIS1_STATUS_PLAYING = 0,
+  MPRIS1_STATUS_PAUSED = 1,
+  MPRIS1_STATUS_STOPPED = 2,
+};
+
+enum Mpris1Caps {
+  MPRIS1_CAPS_NONE              = 0,
+  MPRIS1_CAPS_NEXT              = 1 << 0,
+  MPRIS1_CAPS_PREV              = 1 << 1,
+  MPRIS1_CAPS_PAUSE             = 1 << 2,
+  MPRIS1_CAPS_PLAY              = 1 << 3,
+  MPRIS1_CAPS_SEEK              = 1 << 4,
+  MPRIS1_CAPS_METADATA          = 1 << 5,
+  MPRIS1_CAPS_TRACKLIST         = 1 << 6,
+};
+
+enum {
+  PLAYER_LOST,
+  PLAYER_CONNECTED,
+  TRACK_CHANGED,
+  STATUS_CHANGED,
+  CAPS_CHANGED,
+  LAST_SIGNAL,
+};
+
+typedef struct _OlPlayerPrivate OlPlayerPrivate;
+
+struct _OlPlayerPrivate
+{
+  GDBusProxy *proxy;
+  GDBusProxy *mpris1_proxy;
+  gboolean connected;
+  OlMusicInfo *metadata;
+  enum OlPlayerStatus status;
+  enum OlPlayerCapacity caps;
+  guint64 position;
+  guint64 duration;
+  guint position_timer;
+  gchar *player_name;
+  gchar *player_icon;
+  GCancellable *cancel_player_info;
+  GCancellable *cancel_metadata;
+  GCancellable *cancel_position;
+  GCancellable *cancel_status;
+  GCancellable *cancel_caps;
+  OlElapseEmulator *elapse_emulator;
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
+static void ol_player_class_init (OlPlayerClass *klass);
+static void ol_player_init (OlPlayer *player);
+static void ol_player_init_proxy (OlPlayer *player);
+static void ol_player_init_mpris1_proxy (OlPlayer *player);
+static void ol_player_finalize (GObject *object);
+/* static void ol_player_set_property (GObject *object, */
+/*                                     guint property_id, */
+/*                                     const GValue *value, */
+/*                                     GParamSpec *pspec); */
+/* static void ol_player_get_property (GObject *object, */
+/*                                     guint property_id, */
+/*                                     GValue *value, */
+/*                                     GParamSpec *pspec); */
+static void ol_player_proxy_signal (GDBusProxy *proxy,
+                                    gchar *sender_name,
+                                    gchar *signal_name,
+                                    GVariant *parameters,
+                                    gpointer user_data);
+static void ol_player_mpris1_proxy_signal (GDBusProxy *proxy,
+                                           gchar *sender_name,
+                                           gchar *signal_name,
+                                           GVariant *parameters,
+                                           gpointer user_data);
+
+static void ol_player_fetch_player_info_async (OlPlayer *player);
+static void ol_player_fetch_player_info_cb (GObject *source_object,
+                                            GAsyncResult *res,
+                                            gpointer user_data);
+static void ol_player_set_player_info (OlPlayer *player,
+                                       GVariant *value);
+
+static void ol_player_fetch_position_async (OlPlayer *player);
+static void ol_player_fetch_position_cb (GObject *source_object,
+                                         GAsyncResult *res,
+                                         gpointer user_data);
+static void ol_player_set_position (OlPlayer *player,
+                                    GVariant *value);
+
+static void ol_player_fetch_metadata_async (OlPlayer *player);
+static void ol_player_fetch_metadata_cb (GObject *source_object,
+                                         GAsyncResult *res,
+                                         gpointer user_data);
+static void ol_player_set_metadata (OlPlayer *player,
+                                    GVariant *value);
+
+static void ol_player_fetch_status_async (OlPlayer *player);
+static void ol_player_fetch_status_cb (GObject *source_object,
+                                       GAsyncResult *res,
+                                       gpointer user_data);
+static void ol_player_set_status (OlPlayer *player,
+                                  GVariant *value);
+
+static void ol_player_fetch_caps_async (OlPlayer *player);
+static void ol_player_fetch_caps_cb (GObject *source_object,
+                                     GAsyncResult *res,
+                                     gpointer user_data);
+static void ol_player_set_caps (OlPlayer *player,
+                                GVariant *value);
+
+static void ol_player_start_position_timer (OlPlayer *player);
+static void ol_player_stop_position_timer (OlPlayer *player);
+
+static void ol_player_proxy_name_owner_changed (GObject *gobject,
+                                                GParamSpec *pspec,
+                                                gpointer user_data);
+static void _cancel_call (GCancellable **cancellable);
+
+G_DEFINE_TYPE (OlPlayer, ol_player, G_TYPE_OBJECT);
+
+static void
+ol_player_class_init (OlPlayerClass *klass)
+{
+  GObjectClass *gklass = G_OBJECT_CLASS (klass);
+
+  /* gklass->set_property = ol_player_set_property; */
+  /* gklass->get_property = ol_player_get_property; */
+  gklass->finalize = ol_player_finalize;
+  
+  signals[PLAYER_LOST] =
+    g_signal_new ("player-lost",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,            /* class_offset */
+                  NULL, NULL,   /* accumulator, accu_data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0);
+  signals[PLAYER_CONNECTED] =
+    g_signal_new ("player-connected",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,            /* class_offset */
+                  NULL, NULL,   /* accumulator, accu_data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0);
+  signals[TRACK_CHANGED] =
+    g_signal_new ("track-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,            /* class_offset */
+                  NULL, NULL,   /* accumulator, accu_data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0);
+  signals[STATUS_CHANGED] =
+    g_signal_new ("status-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,            /* class_offset */
+                  NULL, NULL,   /* accumulator, accu_data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0);
+  signals[CAPS_CHANGED] =
+    g_signal_new ("caps-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,            /* class_offset */
+                  NULL, NULL,   /* accumulator, accu_data */
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE,
+                  0);
+  g_type_class_add_private (klass, sizeof (OlPlayerPrivate));
 }
 
-GList *
-ol_player_get_support_players (void)
+OlPlayer *
+ol_player_new (void)
 {
-  GList *list = NULL;
-  GList *player_list = NULL;
-  int i;
-  for (i = 0; i < players->len; i++)
+  return OL_PLAYER (g_object_new (OL_TYPE_PLAYER, NULL));
+}
+
+static void
+ol_player_init (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  private->metadata = ol_music_info_new ();
+  private->status = OL_PLAYER_UNKNOWN;
+  private->caps = 0;
+  private->position = 0;
+  /* TODO: Initialize player info */
+  private->elapse_emulator = ol_elapse_emulator_new (0, POSITION_ACCURACY_MS);
+  ol_player_init_proxy (player);
+  ol_player_init_mpris1_proxy (player);
+  ol_player_fetch_player_info_async (player);
+}
+
+static void
+ol_player_init_proxy (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  GError *error = NULL;
+  private->proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                  G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                  NULL, /* GDBusInterfaceInfo */
+                                                  OL_SERVICE_DAEMON,
+                                                  OL_OBJECT_PLAYER,
+                                                  OL_IFACE_PLAYER,
+                                                  NULL, /* GCancellable */
+                                                  &error);
+  if (private->proxy == NULL && error != NULL) {
+    ol_errorf ("Cannot connect to player object: %s", error->message);
+    g_error_free (error);
+    return;
+  }
+  g_signal_connect (private->proxy,
+                    "g-signal",
+                    G_CALLBACK (ol_player_proxy_signal),
+                    player);
+}
+
+static void
+ol_player_init_mpris1_proxy (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  GError *error = NULL;
+  private->mpris1_proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                         G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                         NULL, /* GDBusInterfaceInfo */
+                                                         OL_SERVICE_DAEMON,
+                                                         OL_OBJECT_MPRIS1_PLAYER,
+                                                         OL_IFACE_MPRIS1,
+                                                         NULL, /* GCancellable */
+                                                         &error);
+  if (private->mpris1_proxy == NULL && error != NULL) {
+    ol_errorf ("Cannot connect to MPRIS1 player object: %s", error->message);
+    g_error_free (error);
+    return;
+  }
+  g_signal_connect (private->mpris1_proxy,
+                    "g-signal",
+                    G_CALLBACK (ol_player_mpris1_proxy_signal),
+                    player);
+  g_signal_connect (private->mpris1_proxy,
+                    "notify::g-name-owner",
+                    G_CALLBACK (ol_player_proxy_name_owner_changed),
+                    player);
+}
+
+static void
+_cancel_call (GCancellable **cancellable)
+{
+  if (cancellable && *cancellable)
   {
-    struct OlPlayer *player = g_array_index (players, struct OlPlayer*, i);
-    if (player->get_app_info_list)
+    g_cancellable_cancel (*cancellable);
+    g_object_unref (*cancellable);
+    *cancellable = NULL;
+  }
+}
+
+static void
+ol_player_finalize (GObject *object)
+{
+  OlPlayer *player = OL_PLAYER (object);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (object);
+  if (private->proxy != NULL)
+  {
+    g_object_unref (private->proxy);
+    private->proxy = NULL;
+  }
+  if (private->mpris1_proxy != NULL)
+  {
+    g_object_unref (private->mpris1_proxy);
+    private->mpris1_proxy = NULL;
+  }
+  if (private->metadata != NULL)
+  {
+    ol_music_info_free (private->metadata);
+    private->metadata = NULL;
+  }
+  if (private->player_name != NULL)
+  {
+    g_free (private->player_name);
+    private->player_name = NULL;
+  }
+  if (private->player_icon != NULL)
+  {
+    g_free (private->player_icon);
+    private->player_icon = NULL;
+  }
+  _cancel_call (&private->cancel_player_info);
+  _cancel_call (&private->cancel_metadata);
+  _cancel_call (&private->cancel_position);
+  _cancel_call (&private->cancel_caps);
+  _cancel_call (&private->cancel_status);
+  ol_elapse_emulator_free (private->elapse_emulator);
+  private->elapse_emulator = NULL;
+  ol_player_stop_position_timer (player);
+  G_OBJECT_CLASS (ol_player_parent_class)->finalize (object);
+}
+
+static void
+ol_player_proxy_signal (GDBusProxy *proxy,
+                        gchar *sender_name,
+                        gchar *signal_name,
+                        GVariant *parameters,
+                        gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  if (g_strcmp0 (signal_name, "PlayerLost") == 0)
+  {
+    ol_player_set_player_info (player, NULL);
+    g_signal_emit (player, signals[PLAYER_LOST], 0);
+  }
+  else if (g_strcmp0 (signal_name, "PlayerConnected") == 0)
+  {
+    assert_variant_type (parameters, "(a{sv})");
+    GVariant *value;
+    g_variant_get (parameters, "(@a{sv})", &value);
+    ol_player_set_player_info (player, value);
+    g_variant_unref (value);
+    g_signal_emit (player, signals[PLAYER_CONNECTED], 0);
+  }
+}
+
+static void
+ol_player_mpris1_proxy_signal (GDBusProxy *proxy,
+                               gchar *sender_name,
+                               gchar *signal_name,
+                               GVariant *parameters,
+                               gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  if (g_strcmp0 (signal_name, "TrackChange") == 0)
+  {
+    ol_player_set_metadata (player, parameters);
+    g_signal_emit (player, signals[TRACK_CHANGED], 0);
+  }
+  else if (g_strcmp0 (signal_name, "StatusChange") == 0)
+  {
+    ol_player_set_status (player, parameters);
+    g_signal_emit (player, signals[STATUS_CHANGED], 0);
+  }
+  else if (g_strcmp0 (signal_name, "CapsChange") == 0)
+  {
+    ol_player_set_caps (player, parameters);
+    g_signal_emit (player, signals[CAPS_CHANGED], 0);
+  }
+}
+
+static void
+ol_player_proxy_name_owner_changed (GObject *gobject,
+                                    GParamSpec *pspec,
+                                    gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  gchar *owner = NULL;
+  if ((owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (gobject))) == NULL)
+  {
+    /* Daemon disconnected, treat the player as lost */
+    ol_debug ("Daemon lost");
+    ol_player_set_player_info (player, NULL);
+  }
+  else
+  {
+    /* Daemon connected, get player info */
+    ol_debugf ("Daemon connected: %s\n", owner);
+    ol_player_fetch_player_info_async (player);
+  }
+}
+
+static void
+ol_player_fetch_player_info_async (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->cancel_player_info)
+    return;
+  private->cancel_player_info = g_cancellable_new ();
+  g_dbus_proxy_call (private->proxy,
+                     "GetCurrentPlayer",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     private->cancel_player_info,
+                     ol_player_fetch_player_info_cb,
+                     player);
+}
+
+static void
+ol_player_fetch_player_info_cb (GObject *source_object,
+                                GAsyncResult *res,
+                                gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  GError *error = NULL;
+  GVariant *value =  g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
+                                               res,
+                                               &error);
+  if (value)
+  {
+    assert_variant_type (value, "(ba{sv})");
+    gboolean connected;
+    GVariant *info = NULL;
+    g_variant_get (value, "(b@a{sv})", &connected, &info);
+    if (connected)
+      ol_player_set_player_info (player, info);
+    else
+      ol_player_set_player_info (player, NULL);
+    g_variant_unref (info);
+    g_variant_unref (value);
+  }
+  else
+  {
+    ol_errorf ("Cannot get player info: %s\n", error->message);
+    ol_player_set_player_info (player, NULL);
+    g_error_free (error);
+  }
+  if (private->cancel_player_info)
+  {
+    g_object_unref (private->cancel_player_info);
+    
+  }
+}
+
+static void
+ol_player_set_player_info (OlPlayer *player,
+                           GVariant *value)
+{
+  ol_assert (OL_IS_PLAYER (player));
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  g_free (private->player_name);
+  private->player_name = NULL;
+  g_free (private->player_icon);
+  private->player_icon = NULL;
+  if (value == NULL)
+  {
+    /* Player lost, clear the properties */
+    if (private->connected)
     {
-      player_list = player->get_app_info_list ();
+      ol_player_set_metadata (player, NULL);
+      ol_player_set_position (player, NULL);
+      ol_player_set_status (player, NULL);
+      ol_player_set_caps (player, NULL);
+      private->connected = FALSE;
+    }
+  }
+  else
+  {
+    assert_variant_type (value, "a{sv}");
+    GVariantIter *iter = NULL;
+    g_variant_get (value, "a{sv}", &iter);
+    gchar *key;
+    GVariant *dict_value;
+    while (g_variant_iter_loop (iter, "{sv}", &key, &dict_value))
+    {
+      if (g_strcmp0 (key, "name") == 0)
+      {
+        const gchar *name = g_variant_get_string (dict_value, NULL);
+        if (name)
+        {
+          private->player_name = g_strdup (name);
+        }
+        else
+        {
+          ol_errorf ("Cannot get the name of the player. Value type: %s",
+                     g_variant_get_type_string (dict_value));
+        }
+      }
+      else if (g_strcmp0 (key, "appname") == 0)
+      {
+        /* TODO: get appname */
+      }
+      else if (g_strcmp0 (key, "binname") == 0)
+      {
+        /* TODO: get binname */
+      }
+      else if (g_strcmp0 (key, "cmd") == 0)
+      {
+        /* TODO: get cmd */
+      }
+      else if (g_strcmp0 (key, "icon") == 0)
+      {
+        const gchar *icon = g_variant_get_string (dict_value, NULL);
+        if (icon)
+        {
+          private->player_icon = g_strdup (icon);
+        }
+        else
+        {
+          ol_errorf ("Cannot get the icon of the player. Value type: %s",
+                     g_variant_get_type_string (dict_value));
+        }
+      }
+    }
+    ol_debugf ("player name: %s, icon: %s\n",
+               private->player_name,
+               private->player_icon);
+    g_variant_iter_free (iter);
+    ol_player_fetch_metadata_async (player);
+    ol_player_fetch_status_async (player);
+    ol_player_fetch_caps_async (player);
+    private->connected = TRUE;
+  }
+}
+
+static void
+ol_player_fetch_position_async (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->cancel_position)
+    return;
+  private->cancel_position = g_cancellable_new ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "PositionGet",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     private->cancel_position,
+                     ol_player_fetch_position_cb,
+                     player);
+}
+
+static void
+ol_player_fetch_position_cb (GObject *source_object,
+                             GAsyncResult *res,
+                             gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (user_data);
+  GError *error = NULL;
+  GVariant *value = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
+                                              res,
+                                              &error);
+  if (value)
+  {
+    ol_player_set_position (player, value);
+    g_variant_unref (value);
+  }
+  else
+  {
+    ol_player_set_position (player, NULL);
+    ol_errorf ("Cannot get position of player: %s\n",
+               error->message);
+    g_error_free (error);
+  }
+  if (private->cancel_position)
+  {
+    g_object_unref (private->cancel_position);
+    private->cancel_position = NULL;
+  }
+}
+
+static void
+ol_player_set_position (OlPlayer *player,
+                        GVariant *value)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (value == NULL)
+  {
+    private->position = 0;
+  }
+  else
+  {
+    assert_variant_type (value, "(i)");
+    gint32 pos;
+    g_variant_get (value, "(i)", &pos);
+    private->position = pos;
+  }
+}
+
+static void
+ol_player_fetch_metadata_async (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->cancel_metadata)
+    return;
+  private->cancel_metadata = g_cancellable_new ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "GetMetadata",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     private->cancel_metadata,
+                     ol_player_fetch_metadata_cb,
+                     player);
+}
+
+static void
+ol_player_fetch_metadata_cb (GObject *source_object,
+                             GAsyncResult *res,
+                             gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (user_data);
+  GError *error = NULL;
+  GVariant *value = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
+                                              res,
+                                              &error);
+  if (value)
+  {
+    ol_player_set_metadata (player, value);
+    g_variant_unref (value);
+  }
+  else
+  {
+    ol_player_set_metadata (player, NULL);
+    ol_errorf ("Cannot get metadata of player: %s\n",
+               error->message);
+    g_error_free (error);
+  }
+  if (private->cancel_metadata)
+  {
+    g_object_unref (private->cancel_metadata);
+    private->cancel_metadata = NULL;
+  }
+  g_signal_emit (player, signals[TRACK_CHANGED], 0);
+}
+
+static void
+ol_player_set_metadata (OlPlayer *player,
+                        GVariant *value)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  ol_music_info_clear (private->metadata);
+  private->duration = 0;
+  if (value != NULL)
+  {
+    ol_assert (g_variant_is_of_type (value, G_VARIANT_TYPE ("(a{sv})")));
+    GVariantIter *iter;
+    gchar *key;
+    GVariant *dict_value;
+    g_variant_get (value, "(a{sv})", &iter);
+    while (g_variant_iter_loop (iter, "{sv}", &key, &dict_value))
+    {
+      if (g_strcmp0 (key, "title") == 0)
+        ol_music_info_set_title (private->metadata,
+                                 g_variant_get_string (dict_value, NULL));
+      else if (g_strcmp0 (key, "artist") == 0)
+        ol_music_info_set_artist (private->metadata,
+                                  g_variant_get_string (dict_value, NULL));
+      else if (g_strcmp0 (key, "album") == 0)
+        ol_music_info_set_album (private->metadata,
+                                 g_variant_get_string (dict_value, NULL));
+      else if (g_strcmp0 (key, "location") == 0)
+        ol_music_info_set_uri (private->metadata,
+                               g_variant_get_string (dict_value, NULL));
+      else if (g_strcmp0 (key, "tracknumber") == 0)
+        ol_music_info_set_track_number_from_string (private->metadata,
+                                                    g_variant_get_string (dict_value, NULL));
+      else if (g_strcmp0 (key, "mtime") == 0)
+        private->duration = g_variant_get_uint32 (dict_value);
+      /* else if (g_strcmp0 (key, "arturl") == 0) */
+      /*   ol_music_info_set_album_art (private->metadata, */
+      /*                                g_variant_get_string (dict_value, NULL)); */
+    }
+    g_variant_iter_free (iter);
+    ol_debugf ("Update metadata:\n"
+               "  title: %s\n"
+               "  artist: %s\n"
+               "  album: %s\n"
+               "  uri: %s\n"
+               "  track_num: %d\n"
+               "  duration: %d\n",
+               ol_music_info_get_title (private->metadata),
+               ol_music_info_get_artist (private->metadata),
+               ol_music_info_get_album (private->metadata),
+               ol_music_info_get_uri (private->metadata),
+               ol_music_info_get_track_number (private->metadata),
+               (int)private->duration);
+  }
+  /* The position is likely to change when the track is changed, so we
+     need to update to the new value. */
+  ol_player_fetch_position_async (player);
+}
+
+static void
+ol_player_fetch_status_async (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->cancel_status)
+    return;
+  private->cancel_status = g_cancellable_new ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "GetStatus",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     private->cancel_status,
+                     ol_player_fetch_status_cb,
+                     player);
+}
+
+static void
+ol_player_fetch_status_cb (GObject *source_object,
+                           GAsyncResult *res,
+                           gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (user_data);
+  GError *error = NULL;
+  GVariant *value = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
+                                              res,
+                                              &error);
+  if (value)
+  {
+    ol_player_set_status (player, value);
+    g_variant_unref (value);
+  }
+  else
+  {
+    ol_player_set_status (player, NULL);
+    ol_errorf ("Cannot get status of player: %s\n",
+               error->message);
+    g_error_free (error);
+  }
+  if (private->cancel_status)
+  {
+    g_object_unref (private->cancel_status);
+    private->cancel_status = NULL;
+  }
+  g_signal_emit (player, signals[STATUS_CHANGED], 0);
+}
+
+static void
+ol_player_set_status (OlPlayer *player,
+                      GVariant *value)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (value != NULL)
+  {
+    if (!g_variant_is_of_type (value, G_VARIANT_TYPE ("((iiii))")))
+    {
+      ol_errorf ("Cannot get status of the player, expect value type of (iiii), "
+                 "but %s got\n",
+                 g_variant_get_type_string (value));
+      private->status = OL_PLAYER_ERROR;
     }
     else
     {
-      player_list = ol_player_get_app_info_list (player, NULL);
+      gint32 statusid = -1;
+      g_variant_get (value, "((iiii))", &statusid, NULL, NULL, NULL);
+      switch (statusid)
+      {
+      case MPRIS1_STATUS_PLAYING:
+        private->status = OL_PLAYER_PLAYING;
+        ol_player_start_position_timer (player);
+        break;
+      case MPRIS1_STATUS_PAUSED:
+        private->status = OL_PLAYER_PAUSED;
+        /* Even if the status is paused, users may change the position
+           manually, so we need to keep updating the position. */
+        ol_player_start_position_timer (player);
+        break;
+      case MPRIS1_STATUS_STOPPED:
+        private->status = OL_PLAYER_STOPPED;
+        ol_player_stop_position_timer (player);
+        break;
+      default:
+        private->status = OL_PLAYER_ERROR;
+      }
+      ol_debugf ("Update player status: %d\n", private->status);
     }
-    list = g_list_concat (player_list, list);
   }
-  return list;
+  else
+  {
+    private->status = OL_PLAYER_UNKNOWN;
+    ol_player_stop_position_timer (player);
+  }
 }
 
-struct OlPlayer*
-ol_player_get_active_player (void)
+static void
+ol_player_fetch_caps_async (OlPlayer *player)
 {
-  ol_log_func ();
-  if (players == NULL)
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->cancel_caps)
+    return;
+  private->cancel_caps = g_cancellable_new ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "GetCaps",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     private->cancel_caps,
+                     ol_player_fetch_caps_cb,
+                     player);
+}
+
+static void
+ol_player_fetch_caps_cb (GObject *source_object,
+                         GAsyncResult *res,
+                         gpointer user_data)
+{
+  ol_assert (OL_IS_PLAYER (user_data));
+  OlPlayer *player = OL_PLAYER (user_data);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (user_data);
+  GError *error = NULL;
+  GVariant *value = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
+                                              res,
+                                              &error);
+  if (value)
   {
-    return NULL;
+    ol_player_set_caps (player, value);
+    g_variant_unref (value);
   }
-  int i;
-  ol_debugf ("controller count:%d\n", players->len);
-  for (i = 0; i < players->len; i++)
+  else
   {
-    struct OlPlayer *controller = g_array_index (players, struct OlPlayer*, i);
-    ol_debugf ("trying %s\n", controller->name);
-    if (controller && controller->get_activated ())
+    ol_player_set_caps (player, NULL);
+    ol_errorf ("Cannot get capabilities of player: %s\n",
+               error->message);
+    g_error_free (error);
+  }
+  if (private->cancel_caps)
+  {
+    g_object_unref (private->cancel_caps);
+    private->cancel_caps = NULL;
+  }
+  g_signal_emit (player, signals[CAPS_CHANGED], 0);
+}
+
+static void
+ol_player_set_caps (OlPlayer *player,
+                    GVariant *value)
+{
+  const static int CAPS_MAPS[][2] = {
+    { MPRIS1_CAPS_NEXT, OL_PLAYER_NEXT },
+    { MPRIS1_CAPS_PREV, OL_PLAYER_PREV },
+    { MPRIS1_CAPS_PLAY, OL_PLAYER_PLAY },
+    { MPRIS1_CAPS_PAUSE, OL_PLAYER_PAUSE },
+    { MPRIS1_CAPS_SEEK, OL_PLAYER_SEEK },
+  };
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  private->caps = 0;
+  if (value)
+  {
+    assert_variant_type (value, "(i)");
+    gint32 caps;
+    g_variant_get (value, "(i)", &caps);
+    int i;
+    for (i = 0; i < G_N_ELEMENTS (CAPS_MAPS); i++)
     {
-      return controller;
+      if ((caps & CAPS_MAPS[i][0]) == CAPS_MAPS[i][0])
+        private->caps |= CAPS_MAPS[i][1];
     }
+    /* MPRIS1 didn't define stop capability, assuming it exists */
+    private->caps |= OL_PLAYER_STOP;
+    ol_debugf ("Update player caps: %d\n", private->caps);
   }
-  return NULL;
 }
 
-void
-ol_player_register (struct OlPlayer *controller)
+static void
+ol_player_start_position_timer (OlPlayer *player)
 {
-  ol_assert (controller != NULL);
-  ol_assert (ol_player_get_name (controller) != NULL);
-  /* controller->get_activated (); */
-  g_array_append_val (players, controller);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->position_timer)
+    return;
+  /* Fetch position once the timer starts */
+  ol_player_fetch_position_async (player);
+  private->position_timer = g_timeout_add (POSITION_ACCURACY_MS,
+                                           (GSourceFunc)ol_player_fetch_position_async,
+                                           player);
 }
 
-gboolean
-ol_player_get_music_info (struct OlPlayer *player, OlMusicInfo *info)
+static void
+ol_player_stop_position_timer (OlPlayer *player)
 {
-  if (player == NULL)
-    return FALSE;
-  gboolean s =player->get_music_info (info);
-  /*ol_debugf ("title:%s\n", info->title);
-  ol_debugf ("artist:%s\n", info->artist);
-  ol_debugf ("album:%s\n", info->album);
-  ol_debugf ("track_number:%d\n", info->track_number);
-  ol_debugf ("uri:%s\n", info->uri);*/
-  return s;
-}
-
-gboolean
-ol_player_get_activated (struct OlPlayer *player)
-{
-  if (player == NULL)
-    return FALSE;
-  return player->get_activated ();
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (private->position_timer)
+  {
+    g_source_remove (private->position_timer);
+    private->position_timer = 0;
+  }
 }
 
 gboolean
-ol_player_get_played_time (struct OlPlayer *player, int *played_time)
+ol_player_is_connected (OlPlayer *player)
 {
-  if (player == NULL)
-    return FALSE;
-  gboolean s = player->get_played_time (played_time);
-  return s;
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  return private->connected;
+}
+
+const char*
+ol_player_get_name (OlPlayer *player)
+{
+  ol_assert_ret (OL_IS_PLAYER (player), NULL);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  return private->player_name;
+}
+
+const char*
+ol_player_get_icon_path (OlPlayer *player)
+{
+  ol_assert_ret (OL_IS_PLAYER (player), NULL);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  return private->player_icon;
 }
 
 gboolean
-ol_player_get_music_length (struct OlPlayer *player, int *len)
+ol_player_get_metadata (OlPlayer *player, OlMusicInfo *metadata)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected)
     return FALSE;
-  return player->get_music_length (len);
+  if (metadata != NULL)
+    ol_music_info_copy (metadata, private->metadata);
+  return TRUE;
+}
+
+gboolean
+ol_player_get_position (OlPlayer *player, guint64 *pos_ms)
+{
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected)
+    return FALSE;
+  if (pos_ms)
+  {
+    if (private->status != OL_PLAYER_PLAYING)
+      *pos_ms = ol_elapse_emulator_get_last_ms (private->elapse_emulator,
+                                                private->position);
+    else
+      *pos_ms = ol_elapse_emulator_get_real_ms (private->elapse_emulator,
+                                                private->position);
+  }
+  return TRUE;
+}
+
+gboolean
+ol_player_get_duration (OlPlayer *player, guint64 *duration)
+{
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected)
+    return FALSE;
+  if (duration)
+    *duration = private->duration;
+  return TRUE;
 }
 
 enum OlPlayerStatus
-ol_player_get_status (struct OlPlayer *player)
+ol_player_get_status (OlPlayer *player)
 {
-  if (player == NULL)
-    return OL_PLAYER_ERROR;
-  if (player->get_status == NULL)
-    return OL_PLAYER_ERROR;
-  return player->get_status ();
+  ol_assert_ret (OL_IS_PLAYER (player), OL_PLAYER_ERROR);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  return private->status;
 }
 
 int
-ol_player_get_capacity (struct OlPlayer *player)
-    
+ol_player_get_caps (OlPlayer *player)
 {
-  if (player == NULL)
-    return -1;
-  if (player->get_capacity == NULL)
-    return -1;
-  return player->get_capacity ();
+  ol_assert_ret (OL_IS_PLAYER (player), -1);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  return private->caps;
 }
 
 gboolean
-ol_player_play (struct OlPlayer *player)
+ol_player_play (OlPlayer *player)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected || !(private->caps & OL_PLAYER_PLAY))
     return FALSE;
-  if (player->play == NULL)
-    return FALSE;
-  return player->play ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "Play",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     NULL,      /* cancellable */
+                     NULL,      /* callback */
+                     NULL);     /* user_data */
+  return TRUE;
 }
 
 gboolean
-ol_player_prev (struct OlPlayer *player)
+ol_player_pause (OlPlayer *player)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected || !(private->caps & OL_PLAYER_PAUSE))
     return FALSE;
-  if (player->prev == NULL)
-    return FALSE;
-  return player->prev ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "Pause",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     NULL,      /* cancellable */
+                     NULL,      /* callback */
+                     NULL);     /* user_data */
+  return TRUE;
 }
 
 gboolean
-ol_player_next (struct OlPlayer *player)
+ol_player_stop (OlPlayer *player)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected || !(private->caps & OL_PLAYER_STOP))
     return FALSE;
-  if (player->next == NULL)
-    return FALSE;
-  return player->next ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "Stop",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     NULL,      /* cancellable */
+                     NULL,      /* callback */
+                     NULL);     /* user_data */
+  return TRUE;
 }
 
 gboolean
-ol_player_seek (struct OlPlayer *player, int pos_ms)
+ol_player_prev (OlPlayer *player)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected || !(private->caps & OL_PLAYER_PREV))
     return FALSE;
-  if (player->seek == NULL)
-    return FALSE;
-  return player->seek (pos_ms);
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "Prev",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     NULL,      /* cancellable */
+                     NULL,      /* callback */
+                     NULL);     /* user_data */
+  return TRUE;
 }
 
 gboolean
-ol_player_stop (struct OlPlayer *player)
+ol_player_next (OlPlayer *player)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected || !(private->caps & OL_PLAYER_NEXT))
     return FALSE;
-  if (player->stop == NULL)
-    return FALSE;
-  return player->stop ();
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "Next",
+                     NULL,      /* parameters */
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     NULL,      /* cancellable */
+                     NULL,      /* callback */
+                     NULL);     /* user_data */
+  return TRUE;
 }
 
 gboolean
-ol_player_pause (struct OlPlayer *player)
+ol_player_seek (OlPlayer *player, guint64 pos_ms)
 {
-  if (player == NULL)
+  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->connected || !(private->caps & OL_PLAYER_SEEK))
     return FALSE;
-  if (player->pause == NULL)
-    return FALSE;
-  return player->pause ();
-}
-
-gboolean
-ol_player_play_pause (struct OlPlayer *player)
-{
-  if (player == NULL)
-    return FALSE;
-  if (player->get_status == NULL ||
-      player->play == NULL ||
-      player->pause == NULL)
-    return FALSE;
-  enum OlPlayerStatus status = player->get_status ();
-  switch (status)
-  {
-  case OL_PLAYER_PLAYING:
-    return player->pause ();
-    break;
-  case OL_PLAYER_PAUSED:
-  case OL_PLAYER_STOPPED:
-    return player->play ();
-    break;
-  default:
-    return FALSE;
-  }
-}
-
-struct OlPlayer *
-ol_player_new (const char *name)
-{
-  ol_assert_ret (name != NULL, NULL);
-  struct OlPlayer *player = g_new0 (struct OlPlayer, 1);
-  player->name = name;
-  return player;
-}
-
-void
-ol_player_free (struct OlPlayer *player)
-{
-  ol_assert (player != NULL);
-  if (player->cmdline != NULL)
-    ol_error ("cmdline is not NULL, this may cause memory leak");
-  g_free (player);
-}
-
-const char *
-ol_player_set_cmd (struct OlPlayer *player,
-                              const char *cmd)
-{
-  ol_assert_ret (player != NULL, NULL);
-  const char *old_cmd = player->cmdline;
-  player->cmdline = cmd;
-  return old_cmd;
-}
-
-const char *
-ol_player_get_cmd (struct OlPlayer *player)
-{
-  ol_assert_ret (player != NULL, NULL);
-  return player->cmdline;
-}
-
-const char *
-ol_player_get_name (struct OlPlayer *player)
-{
-  ol_assert_ret (player != NULL, NULL);
-  return player->name;
-}
-
-const char *
-ol_player_get_icon_path (struct OlPlayer *player)
-{
-  if (player->get_icon_path != NULL)
-    return player->get_icon_path ();
-  else
-    return NULL;
+  g_dbus_proxy_call (private->mpris1_proxy,
+                     "PositionSet",
+                     g_variant_new_int32 (pos_ms),
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,        /* timeout_msec */
+                     NULL,      /* cancellable */
+                     NULL,      /* callback */
+                     NULL);     /* user_data */
+  return TRUE;
 }

@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pwd.h>
+#include <gio/gio.h>
 #include "config.h"
 #include "ol_lrc.h"
 #include "ol_player.h"
@@ -31,6 +32,7 @@
 #include "ol_trayicon.h"
 #include "ol_intl.h"
 #include "ol_config.h"
+#include "ol_consts.h"
 #include "ol_display_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
@@ -63,20 +65,15 @@ static GOptionEntry cmdargs[] =
   { NULL }
 };
 
-static guint refresh_source = 0;
-static guint info_timer = 0;
-static struct OlPlayer *player = NULL;
-static OlMusicInfo music_info = {0};
-static gchar *previous_title = NULL;
-static gchar *previous_artist = NULL;
-static gchar *previous_uri = NULL;
-static enum OlPlayerStatus previous_status = OL_PLAYER_UNKNOWN;
-static gint previous_duration = 0;
-static gint previous_position = -1;
+static guint name_watch = 0;
+static guint position_timer = 0;
+static OlPlayer *player = NULL;
+static OlMusicInfo *metadata = NULL;
 static struct OlLrc *lrc_file = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
 static int search_id = -1;
+static gboolean initialized = FALSE;
 static enum _PlayerLostAction {
   ACTION_NONE = 0,
   ACTION_LAUNCH_DEFAULT,
@@ -86,18 +83,10 @@ static enum _PlayerLostAction {
 } player_lost_action = ACTION_LAUNCH_DEFAULT;
 
 static void _initialize (int argc, char **argv);
-static gint _refresh_music_info (gpointer data);
-static gint _refresh_player_info (gpointer data);
 static void _wait_for_player_launch (void);
-static void _player_lost_cb (void);
 static void _player_chooser_response_cb (GtkDialog *dialog,
                                          gint response_id,
                                          gpointer user_data);
-static void _check_music_change ();
-static void _on_music_changed (void);
-static gboolean _check_lyric_file (void);
-static void _update_player_status (enum OlPlayerStatus status);
-static gboolean _get_active_player (void);
 static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
 static void _download_callback (struct OlLrcDownloadResult *result);
@@ -105,6 +94,20 @@ static void _on_config_changed (OlConfig *config,
                                 gchar *group,
                                 gchar *name,
                                 gpointer userdata);
+static void _init_dbus_connection (void);
+static void _init_dbus_connection_done (void);
+static void _name_appeared_cb (GDBusConnection *connection,
+                               const gchar *name,
+                               const gchar *name_owner,
+                               gpointer user_data);
+static void _name_vanished_cb (GDBusConnection *connection,
+                               const gchar *name,
+                               gpointer user_data);
+static void _start_daemon_cb (GObject *source_object,
+                              GAsyncResult *res,
+                              gpointer user_data);
+static void _track_changed_cb (void);
+static void _status_changed_cb (void);
 
 static void
 _on_config_changed (OlConfig *config,
@@ -122,12 +125,8 @@ _on_config_changed (OlConfig *config,
         g_free (display_mode);
       display_mode = g_strdup (mode);
       ol_display_module_free (module);
-      module = ol_display_module_new (display_mode);
-      ol_display_module_set_music_info (module, &music_info);
-      ol_display_module_set_duration (module, previous_duration);
+      module = ol_display_module_new (display_mode, player);
       ol_display_module_set_lrc (module, lrc_file);
-      ol_display_module_set_player (module, player);
-      ol_display_module_set_status (module, previous_status);
     }
     g_free (mode);
   }
@@ -237,7 +236,7 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
   {
     ol_lrclib_assign_lyric (info, filepath);
   }
-  if (ol_music_info_equal (&music_info, info))
+  if (ol_music_info_equal (metadata, info))
   {
     if (lrc_file != NULL)
     {
@@ -257,13 +256,13 @@ _check_lyric_file ()
   ol_log_func ();
   gboolean ret = TRUE;
   char *filename = NULL;
-  int code = ol_lrclib_find (&music_info, &filename);
+  int code = ol_lrclib_find (metadata, &filename);
   if (code == 0)
-    filename = ol_lyric_find (&music_info);
+    filename = ol_lyric_find (metadata);
  
   if (filename != NULL)
   {
-    ret = ol_app_assign_lrcfile (&music_info, filename, code == 0);
+    ret = ol_app_assign_lrcfile (metadata, filename, code == 0);
     g_free (filename);
   }
   else
@@ -275,138 +274,24 @@ _check_lyric_file ()
 }
 
 static void
-_on_music_changed ()
+_track_changed_cb (void)
 {
   ol_log_func ();
-  if (module != NULL)
-  {
-    ol_display_module_set_music_info (module, &music_info);
-    ol_display_module_set_duration (module, previous_duration);
-  }
   ol_display_module_set_lrc (module, NULL);
+  ol_player_get_metadata (player, metadata);
   if (!_check_lyric_file () &&
-      !ol_is_string_empty (ol_music_info_get_title (&music_info)))
-    ol_app_download_lyric (&music_info);
+      !ol_is_string_empty (ol_music_info_get_title (metadata)))
+    ol_app_download_lyric (metadata);
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
-    ol_notify_music_change (&music_info, ol_player_get_icon_path (player));
+    ol_notify_music_change (metadata, ol_player_get_icon_path (player));
 }
 
 static void
-_normalize_music_info (OlMusicInfo *music_info)
-{
-  if (ol_is_string_empty (ol_music_info_get_title (music_info)) &&
-      ! ol_is_string_empty (ol_music_info_get_uri (music_info)))
-  {
-    const char *uri = ol_music_info_get_uri (music_info);
-    char *path = NULL;
-    if (uri[0] == '/')
-    {
-      path = g_strdup (uri);
-    }
-    else
-    {
-      GError *err = NULL;
-      path = g_filename_from_uri (uri, NULL, &err);
-      if (path == NULL)
-      {
-        ol_debugf ("Convert uri failed: %s\n", err->message);
-        g_error_free (err);
-      }
-    }
-    if (path != NULL)
-    {
-      char *basename = g_path_get_basename (path);
-      char *mainname = NULL;
-      ol_path_splitext (basename, &mainname, NULL);
-      if (mainname != NULL)
-      {
-        ol_music_info_set_title (music_info, mainname);
-        g_free (mainname);
-      }
-      g_free (basename);
-      g_free (path);
-    }
-  }
-}
-
-static void
-_check_music_change ()
+_status_changed_cb (void)
 {
   ol_log_func ();
-  /* checks whether the music has been changed */
-  gboolean changed = FALSE;
-  /* compares the previous title with current title */
-  if (player && !ol_player_get_music_info (player, &music_info))
-  {
-    player = NULL;
-  }
-  else
-  {
-    _normalize_music_info (&music_info);
-  }
-  gint duration = 0;
-  if (player && !ol_player_get_music_length (player, &duration))
-  {
-    player = NULL;
-  }
-  if (!ol_streq (music_info.title, previous_title))
-    changed = TRUE;
-  ol_strptrcpy (&previous_title, music_info.title);
-  /* compares the previous artist with current  */
-  if (!ol_streq (music_info.artist, previous_artist))
-    changed = TRUE;
-  ol_strptrcpy (&previous_artist, music_info.artist);
-  if (!ol_streq (music_info.uri, previous_uri))
-    changed = TRUE;
-  ol_strptrcpy (&previous_uri, music_info.uri);
-  /* compares the previous duration */
-  /* FIXME: because the a of banshee, some lyrics may return different
-     duration for the same song when plays to different position, so the
-     comparison is commented out temporarily */
-  /* if (previous_duration != duration) */
-  /* { */
-  /*   ol_debugf ("change6:%d-%d\n", previous_duration, duration); */
-  /*   changed = TRUE; */
-  /* } */
-  if (previous_duration != duration)
-  {
-    previous_duration = duration;
-    if (module != NULL)
-      ol_display_module_set_duration (module, duration);
-  }
-  if (changed)
-  {
-    _on_music_changed ();
-  }
-}
-
-static void
-_update_player_status (enum OlPlayerStatus status)
-{
-  ol_log_func ();
-  if (previous_status != status)
-  {
-    previous_status = status;
-    if (module != NULL)
-    {
-      ol_display_module_set_status (module, status);
-    }
-    ol_trayicon_status_changed (status);
-  }
-}
-
-static gint
-_refresh_player_info (gpointer data)
-{
-  ol_log_func ();
-  if (player != NULL)
-  {
-    if (ol_player_get_capacity (player) & OL_PLAYER_STATUS)
-      _update_player_status (ol_player_get_status (player));
-    _check_music_change ();
-  }
-  return TRUE;
+  ol_trayicon_status_changed (ol_player_get_status (player));
 }
 
 static gboolean
@@ -472,7 +357,9 @@ _player_lost_cb (void)
         g_free (player_cmd);
       }
     }
-    GList *supported_players = ol_player_get_support_players ();
+    /* TODO: */
+    /* GList *supported_players = ol_player_get_support_players (); */
+    GList *supported_players = NULL;
     GtkWidget *player_chooser = ol_player_chooser_new (supported_players);
     g_signal_connect (player_chooser,
                       "response",
@@ -491,48 +378,17 @@ _player_lost_cb (void)
   }
 }
 
-static gboolean
-_get_active_player (void)
-{
-  ol_log_func ();
-  player = ol_player_get_active_player ();
-  if (player == NULL)
-  {
-    _player_lost_cb ();
-  }
-  else
-  {
-    player_lost_action = ACTION_QUIT;
-  }
-  ol_display_module_set_player (module, player);
-  return player != NULL;
-}
-
 static gint
-_refresh_music_info (gpointer data)
+_update_position (gpointer data)
 {
   ol_log_func ();
-  if (player == NULL && !_get_active_player ())
-    return TRUE;
-  gint time = 0;
-  if (player && !ol_player_get_played_time (player, &time))
-  {
-    player = NULL;
-  }
-  if (previous_position < 0 || time < previous_position ||
-      previous_title == NULL)
-    _check_music_change ();
-  previous_position = time;
-  if (player == NULL)
-  {
-    previous_position = -1;
-    return TRUE;
-  }
+  guint64 time = 0;
+  ol_player_get_position (player, &time);
   ol_display_module_set_played_time (module, time);
   return TRUE;
 }
 
-struct OlPlayer*
+OlPlayer*
 ol_app_get_player ()
 {
   return player;
@@ -541,7 +397,7 @@ ol_app_get_player ()
 OlMusicInfo*
 ol_app_get_current_music ()
 {
-  return &music_info;
+  return metadata;
 }
 
 void
@@ -631,18 +487,18 @@ _initialize (int argc, char **argv)
     printf ("%s\n", _("Another OSD Lyrics is running, exit."));
     exit (0);
   }
-  ol_stock_init ();
-  ol_player_init ();
-  /* Initialize display modules */
-  ol_display_module_init ();
   OlConfig *config = ol_config_get_instance ();
-  display_mode = ol_config_get_string (config, "General", "display-mode");
-  module = ol_display_module_new (display_mode);
   g_signal_connect (config, "changed",
                     G_CALLBACK (_on_config_changed),
                     NULL);
-
-  ol_trayicon_inital ();
+  initialized = FALSE;
+  metadata = ol_music_info_new ();
+  _init_dbus_connection ();
+  ol_stock_init ();
+  ol_display_module_init ();
+  display_mode = ol_config_get_string (config, "General", "display-mode");
+  module = ol_display_module_new (display_mode, player);
+  ol_trayicon_init ();
   ol_notify_init ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
@@ -656,8 +512,110 @@ _initialize (int argc, char **argv)
   }
   g_free (lrcdb_file);
   ol_lrc_fetch_add_async_download_callback (_download_callback);
-  refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
-  info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
+}
+
+static void
+_name_appeared_cb (GDBusConnection *connection,
+                   const gchar *name,
+                   const gchar *name_owner,
+                   gpointer user_data)
+{
+  ol_debug ("Daemon appeared");
+  if (!initialized)
+    _init_dbus_connection_done ();
+}
+
+static void
+_name_vanished_cb (GDBusConnection *connection,
+                   const gchar *name,
+                   gpointer user_data)
+{
+  ol_debugf ("Daemon lost, try to activate it\n");
+  g_dbus_connection_call (connection,
+                          "org.freedesktop.DBus",  /* bus name */
+                          "/org/freedesktop/DBus", /* object path */
+                          "org.freedesktop.DBus",  /* interface name */
+                          "StartServiceByName",    /* method name */
+                          g_variant_new ("(su)", OL_SERVICE_DAEMON, 0),
+                          G_VARIANT_TYPE ("(u)"),
+                          G_DBUS_CALL_FLAGS_NONE,
+                          -1,
+                          NULL,
+                          (GAsyncReadyCallback) _start_daemon_cb,
+                          NULL);
+  ol_debugf ("Daemon appeared\n");
+}
+
+static void
+_start_daemon_cb (GObject *source_object,
+                  GAsyncResult *res,
+                  gpointer user_data)
+{
+  GVariant *result;
+  GError *error;
+  result = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source_object),
+                                          res,
+                                          &error);
+  if (result)
+  {
+    guint32 start_service_result;
+    g_variant_get (result, "(u)", &start_service_result);
+
+    if (start_service_result != 1 || /* DBUS_START_REPLY_SUCCESS */
+        start_service_result != 2) /* DBUS_START_REPLY_ALREADY_RUNNING */
+    {
+      ol_errorf ("Unexpected reply %d from StartServiceByName() method",
+                 start_service_result);
+    }
+    /* We should do nothing, _name_appeared_cb will be called by name watch */
+  }
+  else
+  {
+    ol_errorf ("Unable to start daemon: %s\n", error->message);
+    g_error_free (error);
+    /* TODO: notify the user that there is a fatal error */
+  }
+}
+
+static void
+_init_dbus_connection (void)
+{
+  player = ol_player_new ();
+  g_signal_connect (player,
+                    "track-changed",
+                    _track_changed_cb,
+                    NULL);
+  g_signal_connect (player,
+                    "status-changed",
+                    _status_changed_cb,
+                    NULL);
+  /* Activate the daemon */
+  name_watch = g_bus_watch_name (G_BUS_TYPE_SESSION,
+                                 OL_SERVICE_DAEMON,
+                                 G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                 _name_appeared_cb,
+                                 _name_vanished_cb,
+                                 NULL,  /* user_data */
+                                 NULL); /* user_data_free_func */
+}
+
+static void
+_init_dbus_connection_done (void)
+{
+  if (ol_player_is_connected (player))
+  {
+    player_lost_action = ACTION_QUIT;
+  }
+  else
+  {
+    _player_lost_cb ();
+  }
+  initialized = TRUE;
+  position_timer = g_timeout_add (REFRESH_INTERVAL,
+                                  _update_position,
+                                  NULL);
+  _track_changed_cb ();
+  _status_changed_cb ();
 }
 
 int
@@ -665,7 +623,10 @@ main (int argc, char **argv)
 {
   _initialize (argc, argv);
   gtk_main ();
-  ol_player_unload ();
+  g_object_unref (player);
+  player = NULL;
+  ol_music_info_free (metadata);
+  metadata = NULL;
   ol_notify_unload ();
   ol_display_module_free (module);
   if (display_mode != NULL) g_free (display_mode);

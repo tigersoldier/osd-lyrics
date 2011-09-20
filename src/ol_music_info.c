@@ -56,6 +56,15 @@ ol_music_info_new ()
 }
 
 void
+ol_music_info_free (OlMusicInfo *music_info)
+{
+  if (music_info == NULL)
+    return;
+  ol_music_info_clear (music_info);
+  g_free (music_info);
+}
+
+void
 ol_music_info_init (OlMusicInfo *info)
 {
   ol_assert (info != NULL);
@@ -142,6 +151,17 @@ ol_music_info_set_track_number (OlMusicInfo *music_info,
 {
   ol_assert (music_info != NULL);
   music_info->track_number = track_number;
+}
+
+void
+ol_music_info_set_track_number_from_string (OlMusicInfo *music_info,
+                                            const char *track_number)
+{
+  ol_assert (music_info != NULL);
+  if (track_number == NULL)
+    music_info->track_number = DEFAULT_TRACK_NUM;
+  else
+    sscanf (track_number, "%d", &music_info->track_number);
 }
 
 int
@@ -310,3 +330,4 @@ ol_music_info_equal (const OlMusicInfo *lhs,
   }
   return 1;
 }
+

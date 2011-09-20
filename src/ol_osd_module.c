@@ -20,6 +20,7 @@
 #include <string.h>
 #include "ol_music_info.h"
 #include "ol_config.h"
+#include "ol_player.h"
 #include "ol_osd_window.h"
 #include "ol_osd_toolbar.h"
 #include "ol_osd_module.h"
@@ -37,11 +38,12 @@ struct OlLrc;
 
 struct _OlOsdModule
 {
-  OlMusicInfo music_info;
+  OlPlayer *player;
+  OlMusicInfo *metadata;
   gint lrc_id;
   gint lrc_next_id;
   gint current_line;
-  gint duration;
+  guint64 duration;
   gint line_count;
   struct OlLrc *lrc;
   gboolean display;
@@ -51,23 +53,18 @@ struct _OlOsdModule
   gulong config_signal;
 };
 
-struct OlPlayer;
-
 /** interfaces */
-static OlOsdModule* ol_osd_module_new (struct OlDisplayModule *module);
+static OlOsdModule* ol_osd_module_new (struct OlDisplayModule *module,
+                                       OlPlayer *player);
 static void ol_osd_module_free (struct OlDisplayModule *module);
-static void ol_osd_module_set_music_info (struct OlDisplayModule *module,
-                                          OlMusicInfo *music_info);
-static void ol_osd_module_set_player (struct OlDisplayModule *module,
-                                      struct OlPlayer *player);
-static void ol_osd_module_set_status (struct OlDisplayModule *module,
-                                      enum OlPlayerStatus status);
+static void _metadata_changed_cb (OlPlayer *player,
+                                  OlOsdModule *module);
+static void _update_metadata (OlOsdModule *module);
+
 static void ol_osd_module_set_played_time (struct OlDisplayModule *module,
-                                           int played_time);
+                                           guint64 played_time);
 static void ol_osd_module_set_lrc (struct OlDisplayModule *module,
                                    struct OlLrc *lrc_file);
-static void ol_osd_module_set_duration (struct OlDisplayModule *module,
-                                        int duration);
 static void ol_osd_module_set_message (struct OlDisplayModule *module,
                                        const char *message,
                                        int duration_ms);
@@ -335,6 +332,7 @@ ol_osd_module_init_osd (OlOsdModule *osd)
                        GTK_WIDGET (osd->toolbar));
     gtk_widget_show_all (GTK_WIDGET (osd->toolbar));
     g_object_ref (osd->toolbar);
+    ol_osd_toolbar_set_player (osd->toolbar, osd->player);
   }
   osd->display = FALSE;
   OlConfig *config = ol_config_get_instance ();
@@ -372,18 +370,26 @@ ol_osd_module_init_osd (OlOsdModule *osd)
 }
 
 static OlOsdModule*
-ol_osd_module_new (struct OlDisplayModule *module)
+ol_osd_module_new (struct OlDisplayModule *module,
+                   OlPlayer *player)
 {
   ol_log_func ();
   OlOsdModule *data = g_new (OlOsdModule, 1);
+  g_object_ref (player);
+  data->player = player;
   data->window = NULL;
   data->lrc = NULL;
   data->lrc_id = -1;
   data->lrc_next_id = -1;
   data->current_line = 0;
   data->message_source = 0;
-  ol_music_info_init (&data->music_info);
+  data->metadata = ol_music_info_new ();
   ol_osd_module_init_osd (data);
+  g_signal_connect (player,
+                    "track-changed",
+                    G_CALLBACK (_metadata_changed_cb),
+                    data);
+  _update_metadata (data);
   return data;
 }
 
@@ -409,31 +415,45 @@ ol_osd_module_free (struct OlDisplayModule *module)
     g_source_remove (priv->message_source);
     priv->message_source = 0;
   }
+  if (priv->metadata != NULL)
+  {
+    ol_music_info_free (priv->metadata);
+    priv->metadata = NULL;
+  }
+  g_signal_handlers_disconnect_by_func (priv->player,
+                                        _metadata_changed_cb,
+                                        priv);
+  g_object_unref (priv->player);
+  priv->player = NULL;
   OlConfig *config = ol_config_get_instance ();
   g_signal_handler_disconnect (config, priv->config_signal);
-  ol_music_info_clear (&priv->music_info);
   g_free (priv);
 }
 
 static void
-ol_osd_module_set_music_info (struct OlDisplayModule *module, OlMusicInfo *music_info)
+_metadata_changed_cb (OlPlayer *player,
+                      OlOsdModule *module)
 {
   ol_log_func ();
-  ol_assert (music_info != NULL);
-  ol_assert (module != NULL);
-  OlOsdModule *priv = ol_display_module_get_data (module);
-  ol_assert (priv != NULL);
-  ol_music_info_copy (&priv->music_info, music_info);
-  clear_lyrics (priv);
-  hide_message (priv);
+  _update_metadata (module);
+  
 }
 
 static void
-ol_osd_module_set_played_time (struct OlDisplayModule *module, int played_time)
+_update_metadata (OlOsdModule *module)
 {
-  /* updates the time and lyrics */
-  /* ol_log_func (); */
-  //ol_debugf ("fuck here!!\n");
+  ol_log_func ();
+  ol_assert (module != NULL);
+  ol_player_get_metadata (module->player, module->metadata);
+  ol_player_get_duration (module->player, &module->duration);
+  clear_lyrics (module);
+  hide_message (module);
+}
+
+static void
+ol_osd_module_set_played_time (struct OlDisplayModule *module,
+                               guint64 played_time)
+{
   ol_assert (module != NULL);
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
@@ -534,16 +554,6 @@ ol_osd_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file)
 }
 
 static void
-ol_osd_module_set_duration (struct OlDisplayModule *module, int duration)
-{
-  ol_log_func ();
-  ol_assert (module != NULL);
-  OlOsdModule *priv = ol_display_module_get_data (module);
-  ol_assert (priv != NULL);
-  priv->duration = duration;
-}
-
-static void
 ol_osd_module_set_message (struct OlDisplayModule *module,
                            const char *message,
                            int duration_ms)
@@ -630,28 +640,6 @@ ol_osd_module_clear_message (struct OlDisplayModule *module)
   ol_debug ("  clear message done");
 }
 
-static void
-ol_osd_module_set_player (struct OlDisplayModule *module, struct OlPlayer *player)
-{
-  ol_log_func ();
-  ol_assert (module != NULL);
-  OlOsdModule *priv = ol_display_module_get_data (module);
-  ol_assert (priv != NULL);
-  if (priv->toolbar != NULL)
-    ol_osd_toolbar_set_player (priv->toolbar, player);
-}
-
-static void
-ol_osd_module_set_status (struct OlDisplayModule *module, enum OlPlayerStatus status)
-{
-  ol_log_func ();
-  ol_assert (module != NULL);
-  OlOsdModule *priv = ol_display_module_get_data (module);
-  ol_assert (priv != NULL);
-  if (priv->toolbar != NULL)
-    ol_osd_toolbar_set_status (priv->toolbar, status);
-}
-
 struct OlDisplayClass*
 ol_osd_module_get_class ()
 {
@@ -662,12 +650,8 @@ ol_osd_module_get_class ()
   klass->download_fail_message = ol_osd_module_download_fail_message;
   klass->search_fail_message = ol_osd_module_search_fail_message;
   klass->search_message = ol_osd_module_search_message;
-  klass->set_duration = ol_osd_module_set_duration;
   klass->set_lrc = ol_osd_module_set_lrc;
   klass->set_message = ol_osd_module_set_message;
-  klass->set_music_info = ol_osd_module_set_music_info;
   klass->set_played_time = ol_osd_module_set_played_time;
-  klass->set_player = ol_osd_module_set_player;
-  klass->set_status = ol_osd_module_set_status;
   return klass;
 }

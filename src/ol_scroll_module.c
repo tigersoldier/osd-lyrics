@@ -28,6 +28,7 @@
 #include "ol_image_button.h"
 #include "ol_menu.h"
 #include "ol_app.h"
+#include "ol_player.h"
 #include "ol_lrc.h"
 
 typedef struct _OlScrollModule OlScrollModule;
@@ -37,23 +38,24 @@ const int MESSAGE_TIMEOUT_MS = 5000;
 
 struct _OlScrollModule
 {
-  OlMusicInfo music_info;
-  gint duration;
+  OlPlayer *player;
+  OlMusicInfo *metadata;
+  guint64 duration;
   struct OlLrc *lrc;
   OlScrollWindow *scroll;
   guint message_timer;
 };
 
-static OlScrollModule* ol_scroll_module_new (struct OlDisplayModule *module);
+static OlScrollModule* ol_scroll_module_new (struct OlDisplayModule *module,
+                                             OlPlayer *player);
 static void ol_scroll_module_free (struct OlDisplayModule *module);
-static void ol_scroll_module_set_music_info (struct OlDisplayModule *module,
-                                             OlMusicInfo *music_info);
+static void _metadata_changed_cb (OlPlayer *player,
+                                  OlScrollModule *module);
+static void _update_metadata (OlScrollModule *module);
 static void ol_scroll_module_set_played_time (struct OlDisplayModule *module,
-                                              int played_time);
+                                              guint64 played_time);
 static void ol_scroll_module_set_lrc (struct OlDisplayModule *module,
                                       struct OlLrc *lrc_file);
-static void ol_scroll_module_set_duration (struct OlDisplayModule *module,
-                                           int duration);
 
 static void ol_scroll_module_set_message (struct OlDisplayModule *module,
                                           const char *message);
@@ -282,13 +284,21 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
 }
 
 OlScrollModule*
-ol_scroll_module_new (struct OlDisplayModule *module)
+ol_scroll_module_new (struct OlDisplayModule *module,
+                      OlPlayer *player)
 {
   OlScrollModule *priv = g_new (OlScrollModule, 1);
+  g_object_ref (player);
+  priv->player = player;
   priv->scroll = NULL;
   priv->lrc = NULL;
-  ol_music_info_init (&priv->music_info);
+  priv->metadata = ol_music_info_new ();
   ol_scroll_module_init_scroll (priv);
+  g_signal_connect (player,
+                    "track-changed",
+                    G_CALLBACK (_metadata_changed_cb),
+                    priv);
+  _update_metadata (priv);
   return priv;
 }
 
@@ -311,7 +321,19 @@ ol_scroll_module_free (struct OlDisplayModule *module)
   }
   if (priv->message_timer > 0)
     g_source_remove (priv->message_timer);
-  ol_music_info_clear (&priv->music_info);
+  if (priv->player != NULL)
+  {
+    g_signal_handlers_disconnect_by_func (priv->player,
+                                          _metadata_changed_cb,
+                                          priv);
+    g_object_unref (priv->player);
+    priv->player = NULL;
+  }
+  if (priv->metadata != NULL)
+  {
+    ol_music_info_free (priv->metadata);
+    priv->metadata = NULL;
+  }
   g_free (priv);
 }
 
@@ -322,15 +344,14 @@ _set_music_info_as_text (OlScrollModule *module)
   char *text = NULL;
   if (module->scroll != NULL)
   {
-    OlMusicInfo *info = &module->music_info;
-    if (ol_music_info_get_title (info) != NULL)
+    if (ol_music_info_get_title (module->metadata) != NULL)
     {
-      if (ol_music_info_get_artist (info) != NULL)
+      if (ol_music_info_get_artist (module->metadata) != NULL)
         text = g_strdup_printf ("%s\n%s",
-                                ol_music_info_get_title (info),
-                                ol_music_info_get_artist (info));
+                                ol_music_info_get_title (module->metadata),
+                                ol_music_info_get_artist (module->metadata));
       else
-        text = g_strdup_printf ("%s", ol_music_info_get_title (info));
+        text = g_strdup_printf ("%s", ol_music_info_get_title (module->metadata));
     }
   }
   ol_scroll_window_set_text (module->scroll, text);
@@ -338,19 +359,23 @@ _set_music_info_as_text (OlScrollModule *module)
     g_free (text);
 }
 
-void
-ol_scroll_module_set_music_info (struct OlDisplayModule *module, OlMusicInfo *music_info)
+static void _metadata_changed_cb (OlPlayer *player,
+                                  OlScrollModule *module)
 {
-  ol_assert (music_info != NULL); 
-  ol_assert (module != NULL);
-  OlScrollModule *priv = ol_display_module_get_data (module);
-  ol_assert (priv != NULL);
-  ol_music_info_copy (&priv->music_info, music_info);
-  _set_music_info_as_text (priv);
+  _update_metadata (module);
 }
 
 void
-ol_scroll_module_set_played_time (struct OlDisplayModule *module, int played_time)
+_update_metadata (OlScrollModule *module)
+{
+  ol_assert (module != NULL);
+  ol_player_get_metadata (module->player, module->metadata);
+  ol_player_get_duration (module->player, &module->duration);
+  _set_music_info_as_text (module);
+}
+
+void
+ol_scroll_module_set_played_time (struct OlDisplayModule *module, guint64 played_time)
 {
   ol_assert (module != NULL);
   ol_assert (module != NULL);
@@ -400,17 +425,6 @@ ol_scroll_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file
     ol_scroll_window_set_whole_lyrics(priv->scroll, whole_lyrics);
     g_ptr_array_unref (whole_lyrics);
   }
-}
-
-static void
-ol_scroll_module_set_duration (struct OlDisplayModule *module, int duration)
-{
-  ol_assert (module != NULL);
-  OlScrollModule *priv = ol_display_module_get_data (module);
-  ol_assert (priv != NULL);
-  if (module == NULL)
-    return;
-  priv->duration = duration;
 }
 
 static void
@@ -465,12 +479,8 @@ ol_scroll_module_get_class ()
   klass->download_fail_message = ol_scroll_module_set_last_message;
   klass->search_fail_message = ol_scroll_module_set_last_message;
   klass->search_message = ol_scroll_module_set_message;
-  klass->set_duration = ol_scroll_module_set_duration;
   klass->set_lrc = ol_scroll_module_set_lrc;
   /* klass->set_message = ol_scroll_module_set_message; */
-  klass->set_music_info = ol_scroll_module_set_music_info;
   klass->set_played_time = ol_scroll_module_set_played_time;
-  /* klass->set_player = ol_scroll_module_set_player; */
-  /* klass->set_status = ol_scroll_module_set_status; */
   return klass;
 }
