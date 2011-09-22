@@ -21,6 +21,7 @@
 #include "config.h"
 #include "ol_notify.h"
 #include "ol_intl.h"
+#include "ol_utils.h"
 #include "ol_debug.h"
 
 static const char *UNKNOWN_TITLE = N_("Unknown title");
@@ -100,6 +101,7 @@ ol_notify_music_change (OlMetadata *info, const char *icon)
   {
     return;
   }
+  char *art = NULL;
   const char *title = ol_metadata_get_title (info);
   const char *artist = ol_metadata_get_artist (info);
   if (title == NULL && artist == NULL)
@@ -121,9 +123,23 @@ ol_notify_music_change (OlMetadata *info, const char *icon)
                                     artist,
                                     album);
   }
-  NotifyNotification *music_notify = _get_notify (title, body, icon);
+  if (ol_metadata_get_art (info) != NULL)
+  {
+    const char *art_uri = ol_metadata_get_art (info);
+    if (art_uri[0] == '/')
+      art = g_strdup (art_uri);
+    else if (g_str_has_prefix (art_uri, "file://"))
+      art = g_filename_from_uri (art_uri, NULL, NULL);
+    if (art && !ol_path_is_file (art))
+    {
+      g_free (art);
+      art = NULL;
+    }
+  }
+  NotifyNotification *music_notify = _get_notify (title, body, art ? art : icon);
   notify_notification_set_timeout (music_notify,
                                    DEFAULT_TIMEOUT);
   notify_notification_show (music_notify, NULL);
   g_free (body);
+  g_free (art);
 }
