@@ -134,30 +134,30 @@ ol_path_expand_file_pattern (const char *pattern,
       return -1;
     if (ptr2 < pat_end)
     {
-      char *append = NULL;
+      const char *append = NULL;
       gboolean free_append = FALSE;
       size_t delta = 2;
       switch (*(ptr2 + 1))
       {
       case 't':                   /* title */
-        append = metadata->title;
+        append = ol_metadata_get_title (metadata);
         break;
       case 'p':                   /* artist */
-        append = metadata->artist;
+        append = ol_metadata_get_artist (metadata);
         break;
       case 'a':                 /* album */
-        append = metadata->album;
+        append = ol_metadata_get_album (metadata);
         break;
       case 'n':                 /* track number */
-        snprintf (buffer, BUFFER_SIZE, "%d", metadata->track_number);
+        snprintf (buffer, BUFFER_SIZE, "%d", ol_metadata_get_track_number (metadata));
         append = buffer;
         break;
       case 'f':                 /* file name */
-        if (metadata->uri == NULL)
+        if (ol_metadata_get_uri (metadata) == NULL)
           append = NULL;
         else
         {
-          if (ol_uri_get_filename (buffer, BUFFER_SIZE, metadata->uri, FALSE)) {
+          if (ol_uri_get_filename (buffer, BUFFER_SIZE, ol_metadata_get_uri (metadata), FALSE)) {
             append = replace_invalid_str (buffer);
             free_append = TRUE;
           }
@@ -179,7 +179,7 @@ ol_path_expand_file_pattern (const char *pattern,
       current = ol_strnncpy (current, end - current,
                              append, strlen (append));
       if (free_append)
-        g_free (append);
+        g_free ((char*)append);
       if (current == NULL)
         return -1;
       ptr2 += delta;
@@ -269,9 +269,9 @@ ol_path_expand_path_pattern (const char *pattern,
     return -1;
   if (strcmp (pattern, "%") == 0) /* use music's path */
   {
-    if (metadata == NULL || metadata->uri == NULL)
+    if (metadata == NULL || ol_metadata_get_uri (metadata) == NULL)
       return -1;
-    char *end = ol_uri_get_path (filename, len, metadata->uri);
+    char *end = ol_uri_get_path (filename, len, ol_metadata_get_uri (metadata));
     if (end == NULL)
       return -1;
     return end - filename;

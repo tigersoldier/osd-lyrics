@@ -629,17 +629,16 @@ ol_option_lrc_filename_changed (GtkEditable *editable,
                                 gpointer user_data)
 {
   static char buffer[BUFFER_SIZE] = "";
-  OlMetadata info;
   if (options.lrc_filename_sample == NULL)
     return;
-  ol_metadata_init (&info);
-  info.album = "Album";
-  info.title = "Title";
-  info.track_number = 1;
-  info.artist = "Artist";
-  info.uri = "file:///music_path/music_filename.ogg";
+  OlMetadata *metadata = ol_metadata_new ();
+  ol_metadata_set_title (metadata, "Title");
+  ol_metadata_set_artist (metadata, "Artist");
+  ol_metadata_set_album (metadata, "Album");
+  ol_metadata_set_track_number (metadata, 1);
+  ol_metadata_set_uri (metadata, "file:///music_path/music_filename.ogg");
   char *pattern = gtk_editable_get_chars (editable, 0, -1);
-  if (ol_path_get_lrc_pathname ("", pattern, &info,
+  if (ol_path_get_lrc_pathname ("", pattern, metadata,
                                 buffer, BUFFER_SIZE) >= 0)
   {
     gtk_label_set_text (GTK_LABEL (options.lrc_filename_sample), buffer + 1);
@@ -649,6 +648,7 @@ ol_option_lrc_filename_changed (GtkEditable *editable,
     gtk_label_set_text (GTK_LABEL (options.lrc_filename_sample), "");
   }
   g_free (pattern);
+  ol_metadata_free (metadata);
 }
 
 static void

@@ -86,31 +86,38 @@ static int _find_by_uri (const char *uri, char **lrcpath);
 static int _find_by_info (const OlMetadata *info, char **lrcpath);
 
 static int
-_set_where_with_info (const OlMetadata *info, char *where,
+_set_where_with_info (const OlMetadata *metadata,
+                      char *where,
                       size_t size)
 {
-  ol_assert_ret (info->title != NULL, -1);
+  ol_assert_ret (ol_metadata_get_title (metadata) != NULL, -1);
   ol_assert_ret (where != NULL, -1);
   int cnt = 0;
   cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, "title = ");
-  cnt += _copy_str (where + cnt, info->title, FIELD_BUFLEN - cnt);
-  if (info->artist == NULL)
+  cnt += _copy_str (where + cnt,
+                    ol_metadata_get_title (metadata),
+                    FIELD_BUFLEN - cnt);
+  if (ol_metadata_get_artist (metadata) == NULL)
   {
     cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND artist is NULL");
   }
   else
   {
     cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND artist = ");
-    cnt += _copy_str (where + cnt, info->artist, FIELD_BUFLEN - cnt);
+    cnt += _copy_str (where + cnt,
+                      ol_metadata_get_artist(metadata),
+                      FIELD_BUFLEN - cnt);
   }
-  if (info->album == NULL)
+  if (ol_metadata_get_album (metadata) == NULL)
   {
     cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND album is NULL");
   }
   else
   {
     cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND album = ");
-    cnt += _copy_str (where + cnt, info->album, FIELD_BUFLEN - cnt);
+    cnt += _copy_str (where + cnt,
+                      ol_metadata_get_album (metadata),
+                      FIELD_BUFLEN - cnt);
   }
   cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND uri is NULL");
   return cnt;
@@ -163,16 +170,16 @@ _find_by_uri (const char *uri, char **lrcpath)
 }
 
 static int
-_find_by_info (const OlMetadata *info, char **lrcpath)
+_find_by_info (const OlMetadata *metadata, char **lrcpath)
 {
   int code;
   sqlite3_stmt *stmt;
   static char query[QUERY_BUFLEN] = "";
   static char where[FIELD_BUFLEN] = "";
   int ret = 0;
-  ol_assert_ret (info->title != NULL, -1);
+  ol_assert_ret (ol_metadata_get_title (metadata) != NULL, -1);
   ol_assert_ret (lrcpath != NULL, -1);
-  _set_where_with_info (info, where, FIELD_BUFLEN);
+  _set_where_with_info (metadata, where, FIELD_BUFLEN);
   snprintf (query, FIELD_BUFLEN, FIND_LYRIC, where);
   ol_debugf ("%s\n", query);
   code = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
@@ -286,7 +293,7 @@ ol_lrclib_unload ()
 }
 
 int 
-ol_lrclib_assign_lyric (const OlMetadata *info, 
+ol_lrclib_assign_lyric (const OlMetadata *metadata, 
                         const char *lrcpath)
 {
   ol_log_func ();
@@ -302,9 +309,9 @@ ol_lrclib_assign_lyric (const OlMetadata *info,
     ol_error ("LrcLib is no initialized.");
     return 0;
   }
-  ol_assert_ret (info != NULL, 0);
-  if (ol_metadata_get_title (info) == NULL && 
-      ol_metadata_get_uri (info) == NULL)
+  ol_assert_ret (metadata != NULL, 0);
+  if (ol_metadata_get_title (metadata) == NULL && 
+      ol_metadata_get_uri (metadata) == NULL)
   {
     ol_error ("Require either title or uri be set.");
     return 0;
@@ -313,14 +320,16 @@ ol_lrclib_assign_lyric (const OlMetadata *info,
   _copy_str (lrcpath_value, lrcpath, FIELD_BUFLEN);
   char *oldpath = NULL;
   int find_ret = -1;
-  if (info->uri != NULL || (find_ret = ol_lrclib_find (info, &oldpath)) == 0)
+  if (ol_metadata_get_uri (metadata) != NULL ||
+      (find_ret = ol_lrclib_find (metadata, &oldpath)) == 0)
   {
-    _copy_str (title_value, info->title, FIELD_BUFLEN);
-    _copy_str (artist_value, info->artist, FIELD_BUFLEN);
-    _copy_str (album_value, info->album, FIELD_BUFLEN);
-    _copy_str (uri_value, info->uri, FIELD_BUFLEN);
+    _copy_str (title_value, ol_metadata_get_title (metadata), FIELD_BUFLEN);
+    _copy_str (artist_value, ol_metadata_get_artist (metadata), FIELD_BUFLEN);
+    _copy_str (album_value, ol_metadata_get_album (metadata), FIELD_BUFLEN);
+    _copy_str (uri_value, ol_metadata_get_uri (metadata), FIELD_BUFLEN);
     snprintf (query, QUERY_BUFLEN, ASSIGN_LYRIC,
-              title_value, artist_value, album_value, info->track_number,
+              title_value, artist_value, album_value,
+              ol_metadata_get_track_number (metadata),
               uri_value, lrcpath_value);
     ol_debugf ("query: %s\n", query);
     int code = sqlite3_exec (db, query, NULL, NULL, &errmsg);
@@ -334,7 +343,7 @@ ol_lrclib_assign_lyric (const OlMetadata *info,
   else
   {
     if (oldpath != NULL) g_free (oldpath);
-    int retval = _set_where_with_info (info, where, FIELD_BUFLEN);
+    int retval = _set_where_with_info (metadata, where, FIELD_BUFLEN);
     if (retval == -1)
       return 0;
     snprintf (query, QUERY_BUFLEN, UPDATE_LYRIC, lrcpath_value, where);
@@ -350,23 +359,23 @@ ol_lrclib_assign_lyric (const OlMetadata *info,
 }
 
 int 
-ol_lrclib_find (const OlMetadata *info,
+ol_lrclib_find (const OlMetadata *metadata,
                 char **lrcpath)
 {
   ol_log_func ();
-  ol_assert_ret (info != NULL, 0);
+  ol_assert_ret (metadata != NULL, 0);
   ol_assert_ret (lrcpath != NULL, 0);
   ol_assert_ret (db != NULL, 0);
 
   int found = 0;
-  if (info->uri != NULL)
+  if (ol_metadata_get_uri (metadata) != NULL)
   {
-    found = _find_by_uri (info->uri, lrcpath);
+    found = _find_by_uri (ol_metadata_get_uri (metadata), lrcpath);
   }
   ol_debugf ("found = %d\n", found);
-  if (found == 0 && info->title != NULL)
+  if (found == 0 && ol_metadata_get_title (metadata) != NULL)
   {
-    found = _find_by_info (info, lrcpath);
+    found = _find_by_info (metadata, lrcpath);
   }
   return found > 0;
 }

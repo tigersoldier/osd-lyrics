@@ -46,7 +46,7 @@ struct
 
 static OlLrcFetchEngine *engine = NULL;
 static int search_id = 0;
-static OlMetadata metadata = {0};
+static OlMetadata *global_metadata = NULL;
 
 gboolean ol_search_dialog_search_click (GtkWidget *widget, 
                                         gpointer data);
@@ -76,11 +76,11 @@ ol_search_dialog_download_click (GtkWidget *widget,
   OlLrcCandidate *candidate = ol_lrc_candidate_new ();
   ol_lrc_candidate_list_get_selected (widgets.list,
                                       candidate);
-  char *filename = ol_lyric_download_path (&metadata);
+  char *filename = ol_lyric_download_path (global_metadata);
   if (filename != NULL)
   {
     ol_lrc_fetch_begin_download (engine, candidate,
-                                 &metadata, filename,
+                                 global_metadata, filename,
                                  NULL);
     g_free (filename);
   }
@@ -130,6 +130,7 @@ ol_search_dialog_search_click (GtkWidget *widget,
                                          internal_search_callback,
                                          NULL);
   g_strfreev (engine_list);
+  ol_metadata_free (metadata);
   return TRUE;
 }
 
@@ -221,12 +222,14 @@ ol_search_dialog_show ()
   if (GTK_WIDGET_VISIBLE (widgets.window))
     return;
   ol_lrc_candidate_list_clear (widgets.list);
-  
-  ol_metadata_copy (&metadata, ol_app_get_current_music ());
+
+  if (global_metadata == NULL)
+    global_metadata = ol_metadata_new ();
+  ol_metadata_copy (global_metadata, ol_app_get_current_music ());
   gtk_entry_set_text (widgets.title, 
-                      ol_metadata_get_title (&metadata));
+                      ol_metadata_get_title (global_metadata));
   gtk_entry_set_text (widgets.artist,
-                      ol_metadata_get_artist (&metadata));
+                      ol_metadata_get_artist (global_metadata));
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
   OlConfig *config = ol_config_get_instance ();

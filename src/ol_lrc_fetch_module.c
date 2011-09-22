@@ -179,7 +179,7 @@ internal_search_callback (void *ret_data,
     ol_assert (current != NULL);
     result->engine = engine;
     result->count = count;
-    ol_metadata_copy (&result->metadata, search_data->metadata);
+    ol_metadata_copy (result->metadata, search_data->metadata);
     result->id = search_data->id;
     int i;
     result->candidates = g_new0 (OlLrcCandidate, result->count);
@@ -430,7 +430,7 @@ struct OlLrcFetchResult*
 ol_lrc_fetch_result_new ()
 {
   struct OlLrcFetchResult *ret = g_new0 (struct OlLrcFetchResult, 1);
-  ol_metadata_init (&ret->metadata);
+  ret->metadata = ol_metadata_new ();
   return ret;
 }
 
@@ -438,6 +438,6 @@ void
 ol_lrc_fetch_result_free (struct OlLrcFetchResult *result)
 {
   g_free (result->candidates);
-  ol_metadata_clear (&result->metadata);
+  ol_metadata_free (result->metadata);
   g_free (result);
 }

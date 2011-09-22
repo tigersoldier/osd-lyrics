@@ -522,23 +522,23 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
 }
 
 int
-ol_lrc_fetch_calc_rank (const OlMetadata *info,
+ol_lrc_fetch_calc_rank (const OlMetadata *metadata,
                         OlLrcCandidate *candidate)
 {
   ol_log_func ();
-  if (info == NULL || candidate == NULL)
-    return -1;
+  ol_assert_ret (metadata != NULL, -1);
+  ol_assert_ret (metadata != NULL, -1);
   double ret = 0.0;
-  if (info->title != NULL && candidate->title != NULL)
+  if (ol_metadata_get_title (metadata) != NULL && candidate->title != NULL)
   {
-    int lcs = ol_lcs (info->title, candidate->title);
-    ret += (double)(lcs * 2) / (strlen (info->title) + strlen (candidate->title));
+    int lcs = ol_lcs (ol_metadata_get_title (metadata), candidate->title);
+    ret += (double)(lcs * 2) / (strlen (ol_metadata_get_title (metadata)) + strlen (candidate->title));
     ret = ret * ret * 0.7;
   }
-  if (info->artist != NULL && candidate->artist != NULL)
+  if (ol_metadata_get_artist (metadata) != NULL && candidate->artist != NULL)
   {
-    int lcs = ol_lcs (info->artist, candidate->artist);
-    ret += (double)(lcs * 2) / (strlen (info->artist) + strlen (candidate->artist)) * 0.3;
+    int lcs = ol_lcs (ol_metadata_get_artist (metadata), candidate->artist);
+    ret += (double)(lcs * 2) / (strlen (ol_metadata_get_artist (metadata)) + strlen (candidate->artist)) * 0.3;
   }
   return ret * RANK_SCALE;
 }

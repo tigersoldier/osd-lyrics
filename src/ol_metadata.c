@@ -25,6 +25,15 @@
 
 const int DEFAULT_TRACK_NUM = -1;
 
+struct _OlMetadata
+{
+  char *title;                 /* The title of the music */
+  char *artist;                /* The artist of the music */
+  char *album;                 /* The album name of the music */
+  int track_number;            /* The track number of the music */
+  char *uri;                   /* URI of the music */
+};
+
 static void internal_set_string (char **string,
                                  const char *val);
 static int internal_streq (const char *lhs,
@@ -32,6 +41,8 @@ static int internal_streq (const char *lhs,
 static int internal_snprint (void *buffer,
                              size_t count,
                              char *val);
+static void ol_metadata_init (OlMetadata *metadata);
+
 
 static void
 internal_set_string (char **string,
@@ -64,7 +75,7 @@ ol_metadata_free (OlMetadata *metadata)
   g_free (metadata);
 }
 
-void
+static void
 ol_metadata_init (OlMetadata *info)
 {
   ol_assert (info != NULL);

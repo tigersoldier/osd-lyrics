@@ -176,7 +176,7 @@ _search_callback (struct OlLrcFetchResult *result,
   search_id = -1;
   if (result->count > 0 && result->candidates != 0)
   {
-    char *filename = ol_lyric_download_path (&result->metadata);
+    char *filename = ol_lyric_download_path (result->metadata);
     if (filename == NULL)
     {
       ol_display_module_download_fail_message (module, _("Cannot create the lyric directory"));
@@ -187,7 +187,7 @@ _search_callback (struct OlLrcFetchResult *result,
         ol_display_module_clear_message (module);
       }
       ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
-                            &result->metadata,
+                            result->metadata,
                             filename);
       g_free (filename);
     }

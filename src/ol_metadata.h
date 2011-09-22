@@ -25,25 +25,10 @@
  * defines a music's infomation structure
  */
 typedef struct _OlMetadata OlMetadata;
-struct _OlMetadata
-{
-  char *title;                 /* The title of the music */
-  char *artist;                /* The artist of the music */
-  char *album;                 /* The album name of the music */
-  int track_number;            /* The track number of the music */
-  char *uri;                   /* URI of the music */
-};
+struct _OlMetadata;
 
 OlMetadata *ol_metadata_new ();
 void ol_metadata_free (OlMetadata *metadata);
-
-/** 
- * @brief Initialize an OlMetadata
- * All the fields of metadata will set to empty without memory free
- * 
- * @param metadata 
- */
-void ol_metadata_init (OlMetadata *metadata);
 
 /** 
  * @brief Clears an OlMetadata

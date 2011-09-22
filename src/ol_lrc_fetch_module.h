@@ -28,7 +28,7 @@ struct OlLrcFetchResult
   int count;
   int id;
   OlLrcCandidate *candidates;
-  OlMetadata metadata;
+  OlMetadata *metadata;
   OlLrcFetchEngine *engine;
 };
 

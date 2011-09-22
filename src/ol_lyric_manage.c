@@ -25,12 +25,12 @@
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-static gboolean internal_for_each (OlMetadata *info,
+static gboolean internal_for_each (OlMetadata *metadata,
                                    OlPathFunc func,
                                    gpointer userdata);
 
 static gboolean
-internal_for_each (OlMetadata *info,
+internal_for_each (OlMetadata *metadata,
                    OlPathFunc func,
                    gpointer userdata)
 {
@@ -42,12 +42,12 @@ internal_for_each (OlMetadata *info,
   if (path_list == NULL || name_list == NULL)
     return FALSE;
   if (path_list == NULL || name_list == NULL ||
-      info == NULL || func == NULL)
+      metadata == NULL || func == NULL)
     return FALSE;
-  ol_debugf ("  uri: %s\n", info->uri);
+  ol_debugf ("  uri: %s\n", ol_metadata_get_uri (metadata));
   gboolean ret = ol_path_pattern_for_each (path_list,
                                            name_list,
-                                           info,
+                                           metadata,
                                            func,
                                            userdata);
   g_strfreev (path_list);
