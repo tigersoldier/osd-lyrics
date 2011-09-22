@@ -33,16 +33,13 @@ enum OlPlayerStatus {
 };
 
 enum OlPlayerCapacity {
-  OL_PLAYER_URI =         1 << 0,
-  OL_PLAYER_CONTROL =     1 << 1,
-  OL_PLAYER_STATUS =      1 << 2,
-  OL_PLAYER_PLAY =        1 << 3,
-  OL_PLAYER_PREV =        1 << 4,
-  OL_PLAYER_NEXT =        1 << 5,
-  OL_PLAYER_SEEK =        1 << 6,
-  OL_PLAYER_STOP =        1 << 7,
-  OL_PLAYER_PAUSE =       1 << 8,
-  OL_PLAYER_PLAY_PAUSE =  OL_PLAYER_STATUS | OL_PLAYER_PLAY | OL_PLAYER_PAUSE,
+  OL_PLAYER_PLAY =        1 << 1,
+  OL_PLAYER_PREV =        1 << 2,
+  OL_PLAYER_NEXT =        1 << 3,
+  OL_PLAYER_SEEK =        1 << 4,
+  OL_PLAYER_STOP =        1 << 5,
+  OL_PLAYER_PAUSE =       1 << 6,
+  OL_PLAYER_PLAY_PAUSE =  OL_PLAYER_PLAY | OL_PLAYER_PAUSE,
 };
 
 #define OL_TYPE_PLAYER                          \

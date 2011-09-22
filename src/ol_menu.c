@@ -336,8 +336,7 @@ ol_menu_update_player_control ()
   {
     if (player != NULL)
     {
-      if ((ol_player_get_caps (player) & OL_PLAYER_STATUS) &&
-          ol_player_get_status (player) == OL_PLAYER_PLAYING)
+      if (ol_player_get_status (player) == OL_PLAYER_PLAYING)
       {
         gtk_widget_hide (menu.play);
       }
@@ -358,17 +357,10 @@ ol_menu_update_player_control ()
   {
     if (player != NULL)
     {
-      if ((ol_player_get_caps (player) & OL_PLAYER_STATUS))
-      {
-        if (ol_player_get_status (player) == OL_PLAYER_PLAYING)
-          gtk_widget_show (menu.pause);
-        else
-          gtk_widget_hide (menu.pause);
-      }
+      if (ol_player_get_status (player) == OL_PLAYER_PLAYING)
+        gtk_widget_show (menu.pause);
       else
-      {
-        gtk_widget_show(menu.pause);
-      }
+        gtk_widget_hide (menu.pause);
       gtk_widget_set_sensitive (menu.pause,
                                 ol_player_get_caps (player) & OL_PLAYER_PAUSE);
     }
