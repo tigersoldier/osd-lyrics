@@ -53,15 +53,15 @@ static char* ol_uri_get_filename (char *dest,
 int
 ol_path_get_lrc_pathname (const char *path_pattern,
                           const char *file_pattern,
-                          OlMusicInfo *music_info,
+                          OlMetadata *metadata,
                           char *pathname,
                           size_t len)
 {
   if (path_pattern == NULL || file_pattern == NULL ||
-      music_info == NULL || pathname == NULL || len <= 0)
+      metadata == NULL || pathname == NULL || len <= 0)
     return -1;
   int current = ol_path_expand_path_pattern (path_pattern,
-                                                music_info,
+                                                metadata,
                                                 pathname,
                                                 len);
   if (current == -1)
@@ -73,7 +73,7 @@ ol_path_get_lrc_pathname (const char *path_pattern,
     pathname[current]  = '\0';
   }
   int offset = ol_path_expand_file_pattern (file_pattern,
-                                               music_info,
+                                               metadata,
                                                pathname + current,
                                                len - current);
   if (offset == -1)
@@ -109,14 +109,14 @@ replace_invalid_str (const char *str)
 
 int
 ol_path_expand_file_pattern (const char *pattern,
-                             OlMusicInfo *music_info,
+                             OlMetadata *metadata,
                              char *filename,
                              size_t len)
 {
   char buffer[BUFFER_SIZE];
   if (pattern == NULL)
     return -1;
-  if (music_info == NULL)
+  if (metadata == NULL)
     return -1;
   if (filename == NULL || len <= 0)
     return -1;
@@ -140,24 +140,24 @@ ol_path_expand_file_pattern (const char *pattern,
       switch (*(ptr2 + 1))
       {
       case 't':                   /* title */
-        append = music_info->title;
+        append = metadata->title;
         break;
       case 'p':                   /* artist */
-        append = music_info->artist;
+        append = metadata->artist;
         break;
       case 'a':                 /* album */
-        append = music_info->album;
+        append = metadata->album;
         break;
       case 'n':                 /* track number */
-        snprintf (buffer, BUFFER_SIZE, "%d", music_info->track_number);
+        snprintf (buffer, BUFFER_SIZE, "%d", metadata->track_number);
         append = buffer;
         break;
       case 'f':                 /* file name */
-        if (music_info->uri == NULL)
+        if (metadata->uri == NULL)
           append = NULL;
         else
         {
-          if (ol_uri_get_filename (buffer, BUFFER_SIZE, music_info->uri, FALSE)) {
+          if (ol_uri_get_filename (buffer, BUFFER_SIZE, metadata->uri, FALSE)) {
             append = replace_invalid_str (buffer);
             free_append = TRUE;
           }
@@ -261,7 +261,7 @@ ol_uri_get_path (char *dest,
 
 int
 ol_path_expand_path_pattern (const char *pattern,
-                             OlMusicInfo *music_info,
+                             OlMetadata *metadata,
                              char *filename,
                              size_t len)
 {
@@ -269,9 +269,9 @@ ol_path_expand_path_pattern (const char *pattern,
     return -1;
   if (strcmp (pattern, "%") == 0) /* use music's path */
   {
-    if (music_info == NULL || music_info->uri == NULL)
+    if (metadata == NULL || metadata->uri == NULL)
       return -1;
-    char *end = ol_uri_get_path (filename, len, music_info->uri);
+    char *end = ol_uri_get_path (filename, len, metadata->uri);
     if (end == NULL)
       return -1;
     return end - filename;
@@ -300,7 +300,7 @@ ol_path_expand_path_pattern (const char *pattern,
 gboolean
 ol_path_pattern_for_each (char **path_patterns,
                           char **name_patterns,
-                          OlMusicInfo *info,
+                          OlMetadata *info,
                           OlPathFunc func,
                           gpointer data)
 {

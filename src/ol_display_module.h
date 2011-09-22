@@ -20,7 +20,7 @@
 #ifndef _OL_DISPLAY_MODULE_H_
 #define _OL_DISPLAY_MODULE_H_
 
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 #include "ol_player.h"
 
 struct OlLrc;

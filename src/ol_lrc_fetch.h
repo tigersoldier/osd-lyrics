@@ -20,7 +20,7 @@
 #ifndef _LRC_FETCH_H
 #define _LRC_FETCH_H
 #include "ol_lrc_fetch_utils.h"
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 
 #define OL_URL_LEN_MAX 1024
 #define OL_TS_LEN_MAX 100 /* max length for title and singer */
@@ -84,9 +84,9 @@ char * ol_lrc_candidate_deserialize (OlLrcCandidate *candidate,
  * @brief fetch the candidate title-singer-url list;
  *        strongly depending on the web page structure.
  */
-typedef OlLrcCandidate *(*Lrc_Search) (const OlMusicInfo *music_info,
-                                              int *size,
-                                              const char *local_charset);
+typedef OlLrcCandidate *(*Lrc_Search) (const OlMetadata *metadata,
+                                       int *size,
+                                       const char *local_charset);
 
 /** 
  * @brief download the lrc and store it in the file system

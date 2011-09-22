@@ -31,12 +31,12 @@ const char *DOWNLOAD_URL = "http://ttlrcct.qianqian.com/dll/lyricsvr.dll?dl?Id=%
 
 struct CandidateParserData
 {
-  const OlMusicInfo *info;
+  const OlMetadata *metadata;
   OlLrcCandidate *candidate_list;
   int count;
 };
 
-static OlLrcCandidate* _search(const OlMusicInfo *info,
+static OlLrcCandidate* _search(const OlMetadata *metadata,
                                int *size,
                                const char* charset);
 static int _download (OlLrcCandidate *candidate,
@@ -115,7 +115,7 @@ _parse_candidate (GMarkupParseContext *context,
         ol_lrc_candidate_set_title (candidate, title);
       if (artist != NULL)
         ol_lrc_candidate_set_artist (candidate, artist);
-      data->count = ol_lrc_fetch_add_candidate (data->info,
+      data->count = ol_lrc_fetch_add_candidate (data->metadata,
                                                 data->candidate_list,
                                                 data->count,
                                                 MAX_CANDIDATE,
@@ -163,20 +163,20 @@ _encode_request_field (const char *value)
 }
 
 static OlLrcCandidate *
-_search(const OlMusicInfo *info,
+_search(const OlMetadata *metadata,
         int *size,
         const char* charset)
 {
-  ol_assert_ret (info != NULL, NULL);
+  ol_assert_ret (metadata != NULL, NULL);
   ol_assert_ret (size != NULL, NULL);
-  if (ol_music_info_get_title (info) == NULL ||
-      ol_music_info_get_artist (info) == NULL)
+  if (ol_metadata_get_title (metadata) == NULL ||
+      ol_metadata_get_artist (metadata) == NULL)
     return NULL;
   static OlLrcCandidate candidate_list[MAX_CANDIDATE];
   OlLrcCandidate *retval = NULL;
   GString *surl = g_string_new (PREFIX_SEARCH_URL);
-  char *encoded_title = _encode_request_field (ol_music_info_get_title (info));
-  char *encoded_artist = _encode_request_field (ol_music_info_get_artist (info));
+  char *encoded_title = _encode_request_field (ol_metadata_get_title (metadata));
+  char *encoded_artist = _encode_request_field (ol_metadata_get_artist (metadata));
   g_string_append_printf (surl,
                           "Artist=%s&Title=%s&Flags=0",
                           encoded_artist, encoded_title);
@@ -196,7 +196,7 @@ _search(const OlMusicInfo *info,
     GMarkupParser parser = {.start_element = _parse_candidate};
     GError *error = NULL;
     struct CandidateParserData data = {
-      .info = info,
+      .metadata = metadata,
       .candidate_list = candidate_list,
       .count = 0,
     };

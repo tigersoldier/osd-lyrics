@@ -22,14 +22,14 @@
 
 #include <string.h>
 #include <glib.h>
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 
 /** 
  * @brief Get full pathname of lyrics file according to the path pattern and file pattern
  *
  * @param path_pattern The pattern of the path
  * @param file_pattern The pattern of the file
- * @param music_info The music track
+ * @param metadata The music track
  * @param pathname Buffer of the pathname
  * @param len Length of the buffer
  *
@@ -37,7 +37,7 @@
  */
 int ol_path_get_lrc_pathname (const char *path_pattern,
                               const char *file_pattern,
-                              OlMusicInfo *music_info,
+                              OlMetadata *metadata,
                               char *pathname,
                               size_t len);
 
@@ -51,14 +51,14 @@ int ol_path_get_lrc_pathname (const char *path_pattern,
  *  - %f: Filename without extension of the music
  *  - %%: The `%' punctuation
  * @param pattern The pattern to be expanded
- * @param music_info The info of the music
+ * @param metadata The info of the music
  * @param filename The buffer of the expanded file name
  * @param len The size of the buffer
  * 
  * @return The length of the expanded file name, or -1 if failed
  */
 int ol_path_expand_file_pattern (const char *pattern,
-                                 OlMusicInfo *music_info,
+                                 OlMetadata *metadata,
                                  char *filename,
                                  size_t len);
 /** 
@@ -68,14 +68,14 @@ int ol_path_expand_file_pattern (const char *pattern,
  *  - begin with `~/': the path is an relative path and the `~' wiil be expanded to the absolute path of the user's home directory
  *  - `%': the path will be expanded to the directory of the music file according to its URI
  * @param pattern The pattern to be expanded
- * @param music_info The info of the music, or NULL if the pattern is not `%'
+ * @param metadata The info of the music, or NULL if the pattern is not `%'
  * @param filename The buffer of the expanded file name
  * @param len The size of the buffer
  * 
  * @return The length of the expanded file name, or -1 if failed
  */
 int ol_path_expand_path_pattern (const char *pattern,
-                                 OlMusicInfo *music_info,
+                                 OlMetadata *metadata,
                                  char *filename,
                                  size_t len);
 
@@ -87,7 +87,7 @@ typedef gboolean (*OlPathFunc) (const char *filename,
  * 
  * @param path_patterns Array of path patterns, should be end with NULL
  * @param name_patterns Array of filename patterns, should be end with NULL
- * @param info The music
+ * @param metadata The music
  * @param func The function to invoke. If it returns FALSE, the iteration stops
  * @param data 
  * 
@@ -95,7 +95,7 @@ typedef gboolean (*OlPathFunc) (const char *filename,
  */
 gboolean ol_path_pattern_for_each (char **path_patterns,
                                    char **name_patterns,
-                                   OlMusicInfo *info,
+                                   OlMetadata *metadata,
                                    OlPathFunc func,
                                    gpointer data);
 

@@ -116,7 +116,7 @@ int curl_url_encoding(CURL *curl, char *input, char *output, size_t size);
 int curl_url_decoding(CURL *curl, char *input, char *output, size_t size);
 
 struct _OlLrcCandidate;
-struct _OlMusicInfo;
+struct _OlMetadata;
 /** 
  * @brief Adds a new candidate into candidate list at the right position
  *
@@ -128,13 +128,13 @@ struct _OlMusicInfo;
  * 
  * @return The number of candidates after adding
  */
-int ol_lrc_fetch_add_candidate (const struct _OlMusicInfo *info,
+int ol_lrc_fetch_add_candidate (const struct _OlMetadata *info,
                                 struct _OlLrcCandidate *candidate_list,
                                 size_t count,
                                 size_t size,
                                 struct _OlLrcCandidate *new_candidate);
 
-int ol_lrc_fetch_calc_rank (const struct _OlMusicInfo *info,
+int ol_lrc_fetch_calc_rank (const struct _OlMetadata *info,
                             struct _OlLrcCandidate *candidate);
 
 #endif /* _UTIL_LRC_FETCH */ 

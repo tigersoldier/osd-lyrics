@@ -22,7 +22,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 
 enum OlPlayerStatus {
   OL_PLAYER_PLAYING = 0,
@@ -115,7 +115,7 @@ const char *ol_player_get_icon_path (OlPlayer *player);
  * @return If no support player is connected, return FALSE. In this case,
  *         parameter metadata will not be changed.
  */
-gboolean ol_player_get_metadata (OlPlayer *player, OlMusicInfo *metadata);
+gboolean ol_player_get_metadata (OlPlayer *player, OlMetadata *metadata);
 
 /**
  * @brief Gets the elapsed time of the current music

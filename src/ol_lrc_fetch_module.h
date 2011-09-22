@@ -28,14 +28,14 @@ struct OlLrcFetchResult
   int count;
   int id;
   OlLrcCandidate *candidates;
-  OlMusicInfo info;
+  OlMetadata metadata;
   OlLrcFetchEngine *engine;
 };
 
 struct OlLrcDownloadResult
 {
   int id;
-  OlMusicInfo *info;
+  OlMetadata *metadata;
   const char *filepath;
   void *userdata;
 };
@@ -95,7 +95,7 @@ void ol_lrc_fetch_add_async_download_callback (OlLrcDownloadCallback callbackFun
  * @return a unique id identifies the search result
  */
 int ol_lrc_fetch_begin_search (char **engine_list, 
-                               OlMusicInfo *music_info,
+                               OlMetadata *music_info,
                                OlLrcSearchMsgCallback msg_callback,
                                OlLrcSearchCallback result_callback,
                                void *userdata);
@@ -120,7 +120,7 @@ void ol_lrc_fetch_cancel_search (int search_id);
  */
 void ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                                   OlLrcCandidate *candidate,
-                                  const OlMusicInfo *info,
+                                  const OlMetadata *info,
                                   const char *pathname,
                                   void *userdata);
 

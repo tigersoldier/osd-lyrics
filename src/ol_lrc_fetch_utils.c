@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include "ol_lrc_fetch_utils.h"
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 #include "ol_lrc_fetch.h"
 #include "ol_utils.h"
 #include "ol_utils_network.h"
@@ -522,7 +522,7 @@ curl_url_decoding(CURL *curl, char *input, char *output, size_t size)
 }
 
 int
-ol_lrc_fetch_calc_rank (const OlMusicInfo *info,
+ol_lrc_fetch_calc_rank (const OlMetadata *info,
                         OlLrcCandidate *candidate)
 {
   ol_log_func ();
@@ -544,7 +544,7 @@ ol_lrc_fetch_calc_rank (const OlMusicInfo *info,
 }
 
 int
-ol_lrc_fetch_add_candidate (const OlMusicInfo *info,
+ol_lrc_fetch_add_candidate (const OlMetadata *info,
                             OlLrcCandidate *candidate_list,
                             size_t count,
                             size_t size,

@@ -20,7 +20,7 @@
 #ifndef _OL_LYRIC_MANAGE_H_
 #define _OL_LYRIC_MANAGE_H_
 
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 
 /** 
  * @brief Find lyric file according to music info
@@ -31,7 +31,7 @@
  *         Otherwise returns NULL. 
  *         The returned path should be freed with g_free.
  */
-char *ol_lyric_find (OlMusicInfo *info);
+char *ol_lyric_find (OlMetadata *info);
 
 /** 
  * @brief Get the full path to save the downloaded file
@@ -42,5 +42,5 @@ char *ol_lyric_find (OlMusicInfo *info);
  *         Otherwise returns NULL. 
  *         The returned path should be freed with g_free.
  */
-char *ol_lyric_download_path (OlMusicInfo *info);
+char *ol_lyric_download_path (OlMetadata *info);
 #endif /* _OL_LYRIC_MANAGE_H_ */

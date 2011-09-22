@@ -629,10 +629,10 @@ ol_option_lrc_filename_changed (GtkEditable *editable,
                                 gpointer user_data)
 {
   static char buffer[BUFFER_SIZE] = "";
-  OlMusicInfo info;
+  OlMetadata info;
   if (options.lrc_filename_sample == NULL)
     return;
-  ol_music_info_init (&info);
+  ol_metadata_init (&info);
   info.album = "Album";
   info.title = "Title";
   info.track_number = 1;

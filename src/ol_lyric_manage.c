@@ -25,12 +25,12 @@
 #include "ol_utils.h"
 #include "ol_debug.h"
 
-static gboolean internal_for_each (OlMusicInfo *info,
+static gboolean internal_for_each (OlMetadata *info,
                                    OlPathFunc func,
                                    gpointer userdata);
 
 static gboolean
-internal_for_each (OlMusicInfo *info,
+internal_for_each (OlMetadata *info,
                    OlPathFunc func,
                    gpointer userdata)
 {
@@ -96,7 +96,7 @@ internal_check_path_exist (const char *filename, gpointer data)
 }
 
 char *
-ol_lyric_find (OlMusicInfo *info)
+ol_lyric_find (OlMetadata *info)
 {
   ol_log_func ();
   char *filename = NULL;
@@ -107,7 +107,7 @@ ol_lyric_find (OlMusicInfo *info)
 }
 
 char *
-ol_lyric_download_path (OlMusicInfo *info)
+ol_lyric_download_path (OlMetadata *info)
 {
   ol_log_func ();
   char *filename = NULL;

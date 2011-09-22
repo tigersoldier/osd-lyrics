@@ -72,7 +72,7 @@ struct _OlPlayerPrivate
   GDBusProxy *proxy;
   GDBusProxy *mpris1_proxy;
   gboolean connected;
-  OlMusicInfo *metadata;
+  OlMetadata *metadata;
   enum OlPlayerStatus status;
   enum OlPlayerCapacity caps;
   guint64 position;
@@ -226,7 +226,7 @@ static void
 ol_player_init (OlPlayer *player)
 {
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
-  private->metadata = ol_music_info_new ();
+  private->metadata = ol_metadata_new ();
   private->status = OL_PLAYER_UNKNOWN;
   private->caps = 0;
   private->position = 0;
@@ -317,7 +317,7 @@ ol_player_finalize (GObject *object)
   }
   if (private->metadata != NULL)
   {
-    ol_music_info_free (private->metadata);
+    ol_metadata_free (private->metadata);
     private->metadata = NULL;
   }
   if (private->player_name != NULL)
@@ -670,7 +670,7 @@ ol_player_set_metadata (OlPlayer *player,
                         GVariant *value)
 {
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
-  ol_music_info_clear (private->metadata);
+  ol_metadata_clear (private->metadata);
   private->duration = 0;
   if (value != NULL)
   {
@@ -682,24 +682,24 @@ ol_player_set_metadata (OlPlayer *player,
     while (g_variant_iter_loop (iter, "{sv}", &key, &dict_value))
     {
       if (g_strcmp0 (key, "title") == 0)
-        ol_music_info_set_title (private->metadata,
+        ol_metadata_set_title (private->metadata,
                                  g_variant_get_string (dict_value, NULL));
       else if (g_strcmp0 (key, "artist") == 0)
-        ol_music_info_set_artist (private->metadata,
+        ol_metadata_set_artist (private->metadata,
                                   g_variant_get_string (dict_value, NULL));
       else if (g_strcmp0 (key, "album") == 0)
-        ol_music_info_set_album (private->metadata,
+        ol_metadata_set_album (private->metadata,
                                  g_variant_get_string (dict_value, NULL));
       else if (g_strcmp0 (key, "location") == 0)
-        ol_music_info_set_uri (private->metadata,
+        ol_metadata_set_uri (private->metadata,
                                g_variant_get_string (dict_value, NULL));
       else if (g_strcmp0 (key, "tracknumber") == 0)
-        ol_music_info_set_track_number_from_string (private->metadata,
+        ol_metadata_set_track_number_from_string (private->metadata,
                                                     g_variant_get_string (dict_value, NULL));
       else if (g_strcmp0 (key, "mtime") == 0)
         private->duration = g_variant_get_uint32 (dict_value);
       /* else if (g_strcmp0 (key, "arturl") == 0) */
-      /*   ol_music_info_set_album_art (private->metadata, */
+      /*   ol_metadata_set_album_art (private->metadata, */
       /*                                g_variant_get_string (dict_value, NULL)); */
     }
     g_variant_iter_free (iter);
@@ -710,11 +710,11 @@ ol_player_set_metadata (OlPlayer *player,
                "  uri: %s\n"
                "  track_num: %d\n"
                "  duration: %d\n",
-               ol_music_info_get_title (private->metadata),
-               ol_music_info_get_artist (private->metadata),
-               ol_music_info_get_album (private->metadata),
-               ol_music_info_get_uri (private->metadata),
-               ol_music_info_get_track_number (private->metadata),
+               ol_metadata_get_title (private->metadata),
+               ol_metadata_get_artist (private->metadata),
+               ol_metadata_get_album (private->metadata),
+               ol_metadata_get_uri (private->metadata),
+               ol_metadata_get_track_number (private->metadata),
                (int)private->duration);
   }
   /* The position is likely to change when the track is changed, so we
@@ -946,14 +946,14 @@ ol_player_get_icon_path (OlPlayer *player)
 }
 
 gboolean
-ol_player_get_metadata (OlPlayer *player, OlMusicInfo *metadata)
+ol_player_get_metadata (OlPlayer *player, OlMetadata *metadata)
 {
   ol_assert_ret (OL_IS_PLAYER (player), FALSE);
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
   if (!private->connected)
     return FALSE;
   if (metadata != NULL)
-    ol_music_info_copy (metadata, private->metadata);
+    ol_metadata_copy (metadata, private->metadata);
   return TRUE;
 }
 

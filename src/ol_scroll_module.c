@@ -20,7 +20,7 @@
  */
 #include <string.h>
 #include "ol_scroll_module.h"
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 #include "ol_scroll_window.h"
 #include "ol_config.h"
 #include "ol_color.h"
@@ -39,7 +39,7 @@ const int MESSAGE_TIMEOUT_MS = 5000;
 struct _OlScrollModule
 {
   OlPlayer *player;
-  OlMusicInfo *metadata;
+  OlMetadata *metadata;
   guint64 duration;
   struct OlLrc *lrc;
   OlScrollWindow *scroll;
@@ -70,7 +70,7 @@ static void _config_change_handler (OlConfig *config,
 static gboolean _window_configure_cb (GtkWidget *widget,
                                       GdkEventConfigure *event,
                                       gpointer userdata);
-static void _set_music_info_as_text (OlScrollModule *module);
+static void _set_metadata_as_text (OlScrollModule *module);
 static GtkWidget* _toolbar_new (OlScrollModule *module);
 static gboolean _close_clicked_cb (GtkButton *button,
                                    gpointer userdata);
@@ -292,7 +292,7 @@ ol_scroll_module_new (struct OlDisplayModule *module,
   priv->player = player;
   priv->scroll = NULL;
   priv->lrc = NULL;
-  priv->metadata = ol_music_info_new ();
+  priv->metadata = ol_metadata_new ();
   ol_scroll_module_init_scroll (priv);
   g_signal_connect (player,
                     "track-changed",
@@ -331,27 +331,27 @@ ol_scroll_module_free (struct OlDisplayModule *module)
   }
   if (priv->metadata != NULL)
   {
-    ol_music_info_free (priv->metadata);
+    ol_metadata_free (priv->metadata);
     priv->metadata = NULL;
   }
   g_free (priv);
 }
 
 static void
-_set_music_info_as_text (OlScrollModule *module)
+_set_metadata_as_text (OlScrollModule *module)
 {
   ol_assert (module != NULL);
   char *text = NULL;
   if (module->scroll != NULL)
   {
-    if (ol_music_info_get_title (module->metadata) != NULL)
+    if (ol_metadata_get_title (module->metadata) != NULL)
     {
-      if (ol_music_info_get_artist (module->metadata) != NULL)
+      if (ol_metadata_get_artist (module->metadata) != NULL)
         text = g_strdup_printf ("%s\n%s",
-                                ol_music_info_get_title (module->metadata),
-                                ol_music_info_get_artist (module->metadata));
+                                ol_metadata_get_title (module->metadata),
+                                ol_metadata_get_artist (module->metadata));
       else
-        text = g_strdup_printf ("%s", ol_music_info_get_title (module->metadata));
+        text = g_strdup_printf ("%s", ol_metadata_get_title (module->metadata));
     }
   }
   ol_scroll_window_set_text (module->scroll, text);
@@ -371,7 +371,7 @@ _update_metadata (OlScrollModule *module)
   ol_assert (module != NULL);
   ol_player_get_metadata (module->player, module->metadata);
   ol_player_get_duration (module->player, &module->duration);
-  _set_music_info_as_text (module);
+  _set_metadata_as_text (module);
 }
 
 void
@@ -461,7 +461,7 @@ ol_scroll_module_clear_message (struct OlDisplayModule *module)
   ol_assert (module != NULL);
   OlScrollModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
-  _set_music_info_as_text (priv);
+  _set_metadata_as_text (priv);
   if (priv->message_timer > 0)
   {
     g_source_remove (priv->message_timer);

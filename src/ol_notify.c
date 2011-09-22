@@ -93,22 +93,22 @@ ol_notify_unload ()
 }
 
 void
-ol_notify_music_change (OlMusicInfo *info, const char *icon)
+ol_notify_music_change (OlMetadata *info, const char *icon)
 {
   ol_assert (info != NULL);
   if (!_init ())
   {
     return;
   }
-  const char *title = ol_music_info_get_title (info);
-  const char *artist = ol_music_info_get_artist (info);
+  const char *title = ol_metadata_get_title (info);
+  const char *artist = ol_metadata_get_artist (info);
   if (title == NULL && artist == NULL)
     return;
   if (title == NULL)
     title = _(UNKNOWN_TITLE);
   if (artist == NULL)
     artist = _(UNKNOWN_ARTIST);
-  const char *album = ol_music_info_get_album (info);
+  const char *album = ol_metadata_get_album (info);
   char *body = NULL;
   if (album == NULL)
   {

@@ -35,10 +35,12 @@ static AppIndicator *indicator = NULL;
 #else  /* HAVE_APP_INDICATOR */
 static const char *UNKNOWN_TITLE = N_("Unknown title");
 static const char *UNKNOWN_ARTIST = N_("Unknown artist");
-static const char *INFO_FORMAT = "<big><b>%s</b></big>\n"
-                                 "  %s";
-static const char *INFO_FORMAT_ALBUM = "<big><b>%s</b></big>\n"
-                                       "  %s - <i>%s</i>";
+static const char *INFO_FORMAT =
+  "<big><b>%s</b></big>\n"
+  "  %s";
+static const char *INFO_FORMAT_ALBUM =
+  "<big><b>%s</b></big>\n"
+  "  %s - <i>%s</i>";
 static GtkStatusIcon *status_icon = NULL;
 static gboolean internal_query_tooltip (GtkStatusIcon *status_icon,
                                         gint           x,
@@ -63,22 +65,22 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
                         GtkTooltip    *tooltip,
                         gpointer       user_data)
 {
-  OlMusicInfo *info = ol_app_get_current_music ();
-  if (info == NULL ||
-      (ol_music_info_get_title (info) == NULL &&
-       ol_music_info_get_artist (info) == NULL))
+  OlMetadata *metadata = ol_app_get_current_music ();
+  if (metadata == NULL ||
+      (ol_metadata_get_title (metadata) == NULL &&
+       ol_metadata_get_artist (metadata) == NULL))
   {
     gtk_tooltip_set_text (tooltip, _("OSD Lyrics"));
   }
   else
   {
-    const char *title = ol_music_info_get_title (info);
+    const char *title = ol_metadata_get_title (metadata);
     if (title == NULL)
       title = _(UNKNOWN_TITLE);
-    const char *artist = ol_music_info_get_artist (info);
+    const char *artist = ol_metadata_get_artist (metadata);
     if (artist == NULL)
       artist = _(UNKNOWN_ARTIST);
-    const char *album = ol_music_info_get_album (info);
+    const char *album = ol_metadata_get_album (metadata);
     char *markup = NULL;
     if (album == NULL)
     {

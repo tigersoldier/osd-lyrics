@@ -103,34 +103,35 @@ _get_lyric_url (const char *song_id)
 }
 
 static OlLrcCandidate *
-ol_lrc_fetch_xiami_search(const OlMusicInfo *info, int *size, const char* charset)
+ol_lrc_fetch_xiami_search(const OlMetadata *metadata, int *size, const char* charset)
 {
-  ol_assert_ret (info != NULL, NULL);
+  ol_assert_ret (metadata != NULL, NULL);
   ol_debugf ("  title: %s\n"
              "  artist: %s\n"
              "  album: %s\n",
-             info->title,
-             info->artist,
-             info->album);
+             ol_metadata_get_title (metadata),
+             ol_metadata_get_artist (metadata),
+             ol_metadata_get_album (metadata));
   OlLrcCandidate *ret = NULL;
   static OlLrcCandidate candidate_list[TRY_MATCH_MAX];
   OlLrcCandidate candidate;
   int result;
   int count = 0;
-  if (info->title == NULL && info->artist == NULL)
+  if (ol_metadata_get_title (metadata) == NULL &&
+      ol_metadata_get_artist (metadata) == NULL)
     return NULL;
 
   GString *url = g_string_new (PREFIX_SEARCH_URL);
-  if (ol_music_info_get_title (info) != NULL)
+  if (ol_metadata_get_title (metadata) != NULL)
     g_string_append_uri_escaped (url,
-                                 ol_music_info_get_title (info),
+                                 ol_metadata_get_title (metadata),
                                  NULL,
                                  FALSE);
-  if (ol_music_info_get_artist (info) != NULL)
+  if (ol_metadata_get_artist (metadata) != NULL)
   {
     g_string_append_c (url, '+');
     g_string_append_uri_escaped (url,
-                                 ol_music_info_get_artist (info),
+                                 ol_metadata_get_artist (metadata),
                                  NULL,
                                  FALSE);
   }
@@ -181,14 +182,14 @@ ol_lrc_fetch_xiami_search(const OlMusicInfo *info, int *size, const char* charse
         }
       }
 
-      if (ol_lrc_fetch_calc_rank (info, &candidate) >= LRC_RANK_THRESHOLD)
+      if (ol_lrc_fetch_calc_rank (metadata, &candidate) >= LRC_RANK_THRESHOLD)
       {
         char *url = _get_lyric_url (id);
         ol_debugf ("lyric url: %s\n", url);
         if (url != NULL)
         {
           ol_lrc_candidate_set_url (&candidate, url);
-          count = ol_lrc_fetch_add_candidate (info,
+          count = ol_lrc_fetch_add_candidate (metadata,
                                               candidate_list,
                                               count,
                                               TRY_MATCH_MAX,

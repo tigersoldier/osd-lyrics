@@ -68,7 +68,7 @@ static GOptionEntry cmdargs[] =
 static guint name_watch_id = 0;
 static guint position_timer = 0;
 static OlPlayer *player = NULL;
-static OlMusicInfo *metadata = NULL;
+static OlMetadata *metadata = NULL;
 static struct OlLrc *lrc_file = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
@@ -139,7 +139,7 @@ _download_callback (struct OlLrcDownloadResult *result)
 {
   ol_log_func ();
   if (result->filepath != NULL)
-    ol_app_assign_lrcfile (result->info, result->filepath, TRUE);
+    ol_app_assign_lrcfile (result->metadata, result->filepath, TRUE);
   else
     ol_display_module_download_fail_message (module, _("Download failed"));
 }
@@ -176,7 +176,7 @@ _search_callback (struct OlLrcFetchResult *result,
   search_id = -1;
   if (result->count > 0 && result->candidates != 0)
   {
-    char *filename = ol_lyric_download_path (&result->info);
+    char *filename = ol_lyric_download_path (&result->metadata);
     if (filename == NULL)
     {
       ol_display_module_download_fail_message (module, _("Cannot create the lyric directory"));
@@ -187,7 +187,7 @@ _search_callback (struct OlLrcFetchResult *result,
         ol_display_module_clear_message (module);
       }
       ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
-                            &result->info,
+                            &result->metadata,
                             filename);
       g_free (filename);
     }
@@ -200,7 +200,7 @@ _search_callback (struct OlLrcFetchResult *result,
 }
 
 gboolean
-ol_app_download_lyric (OlMusicInfo *music_info)
+ol_app_download_lyric (OlMetadata *metadata)
 {
   ol_log_func ();
   if (search_id > 0)
@@ -211,7 +211,7 @@ ol_app_download_lyric (OlMusicInfo *music_info)
                                                "download-engine",
                                                NULL);
   search_id = ol_lrc_fetch_begin_search (engine_list,
-                                         music_info,
+                                         metadata,
                                          _search_msg_callback,
                                          _search_callback,
                                          NULL);
@@ -227,7 +227,7 @@ ol_app_get_current_lyric ()
 }
 
 gboolean
-ol_app_assign_lrcfile (const OlMusicInfo *info,
+ol_app_assign_lrcfile (const OlMetadata *info,
                        const char *filepath,
                        gboolean update)
 {
@@ -238,7 +238,7 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
   {
     ol_lrclib_assign_lyric (info, filepath);
   }
-  if (ol_music_info_equal (metadata, info))
+  if (ol_metadata_equal (metadata, info))
   {
     if (lrc_file != NULL)
     {
@@ -282,7 +282,7 @@ _track_changed_cb (void)
   ol_display_module_set_lrc (module, NULL);
   ol_player_get_metadata (player, metadata);
   if (!_check_lyric_file () &&
-      !ol_is_string_empty (ol_music_info_get_title (metadata)))
+      !ol_is_string_empty (ol_metadata_get_title (metadata)))
     ol_app_download_lyric (metadata);
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
@@ -412,7 +412,7 @@ ol_app_get_player ()
   return player;
 }
 
-OlMusicInfo*
+OlMetadata*
 ol_app_get_current_music ()
 {
   return metadata;
@@ -510,7 +510,7 @@ _initialize (int argc, char **argv)
                     G_CALLBACK (_on_config_changed),
                     NULL);
   initialized = FALSE;
-  metadata = ol_music_info_new ();
+  metadata = ol_metadata_new ();
   _init_dbus_connection ();
   ol_stock_init ();
   ol_display_module_init ();
@@ -644,7 +644,7 @@ _uninitialize (void)
   g_object_unref (player);
   player = NULL;
   g_bus_unwatch_name (name_watch_id);
-  ol_music_info_free (metadata);
+  ol_metadata_free (metadata);
   metadata = NULL;
   ol_notify_unload ();
   ol_display_module_free (module);

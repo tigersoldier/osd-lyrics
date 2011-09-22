@@ -49,7 +49,7 @@ static const char *FIND_LYRIC =
 
 #define _show_error()            do {ol_error (sqlite3_errmsg (db));} while (0)
 
-static int _set_where_with_info (const OlMusicInfo *info, char *where,
+static int _set_where_with_info (const OlMetadata *info, char *where,
                                  size_t size);
 /** 
  * @brief Copies an string and transformed as an SQL string form.
@@ -83,10 +83,10 @@ static int _find_by_uri (const char *uri, char **lrcpath);
  * 
  * @return 1 if found, 0 if not found, -1 if error occurs
  */
-static int _find_by_info (const OlMusicInfo *info, char **lrcpath);
+static int _find_by_info (const OlMetadata *info, char **lrcpath);
 
 static int
-_set_where_with_info (const OlMusicInfo *info, char *where,
+_set_where_with_info (const OlMetadata *info, char *where,
                       size_t size)
 {
   ol_assert_ret (info->title != NULL, -1);
@@ -163,7 +163,7 @@ _find_by_uri (const char *uri, char **lrcpath)
 }
 
 static int
-_find_by_info (const OlMusicInfo *info, char **lrcpath)
+_find_by_info (const OlMetadata *info, char **lrcpath)
 {
   int code;
   sqlite3_stmt *stmt;
@@ -286,7 +286,7 @@ ol_lrclib_unload ()
 }
 
 int 
-ol_lrclib_assign_lyric (const OlMusicInfo *info, 
+ol_lrclib_assign_lyric (const OlMetadata *info, 
                         const char *lrcpath)
 {
   ol_log_func ();
@@ -303,8 +303,8 @@ ol_lrclib_assign_lyric (const OlMusicInfo *info,
     return 0;
   }
   ol_assert_ret (info != NULL, 0);
-  if (ol_music_info_get_title (info) == NULL && 
-      ol_music_info_get_uri (info) == NULL)
+  if (ol_metadata_get_title (info) == NULL && 
+      ol_metadata_get_uri (info) == NULL)
   {
     ol_error ("Require either title or uri be set.");
     return 0;
@@ -350,7 +350,7 @@ ol_lrclib_assign_lyric (const OlMusicInfo *info,
 }
 
 int 
-ol_lrclib_find (const OlMusicInfo *info,
+ol_lrclib_find (const OlMetadata *info,
                 char **lrcpath)
 {
   ol_log_func ();

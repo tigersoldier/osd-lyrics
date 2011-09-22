@@ -19,7 +19,7 @@
  */
 #include <string.h>
 #include <glib.h>
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 #include "ol_utils.h"
 #include "ol_debug.h"
 
@@ -47,25 +47,25 @@ internal_set_string (char **string,
     *string = g_strdup (val);
 }
 
-OlMusicInfo *
-ol_music_info_new ()
+OlMetadata *
+ol_metadata_new ()
 {
-  OlMusicInfo *info = g_new (OlMusicInfo, 1);
-  ol_music_info_init (info);
+  OlMetadata *info = g_new (OlMetadata, 1);
+  ol_metadata_init (info);
   return info;
 }
 
 void
-ol_music_info_free (OlMusicInfo *music_info)
+ol_metadata_free (OlMetadata *metadata)
 {
-  if (music_info == NULL)
+  if (metadata == NULL)
     return;
-  ol_music_info_clear (music_info);
-  g_free (music_info);
+  ol_metadata_clear (metadata);
+  g_free (metadata);
 }
 
 void
-ol_music_info_init (OlMusicInfo *info)
+ol_metadata_init (OlMetadata *info)
 {
   ol_assert (info != NULL);
   info->artist = NULL;
@@ -76,122 +76,114 @@ ol_music_info_init (OlMusicInfo *info)
 }
 
 void
-ol_music_info_clear (OlMusicInfo *info)
+ol_metadata_clear (OlMetadata *info)
 {
   ol_assert (info != NULL);
-  ol_music_info_set_title (info, NULL);
-  ol_music_info_set_artist (info, NULL);
-  ol_music_info_set_album (info, NULL);
-  ol_music_info_set_track_number (info, DEFAULT_TRACK_NUM);
-  ol_music_info_set_uri (info, NULL);
+  ol_metadata_set_title (info, NULL);
+  ol_metadata_set_artist (info, NULL);
+  ol_metadata_set_album (info, NULL);
+  ol_metadata_set_track_number (info, DEFAULT_TRACK_NUM);
+  ol_metadata_set_uri (info, NULL);
 }
 
 void
-ol_music_info_copy (OlMusicInfo *dest, const OlMusicInfo *src)
+ol_metadata_copy (OlMetadata *dest, const OlMetadata *src)
 {
   ol_assert (dest != NULL);
   ol_assert (src != NULL);
   if (dest == src)
     return;
-  ol_music_info_set_title (dest, src->title);
-  ol_music_info_set_artist (dest, src->artist);
-  ol_music_info_set_album (dest, src->album);
-  ol_music_info_set_track_number (dest, src->track_number);
-  ol_music_info_set_uri (dest, src->uri);
+  ol_metadata_set_title (dest, src->title);
+  ol_metadata_set_artist (dest, src->artist);
+  ol_metadata_set_album (dest, src->album);
+  ol_metadata_set_track_number (dest, src->track_number);
+  ol_metadata_set_uri (dest, src->uri);
 }
 
 void
-ol_music_info_set_title (OlMusicInfo *music_info,
-                         const char *title)
+ol_metadata_set_title (OlMetadata *metadata,
+                       const char *title)
 {
-  ol_assert (music_info != NULL);
-  internal_set_string (&(music_info->title), title);
+  ol_assert (metadata != NULL);
+  internal_set_string (&(metadata->title), title);
 }
 
 const char *
-ol_music_info_get_title (const OlMusicInfo *music_info)
+ol_metadata_get_title (const OlMetadata *metadata)
 {
-  ol_assert_ret (music_info != NULL, NULL);
-  return music_info->title;
+  ol_assert_ret (metadata != NULL, NULL);
+  return metadata->title;
 }
 
 void
-ol_music_info_set_artist (OlMusicInfo *music_info,
-                          const char *artist)
+ol_metadata_set_artist (OlMetadata *metadata,
+                        const char *artist)
 {
-  ol_assert (music_info != NULL);
-  internal_set_string (&(music_info->artist), artist);
+  ol_assert (metadata != NULL);
+  internal_set_string (&(metadata->artist), artist);
 }
 
 const char *
-ol_music_info_get_artist (const OlMusicInfo *music_info)
+ol_metadata_get_artist (const OlMetadata *metadata)
 {
-  ol_assert_ret (music_info != NULL, NULL);
-  return music_info->artist;
+  ol_assert_ret (metadata != NULL, NULL);
+  return metadata->artist;
 }
 
 void
-ol_music_info_set_album (OlMusicInfo *music_info,
-                         const char *album)
+ol_metadata_set_album (OlMetadata *metadata,
+                       const char *album)
 {
-  ol_assert (music_info != NULL);
-  internal_set_string (&(music_info->album), album);
+  ol_assert (metadata != NULL);
+  internal_set_string (&(metadata->album), album);
 }
 
 const char *
-ol_music_info_get_album (const OlMusicInfo *music_info)
+ol_metadata_get_album (const OlMetadata *metadata)
 {
-  ol_assert_ret (music_info != NULL, NULL);
-  return music_info->album;
+  ol_assert_ret (metadata != NULL, NULL);
+  return metadata->album;
 }
 
 void
-ol_music_info_set_track_number (OlMusicInfo *music_info,
-                                int track_number)
+ol_metadata_set_track_number (OlMetadata *metadata,
+                              int track_number)
 {
-  ol_assert (music_info != NULL);
-  music_info->track_number = track_number;
+  ol_assert (metadata != NULL);
+  metadata->track_number = track_number;
 }
 
 void
-ol_music_info_set_track_number_from_string (OlMusicInfo *music_info,
-                                            const char *track_number)
+ol_metadata_set_track_number_from_string (OlMetadata *metadata,
+                                          const char *track_number)
 {
-  ol_assert (music_info != NULL);
+  ol_assert (metadata != NULL);
   if (track_number == NULL)
-    music_info->track_number = DEFAULT_TRACK_NUM;
+    metadata->track_number = DEFAULT_TRACK_NUM;
   else
-    sscanf (track_number, "%d", &music_info->track_number);
+    sscanf (track_number, "%d", &metadata->track_number);
 }
 
 int
-ol_music_info_get_track_number (const OlMusicInfo *music_info)
+ol_metadata_get_track_number (const OlMetadata *metadata)
 {
-  ol_assert_ret (music_info != NULL, DEFAULT_TRACK_NUM);
-  return music_info->track_number;
+  ol_assert_ret (metadata != NULL, DEFAULT_TRACK_NUM);
+  return metadata->track_number;
 }
 
 void
-ol_music_info_set_uri (OlMusicInfo *music_info,
-                       const char *uri)
+ol_metadata_set_uri (OlMetadata *metadata,
+                     const char *uri)
 {
-  ol_assert (music_info != NULL);
-  internal_set_string (&(music_info->uri), uri);
+  ol_assert (metadata != NULL);
+  internal_set_string (&(metadata->uri), uri);
 }
 
 const char *
-ol_music_info_get_uri (const OlMusicInfo *music_info)
+ol_metadata_get_uri (const OlMetadata *metadata)
 {
-  ol_assert_ret (music_info != NULL, NULL);
-  return music_info->uri;
-}
-
-void
-ol_music_info_destroy (OlMusicInfo *music_info)
-{
-  ol_assert (music_info != NULL);
-  ol_music_info_clear (music_info);
-  g_free (music_info);
+  ol_assert_ret (metadata != NULL, NULL);
+  return metadata->uri;
 }
 
 static int
@@ -205,47 +197,47 @@ internal_snprint (void *buffer,
 }
 
 int
-ol_music_info_serialize (OlMusicInfo *music_info,
-                         char *buffer,
-                         size_t count)
+ol_metadata_serialize (OlMetadata *metadata,
+                       char *buffer,
+                       size_t count)
 {
-  ol_assert_ret (music_info != NULL, 0);
+  ol_assert_ret (metadata != NULL, 0);
   int cnt = 0;
   if (buffer == NULL)
   {
-    if (music_info->title != NULL)
-      cnt += strlen (music_info->title);
+    if (metadata->title != NULL)
+      cnt += strlen (metadata->title);
     cnt++;
-    if (music_info->artist != NULL)
-      cnt += strlen (music_info->artist);
+    if (metadata->artist != NULL)
+      cnt += strlen (metadata->artist);
     cnt++;
-    if (music_info->album != NULL)
-      cnt += strlen (music_info->album);
+    if (metadata->album != NULL)
+      cnt += strlen (metadata->album);
     cnt++;
     static char tmpbuf[100];
-    cnt += snprintf (tmpbuf, 100, "%d\n", music_info->track_number);
-    if (music_info->uri != NULL)
-      cnt += strlen (music_info->uri);
+    cnt += snprintf (tmpbuf, 100, "%d\n", metadata->track_number);
+    if (metadata->uri != NULL)
+      cnt += strlen (metadata->uri);
     cnt++;
   }
   else
   {
     cnt += internal_snprint (buffer + cnt,
                              count - cnt,
-                             music_info->title);
+                             metadata->title);
     cnt += internal_snprint (buffer + cnt,
                              count - cnt,
-                             music_info->artist);
+                             metadata->artist);
     cnt += internal_snprint (buffer + cnt,
                              count - cnt,
-                             music_info->album);
+                             metadata->album);
     cnt += snprintf (buffer + cnt,
                      count - cnt,
                      "%d\n",
-                     music_info->track_number);
+                     metadata->track_number);
     cnt += internal_snprint (buffer + cnt,
                              count - cnt,
-                             music_info->uri);
+                             metadata->uri);
     if (cnt < count)
       buffer[cnt] = '\0';
     else if (count > 0)
@@ -255,10 +247,10 @@ ol_music_info_serialize (OlMusicInfo *music_info,
 }
 
 int
-ol_music_info_deserialize (OlMusicInfo *music_info,
-                           const char *data)
+ol_metadata_deserialize (OlMetadata *metadata,
+                         const char *data)
 {
-  ol_assert_ret (music_info != NULL, 0);
+  ol_assert_ret (metadata != NULL, 0);
   ol_assert_ret (data != NULL, 0);
   int ret = 1;
   char *buffer = g_strdup (data);
@@ -279,11 +271,11 @@ ol_music_info_deserialize (OlMusicInfo *music_info,
   {
     int tn = 0;
     sscanf (track_number, "%d", &tn);
-    ol_music_info_set_title (music_info, title);
-    ol_music_info_set_artist (music_info, artist);
-    ol_music_info_set_album (music_info, album);
-    ol_music_info_set_track_number (music_info, tn);
-    ol_music_info_set_uri (music_info, uri);
+    ol_metadata_set_title (metadata, title);
+    ol_metadata_set_artist (metadata, artist);
+    ol_metadata_set_album (metadata, album);
+    ol_metadata_set_track_number (metadata, tn);
+    ol_metadata_set_uri (metadata, uri);
   }
   g_free (buffer);
   return ret;
@@ -301,8 +293,8 @@ internal_streq (const char *lhs,
 }
 
 int
-ol_music_info_equal (const OlMusicInfo *lhs,
-                     const OlMusicInfo *rhs)
+ol_metadata_equal (const OlMetadata *lhs,
+                   const OlMetadata *rhs)
 {
   if (lhs == rhs)
     return 1;

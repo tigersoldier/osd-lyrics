@@ -68,7 +68,7 @@ noinst_HEADERS = \
 	ol_marshal.h \
 	ol_md5.h \
 	ol_menu.h \
-	ol_music_info.h \
+	ol_metadata.h \
 	ol_notify.h \
 	ol_option.h \
 	ol_osd_module.h \
@@ -128,7 +128,7 @@ osdlyrics_SOURCES = \
 	ol_lrc_fetch_utils.c \
 	ol_lrc_candidate_list.c \
 	ol_lrc_engine_list.c \
-	ol_music_info.c \
+	ol_metadata.c \
 	ol_color.c \
 	ol_eggaccelerators.c \
 	ol_keybinder.c \

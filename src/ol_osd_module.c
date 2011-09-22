@@ -18,7 +18,7 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <string.h>
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 #include "ol_config.h"
 #include "ol_player.h"
 #include "ol_osd_window.h"
@@ -39,7 +39,7 @@ struct OlLrc;
 struct _OlOsdModule
 {
   OlPlayer *player;
-  OlMusicInfo *metadata;
+  OlMetadata *metadata;
   gint lrc_id;
   gint lrc_next_id;
   gint current_line;
@@ -383,7 +383,7 @@ ol_osd_module_new (struct OlDisplayModule *module,
   data->lrc_next_id = -1;
   data->current_line = 0;
   data->message_source = 0;
-  data->metadata = ol_music_info_new ();
+  data->metadata = ol_metadata_new ();
   ol_osd_module_init_osd (data);
   g_signal_connect (player,
                     "track-changed",
@@ -417,7 +417,7 @@ ol_osd_module_free (struct OlDisplayModule *module)
   }
   if (priv->metadata != NULL)
   {
-    ol_music_info_free (priv->metadata);
+    ol_metadata_free (priv->metadata);
     priv->metadata = NULL;
   }
   g_signal_handlers_disconnect_by_func (priv->player,

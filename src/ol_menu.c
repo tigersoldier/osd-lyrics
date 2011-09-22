@@ -94,7 +94,7 @@ ol_menu_download (GtkWidget *widget, gpointer data)
 {
   /* if (ol_app_get_controller () != NULL) */
   /* { */
-  OlMusicInfo *info = ol_app_get_current_music ();
+  OlMetadata *info = ol_app_get_current_music ();
   if (info != NULL)
     ol_search_dialog_show ();
   /* ol_app_download_lyric (info); */
@@ -104,7 +104,7 @@ ol_menu_download (GtkWidget *widget, gpointer data)
 void
 ol_menu_no_lyric (GtkWidget *widget, gpointer data)
 {
-  OlMusicInfo *info = ol_app_get_current_music ();
+  OlMetadata *info = ol_app_get_current_music ();
   if (info != NULL)
     ol_app_assign_lrcfile (info, NULL, TRUE);
 }
@@ -113,7 +113,7 @@ void
 ol_menu_assign_lrc (GtkWidget *widget, gpointer data)
 {
   static char *prev_path = NULL;
-  OlMusicInfo *info = ol_app_get_current_music ();
+  OlMetadata *info = ol_app_get_current_music ();
   GtkFileFilter *lrc_filter = NULL;
   lrc_filter = gtk_file_filter_new ();
   gtk_file_filter_set_name (lrc_filter, _("LRC files"));

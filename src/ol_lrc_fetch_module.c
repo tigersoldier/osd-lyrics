@@ -37,7 +37,7 @@ struct SearchData
   guint child_watch;
   guint delay_timer;
   GList *engines;
-  OlMusicInfo *music_info;
+  OlMetadata *metadata;
   OlLrcSearchMsgCallback msg_callback;
   OlLrcSearchCallback result_callback;
   void *userdata;
@@ -45,7 +45,7 @@ struct SearchData
 
 static struct SearchData *_search_data_new (int id,
                                             GList *engine_list,
-                                            OlMusicInfo *music_info,
+                                            OlMetadata *metadata,
                                             OlLrcSearchMsgCallback msg_callback,
                                             OlLrcSearchCallback result_callback,
                                             void *userdata);
@@ -68,7 +68,7 @@ static GList *_get_engine_list_from_strv (char **engine_list, int count);
 static struct SearchData *
 _search_data_new (int id,
                   GList *engines,
-                  OlMusicInfo *music_info,
+                  OlMetadata *metadata,
                   OlLrcSearchMsgCallback msg_callback,
                   OlLrcSearchCallback result_callback,
                   void *userdata)
@@ -76,8 +76,8 @@ _search_data_new (int id,
   struct SearchData *data = g_new (struct SearchData, 1);
   data->id = id;
   data->engines = engines;
-  data->music_info = ol_music_info_new ();
-  ol_music_info_copy (data->music_info, music_info);
+  data->metadata = ol_metadata_new ();
+  ol_metadata_copy (data->metadata, metadata);
   data->msg_callback = msg_callback;
   data->result_callback = result_callback;
   data->delay_timer = 0;
@@ -95,7 +95,7 @@ _search_data_free (struct SearchData *search_data)
     g_list_free (search_data->engines);
   if (search_data->child_watch > 0)
     g_source_remove (search_data->child_watch);
-  ol_music_info_destroy (search_data->music_info);
+  ol_metadata_free (search_data->metadata);
   g_free (search_data);
 }
 
@@ -130,7 +130,7 @@ internal_search (struct SearchData *search_data)
   int count = 0;
   OlLrcCandidate *candidates = NULL;
   OlLrcFetchEngine *engine = search_data->engines->data;
-  candidates = engine->search (search_data->music_info,
+  candidates = engine->search (search_data->metadata,
                                &count,
                                "UTF-8");
   /* Output search result */
@@ -179,7 +179,7 @@ internal_search_callback (void *ret_data,
     ol_assert (current != NULL);
     result->engine = engine;
     result->count = count;
-    ol_music_info_copy (&result->info, search_data->music_info);
+    ol_metadata_copy (&result->metadata, search_data->metadata);
     result->id = search_data->id;
     int i;
     result->candidates = g_new0 (OlLrcCandidate, result->count);
@@ -349,20 +349,20 @@ _get_engine_list_from_strv (char **engine_list, int count)
 
 int
 ol_lrc_fetch_begin_search (char **engine_list,
-                           OlMusicInfo *music_info,
+                           OlMetadata *metadata,
                            OlLrcSearchMsgCallback msg_callback,
                            OlLrcSearchCallback result_callback,
                            void *userdata)
 {
   ol_log_func ();
   ol_assert_ret (engine_list != NULL, -1);
-  ol_assert_ret (music_info != NULL, -1);
+  ol_assert_ret (metadata != NULL, -1);
   ol_debugf ("  title: %s\n"
              "  artist: %s\n"
              "  album: %s\n",
-             ol_music_info_get_title (music_info),
-             ol_music_info_get_artist (music_info),
-             ol_music_info_get_album (music_info));
+             ol_metadata_get_title (metadata),
+             ol_metadata_get_artist (metadata),
+             ol_metadata_get_album (metadata));
   GList *engines = _get_engine_list_from_strv (engine_list, -1);
   if (engines == NULL)
   {
@@ -372,7 +372,7 @@ ol_lrc_fetch_begin_search (char **engine_list,
   search_id++;
   struct SearchData *data = _search_data_new (search_id,
                                               engines,
-                                              music_info,
+                                              metadata,
                                               msg_callback,
                                               result_callback,
                                               userdata);
@@ -397,7 +397,7 @@ void ol_lrc_fetch_cancel_search (int search_id)
 void
 ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                              OlLrcCandidate *candidate,
-                             const OlMusicInfo *info,
+                             const OlMetadata *metadata,
                              const char *pathname,
                              void *userdata)
 {
@@ -409,11 +409,11 @@ ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
   struct OlLrcDownloadResult *result = g_new0 (struct OlLrcDownloadResult, 1);
   result->id = ++download_id;
   result->filepath = NULL;
-  if (info != NULL)
+  if (metadata != NULL)
   {
-    result->info = ol_music_info_new ();
+    result->metadata = ol_metadata_new ();
     result->userdata = userdata;
-    ol_music_info_copy (result->info, info);
+    ol_metadata_copy (result->metadata, metadata);
   }
   result->userdata = userdata;
   
@@ -430,7 +430,7 @@ struct OlLrcFetchResult*
 ol_lrc_fetch_result_new ()
 {
   struct OlLrcFetchResult *ret = g_new0 (struct OlLrcFetchResult, 1);
-  ol_music_info_init (&ret->info);
+  ol_metadata_init (&ret->metadata);
   return ret;
 }
 
@@ -438,6 +438,6 @@ void
 ol_lrc_fetch_result_free (struct OlLrcFetchResult *result)
 {
   g_free (result->candidates);
-  ol_music_info_clear (&result->info);
+  ol_metadata_clear (&result->metadata);
   g_free (result);
 }

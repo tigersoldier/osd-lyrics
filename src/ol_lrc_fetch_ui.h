@@ -20,7 +20,7 @@
 #ifndef _OL_LRC_FETCH_UI_H_
 #define _OL_LRC_FETCH_UI_H_
 
-#include "ol_music_info.h"
+#include "ol_metadata.h"
 
 struct _OlLrcCandidate;
 struct _OlLrcFetchEngine;
@@ -28,7 +28,7 @@ struct _OlLrcFetchEngine;
 void ol_lrc_fetch_ui_show (struct _OlLrcFetchEngine *engine,
                            const struct _OlLrcCandidate *candidates,
                            int count,
-                           const OlMusicInfo *music_info,
+                           const OlMetadata *metadata,
                            const char *filename);
                            
 
