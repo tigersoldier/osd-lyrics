@@ -262,7 +262,7 @@ _check_lyric_file ()
   if (code == 0)
     filename = ol_lyric_find (metadata);
  
-  if (filename != NULL)
+  if (filename != NULL && ol_path_is_file (filename))
   {
     ret = ol_app_assign_lrcfile (metadata, filename, code == 0);
     g_free (filename);
