@@ -65,7 +65,7 @@ static GOptionEntry cmdargs[] =
   { NULL }
 };
 
-static guint name_watch = 0;
+static guint name_watch_id = 0;
 static guint position_timer = 0;
 static OlPlayer *player = NULL;
 static OlMusicInfo *metadata = NULL;
@@ -108,6 +108,8 @@ static void _start_daemon_cb (GObject *source_object,
                               gpointer user_data);
 static void _track_changed_cb (void);
 static void _status_changed_cb (void);
+static void _start_position_timer (void);
+static void _stop_position_timer (void);
 
 static void
 _on_config_changed (OlConfig *config,
@@ -291,6 +293,22 @@ static void
 _status_changed_cb (void)
 {
   ol_log_func ();
+  enum OlPlayerStatus status = ol_player_get_status (player);
+  switch (status)
+  {
+  case OL_PLAYER_PLAYING:
+  case OL_PLAYER_PAUSED:
+    _start_position_timer ();
+    break;
+  case OL_PLAYER_STOPPED:
+    _stop_position_timer ();
+    break;
+  default:
+    /* In case of the daemon sent a wrong status but still playing, it's better
+       to keep updating the position. */
+    _start_position_timer ();
+    break;
+  }
   ol_trayicon_status_changed (ol_player_get_status (player));
 }
 
@@ -591,13 +609,13 @@ _init_dbus_connection (void)
                     _status_changed_cb,
                     NULL);
   /* Activate the daemon */
-  name_watch = g_bus_watch_name (G_BUS_TYPE_SESSION,
-                                 OL_SERVICE_DAEMON,
-                                 G_BUS_NAME_WATCHER_FLAGS_NONE,
-                                 _name_appeared_cb,
-                                 _name_vanished_cb,
-                                 NULL,  /* user_data */
-                                 NULL); /* user_data_free_func */
+  name_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+                                    OL_SERVICE_DAEMON,
+                                    G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                    _name_appeared_cb,
+                                    _name_vanished_cb,
+                                    NULL,  /* user_data */
+                                    NULL); /* user_data_free_func */
 }
 
 static void
@@ -612,26 +630,26 @@ _init_dbus_connection_done (void)
     _player_lost_cb ();
   }
   initialized = TRUE;
-  position_timer = g_timeout_add (REFRESH_INTERVAL,
-                                  _update_position,
-                                  NULL);
+  _start_position_timer ();
   _track_changed_cb ();
   _status_changed_cb ();
 }
 
-int
-main (int argc, char **argv)
+static void
+_uninitialize (void)
 {
-  _initialize (argc, argv);
-  gtk_main ();
+  _stop_position_timer ();
   g_signal_handlers_disconnect_by_func (player, _status_changed_cb, NULL);
   g_signal_handlers_disconnect_by_func (player, _track_changed_cb, NULL);
   g_object_unref (player);
   player = NULL;
+  g_bus_unwatch_name (name_watch_id);
   ol_music_info_free (metadata);
   metadata = NULL;
   ol_notify_unload ();
   ol_display_module_free (module);
+  if (display_mode != NULL)
+    g_free (display_mode);
   display_mode = NULL;
   module = NULL;
   ol_display_module_unload ();
@@ -639,5 +657,32 @@ main (int argc, char **argv)
   ol_lrclib_unload ();
   ol_config_unload ();
   ol_lrc_fetch_module_unload (); 
+}
+
+static void
+_start_position_timer (void)
+{
+  if (!position_timer)
+    position_timer = g_timeout_add (REFRESH_INTERVAL,
+                                    _update_position,
+                                    NULL);
+}
+
+static void
+_stop_position_timer (void)
+{
+  if (position_timer)
+  {
+    g_source_remove (position_timer);
+    position_timer = 0;
+  }
+}
+
+int
+main (int argc, char **argv)
+{
+  _initialize (argc, argv);
+  gtk_main ();
+  _uninitialize ();
   return 0;
 }
