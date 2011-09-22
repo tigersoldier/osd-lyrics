@@ -370,7 +370,6 @@ _update_metadata (OlScrollModule *module)
 {
   ol_assert (module != NULL);
   ol_player_get_metadata (module->player, module->metadata);
-  ol_player_get_duration (module->player, &module->duration);
   _set_metadata_as_text (module);
 }
 

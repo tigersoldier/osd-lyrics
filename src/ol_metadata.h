@@ -20,6 +20,7 @@
 #ifndef _OL_METADATA_H_
 #define _OL_METADATA_H_
 #include <stdlib.h>
+#include <glib.h>
 
 /**
  * defines a music's infomation structure
@@ -88,6 +89,46 @@ int ol_metadata_get_track_number (const OlMetadata *metadata);
 void ol_metadata_set_uri (OlMetadata *metadata,
                           const char *uri);
 const char *ol_metadata_get_uri (const OlMetadata *metadata);
+
+/** 
+ * @brief Sets the location of the album art
+ *
+ * The album art should be in file:// scheme.
+ * 
+ * @param metadata The metadata
+ * @param art_uri The uri if the album art.
+ */
+void ol_metadata_set_art (OlMetadata *metadata,
+                          const char *art_uri);
+
+/** 
+ * @brief Gets the location of the album art
+ *
+ * The album art is in URI format, which the local files will be in
+ * file:// scheme
+ * 
+ * @param metadata 
+ * 
+ * @return The uri of the album art, or NULL if not exists.
+ */
+const char *ol_metadata_get_art (const OlMetadata *metadata);
+
+/** 
+ * Sets the duration of the metadata.
+ * 
+ * @param metadata 
+ * @param duration The duration in millisecond.
+ */
+void ol_metadata_set_duration (OlMetadata *metadata,
+                               guint64 duration);
+/** 
+ * Gets the duration of the track, in millisecond
+ * 
+ * @param metadata 
+ * 
+ * @return The duration of the track.
+ */
+guint64 ol_metadata_get_duration (const OlMetadata *metadata);
 
 /** 
  * @brief Check whether two Metadatas are equal

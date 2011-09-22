@@ -127,15 +127,6 @@ gboolean ol_player_get_metadata (OlPlayer *player, OlMetadata *metadata);
 gboolean ol_player_get_position (OlPlayer *player, guint64 *pos_ms);
 
 /**
- * @brief Gets the duration of the current music
- *
- * @param duration Return location of the duration, in millisecond
- *
- * @return TRUE if succeeded
- */
-gboolean ol_player_get_duration (OlPlayer *player, guint64 *duration);
-
-/**
  * @brief Gets the status of the player.
  * The status of a player can be playing, paused or stopped.
  *

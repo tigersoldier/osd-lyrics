@@ -43,7 +43,6 @@ struct _OlOsdModule
   gint lrc_id;
   gint lrc_next_id;
   gint current_line;
-  guint64 duration;
   gint line_count;
   struct OlLrc *lrc;
   gboolean display;
@@ -445,7 +444,6 @@ _update_metadata (OlOsdModule *module)
   ol_log_func ();
   ol_assert (module != NULL);
   ol_player_get_metadata (module->player, module->metadata);
-  ol_player_get_duration (module->player, &module->duration);
   clear_lyrics (module);
   hide_message (module);
 }
@@ -463,7 +461,7 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module,
     int id, lyric_id;
     ol_lrc_get_lyric_by_time (priv->lrc,
                               played_time,
-                              priv->duration,
+                              ol_metadata_get_duration (priv->metadata),
                               NULL,
                               &percentage,
                               &lyric_id);

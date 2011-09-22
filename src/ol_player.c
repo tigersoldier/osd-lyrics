@@ -24,8 +24,8 @@
 #include "ol_elapse_emulator.h"
 #include "ol_debug.h"
 
-#define assert_variant_type(value, type)        \
-  do {                                          \
+#define assert_variant_type(value, type)                        \
+  do {                                                          \
     if (!g_variant_is_of_type ((value), G_VARIANT_TYPE (type))) \
     {                                                           \
       ol_errorf ("Except variant type of %s, but %s got\n",     \
@@ -76,7 +76,6 @@ struct _OlPlayerPrivate
   enum OlPlayerStatus status;
   enum OlPlayerCapacity caps;
   guint64 position;
-  guint64 duration;
   guint position_timer;
   gchar *player_name;
   gchar *player_icon;
@@ -671,7 +670,6 @@ ol_player_set_metadata (OlPlayer *player,
 {
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
   ol_metadata_clear (private->metadata);
-  private->duration = 0;
   if (value != NULL)
   {
     ol_assert (g_variant_is_of_type (value, G_VARIANT_TYPE ("(a{sv})")));
@@ -697,10 +695,14 @@ ol_player_set_metadata (OlPlayer *player,
         ol_metadata_set_track_number_from_string (private->metadata,
                                                     g_variant_get_string (dict_value, NULL));
       else if (g_strcmp0 (key, "mtime") == 0)
-        private->duration = g_variant_get_uint32 (dict_value);
+        ol_metadata_set_duration (private->metadata,
+                                  g_variant_get_uint32 (dict_value));
       /* else if (g_strcmp0 (key, "arturl") == 0) */
       /*   ol_metadata_set_album_art (private->metadata, */
       /*                                g_variant_get_string (dict_value, NULL)); */
+      else if (g_strcmp0 (key, "arturl") == 0)
+        ol_metadata_set_art (private->metadata,
+                             g_variant_get_string (dict_value, NULL));
     }
     g_variant_iter_free (iter);
     ol_debugf ("Update metadata:\n"
@@ -709,13 +711,15 @@ ol_player_set_metadata (OlPlayer *player,
                "  album: %s\n"
                "  uri: %s\n"
                "  track_num: %d\n"
-               "  duration: %d\n",
+               "  duration: %"G_GUINT64_FORMAT"\n"
+               "  album art: %s\n",
                ol_metadata_get_title (private->metadata),
                ol_metadata_get_artist (private->metadata),
                ol_metadata_get_album (private->metadata),
                ol_metadata_get_uri (private->metadata),
                ol_metadata_get_track_number (private->metadata),
-               (int)private->duration);
+               ol_metadata_get_duration (private->metadata),
+               ol_metadata_get_art (private->metadata));
   }
   /* The position is likely to change when the track is changed, so we
      need to update to the new value. */
@@ -973,18 +977,6 @@ ol_player_get_position (OlPlayer *player, guint64 *pos_ms)
       *pos_ms = ol_elapse_emulator_get_real_ms (private->elapse_emulator,
                                                 private->position);
   }
-  return TRUE;
-}
-
-gboolean
-ol_player_get_duration (OlPlayer *player, guint64 *duration)
-{
-  ol_assert_ret (OL_IS_PLAYER (player), FALSE);
-  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
-  if (!private->connected)
-    return FALSE;
-  if (duration)
-    *duration = private->duration;
   return TRUE;
 }
 
