@@ -59,8 +59,13 @@ static void _prev_clicked (GtkButton *button, OlOsdToolbar *toolbar);
 static void _next_clicked (GtkButton *button, OlOsdToolbar *toolbar);
 static GtkButton *_add_button (OlOsdToolbar *toolbar,
                                const struct ButtonSpec *btn_spec);
-static void _update_capacity (OlOsdToolbar *toolbar,
-                              int capacity);
+static void _update_caps (OlOsdToolbar *toolbar);
+static void _update_status (OlOsdToolbar *toolbar);
+static void _caps_changed_cb (OlPlayer *player,
+                              OlOsdToolbar *toolbar);
+static void _status_changed_cb (OlPlayer *player,
+                                OlOsdToolbar *toolbar);
+static void ol_osd_toolbar_destroy (GtkObject *obj);
 
 const static struct ButtonSpec btn_spec[] = {
   {OL_STOCK_OSD_PLAY, _play_clicked},
@@ -158,25 +163,75 @@ _add_button (OlOsdToolbar *toolbar,
 }
 
 static void
-_update_capacity (OlOsdToolbar *toolbar,
-                  int capacity)
+_caps_changed_cb (OlPlayer *player,
+                  OlOsdToolbar *toolbar)
+{
+  _update_caps (toolbar);
+}
+
+static void
+_status_changed_cb (OlPlayer *player,
+                    OlOsdToolbar *toolbar)
+{
+  _update_status (toolbar);
+}
+
+static void
+_update_caps (OlOsdToolbar *toolbar)
 {
   ol_assert (OL_IS_OSD_TOOLBAR (toolbar));
+  OlOsdToolbarPriv *priv = OL_OSD_TOOLBAR_GET_PRIVATE (toolbar);
+  int caps;
+  if (priv->player)
+    caps = ol_player_get_caps (priv->player);
+  else
+    caps = 0;
   gtk_widget_set_sensitive (GTK_WIDGET (toolbar->play_button),
-                            capacity & OL_PLAYER_PLAY);
+                            caps & OL_PLAYER_PLAY);
   gtk_widget_set_sensitive (GTK_WIDGET (toolbar->pause_button),
-                            capacity & OL_PLAYER_PAUSE);
+                            caps & OL_PLAYER_PAUSE);
   gtk_widget_set_sensitive (GTK_WIDGET (toolbar->stop_button),
-                            capacity & OL_PLAYER_STOP);
+                            caps & OL_PLAYER_STOP);
   gtk_widget_set_sensitive (GTK_WIDGET (toolbar->prev_button),
-                            capacity & OL_PLAYER_PREV);
+                            caps & OL_PLAYER_PREV);
   gtk_widget_set_sensitive (GTK_WIDGET (toolbar->next_button),
-                            capacity & OL_PLAYER_NEXT);
+                            caps & OL_PLAYER_NEXT);
+}
+
+static void
+_update_status (OlOsdToolbar *toolbar)
+{
+  ol_log_func ();
+  OlOsdToolbarPriv *priv = OL_OSD_TOOLBAR_GET_PRIVATE (toolbar);
+  enum OlPlayerStatus status;
+  if (priv->player)
+    status = ol_player_get_status (priv->player);
+  else
+    status = OL_PLAYER_UNKNOWN;
+  switch (status)
+  {
+  case OL_PLAYER_PLAYING:
+    gtk_widget_show (GTK_WIDGET (toolbar->pause_button));
+    gtk_widget_hide (GTK_WIDGET (toolbar->play_button));
+    break;
+  case OL_PLAYER_PAUSED:
+  case OL_PLAYER_STOPPED:
+    gtk_widget_hide (GTK_WIDGET (toolbar->pause_button));
+    gtk_widget_show (GTK_WIDGET (toolbar->play_button));
+    break;
+  default:
+    gtk_widget_show (GTK_WIDGET (toolbar->pause_button));
+    gtk_widget_show (GTK_WIDGET (toolbar->play_button));
+    break;
+  }
+  gtk_widget_queue_draw (GTK_WIDGET (toolbar));
 }
 
 static void
 ol_osd_toolbar_class_init (OlOsdToolbarClass *klass)
 {
+  GtkObjectClass *gtk_class = GTK_OBJECT_CLASS (klass);
+  gtk_class->destroy = ol_osd_toolbar_destroy;
   g_type_class_add_private (klass, sizeof (OlOsdToolbarPriv));
 }
 
@@ -195,8 +250,14 @@ ol_osd_toolbar_init (OlOsdToolbar *toolbar)
   toolbar->next_button = _add_button (toolbar, &btn_spec[BTN_NEXT]);
 
   priv->player = NULL;
-  ol_osd_toolbar_set_status (toolbar, OL_PLAYER_UNKNOWN);
-  _update_capacity (toolbar, 0);
+  _update_status (toolbar);
+  _update_caps (toolbar);
+}
+
+static void
+ol_osd_toolbar_destroy (GtkObject *obj)
+{
+  ol_osd_toolbar_set_player (OL_OSD_TOOLBAR (obj), NULL);
 }
 
 GtkWidget *
@@ -213,54 +274,31 @@ ol_osd_toolbar_set_player (OlOsdToolbar *toolbar,
 {
   ol_assert (OL_IS_OSD_TOOLBAR (toolbar));
   OlOsdToolbarPriv *priv = OL_OSD_TOOLBAR_GET_PRIVATE (toolbar);
-  priv->player = player;
-  int capacity = 0;
+  if (player == priv->player)
+    return;
   if (player != NULL)
-    capacity = ol_player_get_caps (player);
-  _update_capacity (toolbar, capacity);
-  enum OlPlayerStatus status = OL_PLAYER_UNKNOWN;
-  if (capacity & OL_PLAYER_STATUS)
-    status= ol_player_get_status (player);
-  ol_osd_toolbar_set_status (toolbar, status);
-}
-
-void
-ol_osd_toolbar_set_status (OlOsdToolbar *toolbar,
-                           enum OlPlayerStatus status)
-{
-  ol_log_func ();
-  OlOsdToolbarPriv *priv = OL_OSD_TOOLBAR_GET_PRIVATE (toolbar);
-  priv->status = status;
-  /* if (status == OL_PLAYER_PLAYING) */
-  /* { */
-  /*   gtk_widget_show (GTK_WIDGET (toolbar->pause_button)); */
-  /*   gtk_widget_hide (GTK_WIDGET (toolbar->play_button)); */
-  /* } */
-  /* else if (status == OL_PLAYER_PAUSED || status == OL_PLAYER_STOPPED) */
-  /* { */
-  /*   gtk_widget_hide (GTK_WIDGET (toolbar->pause_button)); */
-  /*   gtk_widget_show (GTK_WIDGET (toolbar->play_button)); */
-  /* } */
-  /* else */
-  /* { */
-  /*   gtk_widget_show (GTK_WIDGET (toolbar->pause_button)); */
-  /*   gtk_widget_show (GTK_WIDGET (toolbar->play_button)); */
-  /* } */
-  switch (status)
   {
-  case OL_PLAYER_PLAYING:
-    gtk_widget_show (GTK_WIDGET (toolbar->pause_button));
-    gtk_widget_hide (GTK_WIDGET (toolbar->play_button));
-    break;
-  case OL_PLAYER_PAUSED:
-  case OL_PLAYER_STOPPED:
-    gtk_widget_hide (GTK_WIDGET (toolbar->pause_button));
-    gtk_widget_show (GTK_WIDGET (toolbar->play_button));
-    break;
-  default:
-    gtk_widget_show (GTK_WIDGET (toolbar->pause_button));
-    gtk_widget_show (GTK_WIDGET (toolbar->play_button));
-    break;
+    g_object_ref (player);
+    g_signal_connect (player,
+                      "status-changed",
+                      G_CALLBACK (_status_changed_cb),
+                      toolbar);
+    g_signal_connect (player,
+                      "caps-changed",
+                      G_CALLBACK (_caps_changed_cb),
+                      toolbar);
   }
-  gtk_widget_queue_draw (GTK_WIDGET (toolbar));
+  if (priv->player != NULL)
+  {
+    g_signal_handlers_disconnect_by_func (priv->player,
+                                          _status_changed_cb,
+                                          toolbar);
+    g_signal_handlers_disconnect_by_func (priv->player,
+                                          _caps_changed_cb,
+                                          toolbar);
+    g_object_unref (priv->player);
+  }
+  priv->player = player;
+  _update_caps (toolbar);
+  _update_status (toolbar);
 }
