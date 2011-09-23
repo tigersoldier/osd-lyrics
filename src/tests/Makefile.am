@@ -11,7 +11,7 @@ check_PROGRAMS = \
 	ol_path_test \
 	ol_utils_cmdline_test \
 	ol_fork_test \
-	ol_music_info_test \
+	ol_metadata_test \
 	ol_lrclib_test \
 	ol_utils_dbus_test \
 	ol_utils_test \
@@ -61,7 +61,7 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_player.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
-	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(NULL)
 
@@ -82,7 +82,7 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
 	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
-	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils_network.c \
 	$(top_srcdir)/src/ol_config.c \
@@ -109,7 +109,7 @@ ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_module.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_fork.c \
-	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
 	$(top_srcdir)/src/ol_lrc_candidate_list.c \
@@ -125,7 +125,7 @@ ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
 	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
 	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
-	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_md5.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
@@ -141,24 +141,24 @@ ol_path_test_SOURCES = \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_path_pattern.c \
 	$(top_srcdir)/src/ol_utils.c \
-	$(top_srcdir)/src/ol_music_info.c
+	$(top_srcdir)/src/ol_metadata.c
 
 ol_fork_test_SOURCES = \
 	ol_fork_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_fork.c
 
-ol_music_info_test_SOURCES = \
-	ol_music_info_test.c \
+ol_metadata_test_SOURCES = \
+	ol_metadata_test.c \
 	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c
 
 ol_lrclib_test_SOURCES = \
 	ol_lrclib_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_lrclib.c \
-	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c
 
 ol_utils_dbus_test_SOURCES = \

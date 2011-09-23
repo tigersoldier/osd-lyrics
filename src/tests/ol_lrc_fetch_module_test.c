@@ -9,7 +9,7 @@
 int search_id = 0;
 
 static OlLrcCandidate*
-dummy_search (const OlMusicInfo *music_info,
+dummy_search (const OlMetadata *metadata,
               int *size,
               const char *local_charset)
 {
@@ -85,20 +85,20 @@ main (int argc, char **argv)
   g_thread_init (NULL);
   gtk_init (&argc, &argv);
   ol_lrc_fetch_module_init ();
-  OlMusicInfo info;
-  ol_music_info_init (&info);
+  OlMetadata *metadata = ol_metadata_new ();
   ol_lrc_fetch_add_async_download_callback (dummy_download_callback);
-  ol_music_info_set_title (&info, "title");
-  ol_music_info_set_artist (&info, "artist");
-  ol_music_info_set_album (&info, "album");
+  ol_metadata_set_title (metadata, "title");
+  ol_metadata_set_artist (metadata, "artist");
+  ol_metadata_set_album (metadata, "album");
   char *engines[] = {
     "dummy",
     NULL,
   };
   search_id = ol_lrc_fetch_begin_search (engines,
-                                         &info,
+                                         metadata,
                                          NULL,
                                          dummy_search_callback,
                                          "Callback User data");
   gtk_main ();
+  ol_metadata_free (metadata);
 }
