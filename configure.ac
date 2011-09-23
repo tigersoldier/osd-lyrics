@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 m4_define([OL_MAJOR_VER], [0])
-m4_define([OL_MINOR_VER], [4])
-m4_define([OL_MICRO_VER], [1])
+m4_define([OL_MINOR_VER], [5])
+m4_define([OL_MICRO_VER], [0])
 m4_define([OL_BUILD], [-git])
 m4_define(OL_BUILD_VER,
           m4_esyscmd([if test x]OL_BUILD[ == x-git; then git log -1 --format=format:%ad --date=short | sed 's/-//g'; fi]))
@@ -25,9 +25,6 @@ AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
 AC_PROG_RANLIB
 AM_PATH_PYTHON([2.5])
-dnl fix pythondir to the site-package directory of python config
-pythondir=`$PYTHON -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
-AC_SUBST(pythondir)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
