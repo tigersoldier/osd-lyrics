@@ -108,6 +108,8 @@ static void _start_daemon_cb (GObject *source_object,
                               gpointer user_data);
 static void _track_changed_cb (void);
 static void _status_changed_cb (void);
+static void _player_lost_cb (void);
+static void _player_connected_cb (void);
 static void _start_position_timer (void);
 static void _stop_position_timer (void);
 
@@ -315,8 +317,7 @@ _status_changed_cb (void)
 static gboolean
 _player_launch_timeout (gpointer userdata)
 {
-  if (player_lost_action == ACTION_WAIT_LAUNCH)
-    player_lost_action = ACTION_CHOOSE_PLAYER;
+  _player_lost_cb ();
   return FALSE;
 }
 
@@ -346,6 +347,12 @@ _player_chooser_response_cb (GtkDialog *dialog,
     ol_errorf ("Unknown response id: %d\n", response_id);
   }
   gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+static void
+_player_connected_cb (void)
+{
+  player_lost_action = ACTION_QUIT;
 }
 
 static void
@@ -608,6 +615,14 @@ _init_dbus_connection (void)
                     "status-changed",
                     _status_changed_cb,
                     NULL);
+  g_signal_connect (player,
+                    "player-lost",
+                    _player_lost_cb,
+                    NULL);
+  g_signal_connect (player,
+                    "player-connected",
+                    _player_connected_cb,
+                    NULL);
   /* Activate the daemon */
   name_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
                                     OL_SERVICE_DAEMON,
@@ -630,7 +645,6 @@ _init_dbus_connection_done (void)
     _player_lost_cb ();
   }
   initialized = TRUE;
-  _start_position_timer ();
   _track_changed_cb ();
   _status_changed_cb ();
 }
