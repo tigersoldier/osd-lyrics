@@ -80,7 +80,10 @@ class PlayerSupport(dbus.service.Object):
         logging.info('Connecting to player proxy %s', bus_name)
         proxy_name = bus_name[len(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):]
         if activate:
-            self.connection.activate_name_owner(bus_name)
+            try:
+                self.connection.activate_name_owner(bus_name)
+            except Exception, e:
+                logging.warning('Cannot activate proxy %s: %s' % (bus_name, e))
         self.connection.watch_name_owner(bus_name,
                                          lambda name: self._proxy_name_changed(proxy_name, len(name) == 0))
 
