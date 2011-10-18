@@ -260,19 +260,37 @@ _check_lyric_file ()
   ol_log_func ();
   gboolean ret = TRUE;
   char *filename = NULL;
+  ol_debugf ("Finding LRC file for %s\n", ol_metadata_get_title (metadata));
   int code = ol_lrclib_find (metadata, &filename);
   if (code == 0)
-    filename = ol_lyric_find (metadata);
- 
-  if (filename != NULL && ol_path_is_file (filename))
   {
-    ret = ol_app_assign_lrcfile (metadata, filename, code == 0);
+    ol_debugf ("Not found in database, try to find according path patterns\n");
+    filename = ol_lyric_find (metadata);
+  }
+  if (filename != NULL)
+  {
+    ol_debugf ("Lyric found: %s\n", filename);
+    if (ol_path_is_file (filename))
+    {
+      ret = ol_app_assign_lrcfile (metadata, filename, code == 0);
+    }
+    else
+    {
+      ol_debugf ("LRC file not exist\n");
+      ret = FALSE;
+    }
     g_free (filename);
+  }
+  else if (code == 0)
+  {
+    ol_debugf ("LRC file not found\n");
+      ret = FALSE;
   }
   else
   {
-    ol_debugf("filename;%s\n", filename);
-    if (code == 0) ret = FALSE;
+    /* filename == NULL but code != 0, which means the user set the track no to show
+       any lyrics explicitly. */
+    ret = TRUE;
   }
   return ret;
 }
@@ -512,31 +530,8 @@ _initialize (int argc, char **argv)
     printf ("%s\n", _("Another OSD Lyrics is running, exit."));
     exit (0);
   }
-  OlConfig *config = ol_config_get_instance ();
-  g_signal_connect (config, "changed",
-                    G_CALLBACK (_on_config_changed),
-                    NULL);
   initialized = FALSE;
-  metadata = ol_metadata_new ();
   _init_dbus_connection ();
-  ol_stock_init ();
-  ol_display_module_init ();
-  display_mode = ol_config_get_string (config, "General", "display-mode");
-  module = ol_display_module_new (display_mode, player);
-  ol_trayicon_init ();
-  ol_notify_init ();
-  ol_keybinding_init ();
-  ol_lrc_fetch_module_init ();
-  char *lrcdb_file = g_strdup_printf ("%s/%s/%s",
-                                      g_get_user_config_dir (),
-                                      PACKAGE_NAME,
-                                      LRCDB_FILENAME);
-  if (!ol_lrclib_init (lrcdb_file))
-  {
-    ol_error ("Initialize lrclib failed");
-  }
-  g_free (lrcdb_file);
-  ol_lrc_fetch_add_async_download_callback (_download_callback);
 }
 
 static void
@@ -605,6 +600,19 @@ _start_daemon_cb (GObject *source_object,
 static void
 _init_dbus_connection (void)
 {
+  /* Activate the daemon */
+  name_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+                                    OL_SERVICE_DAEMON,
+                                    G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                    _name_appeared_cb,
+                                    _name_vanished_cb,
+                                    NULL,  /* user_data */
+                                    NULL); /* user_data_free_func */
+}
+
+static void
+_init_player (void)
+{
   player = ol_player_new ();
   g_object_ref_sink (player);
   g_signal_connect (player,
@@ -623,19 +631,36 @@ _init_dbus_connection (void)
                     "player-connected",
                     _player_connected_cb,
                     NULL);
-  /* Activate the daemon */
-  name_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
-                                    OL_SERVICE_DAEMON,
-                                    G_BUS_NAME_WATCHER_FLAGS_NONE,
-                                    _name_appeared_cb,
-                                    _name_vanished_cb,
-                                    NULL,  /* user_data */
-                                    NULL); /* user_data_free_func */
 }
 
 static void
 _init_dbus_connection_done (void)
 {
+  OlConfig *config = ol_config_get_instance ();
+  g_signal_connect (config, "changed",
+                    G_CALLBACK (_on_config_changed),
+                    NULL);
+  metadata = ol_metadata_new ();
+  _init_player ();
+  ol_stock_init ();
+  ol_display_module_init ();
+  display_mode = ol_config_get_string (config, "General", "display-mode");
+  module = ol_display_module_new (display_mode, player);
+  ol_trayicon_init ();
+  ol_notify_init ();
+  ol_keybinding_init ();
+  ol_lrc_fetch_module_init ();
+  char *lrcdb_file = g_strdup_printf ("%s/%s/%s",
+                                      g_get_user_config_dir (),
+                                      PACKAGE_NAME,
+                                      LRCDB_FILENAME);
+  if (!ol_lrclib_init (lrcdb_file))
+  {
+    ol_error ("Initialize lrclib failed");
+  }
+  g_free (lrcdb_file);
+  ol_lrc_fetch_add_async_download_callback (_download_callback);
+
   if (ol_player_is_connected (player))
   {
     player_lost_action = ACTION_QUIT;
@@ -644,9 +669,9 @@ _init_dbus_connection_done (void)
   {
     _player_lost_cb ();
   }
-  initialized = TRUE;
   _track_changed_cb ();
   _status_changed_cb ();
+  initialized = TRUE;
 }
 
 static void
