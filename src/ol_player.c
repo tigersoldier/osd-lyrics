@@ -85,6 +85,7 @@ struct _OlPlayerPrivate
   GCancellable *cancel_status;
   GCancellable *cancel_caps;
   OlElapseEmulator *elapse_emulator;
+  gboolean initialized;
 };
 
 static guint signals[LAST_SIGNAL] = { 0 };
@@ -114,6 +115,7 @@ static void ol_player_mpris1_proxy_signal (GDBusProxy *proxy,
                                            gpointer user_data);
 
 static void ol_player_fetch_player_info_async (OlPlayer *player);
+static void ol_player_fetch_player_info_sync (OlPlayer *player);
 static void ol_player_fetch_player_info_cb (GObject *source_object,
                                             GAsyncResult *res,
                                             gpointer user_data);
@@ -229,6 +231,7 @@ ol_player_init (OlPlayer *player)
   private->status = OL_PLAYER_UNKNOWN;
   private->caps = 0;
   private->position = 0;
+  private->initialized = FALSE;
   /* TODO: Initialize player info */
   private->elapse_emulator = ol_elapse_emulator_new (0, POSITION_ACCURACY_MS);
   ol_player_init_proxy (player);
@@ -414,6 +417,39 @@ ol_player_proxy_name_owner_changed (GObject *gobject,
 }
 
 static void
+ol_player_fetch_player_info_sync (OlPlayer *player)
+{
+  OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  GError *error = NULL;
+  GVariant *value = NULL;
+  value = g_dbus_proxy_call_sync (private->proxy,
+                                  "GetCurrentPlayer",
+                                  NULL, /* parameters */
+                                  G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                  -1,   /* timeout_msec */
+                                  NULL, /* cancellable */
+                                  &error);
+  if (value == NULL)
+  {
+    ol_debugf ("Cannot get player info: %s\n", error->message);
+    g_error_free (error);
+  }
+  else
+  {
+    assert_variant_type (value, "(ba{sv})");
+    gboolean connected;
+    GVariant *info = NULL;
+    g_variant_get (value, "(b@a{sv})", &connected, &info);
+    if (connected)
+      ol_player_set_player_info (player, info);
+    else
+      ol_player_set_player_info (player, NULL);
+    g_variant_unref (info);
+    g_variant_unref (value);
+  }
+}
+
+static void
 ol_player_fetch_player_info_async (OlPlayer *player)
 {
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
@@ -474,6 +510,7 @@ ol_player_set_player_info (OlPlayer *player,
 {
   ol_assert (OL_IS_PLAYER (player));
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  private->initialized = TRUE;
   g_free (private->player_name);
   private->player_name = NULL;
   g_free (private->player_icon);
@@ -554,7 +591,9 @@ ol_player_fetch_position_async (OlPlayer *player)
 {
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
   if (private->cancel_position)
+  {
     return;
+  }
   private->cancel_position = g_cancellable_new ();
   g_dbus_proxy_call (private->mpris1_proxy,
                      "PositionGet",
@@ -901,6 +940,13 @@ ol_player_set_caps (OlPlayer *player,
   }
 }
 
+static gboolean
+ol_player_position_timer_cb (OlPlayer *player)
+{
+  ol_player_fetch_position_async (player);
+  return TRUE;
+}
+
 static void
 ol_player_start_position_timer (OlPlayer *player)
 {
@@ -910,7 +956,7 @@ ol_player_start_position_timer (OlPlayer *player)
   /* Fetch position once the timer starts */
   ol_player_fetch_position_async (player);
   private->position_timer = g_timeout_add (POSITION_ACCURACY_MS,
-                                           (GSourceFunc)ol_player_fetch_position_async,
+                                           (GSourceFunc)ol_player_position_timer_cb,
                                            player);
 }
 
@@ -930,6 +976,10 @@ ol_player_is_connected (OlPlayer *player)
 {
   ol_assert_ret (OL_IS_PLAYER (player), FALSE);
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->initialized)
+  {
+    ol_player_fetch_player_info_sync (player);
+  }
   return private->connected;
 }
 
@@ -938,6 +988,10 @@ ol_player_get_name (OlPlayer *player)
 {
   ol_assert_ret (OL_IS_PLAYER (player), NULL);
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->initialized)
+  {
+    ol_player_fetch_player_info_sync (player);
+  }
   return private->player_name;
 }
 
@@ -946,6 +1000,10 @@ ol_player_get_icon_path (OlPlayer *player)
 {
   ol_assert_ret (OL_IS_PLAYER (player), NULL);
   OlPlayerPrivate *private = OL_PLAYER_GET_PRIVATE (player);
+  if (!private->initialized)
+  {
+    ol_player_fetch_player_info_sync (player);
+  }
   return private->player_icon;
 }
 
