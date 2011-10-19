@@ -572,7 +572,7 @@ _start_daemon_cb (GObject *source_object,
                   gpointer user_data)
 {
   GVariant *result;
-  GError *error;
+  GError *error = NULL;
   result = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source_object),
                                           res,
                                           &error);
@@ -581,11 +581,11 @@ _start_daemon_cb (GObject *source_object,
     guint32 start_service_result;
     g_variant_get (result, "(u)", &start_service_result);
 
-    if (start_service_result != 1 || /* DBUS_START_REPLY_SUCCESS */
+    if (start_service_result != 1 && /* DBUS_START_REPLY_SUCCESS */
         start_service_result != 2) /* DBUS_START_REPLY_ALREADY_RUNNING */
     {
-      ol_errorf ("Unexpected reply %d from StartServiceByName() method",
-                 start_service_result);
+      ol_errorf ("Unexpected reply %u from StartServiceByName() method\n",
+                 (guint)start_service_result);
     }
     /* We should do nothing, _name_appeared_cb will be called by name watch */
   }

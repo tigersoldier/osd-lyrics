@@ -34,7 +34,7 @@ osdlyricsdaemondir = $(pkgdatadir)/setup
 
 servicedir = $(datadir)/dbus-1/services
 service_in_files = \
-	org.osdlyrics.osdlyrics.service.in \
+	org.osdlyrics.Daemon.service.in \
 	org.osdlyrics.Config.service.in\
 	$(NULL)
 
@@ -47,14 +47,14 @@ EXTRA_DIST = \
 osdlyrics-daemon: osdlyrics-daemon.in
 	@sed -e "s|\@pkglibdir\@|$(pkglibdir)|" -e "s|\@PYTHON\@|$(PYTHON)|" $< > $@
 
-org.osdlyrics.osdlyrics.service: org.osdlyrics.osdlyrics.service.in
+org.osdlyrics.Daemon.service: org.osdlyrics.Daemon.service.in
 	@sed -e "s|\@pkglibdir\@|$(pkglibdir)|" -e "s|\@PYTHON\@|$(PYTHON)|" $< > $@
 
 org.osdlyrics.Config.service: org.osdlyrics.Config.service.in
 	@sed -e "s|\@pkglibdir\@|$(pkglibdir)|" -e "s|\@PYTHON\@|$(PYTHON)|" $< > $@
 
 CLEANFILES = \
-	org.osdlyrics.osdlyrics.service \
+	org.osdlyrics.Daemon.service \
 	org.osdlyrics.Config.service \
 	$(bin_SCRIPTS) \
 	$(NULL)

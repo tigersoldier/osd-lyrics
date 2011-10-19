@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 
 class MainApp(osdlyrics.App):
     def __init__(self, ):
-        osdlyrics.App.__init__(self, 'osdlyrics', False)
+        osdlyrics.App.__init__(self, 'Daemon', False)
         self._player = player.PlayerSupport(self.connection)
         self._lyrics = lyrics.LyricsService(self.connection)
         self._connect_metadata_signal()

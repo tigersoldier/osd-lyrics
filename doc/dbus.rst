@@ -5,7 +5,7 @@
 Bus Names
 =========
 
-OSD Lyrics uses ``org.osdlyrics.osdlyrics`` as well-known bus name.
+The daemon of OSD Lyrics uses ``org.osdlyrics.Daemon`` as well-known bus name.
 
 Data Structures
 ===============
