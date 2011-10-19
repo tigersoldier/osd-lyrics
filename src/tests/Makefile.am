@@ -74,6 +74,8 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_juk.c \
 	$(top_srcdir)/src/ol_player_listen.c \
 	$(top_srcdir)/src/ol_player_gmusicbrowser.c \
+	$(top_srcdir)/src/ol_player_rhythmbox.c \
+	$(top_srcdir)/src/ol_player_rhythmcat.c \
 	$(top_srcdir)/src/ol_player_utils.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
