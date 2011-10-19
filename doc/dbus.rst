@@ -22,13 +22,17 @@ Fields of lyrics dict are:
  - timestamp: int64. The start time of the lyric text in microseconds.
  - text: string. The lyric text itself.
 
-Lyric Path
+Lyric URI
 ----------
 ``s``
 
 The path of an LRC file. It is in url format. Currently available schemas are:
 
- - file:
+ - `file:` The lyrics are stored in local file system. The path of the lyrics is the path of the URI. Example: tag:///home/osdlyrics/track1.lrc
+ - `tag:` The lyrics are stored in ID3 tag of the track. The path of the music file to store the ID3 tag is specified in the path of the URI. Example: tag:///home/osdlyrics/track1.ogg
+ - `none:` The track is assigned not to show any lyrics. Example: none:
+
+For compatability reasons, an empty string is considered to identical to `none:`.
 
 Player Info
 --------
@@ -59,6 +63,24 @@ Use the format described in `MPRIS Metadata <http://xmms2.org/wiki/MPRIS_Metadat
 
 Interfaces
 ==========
+
+The Daemon
+----------
+
+The object path is ``/org/osdlyrics/Daemon``. The interface is ``org.osdlyrics.Daemon``.
+
+Methods
+~~~~~~~
+
+Hello(s:client_bus_name) -> None
+  Notifies that a client has connected to the daemon. The daemon watches all the bus names of clients that says hello to it. If all clients disappeared, which means the bus names of clients vanished, the daemon quits automatically.
+
+  A valid bus name of the client should be in the format of ``org.osdlyrics.Client.ClientName``.
+
+  It is possible to not notify the daemon. However, the daemon may quit at any time, even if the client is still running.
+
+GetVersion() -> s
+  Returns the current version of the daemon.
 
 Player Controlling
 ------------------
@@ -112,20 +134,29 @@ The interface is ``org.osdlyrics.Lyrics``.
 Methods
 ~~~~~~~
 
-GetLyrics(a{sv}:metadata) -> b, aa{sv}
+GetLyrics(a{sv}:metadata) -> b, s, a{ss}, aa{sv}
   Gets the lyircs of specified metadata.
+
+  Return values:
+
+  - ``found(b)``: Whether the lyrics file is found.
+  - ``uri(s)``: The URI of the lyrics file. See `Lyrics URI`_ for more details. If no lyrics found, the uri is an empty string.
+  - ``attributes(a{ss})``: The key-value attributes in the LRC file, such like [title:The title].
+  - ``content(aa{sv})``: The content of the lyrics. See `Lyrics Data`_ for more details. If no lyrics found, an empty array will be returned.
   
-  If lyrics found for given metadata, the first returned value is True, and the second returned value is the array of lyrics described in `Lyrics Data`_. If no lyrics found, the first value will be False and the second is an empty array.
+GetCurrentLyrics() -> b, s, a{ss}, aa{sv}
+  Similar to GetLyrics. Returns the lyrics of the current playing track.
 
-GetCurrentLyrics() -> b, a{sv}
-  Similar to GetLyrics. Returns the lyrics of current playing track.
-
-GetRawLyrics(a{sv}:metadata) -> b, s
+GetRawLyrics(a{sv}:metadata) -> b, s, s
   Gets the content of LRC file of specified metadata. 
-  
-  If lyrics found, the first value will be True and the second one is the content encoded in UTF-8. If no lyrics found, the first value will be False and the second one will be an empty string.
 
-GetCurrentRawLyrics() -> b, s
+  Return values:
+
+  - ``found(b)``: Whether the lyrics file is found.
+  - ``uri(s)``: The URI of the lyrics file. See `Lyrics URI`_ for more details. If no lyrics found, the uri is an empty string.
+  - ``content(s)``: The content of the LRC file. If no lyrics found, an empty string will be returned.
+  
+GetCurrentRawLyrics() -> b, s, s
   Similar to GetRawLyrics. 
   
   Returns the content of LRC file of current playing track.
@@ -135,8 +166,11 @@ SetLyricContent(a{sv}:metadata, s:content) -> s
   
   Returns the path of assigned lyrics. Path is a URI and follows the format described in `Lyric Path`_. If the given metadata cannot be expended to a valid path, or errors raised when saving the content to the file, an empty string is returned and the lyrics to the metadata is not changed.
 
-AssignLyricFile(a{sv}:metadata, s:filepath) -> nothing
-  Assigns an LRC file to given metadata.
+AssignLyricFile(a{sv}:metadata, s:uri) -> nothing
+  Assigns an LRC file to given metadata. The ``uri`` should follow the format described in `Lyric URI`_.
+
+SetOffset(s:uri, i:offset_ms)
+  Sets the offset of an LRC file. The ``uri`` should be a valid lyrics URI described in `Lyric URI`_. The ``offset`` is in milliseconds.
 
 Signals
 ~~~~~~~

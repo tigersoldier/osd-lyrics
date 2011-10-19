@@ -89,31 +89,33 @@ class LyricsService(dbus.service.Object):
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='a{sv}',
-                         out_signature='baa{sv}')
+                         out_signature='bsa{ss}aa{sv}')
     def GetLyrics(self, metadata):
-        ret, content = self.GetRawLyrics(metadata)
+        ret, uri, content = self.GetRawLyrics(metadata)
         if ret:
-            return ret, osdlyrics.lrc.parse_lrc(content)[1]
+            attr, lines = osdlyrics.lrc.parse_lrc(content)
+            return ret, uri, attr, lines
         else:
-            return ret, []
+            return ret, uri, {}, []
     
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='a{sv}',
-                         out_signature='bs')
+                         out_signature='bss')
     def GetRawLyrics(self, metadata):
         path = self._db.find(metadata)
         if path is None:
-            return False, ''
+            return False, '', ''
         if path == '':
-            return True, ''
+            return True, 'none:', ''
         url = urlparse.urlparse(path)
         ret, lrc = False, ''
         if not url.scheme: # no scheme, consider to be a plain file path
             ret, lrc = self._lrc_from_file(url)
+            path = osdlyrics.utils.path2uri(path)
         elif url.scheme in LyricsService.scheme_handlers:
             handler = getattr(self, LyricsService.scheme_handlers[url.scheme])
             ret, lrc =  handler(url)
-        if not ret:
+        if not ret:  # lyrics not assigned, try to find lrc file according to patterns
             path = self._expand_patterns(metadata)
             if path is not None:
                 url = urlparse.ParseResult(scheme='',
@@ -126,19 +128,19 @@ class LyricsService(dbus.service.Object):
             if ret:
                 # LRC file not found in database but found according to
                 # matching rules, assign the new LRC file to the lyrics
-                self._db.assign(metadata,
-                                osdlyrics.utils.path2uri(path))
-        return ret, lrc
+                path = osdlyrics.utils.path2uri(path)
+                self._db.assign(metadata, path)
+        return ret, path, lrc
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='',
-                         out_signature='baa{sv}')
+                         out_signature='bsa{ss}aa{sv}')
     def GetCurrentLyrics(self):
         return self.GetLyrics(self._metadata)
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='',
-                         out_signature='bs')
+                         out_signature='bss')
     def GetCurrentRawLyrics(self):
         return self.GetRawLyrics(self._metadata)
 
