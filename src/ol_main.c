@@ -42,7 +42,6 @@
 #include "ol_notify.h"
 #include "ol_lrclib.h"
 #include "ol_debug.h"
-#include "ol_singleton.h"
 #include "ol_player_chooser.h"
 
 #define REFRESH_INTERVAL 100
@@ -96,6 +95,12 @@ static void _on_config_changed (OlConfig *config,
                                 gpointer userdata);
 static void _init_dbus_connection (void);
 static void _init_dbus_connection_done (void);
+static void _client_name_acquired_cb (GDBusConnection *connection,
+                                      const gchar *name,
+                                      gpointer user_data);
+static void _client_name_lost_cb (GDBusConnection *connection,
+                                  const gchar *name,
+                                  gpointer user_data);
 static void _name_appeared_cb (GDBusConnection *connection,
                                const gchar *name,
                                const gchar *name_owner,
@@ -525,13 +530,34 @@ _initialize (int argc, char **argv)
   gtk_init (&argc, &argv);
   _parse_cmd_args (&argc, &argv);
   g_set_prgname (_(PROGRAM_NAME));
-  if (ol_is_running ())
-  {
-    printf ("%s\n", _("Another OSD Lyrics is running, exit."));
-    exit (0);
-  }
   initialized = FALSE;
+  g_bus_own_name (G_BUS_TYPE_SESSION,
+                  OL_CLIENT_BUS_NAME,
+                  G_BUS_NAME_OWNER_FLAGS_NONE,
+                  NULL,         /* bus_acquired_handler */
+                  _client_name_acquired_cb,
+                  _client_name_lost_cb,
+                  NULL,         /* user_data */
+                  NULL);        /* user_data_free_func */
+}
+
+static void
+_client_name_acquired_cb (GDBusConnection *connection,
+                          const gchar *name,
+                          gpointer user_data)
+{
+  ol_debugf ("Client bus name acquired\n");
   _init_dbus_connection ();
+}
+
+static void
+_client_name_lost_cb (GDBusConnection *connection,
+                      const gchar *name,
+                      gpointer user_data)
+{
+  ol_debugf ("Client bus name lost\n");
+  printf ("%s\n", _("Another OSD Lyrics is running, exit."));
+  exit (1);
 }
 
 static void

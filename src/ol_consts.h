@@ -34,5 +34,7 @@
 #define OL_IFACE_MPRIS1 "org.freedesktop.MediaPlayer"
 /* The object path of player control of MPRIS1 */
 #define OL_OBJECT_MPRIS1_PLAYER "/Player"
+/* The bus name of the GUI process */
+#define OL_CLIENT_BUS_NAME "org.osdlyrics.Client.Gtk"
 
 #endif /* _OL_CONSTS_H_ */

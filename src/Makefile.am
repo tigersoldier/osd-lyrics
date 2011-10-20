@@ -80,7 +80,6 @@ noinst_HEADERS = \
 	ol_scroll_module.h \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
-	ol_singleton.h \
 	ol_stock.h \
 	ol_trayicon.h \
 	ol_utils_cmdline.h \
@@ -94,7 +93,6 @@ noinst_HEADERS = \
 osdlyrics_SOURCES = \
 	ol_debug.c \
 	ol_main.c \
-	ol_singleton.c \
 	ol_config.c \
 	ol_gui.c \
 	ol_about.c \
