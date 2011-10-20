@@ -82,6 +82,9 @@ Hello(s:client_bus_name) -> None
 GetVersion() -> s
   Returns the current version of the daemon.
 
+Quit() -> None
+  Quits the daemon
+
 Player Controlling
 ------------------
 

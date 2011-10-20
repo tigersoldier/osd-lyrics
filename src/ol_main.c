@@ -108,6 +108,10 @@ static void _name_appeared_cb (GDBusConnection *connection,
 static void _name_vanished_cb (GDBusConnection *connection,
                                const gchar *name,
                                gpointer user_data);
+static void _ping_daemon (void);
+static void _ping_daemon_cb (GDBusProxy *proxy,
+                             GAsyncResult *res,
+                             gpointer user_data);
 static void _start_daemon_cb (GObject *source_object,
                               GAsyncResult *res,
                               gpointer user_data);
@@ -567,8 +571,63 @@ _name_appeared_cb (GDBusConnection *connection,
                    gpointer user_data)
 {
   ol_debug ("Daemon appeared");
+  _ping_daemon ();
   if (!initialized)
     _init_dbus_connection_done ();
+}
+
+static void
+_ping_daemon (void)
+{
+  ol_debugf ("Starting to ping the daemon\n");
+  GError *error = NULL;
+  GDBusProxy *daemon_proxy =
+    g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                   NULL, /* interface_info */
+                                   OL_SERVICE_DAEMON,
+                                   OL_OBJECT_DAEMON,
+                                   OL_IFACE_DAEMON,
+                                   NULL, /* cancellable */
+                                   &error);
+  if (daemon_proxy != NULL)
+  {
+    g_dbus_proxy_call (daemon_proxy,
+                       "Hello",
+                       g_variant_new ("(s)", OL_CLIENT_BUS_NAME),
+                       G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                       -1,
+                       NULL,    /* cancellable */
+                       (GAsyncReadyCallback)_ping_daemon_cb,
+                       NULL);   /* user_data */
+  }
+  else
+  {
+    ol_errorf ("Cannot create daemon proxy: %s\n", error->message);
+    g_error_free (error);
+  }
+}
+
+static void
+_ping_daemon_cb (GDBusProxy *proxy,
+                 GAsyncResult *res,
+                 gpointer user_data)
+{
+  GError *error = NULL;
+  GVariant *ret = g_dbus_proxy_call_finish (proxy,
+                                            res,
+                                            &error);
+  if (ret)
+  {
+    ol_debugf ("Succeed to ping the daemon\n");
+    g_variant_unref (ret);
+  }
+  else
+  {
+    ol_errorf ("Fail to ping the daemon: %s\n", error->message);
+    g_error_free (error);
+  }
+  g_object_unref (proxy);
 }
 
 static void

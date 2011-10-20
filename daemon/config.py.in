@@ -18,5 +18,6 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
-PROGRAM_NAME = 'OSD Lyrics'
-PACKAGE_NAME = 'osdlyrics'
+PROGRAM_NAME = '@PROGRAM_NAME@'
+PACKAGE_NAME = '@PACKAGE_NAME@'
+PACKAGE_VERSION = '@PACKAGE_VERSION@'

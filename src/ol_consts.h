@@ -22,6 +22,10 @@
 
 /* The D-Bus well-known name for OSD Lyrics Daemon */
 #define OL_SERVICE_DAEMON "org.osdlyrics.Daemon"
+/* The interface of daemon controlling */
+#define OL_IFACE_DAEMON "org.osdlyrics.Daemon"
+/* The object path of daemon controlling */
+#define OL_OBJECT_DAEMON "/org/osdlyrics/Daemon"
 /* The interface of player module */
 #define OL_IFACE_PLAYER "org.osdlyrics.Player"
 /* The object path of player support */

@@ -22,8 +22,8 @@ SUBDIRS = dbusext
 ol_PYTHON = \
 	__init__.py \
 	app.py \
-	consts.py \
 	config.py \
+	consts.py \
 	pattern.py \
 	lrc.py \
 	utils.py \
