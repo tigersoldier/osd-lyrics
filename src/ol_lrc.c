@@ -102,6 +102,7 @@ ol_lrc_finalize (GObject *object)
   priv->items = NULL;
   priv->metadata = NULL;
   priv->uri = NULL;
+  G_OBJECT_CLASS (ol_lrc_parent_class)->finalize (object);
 }
 
 void
