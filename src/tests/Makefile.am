@@ -74,7 +74,7 @@ ol_lrc_test_SOURCES = ol_lrc_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_lrc.c \
 	$(top_srcdir)/src/ol_utils.c \
-	$(top_srcdir)/src/ol_lrc_parser.c 
+	$(NULL)
 
 ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 	$(top_srcdir)/src/ol_debug.c \

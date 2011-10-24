@@ -20,354 +20,451 @@
 #include <string.h>
 #include <glib.h>
 #include "ol_lrc.h"
-#include "ol_lrc_parser.h"
 #include "ol_debug.h"
+
+static const int DEFAULT_LAST_DURATION = 5000;
+
+struct _OlLrcIter
+{
+  guint id;
+  OlLrc *lrc;
+};
 
 struct OlLrcItem
 {
-  int id;
   int timestamp;
-  int lyric_id;                 /**< The index in lyrics array */
-  struct OlLrc *lrc;
+  char *text;
 };
 
-struct OlLrc
+typedef struct _OlLrcPrivate OlLrcPrivate;
+
+struct _OlLrcPrivate
 {
-  GPtrArray *items;
-  int nitems;
-  GPtrArray *lyrics;
-  GHashTable *attrs;
-  int nlyrics;
+  char *uri;
   int offset;
-  char *filename;
+  GHashTable *metadata;
+  GPtrArray *items;
+  guint64 duration;
 };
 
-static void _init_lrc (struct OlLrc *lrc);
-static void _add_lyric (struct OlLrc *lrc, const char *lyric);
-static void _add_time (struct OlLrc *lrc, struct OlLrcTimeToken *token);
-static void _add_attr (struct OlLrc *lrc, struct OlLrcAttrToken *token);
-static int _cmp_item (const struct OlLrcItem **lhs,
-                      const struct OlLrcItem **rhs);
-static void _set_item_id (struct OlLrcItem *item,
-                          int *id);
-/** 
- * @brief Save to an LRC file
- * 
- * @param lrc
- * @param filename
- * 
- * @return 0 if success. Negative if failed.
- */
-static int _save (struct OlLrc *lrc, const char *filename);
-static void _save_attr (char *key, char *value, FILE *file);
-static void _save_lyric (struct OlLrcItem *item, FILE *file);
+#define OL_LRC_GET_PRIVATE(object)                                   \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((object), OL_TYPE_LRC, OlLrcPrivate))
+
+/* -------------- OlLrc private methods ------------------*/
+static void ol_lrc_finalize (GObject *object);
+/* -------------- OlLrcItem private methods --------------*/
+static struct OlLrcItem *ol_lrc_item_new (gint64 timestamp, const gchar *text);
+static void ol_lrc_item_free (struct OlLrcItem *item);
+/* -------------- OlLrcIter private methods --------------*/
+static OlLrcIter *ol_lrc_iter_new (OlLrc *lrc, guint index);
+static struct OlLrcItem *ol_lrc_iter_get_item (OlLrcIter *iter);
+
+G_DEFINE_TYPE (OlLrc, ol_lrc, G_TYPE_OBJECT);
 
 static void
-_set_item_id (struct OlLrcItem *item,
-              int *id)
+ol_lrc_class_init (OlLrcClass *klass)
 {
-  item->id = *id;
-  (*id)++;
-}
-
-static int
-_cmp_item (const struct OlLrcItem **lhs,
-           const struct OlLrcItem **rhs)
-{
-  return (*lhs)->timestamp - (*rhs)->timestamp;
+  GObjectClass *gklass = G_OBJECT_CLASS (klass);
+  gklass->finalize = ol_lrc_finalize;
+  g_type_class_add_private (klass, sizeof (OlLrcPrivate));
 }
 
 static void
-_init_lrc (struct OlLrc *lrc)
+ol_lrc_init (OlLrc *lrc)
 {
-  ol_assert (lrc != NULL);
-  lrc->items = g_ptr_array_new_with_free_func (g_free);
-  lrc->nitems = 0;
-  lrc->lyrics = g_ptr_array_new_with_free_func (g_free);
-  lrc->nlyrics = 0;
-  lrc->attrs = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                      g_free, g_free);
-  lrc->offset = 0;
-  lrc->filename = NULL;
-}
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  priv->items = g_ptr_array_new_with_free_func ((GDestroyNotify) ol_lrc_item_free);
+  /* ensure there is at lease one line */
+  g_ptr_array_add (priv->items, ol_lrc_item_new (0, ""));
+  priv->metadata = g_hash_table_new_full (g_str_hash,
+                                          g_str_equal,
+                                          (GDestroyNotify) g_free,
+                                          (GDestroyNotify) g_free);
+  priv->offset = 0;
+};
 
-static void
-_add_lyric (struct OlLrc *lrc, const char *lyric)
+OlLrc *
+ol_lrc_new (const gchar *uri)
 {
-  ol_log_func ();
-  ol_debugf ("lyric: %s\n", lyric);
-  ol_assert (lrc != NULL);
-  ol_assert (lyric != NULL);
-  g_ptr_array_add (lrc->lyrics, g_strdup (lyric));
-  lrc->nlyrics++;
-}
-
-static void
-_add_time (struct OlLrc *lrc, struct OlLrcTimeToken *token)
-{
-  ol_log_func ();
-  ol_assert (lrc != NULL);
-  ol_assert (token != NULL);
-  struct OlLrcItem *item = g_new (struct OlLrcItem, 1);
-  item->lyric_id = lrc->nlyrics;
-  item->timestamp = token->time;
-  ol_debugf ("time: %d\n", token->time);
-  ol_debugf ("cnt: %d\n", lrc->nitems);
-  item->lrc = lrc;
-  g_ptr_array_add (lrc->items, item);
-  lrc->nitems++;
-  ol_assert (token->time - lrc->offset == ol_lrc_item_get_time (ol_lrc_get_item (lrc, lrc->nitems - 1)));
-}
-
-static void
-_add_attr (struct OlLrc *lrc, struct OlLrcAttrToken *token)
-{
-  ol_assert (lrc != NULL);
-  ol_assert (token != NULL);
-  if (strcmp (token->attr, "offset") == 0 && token->value != NULL)
-  {
-    sscanf (token->value, "%d", &lrc->offset);
-  }
-  g_hash_table_insert (lrc->attrs, g_strdup (token->attr), g_strdup (token->value));
-}
-
-struct OlLrc *
-ol_lrc_new (const char *filename)
-{
-  ol_log_func ();
-  struct OlLrcParser *parser = ol_lrc_parser_new_from_file (filename);
-  if (parser == NULL)
-    return NULL;
-  struct OlLrc *lrc = g_new (struct OlLrc, 1);
-  _init_lrc (lrc);
-  union OlLrcToken *token = NULL;
-  gboolean hastime = FALSE;
-  while ((token = ol_lrc_parser_next_token (parser)) != NULL)
-  {
-    //ol_debugf ("token type: %d\n", ol_lrc_token_get_type (token));
-    switch (ol_lrc_token_get_type (token))
-    {
-    case OL_LRC_TOKEN_TEXT:
-      if (hastime)
-      {
-        _add_lyric (lrc, token->text.text);
-        hastime = FALSE;
-      }
-      break;
-    case OL_LRC_TOKEN_ATTR:
-      _add_attr (lrc, &token->attr);
-      break;
-    case OL_LRC_TOKEN_TIME:
-      hastime = TRUE;
-      _add_time (lrc, &token->time);
-      break;
-    default:
-      ol_error ("Invalid token type");
-      break;
-    }
-    ol_lrc_token_free (token);
-  }
-  /* Issue 70, avoid empty lyric without new line at the end*/
-  _add_lyric (lrc, "");
-  ol_lrc_parser_free (parser);
-  g_ptr_array_sort (lrc->items, (GCompareFunc)_cmp_item);
-  int id = 0;
-  g_ptr_array_foreach (lrc->items, (GFunc)_set_item_id, &id);
-  lrc->filename = g_strdup (filename);
+  OlLrc *lrc = OL_LRC (g_object_new (OL_TYPE_LRC, NULL));
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  priv->uri = g_strdup (uri);
   return lrc;
 }
 
-void
-ol_lrc_free (struct OlLrc *lrc)
+static void
+ol_lrc_finalize (GObject *object)
 {
-  ol_assert (lrc != NULL);
-  if (lrc->items != NULL)
-    g_ptr_array_free (lrc->items, TRUE);
-  else
-    ol_error ("Items are NULL");
-  if (lrc->lyrics != NULL)
-    g_ptr_array_free (lrc->lyrics, TRUE);
-  else
-    ol_error ("Lyrics are NULL");
-  if (lrc->attrs != NULL)
-    g_hash_table_destroy (lrc->attrs);
-  else
-    ol_error ("Attributes are NULL");
-  if (lrc->filename != NULL)
-    g_free (lrc->filename);
-  g_free (lrc);
-}
-
-const struct OlLrcItem *
-ol_lrc_get_item (struct OlLrc *lrc, int id)
-{
-  ol_assert_ret (lrc != NULL, NULL);
-  if (id < 0 || id >= lrc->nitems)
-    return NULL;
-  return (const struct OlLrcItem*) g_ptr_array_index (lrc->items, id);
-}
-
-int
-ol_lrc_item_get_id (const struct OlLrcItem *item)
-{
-  ol_assert_ret (item != NULL, -1);
-  return item->id;
-}
-
-const struct
-OlLrcItem *ol_lrc_item_prev (const struct OlLrcItem *item)
-{
-  ol_assert_ret (item != NULL, NULL);
-  return ol_lrc_get_item (item->lrc,
-                                 item->id - 1);
-}
-
-const struct
-OlLrcItem *ol_lrc_item_next (const struct OlLrcItem *item)
-{
-  ol_assert_ret (item != NULL, NULL);
-  return ol_lrc_get_item (item->lrc,
-                                 item->id + 1);
-}
-
-int
-ol_lrc_item_get_time (const struct OlLrcItem *item)
-{
-  ol_assert_ret (item != NULL, -1);
-  return item->timestamp - item->lrc->offset;
-}
-
-const char
-*ol_lrc_item_get_lyric(const struct OlLrcItem *item)
-{
-  ol_assert_ret (item != NULL, NULL);
-  return g_ptr_array_index (item->lrc->lyrics, item->lyric_id);
-}
-
-int
-ol_lrc_item_count (struct OlLrc *lrc)
-{
-  ol_assert_ret (lrc != NULL, 0);
-  return lrc->nitems;
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (object);
+  g_ptr_array_free (priv->items, TRUE);
+  g_hash_table_destroy (priv->metadata);
+  g_free (priv->uri);
+  priv->items = NULL;
+  priv->metadata = NULL;
+  priv->uri = NULL;
 }
 
 void
-ol_lrc_get_lyric_by_time (struct OlLrc *lrc,
-                          int time,
-                          int music_duration,
-                          char **text,
-                          double *percentage,
-                          int *id)
+ol_lrc_set_attributes_from_variant (OlLrc *lrc,
+                                    GVariant *attributes)
 {
-  /* ol_log_func (); */
-  if (id != NULL)
-    *id = -1;
-  if (text != NULL)
-    *text = NULL;
-  if (percentage != NULL)
-    *percentage = 0.0;
-  ol_assert (lrc != NULL);
-  int l = 0;
-  int r = ol_lrc_item_count (lrc) - 1;
-  /* ol_debugf ("r: %d\n", r); */
-  /* Binary search */
-  while (l < r)
+  ol_assert (OL_IS_LRC (lrc));
+  ol_assert (attributes != NULL);
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  g_hash_table_remove_all (priv->metadata);
+  GVariantIter *iter = NULL;
+  g_variant_get (attributes, "a{ss}", &iter);
+  gchar *key, *value;
+  while (g_variant_iter_loop (iter, "{ss}", &key, &value))
   {
-    /* ol_debugf ("l: %d->%d, r: %d->%d\n", */
-    /*            l, ol_lrc_item_get_time (ol_lrc_get_item (lrc, l)), */
-    /*            r, ol_lrc_item_get_time (ol_lrc_get_item (lrc, r))); */
-    int mid = (l + r) / 2 + 1;
-    const struct OlLrcItem *item = ol_lrc_get_item (lrc, mid);
-    if (ol_lrc_item_get_time (item) < time)
-      l = mid;
-    else
-      r = mid - 1;
+    g_hash_table_insert (priv->metadata, g_strdup (key), g_strdup (value));
+    ol_debugf ("LRC attribute: %s -> %s\n", key, value);
   }
-  if (l == r)                    /* found */
+  g_variant_iter_free (iter);
+  const char *offset = NULL;
+  if ((offset = g_hash_table_lookup (priv->metadata, "offset")) != NULL)
+    priv->offset = atoi (offset);
+  else
+    priv->offset = 0;
+}
+
+void
+ol_lrc_set_content_from_variant (OlLrc *lrc,
+                                 GVariant *content)
+{
+  ol_assert (OL_IS_LRC (lrc));
+  ol_assert (content != NULL);
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  g_ptr_array_remove_range (priv->items, 0, priv->items->len);
+  GVariantIter *iter = NULL;
+  g_variant_get (content, "aa{sv}", &iter);
+  GVariantIter *dict_iter = NULL;
+  while (g_variant_iter_loop (iter, "a{sv}", &dict_iter))
   {
-    const struct OlLrcItem *item = ol_lrc_get_item (lrc, l);
-    if (id != NULL)
-      *id = l;
-    if (text != NULL)
-      *text = g_strdup (ol_lrc_item_get_lyric (item));
-    if (percentage != NULL)
+    gchar *key = NULL;
+    GVariant *value = NULL;
+    if (g_variant_iter_n_children (dict_iter) < 3)
     {
-      const struct OlLrcItem *next = ol_lrc_item_next (item);
-      int timestamp, nextstamp;
-      timestamp = ol_lrc_item_get_time (item);
-      if (next != NULL)
-        nextstamp = ol_lrc_item_get_time (next);
-      else
-        nextstamp = music_duration;
-      *percentage = (double)(time - timestamp) / (nextstamp - timestamp);
-      /* ol_debugf ("timestamp: %d, id: %d, per: %lf\n", timestamp, *id, *percentage); */
+      ol_errorf ("The attributes of a lyric line is not enough, expect 3 attributes "
+                 "(id, timestame, text) but there are only %d attributes.\n",
+                 g_variant_iter_n_children (dict_iter));
+      continue;
     }
-  }
-}
-
-void
-ol_lrc_set_offset(struct OlLrc *lrc, int offset)
-{
-  ol_log_func ();
-  ol_assert (lrc != NULL);
-  lrc->offset = offset;
-  char *key, *value;
-  key = g_strdup ("offset");
-  value = g_strdup_printf ("%d", offset);
-  g_hash_table_insert (lrc->attrs, key, value);
-  if (lrc->filename != NULL)
-    _save (lrc, lrc->filename);
-}
-
-int
-ol_lrc_get_offset(struct OlLrc *lrc)
-{
-  ol_assert_ret (lrc != NULL, 0);
-  return lrc->offset;
+    guint id = 0;
+    gint64 timestamp = 0;
+    const gchar *text = NULL;
+    gboolean has_id = FALSE, has_timestamp = FALSE;
+    while (g_variant_iter_loop (dict_iter, "{sv}", &key, &value))
+    {
+      if (strcmp (key, "id") == 0)
+      {
+        id = g_variant_get_uint32 (value);
+        has_id = TRUE;
+      }
+      else if (strcmp (key, "timestamp") == 0)
+      {
+        timestamp = g_variant_get_int64 (value);
+        has_timestamp = TRUE;
+      }
+      else if (strcmp (key, "text") == 0)
+      {
+        text = g_variant_get_string (value, NULL);
+      }
+      else
+      {
+        ol_errorf ("Unknown line attribute: %s\n", key);
+      }
+    } /* for dict_iter */
+    if (has_id && has_timestamp && text != NULL)
+    {
+      g_ptr_array_add (priv->items, ol_lrc_item_new (timestamp, text));
+      ol_infof ("new lyric item: %d, %d: %s\n", (int)id, (int)timestamp, text);
+    }
+    else
+    {
+      if (!has_id)
+        ol_errorf ("missing id in lyric line\n");
+      if (!has_timestamp)
+        ol_errorf ("missing timestamp in lyric line\n");
+      if (!text)
+        ol_errorf ("missing text in lyric line\n");
+    } /* if */
+  } /* for iter */
+  g_variant_iter_free (iter);
+  /* Ensure there are at least one item */
+  if (priv->items->len == 0)
+    g_ptr_array_add (priv->items, ol_lrc_item_new (0, ""));
 }
 
 const char *
-ol_lrc_get_filename (const struct OlLrc *lrc)
+ol_lrc_get_attribute (OlLrc *lrc,
+                      const char *key)
 {
-  ol_assert_ret (lrc != NULL, NULL);
-  return lrc->filename;
+  ol_assert_ret (OL_IS_LRC (lrc), NULL);
+  ol_assert_ret (key != NULL, NULL);
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  return g_hash_table_lookup (priv->metadata, key);
 }
 
-static int
-_save (struct OlLrc *lrc, const char *filename)
+guint
+ol_lrc_get_item_count (OlLrc *lrc)
 {
-  ol_assert_ret (lrc != NULL, -1);
-  ol_assert_ret (filename != NULL, -1);
-  FILE *file = fopen (filename, "w");
-  if (file == NULL)
-    return -1;
-  g_hash_table_foreach (lrc->attrs, (GHFunc)_save_attr, file);
-  g_ptr_array_foreach (lrc->items, (GFunc)_save_lyric, file);
-  fclose (file);
-  return 0;
+  ol_assert_ret (OL_IS_LRC (lrc), 0);
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  return priv->items->len;
+}
+
+void
+ol_lrc_set_offset (OlLrc *lrc,
+                   int offset)
+{
+  ol_assert (OL_IS_LRC (lrc));
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  priv->offset = offset;
+  g_hash_table_replace (priv->metadata,
+                        g_strdup ("offset"),
+                        g_strdup_printf ("%d", priv->offset));
+}
+
+int
+ol_lrc_get_offset (OlLrc *lrc)
+{
+  ol_assert_ret (OL_IS_LRC (lrc), 0);
+  return OL_LRC_GET_PRIVATE (lrc)->offset;
+}
+
+OlLrcIter *
+ol_lrc_iter_from_id (OlLrc *lrc, guint id)
+{
+  ol_assert_ret (OL_IS_LRC (lrc), NULL);
+  if (id < ol_lrc_get_item_count (lrc))
+    return ol_lrc_iter_new (lrc, id);
+  else
+    return NULL;
+}
+
+OlLrcIter *
+ol_lrc_iter_from_timestamp (OlLrc *lrc,
+                            gint64 timestamp)
+{
+  ol_assert_ret (OL_IS_LRC (lrc), NULL);
+  int low = 0;
+  int high = ol_lrc_get_item_count (lrc) - 1;
+  OlLrcIter *iter = ol_lrc_iter_from_id (lrc, 0);
+  /* Binary search */
+  while (low < high)
+  {
+    int mid = (low + high + 1) / 2;
+    ol_lrc_iter_move_to (iter, mid);
+    if (ol_lrc_iter_get_timestamp (iter) <= timestamp)
+      low = mid;
+    else
+      high = mid - 1;
+  }
+  if (low == high)                    /* found */
+  {
+    ol_lrc_iter_move_to (iter, low);
+  }
+  else
+  {
+    ol_errorf ("low(%d) != high(%d), this should not happen\n", low, high);
+  }
+  return iter;
+}
+
+const char *
+ol_lrc_get_uri (OlLrc *lrc)
+{
+  ol_assert_ret (OL_IS_LRC (lrc), NULL);
+  return OL_LRC_GET_PRIVATE (lrc)->uri;
+}
+
+void
+ol_lrc_set_duration (OlLrc *lrc, guint64 duration)
+{
+  ol_assert (OL_IS_LRC (lrc));
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  priv->duration = duration;
+}
+
+guint64
+ol_lrc_get_duration (OlLrc *lrc)
+{
+  ol_assert_ret (OL_IS_LRC (lrc), 0);
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  return priv->duration;
+}
+
+static struct OlLrcItem *
+ol_lrc_item_new (gint64 timestamp, const gchar *text)
+{
+  if (text == NULL)
+    text = "";
+  struct OlLrcItem *item = g_new (struct OlLrcItem, 1);
+  item->timestamp = timestamp;
+  item->text = g_strdup (text);
+  return item;
 }
 
 static void
-_save_attr (char *key, char *value, FILE *file)
+ol_lrc_item_free (struct OlLrcItem *item)
 {
-  if (value == NULL)
-    fprintf (file, "[%s]\n", key);
-  else
-    fprintf (file, "[%s:%s]\n", key, value);
+  if (item == NULL)
+    return;
+  g_free (item->text);
+  g_free (item);
 }
 
-static void
-_save_lyric (struct OlLrcItem *item, FILE *file)
+static OlLrcIter *
+ol_lrc_iter_new (OlLrc *lrc, guint index)
 {
-  char *lyric = g_ptr_array_index (item->lrc->lyrics, item->lyric_id);
-  int h, m, s, ms;
-  h = item->timestamp / 1000 / 60 / 60;
-  m = item->timestamp / 1000 / 60 % 60;
-  s = item->timestamp / 1000 % 60;
-  ms = item->timestamp / 10 % 100;
-  if (h != 0)
-    fprintf (file, "[%02d:%02d:%02d.%02d]", h, m, s, ms);
+  ol_assert_ret (OL_IS_LRC (lrc), NULL);
+  ol_assert_ret (index < ol_lrc_get_item_count (lrc), NULL);
+  OlLrcIter *iter = g_new (OlLrcIter, 1);
+  iter->lrc = g_object_ref (lrc);
+  iter->id = index;
+  return iter;
+}
+
+void
+ol_lrc_iter_free (OlLrcIter *iter)
+{
+  if (iter == NULL)
+    return;
+  g_object_unref (iter->lrc);
+  g_free (iter);
+}
+
+gboolean
+ol_lrc_iter_prev (OlLrcIter *iter)
+{
+  ol_assert_ret (iter != NULL, FALSE);
+  if (iter->id == 0)
+    return FALSE;
+  iter->id--;
+  return TRUE;
+}
+
+gboolean
+ol_lrc_iter_next (OlLrcIter *iter)
+{
+  ol_assert_ret (iter != NULL, FALSE);
+  iter->id++;
+  if (iter->id >= ol_lrc_get_item_count (iter->lrc))
+    return FALSE;
+  return TRUE;
+}
+
+gboolean
+ol_lrc_iter_move_to (OlLrcIter *iter, guint id)
+{
+  ol_assert_ret (iter != NULL, FALSE);
+  if (id >= ol_lrc_get_item_count (iter->lrc))
+    return FALSE;
+  iter->id = id;
+  return TRUE;
+}
+
+gboolean
+ol_lrc_iter_loop (OlLrcIter *iter,
+                  guint *id,
+                  gint64 *timestamp,
+                  const char **text)
+{
+  ol_assert_ret (iter != NULL, FALSE);
+  if (!ol_lrc_iter_is_valid (iter))
+    return FALSE;
+  if (id)
+    *id = ol_lrc_iter_get_id (iter);
+  if (timestamp)
+    *timestamp = ol_lrc_iter_get_timestamp (iter);
+  if (text)
+    *text = ol_lrc_iter_get_text (iter);
+  ol_lrc_iter_next (iter);
+  return TRUE;
+}
+
+guint
+ol_lrc_iter_get_id (OlLrcIter *iter)
+{
+  ol_assert_ret (iter != NULL, 0);
+  return iter->id;
+}
+
+static struct OlLrcItem *
+ol_lrc_iter_get_item (OlLrcIter *iter)
+{
+  ol_assert_ret (iter != NULL, NULL);
+  if (iter->id >= ol_lrc_get_item_count (iter->lrc))
+  {
+    ol_errorf ("LRC Iter is out of range. Don't use the iter after resetting the content or reaching the end.\n");
+    return NULL;
+  }
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (iter->lrc);
+  struct OlLrcItem *item = g_ptr_array_index (priv->items, iter->id);
+  return item;
+}
+
+gint64
+ol_lrc_iter_get_timestamp (OlLrcIter *iter)
+{
+  struct OlLrcItem *item = ol_lrc_iter_get_item (iter);
+  if (!item)
+    return 0;
+  return item->timestamp - ol_lrc_get_offset (iter->lrc);
+}
+
+const char *
+ol_lrc_iter_get_text(OlLrcIter *iter)
+{
+  struct OlLrcItem *item = ol_lrc_iter_get_item (iter);
+  if (!item)
+    return NULL;
+  return item->text;
+}
+
+gboolean
+ol_lrc_iter_is_valid (OlLrcIter *iter)
+{
+  ol_assert_ret (iter != NULL, FALSE);
+  return iter->id < ol_lrc_get_item_count (iter->lrc);
+}
+
+guint64
+ol_lrc_iter_get_duration (OlLrcIter *iter)
+{
+  struct OlLrcItem *curr = ol_lrc_iter_get_item (iter);
+  if (!curr)
+    return 0;
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (iter->lrc);
+  if (iter->id < ol_lrc_get_item_count (iter->lrc) - 1)
+  {
+    /* Not the last one */
+    struct OlLrcItem *next = g_ptr_array_index (priv->items, iter->id + 1);
+    return next->timestamp - curr->timestamp;
+  }
   else
-    fprintf (file, "[%02d:%02d.%02d]", m, s, ms);
-  fprintf (file, "%s\n", lyric);
+  {
+    gint64 duration = ol_lrc_get_duration (iter->lrc);
+    gint64 timestamp = ol_lrc_iter_get_timestamp (iter);
+    if (duration <= timestamp)
+      return DEFAULT_LAST_DURATION;
+    else
+      return duration - timestamp;
+  }
+}
+
+gdouble
+ol_lrc_iter_compute_percentage (OlLrcIter *iter,
+                                gint64 time_ms)
+{
+  ol_assert_ret (ol_lrc_iter_is_valid (iter), 0.0);
+  gint64 timestamp = ol_lrc_iter_get_timestamp (iter);
+  if (time_ms <= timestamp)
+    return 0.0;
+  /* use int64 instead of uint64 to avoid negative sum problem */
+  gint64 duration = ol_lrc_iter_get_duration (iter);
+  if (time_ms >= timestamp + duration)
+    return 1.0;
+  return (gdouble) (time_ms - timestamp) / (gdouble) duration;
 }

@@ -63,7 +63,6 @@ noinst_HEADERS = \
 	ol_lrc_fetch_utils.h \
 	ol_lrc.h \
 	ol_lrclib.h \
-	ol_lrc_parser.h \
 	ol_lyric_manage.h \
 	ol_marshal.h \
 	ol_md5.h \
@@ -113,7 +112,6 @@ osdlyrics_SOURCES = \
 	ol_utils_dcop.c \
 	ol_utils_cmdline.c \
 	ol_utils_network.c \
-	ol_lrc_parser.c \
 	ol_lrc.c \
 	ol_search_dialog.c \
 	ol_trayicon.c \

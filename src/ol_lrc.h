@@ -20,29 +20,100 @@
 #ifndef _OL_LRC_H_
 #define _OL_LRC_H_
 
-struct OlLrc;
-/** 
- * @brief A lyric item, represents a single sentance to be singed
- *
- * A lyric item has 3 attributes: id, timestamp, and lyric text
- * @param filename 
- * 
- * @return 
- */
-struct OlLrcItem;
+#include <glib-object.h>
+
+#define OL_TYPE_LRC                          \
+  (ol_lrc_get_type ())
+#define OL_LRC(obj)                                  \
+  (G_TYPE_CHECK_INSTANCE_CAST (obj, OL_TYPE_LRC, OlLrc))
+#define OL_LRC_CLASS(klass)                                        \
+  (G_TYPE_CHECK_CLASS_CAST (klass, OL_TYPE_LRC, OlLrcClass))
+#define OL_IS_LRC(obj)                       \
+  (G_TYPE_CHECK_INSTANCE_TYPE (obj, OL_TYPE_LRC))
+#define OL_IS_LRC_CLASS(klass)                       \
+  (G_TYPE_CHECK_CLASS_TYPE (klass, OL_TYPE_LRC))
+#define OL_LRC_GET_CLASS(obj)                                        \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), OL_TYPE_LRC, OlLrcClass))
+
+
+typedef struct _OlLrc OlLrc;
+struct _OlLrc
+{
+  GObject parent;
+};
+
+typedef struct _OlLrcClass OlLrcClass;
+struct _OlLrcClass
+{
+  GObjectClass parent_class;
+};
+
+GType ol_lrc_get_type (void);
 
 /** 
- * @brief Create a new OlLrc instance from an LRC file
- * 
- * @param filename 
+ * @brief An iterator to iterate the content of the LRC file
+ *
+ * The iterator points to a line of the content. From the iterator you can get the
+ * ID, timestamp, and lyric text of the line. It is guanranteed that you can visit
+ * all the content in the lyrics in ascending order of timestamp by iterating it.
+ */
+
+typedef struct _OlLrcIter OlLrcIter;
+struct _OlLrcIter;
+
+/** 
+ * @brief Create a new OlLrc instance
  * 
  * @return The OlLrc instance of the file, or NULL if filename doesn't exist.
- *         You should free it with ol_lrc_free.
+ *         You should free it with g_object_unref.
  */
-struct OlLrc *ol_lrc_new (const char *filename);
+OlLrc *ol_lrc_new (const gchar *uri);
 
-void ol_lrc_free (struct OlLrc *lrc);
+/** 
+ * Sets the LRC attributes from GVariant
+ *
+ * This function is intented for D-Bus communication. The returned attributes of
+ * GetLyrics or GetCurrentLyrics call should be able to pass as the attribute
+ * parameter directly.
+ *
+ * The GVariant contains a dictionary with strings as keys and strings as values.
+ *
+ * @param lrc 
+ * @param attribute GVariant of type a{ss}
+ */
+void ol_lrc_set_attributes_from_variant (OlLrc *lrc,
+                                         GVariant *attribute);
 
+/** 
+ * Sets the LRC content from GVariant
+ *
+ * This function is intented for D-Bus communication. The returned content of
+ * GetLyrics or GetCurrentLyrics call should be able to pass as the content
+ * parameter directly.
+ * 
+ * The GVariant contains an array of a dictionary with strings as keys and
+ * variants as values.
+ *
+ * It is guaranteed that there is at least one line in lrc after setting the
+ * content
+ *
+ * @param lrc 
+ * @param content GVariant of type a{ss}
+ */
+void ol_lrc_set_content_from_variant (OlLrc *lrc,
+                                      GVariant *content);
+
+/** 
+ * Gets the value of an attribute of an LRC file
+ * 
+ * @param lrc 
+ * @param key 
+ * 
+ * @return NULL if the attribute doesn't exist. Otherwise return the value
+ *         of the key.
+ */
+const char *ol_lrc_get_attribute (OlLrc *lrc,
+                                  const char *key);
 /** 
  * @brief Get the number of lyric items
  * 
@@ -50,117 +121,230 @@ void ol_lrc_free (struct OlLrc *lrc);
  * 
  * @return The number of lyric items
  */
-int ol_lrc_item_count (struct OlLrc *lrc);
+guint ol_lrc_get_item_count (OlLrc *lrc);
 
 /** 
- * @brief Get the lyric item previous to the given one
+ * Update the offset of the lrc file
  *
- * The previous lyric item is the  before the current one
- * @param item 
- * 
- * @return The previous item, or NULL if the item is the first one
- */
-const struct OlLrcItem *ol_lrc_item_prev (const struct OlLrcItem *item);
-
-/** 
- * @brief Get the lyric item next to the given one
- *
- * The next lyric item is the one just after the current one
- * @param item 
- * 
- * @return The previous item, or NULL if the item is the first one
- */
-const struct OlLrcItem *ol_lrc_item_next (const struct OlLrcItem *item);
-
-/** 
- * @brief Get the timestamp of the lyric, in milliseconds
- *
- * The time is calculated with offset of LRC
- * @param item 
- * 
- * @return The timestamp of the lyric item, or -1 if the item is invalid
- */
-int ol_lrc_item_get_time (const struct OlLrcItem *item);
-
-/** 
- * @brief Get the text of the lyric item
- * 
- * @param item 
- * 
- * @return The text of the lyric item. You shouldn't free it.
- */
-const char *ol_lrc_item_get_lyric(const struct OlLrcItem *item);
-
-/** 
- * @brief Get the id of the lyric item
- *
- * The id differs with different lyric item, and is in ascending order by
- * timestamp. Ids start from 0.
- * @param item 
- * 
- * @return The id of the item, or -1 if the item is invalid.
- */
-int ol_lrc_item_get_id (const struct OlLrcItem *item);
-
-/** 
- * @brief Find an lyric item according to id
- * 
- * @param lrc 
- * @param id 
- * 
- * @return The lyric item with the id, or NULL if not found
- */
-const struct OlLrcItem *ol_lrc_get_item (struct OlLrc *lrc, int id);
-
-/** 
- * @brief Gets the lyric for the given time, and the playing progress of the lyric.
- *
- * The returned lyric's start time should be less or equal than the given time,
- * while it's end time should be larger than the given time.
- * If there is no lyric available, e.g, the time is earlier than the first lyric
- * or later than the music_duration, an invalid lyric will be returned, with NULL
- * lyric text, 0% of progress, and -1 of its id.
- * @param list An LrcQueue
- * @param time The given time point, in milliseconds.
- * @param music_duration The duration of the song, in milliseconds.
- *                 It's necessary because we don't know the end time of the
- *                 last lyric.
- * @param text The return location of lyric text at the given time, or NULL.
- *             If the lyric is not found, the value will be set to NULL.
- *             It should be freed with g_free.
- * @param percentage The progress of the lyric at the given time, in percent.
- * @param id The id of the lyric. If it's an invalid lyric, its id is -1
- */
-void ol_lrc_get_lyric_by_time (struct OlLrc *lrc,
-                               int time,
-                               int music_duration,
-                               char **text,
-                               double *percentage,
-                               int *id);
-#endif /* _OL_LRC_H_ */
-
-/** 
- * Update the Lrc_time and offset_time from LrcQueue
+ * Note that this function only update the offset in the memory. To update
+ * the offset of the LRC file, you should call set_offset of OlLyrics object.
  *
  * @param lrc
  * @param offset The offset of which should be ajusted 
  */
-void ol_lrc_set_offset (struct OlLrc *lrc, int offset);
+void ol_lrc_set_offset (OlLrc *lrc,
+                        int offset);
 
 /** 
- * get the offset_time from LrcQueue
+ * Get the offset of the LRC file
  *
  * @param lrc
  *
  * @return the current offset time
  */
-int ol_lrc_get_offset (struct OlLrc *lrc);
+int ol_lrc_get_offset (OlLrc *lrc);
 
 /** 
- * @brief Get the filename of the LRC file
+ * Sets the duration of the track.
+ *
+ * The duration is used to calculate the duration and percentage of the last
+ * line of lyrics. If the duration is less than the start time of the last line,
+ * it is invalid and will not be used.
+ * 
+ * @param lrc 
+ * @param duration 
+ */
+void ol_lrc_set_duration (OlLrc *lrc, guint64 duration);
+
+/** 
+ * Gets the duration of the track.
  * 
  * @param lrc 
  * 
- * @return The filename or NULL
+ * @return The duration of the track.
  */
-const char *ol_lrc_get_filename (const struct OlLrc *lrc);
+guint64 ol_lrc_get_duration (OlLrc *lrc);
+/** 
+ * @brief Get the URI of the LRC file
+ * 
+ * @param lrc 
+ * 
+ * @return The URI or NULL. The lrc owns the the uri, so don't modify or free it.
+ */
+const char *ol_lrc_get_uri (OlLrc *lrc);
+
+
+/** 
+ * Frees an iterator.
+ * 
+ * @param iter 
+ */
+void ol_lrc_iter_free (OlLrcIter *iter);
+
+/** 
+ * @brief Gets an iterator by the ID of the line
+ * 
+ * @param lrc 
+ * @param id 
+ * 
+ * @return The lyric iterator with the id, or NULL if not found. Should be freed
+ *         with ol_lrc_iter_free
+ */
+OlLrcIter *ol_lrc_iter_from_id (OlLrc *lrc, guint id);
+
+/** 
+ * @brief Gets the lyric iterator that fits the given timestamp
+ *
+ * The returned lyric's start time should be less or equal than the given time,
+ * while it's end time should be larger than the given time.
+ *
+ * If the given timestamp is less than the first line, the first line will be
+ * returned. If the given timestamp is greater than the duration of the track,
+ * the last line will be returned.
+ *
+ * This function returns the upperbound, which means that if there are more than
+ * one line starts with the given timestamp, this function return returns the last
+ * on.
+ * 
+ * @param lrc The LRC file
+ * @param timestamp The timestamp
+ * 
+ * @return The iterator of the timestamp. Should be freed with ol_lrc_iter_free
+ */
+OlLrcIter *ol_lrc_iter_from_timestamp (OlLrc *lrc,
+                                       gint64 timestamp);
+/** 
+ * @brief Move to the previous line of lyrics
+ *
+ * @param iter
+ * 
+ * @return FALSE if the given iter is the first one. TRUE if succeed.
+ */
+gboolean ol_lrc_iter_prev (OlLrcIter *iter);
+
+/** 
+ * @brief Move to the next line of lyrics
+ *
+ * @param iter The iterator 
+ * 
+ * @return FALSE if the given iter is the last one. TRUE if succeed.
+ */
+gboolean ol_lrc_iter_next (OlLrcIter *iter);
+
+/** 
+ * Move the iterator to the line of the given ID
+ * 
+ * @param iter 
+ * @param id 
+ * 
+ * @return TRUE if success, or FALSE if the id is out of range.
+ */
+gboolean ol_lrc_iter_move_to (OlLrcIter *iter, guint id);
+
+/** 
+ * Get the information of the line represented by the iterator and move the
+ * iterator to the next.
+ *
+ * This function is convenient to iterate the lyrics using a while loop:
+ *
+ * while (ol_lrc_iter_loop (iter, &id, &timestamp, &text))
+ * {
+ *   do_someting ();
+ * }
+ * 
+ * @param iter 
+ * @param id The return location of id of the current iterator. NULL is OK.
+ * @param timestamp The return location of id of the current timestamp. NULL is OK.
+ * @param text The return location of id of the current lyric text. NULL is OK.
+ *             Should NOT be modified or freed.
+ * 
+ * @return FALSE if the iterator reaches the end of the lyrics. Otherwise TRUE will
+ *         be returned and the id, timestamp and text will be set.
+ */
+gboolean ol_lrc_iter_loop (OlLrcIter *iter,
+                           guint *id,
+                           gint64 *timestamp,
+                           const char **text);
+
+/** 
+ * Get the ID of the line.
+ *
+ * The ID is the index of the lyric line.
+ * @param iter 
+ * 
+ * @return 
+ */
+guint ol_lrc_iter_get_id (OlLrcIter *iter);
+
+/** 
+ * @brief Get the timestamp of the line, in milliseconds
+ *
+ * The time is calculated with offset of LRC
+ * 
+ * @param iter The iterator
+ * 
+ * @return The timestamp of the line represented by the iterator.
+ */
+gint64 ol_lrc_iter_get_timestamp (OlLrcIter *iter);
+
+/** 
+ * @brief Get the text of the line
+ * 
+ * @param item 
+ * 
+ * @return The text of the lyric item.
+ */
+const char *ol_lrc_iter_get_text(OlLrcIter *iter);
+
+/** 
+ * @brief Get the id of the line
+ *
+ * The id differs with different lyric item, and is in ascending order by
+ * timestamp. Ids start from 0.
+ * 
+ * @param item 
+ * 
+ * @return The id of the item, or 0 if the item is invalid.
+ */
+guint ol_lrc_iter_get_id (OlLrcIter *iter);
+
+/** 
+ * Gets the duration of the line
+ *
+ * The duration of the line is the difference between the timestamp of this and the
+ * next line.
+ *
+ * If the line is the last one, the duration is the duration of the track minus the
+ * timestamp of the line. If the duration is less than the timestamp of the last
+ * line, the duration of the last line will be 5 seconds.
+ * 
+ * @param iter 
+ * 
+ * @return The duration of the line. Note that this may be 0.
+ */
+guint64 ol_lrc_iter_get_duration (OlLrcIter *iter);
+
+/** 
+ * Figure out how much of an single lyric text has been played when the position
+ * of the track reaches given value.
+ *
+ * The returned value is guaranteed in the range of [0.0, 1.0].
+ * 
+ * @param iter 
+ * @param time_ms The position of the track, in milliseconds.
+ * 
+ * @return 
+ */
+gdouble ol_lrc_iter_compute_percentage (OlLrcIter *iter,
+                                        gint64 time_ms);
+
+/** 
+ * Determine if a iterator is out of range.
+ * 
+ * @param iter 
+ * 
+ * @return 
+ */
+gboolean ol_lrc_iter_is_valid (OlLrcIter *iter);
+
+#endif /* _OL_LRC_H_ */
