@@ -130,6 +130,8 @@ class LyricsService(dbus.service.Object):
                 # matching rules, assign the new LRC file to the lyrics
                 path = osdlyrics.utils.path2uri(path)
                 self._db.assign(metadata, path)
+            else:
+                path = ''
         return ret, path, lrc
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
