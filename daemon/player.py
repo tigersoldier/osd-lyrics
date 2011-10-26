@@ -48,7 +48,7 @@ class PlayerSupport(dbus.service.Object):
 
     def _start_detect_player(self):
         self._detect_timer = glib.timeout_add(self.DETECT_PLAYER_TIMEOUT,
-                                              self._detect_player)
+                                              lambda : not self._detect_player())
         
     def _detect_player(self):
         """
@@ -69,10 +69,10 @@ class PlayerSupport(dbus.service.Object):
                     break
             except:
                 pass
-        if detected:
+        if detected and self._detect_timer:
             glib.source_remove(self._detect_timer)
             self._detect_timer = None
-        return True
+        return detected
 
     def _connect_proxy(self, bus_name, activate):
         if not bus_name.startswith(osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX):
@@ -178,7 +178,7 @@ class PlayerSupport(dbus.service.Object):
                          in_signature='',
                          out_signature='ba{sv}')
     def GetCurrentPlayer(self):
-        if not self._active_player:
+        if not self._active_player and not self._detect_player():
             return False, {}
         return True, self._active_player['info']
 
