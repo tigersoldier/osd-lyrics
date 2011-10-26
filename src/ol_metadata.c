@@ -378,3 +378,43 @@ ol_metadata_equal (const OlMetadata *lhs,
   return 1;
 }
 
+static void
+_add_string_to_dict_builder (GVariantBuilder *builder,
+                             const char *key,
+                             const char *value)
+{
+  if (value)
+    g_variant_builder_add (builder, "{sv}", key, g_variant_new_string (value));
+}
+
+GVariant *
+ol_metadata_to_variant (OlMetadata *metadata)
+{
+  ol_assert_ret (metadata != NULL, NULL);
+  GVariantBuilder *builder = g_variant_builder_new (G_VARIANT_TYPE ("a{sv}"));
+  _add_string_to_dict_builder (builder, "title", metadata->title);
+  _add_string_to_dict_builder (builder, "artist", metadata->artist);
+  _add_string_to_dict_builder (builder, "album", metadata->album);
+  _add_string_to_dict_builder (builder, "location", metadata->uri);
+  _add_string_to_dict_builder (builder, "arturl", metadata->art);
+  g_variant_builder_add (builder,
+                         "{sv}",
+                         "time",
+                         g_variant_new_uint32 (metadata->duration / 1000));
+  g_variant_builder_add (builder,
+                         "{sv}",
+                         "mtime",
+                         g_variant_new_uint32 (metadata->duration));
+  if (metadata->track_number > 0)
+  {
+    gchar *tracknum = g_strdup_printf ("%d", metadata->track_number);
+    g_variant_builder_add (builder,
+                           "{sv}",
+                           "tracknumber",
+                           g_variant_new_string (tracknum));
+    g_free (tracknum);
+  }
+  GVariant *ret = g_variant_builder_end (builder);
+  g_variant_builder_unref (builder);
+  return ret;
+}

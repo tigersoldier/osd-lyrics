@@ -167,4 +167,18 @@ int ol_metadata_serialize (OlMetadata *metadata,
  */
 int ol_metadata_deserialize (OlMetadata *metadata,
                              const char *data);
+
+/**
+ * Converts a metadata to a GVariant.
+ *
+ * This function is intended to do D-Bus communication.
+ * 
+ * The conveted GVariant is a dict of type a{sv}. The content of the dict follows
+ * the format of metadata defined in the Daemon's D-Bus specification.
+ * 
+ * @param metadata 
+ * 
+ * @return A GVariant of a{sv}
+ */
+GVariant *ol_metadata_to_variant (OlMetadata *metadata);
 #endif /* _OL_METADATA_H_ */

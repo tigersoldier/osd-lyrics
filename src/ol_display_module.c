@@ -161,10 +161,10 @@ ol_display_module_set_played_time (struct OlDisplayModule *module,
 
 void
 ol_display_module_set_lrc (struct OlDisplayModule *module,
-                           struct OlLrc *lrc_file)
+                           OlLrc *lrc)
 {
   ol_assert (module != NULL);
-  call (module->klass->set_lrc, module, lrc_file);
+  call (module->klass->set_lrc, module, lrc);
 }
 
 void

@@ -21,6 +21,7 @@
 #define _OL_DISPLAY_MODULE_H_
 
 #include "ol_metadata.h"
+#include "ol_lrc.h"
 #include "ol_player.h"
 
 struct OlLrc;
@@ -43,7 +44,7 @@ struct OlDisplayClass
   OlDisplayInitFunc init;
   OlDisplayFreeFunc free;
   void (*set_lrc) (struct OlDisplayModule *module,
-                   struct OlLrc *lrc_file);
+                   OlLrc *lrc_file);
   void (*set_played_time) (struct OlDisplayModule *module,
                            guint64 played_time);
   void (*set_message) (struct OlDisplayModule *module,
@@ -105,7 +106,7 @@ void ol_display_module_free (struct OlDisplayModule *module);
 void ol_display_module_set_played_time (struct OlDisplayModule *module,
                                         guint64 played_time);
 void ol_display_module_set_lrc (struct OlDisplayModule *module,
-                                struct OlLrc *lrc_file);
+                                OlLrc *lrc);
 void ol_display_module_set_message (struct OlDisplayModule *module,
                                     const char *message,
                                     int duration_ms);

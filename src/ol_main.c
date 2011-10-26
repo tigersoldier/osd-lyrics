@@ -26,6 +26,7 @@
 #include "config.h"
 #include "ol_lrc.h"
 #include "ol_player.h"
+#include "ol_lyrics.h"
 #include "ol_utils.h"
 #include "ol_lrc_fetch.h"
 #include "ol_lrc_fetch_ui.h"
@@ -68,7 +69,8 @@ static guint name_watch_id = 0;
 static guint position_timer = 0;
 static OlPlayer *player = NULL;
 static OlMetadata *metadata = NULL;
-static struct OlLrc *lrc_file = NULL;
+static OlLrc *current_lrc = NULL;
+static OlLyrics *lyrics_proxy = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *module = NULL;
 static int search_id = -1;
@@ -95,6 +97,8 @@ static void _on_config_changed (OlConfig *config,
                                 gpointer userdata);
 static void _init_dbus_connection (void);
 static void _init_dbus_connection_done (void);
+static void _init_player (void);
+static void _init_lyrics_proxy (void);
 static void _client_name_acquired_cb (GDBusConnection *connection,
                                       const gchar *name,
                                       gpointer user_data);
@@ -121,6 +125,7 @@ static void _player_lost_cb (void);
 static void _player_connected_cb (void);
 static void _start_position_timer (void);
 static void _stop_position_timer (void);
+static void _change_lrc (void);
 
 static void
 _on_config_changed (OlConfig *config,
@@ -139,7 +144,7 @@ _on_config_changed (OlConfig *config,
       display_mode = g_strdup (mode);
       ol_display_module_free (module);
       module = ol_display_module_new (display_mode, player);
-      ol_display_module_set_lrc (module, lrc_file);
+      ol_display_module_set_lrc (module, current_lrc);
     }
     g_free (mode);
   }
@@ -230,11 +235,11 @@ ol_app_download_lyric (OlMetadata *metadata)
   return TRUE;
 }
 
-struct OlLrc *
+OlLrc *
 ol_app_get_current_lyric ()
 {
   ol_log_func ();
-  return lrc_file;
+  return current_lrc;
 }
 
 gboolean
@@ -247,61 +252,33 @@ ol_app_assign_lrcfile (const OlMetadata *info,
   ol_assert_ret (filepath == NULL || ol_path_is_file (filepath), FALSE);
   if (update)
   {
-    ol_lrclib_assign_lyric (info, filepath);
-  }
-  if (ol_metadata_equal (metadata, info))
-  {
-    if (lrc_file != NULL)
-    {
-      ol_lrc_free (lrc_file);
-      lrc_file = NULL;
-    }
-    if (filepath != NULL)
-      lrc_file = ol_lrc_new (filepath);
-    ol_display_module_set_lrc (module, lrc_file);
-  }
-  return TRUE;
-}
-
-static gboolean
-_check_lyric_file ()
-{
-  ol_log_func ();
-  gboolean ret = TRUE;
-  char *filename = NULL;
-  ol_debugf ("Finding LRC file for %s\n", ol_metadata_get_title (metadata));
-  int code = ol_lrclib_find (metadata, &filename);
-  if (code == 0)
-  {
-    ol_debugf ("Not found in database, try to find according path patterns\n");
-    filename = ol_lyric_find (metadata);
-  }
-  if (filename != NULL)
-  {
-    ol_debugf ("Lyric found: %s\n", filename);
-    if (ol_path_is_file (filename))
-    {
-      ret = ol_app_assign_lrcfile (metadata, filename, code == 0);
-    }
+    char *uri = NULL;
+    if (filepath == NULL)
+      uri = g_strdup ("none:");
     else
+      uri = g_filename_to_uri (filepath, NULL, NULL);
+    GError *error = NULL;
+    if (!ol_lyrics_assign (lyrics_proxy,
+                           metadata,
+                           uri,
+                           &error))
     {
-      ol_debugf ("LRC file not exist\n");
-      ret = FALSE;
+      ol_errorf ("Cannot assign lyric file: %s\n", error->message);
+      g_error_free (error);
     }
-    g_free (filename);
   }
-  else if (code == 0)
-  {
-    ol_debugf ("LRC file not found\n");
-      ret = FALSE;
-  }
-  else
-  {
-    /* filename == NULL but code != 0, which means the user set the track no to show
-       any lyrics explicitly. */
-    ret = TRUE;
-  }
-  return ret;
+  /* if (ol_metadata_equal (metadata, info)) */
+  /* { */
+  /*   if (current_lrc != NULL) */
+  /*   { */
+  /*     g_object_unref (lrc_file); */
+  /*     lrc_file = NULL; */
+  /*   } */
+  /*   if (filepath != NULL) */
+  /*     lrc_file = ol_lrc_new (filepath); */
+  /*   ol_display_module_set_lrc (module, lrc_file); */
+  /* } */
+  return TRUE;
 }
 
 static void
@@ -310,12 +287,23 @@ _track_changed_cb (void)
   ol_log_func ();
   ol_display_module_set_lrc (module, NULL);
   ol_player_get_metadata (player, metadata);
-  if (!_check_lyric_file () &&
-      !ol_is_string_empty (ol_metadata_get_title (metadata)))
-    ol_app_download_lyric (metadata);
+  _change_lrc ();
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
     ol_notify_music_change (metadata, ol_player_get_icon_path (player));
+}
+
+static void
+_change_lrc (void)
+{
+  if (current_lrc)
+    g_object_unref (current_lrc);
+  current_lrc = ol_lyrics_get_current_lyrics (lyrics_proxy);
+  if (module)
+    ol_display_module_set_lrc (module, current_lrc);
+  if (current_lrc == NULL &&
+      !ol_is_string_empty (ol_metadata_get_title (metadata)))
+    ol_app_download_lyric (metadata);
 }
 
 static void
@@ -456,12 +444,15 @@ void
 ol_app_adjust_lyric_offset (int offset_ms)
 {
   ol_log_func ();
-  struct OlLrc *lrc = ol_app_get_current_lyric ();
+  OlLrc *lrc = ol_app_get_current_lyric ();
   if (lrc == NULL)
     return;
   int old_offset = ol_lrc_get_offset (lrc);
   int new_offset = old_offset - offset_ms;
   ol_lrc_set_offset (lrc, new_offset);
+  ol_lyrics_set_offset (lyrics_proxy,
+                        ol_lrc_get_uri (lrc),
+                        new_offset);
 }
 
 static void
@@ -719,6 +710,17 @@ _init_player (void)
 }
 
 static void
+_init_lyrics_proxy (void)
+{
+  lyrics_proxy = ol_lyrics_new (NULL);
+  g_object_ref_sink (lyrics_proxy);
+  g_signal_connect (lyrics_proxy,
+                    "lyrics-changed",
+                    G_CALLBACK (_change_lrc),
+                    NULL);
+}
+
+static void
 _init_dbus_connection_done (void)
 {
   OlConfig *config = ol_config_get_instance ();
@@ -727,6 +729,7 @@ _init_dbus_connection_done (void)
                     NULL);
   metadata = ol_metadata_new ();
   _init_player ();
+  _init_lyrics_proxy ();
   ol_stock_init ();
   ol_display_module_init ();
   display_mode = ol_config_get_string (config, "General", "display-mode");
@@ -766,6 +769,7 @@ _uninitialize (void)
   g_signal_handlers_disconnect_by_func (player, _status_changed_cb, NULL);
   g_signal_handlers_disconnect_by_func (player, _track_changed_cb, NULL);
   g_object_unref (player);
+  g_object_unref (lyrics_proxy);
   player = NULL;
   g_bus_unwatch_name (name_watch_id);
   ol_metadata_free (metadata);

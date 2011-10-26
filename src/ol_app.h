@@ -22,6 +22,7 @@
 
 #include <glib.h>
 #include "ol_player.h"
+#include "ol_lrc.h"
 #include "ol_metadata.h"
 
 gboolean ol_app_download_lyric (OlMetadata *metadata);
@@ -38,7 +39,7 @@ OlMetadata* ol_app_get_current_music (void);
 
 OlPlayer* ol_app_get_player (void);
 
-struct OlLrc *ol_app_get_current_lyric (void);
+OlLrc *ol_app_get_current_lyric (void);
 
 gboolean ol_app_assign_lrcfile (const OlMetadata *info,
                                 const char *filepath,

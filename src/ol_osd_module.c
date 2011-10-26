@@ -44,7 +44,7 @@ struct _OlOsdModule
   gint lrc_next_id;
   gint current_line;
   gint line_count;
-  struct OlLrc *lrc;
+  OlLrc *lrc;
   gboolean display;
   OlOsdWindow *window;
   OlOsdToolbar *toolbar;
@@ -59,11 +59,12 @@ static void ol_osd_module_free (struct OlDisplayModule *module);
 static void _metadata_changed_cb (OlPlayer *player,
                                   OlOsdModule *module);
 static void _update_metadata (OlOsdModule *module);
+static gboolean _advance_to_nonempty_lyric (OlLrcIter *iter);
 
 static void ol_osd_module_set_played_time (struct OlDisplayModule *module,
                                            guint64 played_time);
 static void ol_osd_module_set_lrc (struct OlDisplayModule *module,
-                                   struct OlLrc *lrc_file);
+                                   OlLrc *lrc_file);
 static void ol_osd_module_set_message (struct OlDisplayModule *module,
                                        const char *message,
                                        int duration_ms);
@@ -86,11 +87,13 @@ static void ol_osd_module_clear_message (struct OlDisplayModule *module);
  * 
  * @return The real lyric of the lrc. returns NULL if not available
  */
-static const struct OlLrcItem* ol_osd_module_get_real_lyric (const struct OlLrcItem *lrc);
 static void ol_osd_module_update_next_lyric (OlOsdModule *osd,
-                                             const struct OlLrcItem *current_lrc);
+                                             OlLrcIter *iter);
 static void ol_osd_module_init_osd (OlOsdModule *osd);
-static void config_change_handler (OlConfig *config, gchar *group, gchar *name, gpointer userdata);
+static void config_change_handler (OlConfig *config,
+                                   gchar *group,
+                                   gchar *name,
+                                   gpointer userdata);
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
 static void ol_osd_resize_handler (OlOsdWindow *osd, gpointer data);
 static gboolean ol_osd_button_release (OlOsdWindow *osd,
@@ -157,39 +160,34 @@ ol_osd_scroll (OlOsdWindow *osd,
 }
 
 static void
-ol_osd_module_update_next_lyric (OlOsdModule *osd, const struct OlLrcItem *current_lrc)
+ol_osd_module_update_next_lyric (OlOsdModule *osd, OlLrcIter *iter)
 {
   if (osd->line_count == 1)
   {
     osd->lrc_next_id = -1;
     return;
   }
-  const struct OlLrcItem *info = ol_lrc_item_next (current_lrc);
-  info = ol_osd_module_get_real_lyric (info);
-  if (info == NULL)
+  if (ol_lrc_iter_next (iter))
+    _advance_to_nonempty_lyric (iter);
+  gint id;
+  const char *text = NULL;
+  if (ol_lrc_iter_is_valid (iter))
   {
-    if (osd->lrc_next_id == -1)
-    {
-      return;
-    }
-    else
-    {
-      osd->lrc_next_id = -1;
-      ol_osd_window_set_lyric (osd->window, 1 - osd->current_line, "");
-    }
+    id = ol_lrc_iter_get_id (iter);
+    text = ol_lrc_iter_get_text (iter);
   }
   else
   {
-    if (osd->lrc_next_id == ol_lrc_item_get_id (info))
-      return;
-    if (info != NULL)
-    {
-      osd->lrc_next_id = ol_lrc_item_get_id (info);
-      ol_osd_window_set_lyric (osd->window, 1 - osd->current_line,
-                               ol_lrc_item_get_lyric (info));
-    }
+    id = -1;
+    text = "";
   }
-  ol_osd_window_set_percentage (osd->window, 1 - osd->current_line, 0.0);
+  if (osd->lrc_next_id != id)
+  {
+    int next_line = 1 - osd->current_line;
+    osd->lrc_next_id = id;
+    ol_osd_window_set_lyric (osd->window, next_line, text);
+    ol_osd_window_set_percentage (osd->window, next_line, 0.0);
+  }
 }
 
 static void
@@ -399,6 +397,11 @@ ol_osd_module_free (struct OlDisplayModule *module)
   ol_assert (module != NULL);
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
+  if (priv->lrc)
+  {
+    g_object_unref (priv->lrc);
+    priv->lrc = NULL;
+  }
   if (priv->toolbar)
   {
     g_object_unref (priv->toolbar);
@@ -457,88 +460,69 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module,
   ol_assert (priv != NULL);
   if (priv->lrc != NULL && priv->window != NULL)
   {
-    double percentage;
-    int id, lyric_id;
-    ol_lrc_get_lyric_by_time (priv->lrc,
-                              played_time,
-                              ol_metadata_get_duration (priv->metadata),
-                              NULL,
-                              &percentage,
-                              &lyric_id);
-    const struct OlLrcItem *info = ol_lrc_get_item (priv->lrc, lyric_id);
-    info = ol_osd_module_get_real_lyric (info);
-    if (info == NULL)
-      id = -1;
-    else
-      id = ol_lrc_item_get_id (info);
-    if (priv->lrc_id != id)
+    OlLrcIter *iter = ol_lrc_iter_from_timestamp (priv->lrc,
+                                                  played_time);
+    if (_advance_to_nonempty_lyric (iter))
     {
-      if (id == -1)
+      gint id = ol_lrc_iter_get_id (iter);
+      if (id != priv->lrc_id)
       {
-        clear_lyrics (priv);
-        return;
-      }
-      if (id != priv->lrc_next_id)
-      {
-        priv->current_line = 0;
-        if (ol_lrc_item_get_lyric (info) != NULL)
+        if (id == priv->lrc_next_id)
+        {
+          /* advance to the next line */
+          ol_osd_window_set_percentage (priv->window, priv->current_line, 1.0);
+          priv->current_line = 1 - priv->current_line;
+          priv->lrc_id = priv->lrc_next_id;
+          priv->lrc_next_id = -1;
+        }
+        else
+        {
+          /* The user seeks the position or there is only 1 line in OSD window.
+             Reset the lyrics. */
+          priv->lrc_id = id;
+          priv->current_line = 0;
+          ol_osd_window_set_current_line (priv->window, 0);
           ol_osd_window_set_lyric (priv->window, priv->current_line,
-                                   ol_lrc_item_get_lyric (info));
-        if (id != lyric_id)
-          ol_osd_window_set_current_percentage (priv->window, 0.0);
-        ol_osd_module_update_next_lyric (priv, info);
+                                   ol_lrc_iter_get_text (iter));
+          ol_osd_module_update_next_lyric (priv, iter);
+        }
       }
-      else
-      {
-        ol_osd_window_set_percentage (priv->window, priv->current_line, 1.0);
-        priv->current_line = 1 - priv->current_line;
-      } /* if (id != module->lrc_next_id) */
-      priv->lrc_id = id;
-      ol_osd_window_set_current_line (priv->window, priv->current_line);
-    } /* if (module->lrc_id != id) */
-    if (id == lyric_id && percentage > 0.5)
-      ol_osd_module_update_next_lyric (priv, info);
-    if (id == lyric_id)
-    {
+      gdouble percentage = ol_lrc_iter_compute_percentage (iter, played_time);
       ol_osd_window_set_current_percentage (priv->window, percentage);
+      if (percentage > 0.5 && priv->lrc_next_id == -1)
+        ol_osd_module_update_next_lyric (priv, iter);
     }
-    /* if (!module->display) */
-    /* { */
-    /*   module->display = TRUE; */
-    /*   if (ol_config_get_bool (ol_config_get_instance (), "General", "visible")) */
-    /*     gtk_widget_show (GTK_WIDGET (module->window)); */
-    /* } */
-  } /* if (module->lrc_file != NULL && module->window != NULL) */
-  else
-  {
-    /* if (module->window != NULL && GTK_WIDGET_MAPPED (GTK_WIDGET (module->window))) */
-    /* { */
-    /*   ol_debug ("-1"); */
-    /*   clear_lyrics (module); */
-    /* } */
+    else if (priv->lrc_id != -1)
+    {
+      clear_lyrics (priv);
+    }
+    ol_lrc_iter_free (iter);
   }
 }
 
-static const struct OlLrcItem*
-ol_osd_module_get_real_lyric (const struct OlLrcItem *lrc)
+static gboolean
+_advance_to_nonempty_lyric (OlLrcIter *iter)
 {
-  while (lrc != NULL)
+  for (; ol_lrc_iter_is_valid (iter); ol_lrc_iter_next (iter))
   {
-    if (!ol_is_string_empty (ol_lrc_item_get_lyric (lrc)))
-      break;
-    lrc = ol_lrc_item_next (lrc);
+    if (!ol_is_string_empty (ol_lrc_iter_get_text (iter)))
+      return TRUE;
   }
-  return lrc;
+  return FALSE;
 }
 
 static void
-ol_osd_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file)
+ol_osd_module_set_lrc (struct OlDisplayModule *module, OlLrc *lrc_file)
 {
   ol_log_func ();
   ol_assert (module != NULL);
   OlOsdModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
+  if (priv->lrc)
+    g_object_unref (priv->lrc);
   priv->lrc = lrc_file;
+  if (lrc_file)
+    g_object_ref (lrc_file);
   if (lrc_file != NULL && priv->message_source != 0)
   {
     ol_osd_module_clear_message (module);

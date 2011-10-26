@@ -41,7 +41,7 @@ struct _OlScrollModule
   OlPlayer *player;
   OlMetadata *metadata;
   guint64 duration;
-  struct OlLrc *lrc;
+  OlLrc *lrc;
   OlScrollWindow *scroll;
   guint message_timer;
 };
@@ -55,7 +55,7 @@ static void _update_metadata (OlScrollModule *module);
 static void ol_scroll_module_set_played_time (struct OlDisplayModule *module,
                                               guint64 played_time);
 static void ol_scroll_module_set_lrc (struct OlDisplayModule *module,
-                                      struct OlLrc *lrc_file);
+                                      OlLrc *lrc);
 
 static void ol_scroll_module_set_message (struct OlDisplayModule *module,
                                           const char *message);
@@ -334,6 +334,11 @@ ol_scroll_module_free (struct OlDisplayModule *module)
     ol_metadata_free (priv->metadata);
     priv->metadata = NULL;
   }
+  if (priv->lrc)
+  {
+    g_object_unref (priv->lrc);
+    priv->lrc = NULL;
+  }
   g_free (priv);
 }
 
@@ -374,7 +379,8 @@ _update_metadata (OlScrollModule *module)
 }
 
 void
-ol_scroll_module_set_played_time (struct OlDisplayModule *module, guint64 played_time)
+ol_scroll_module_set_played_time (struct OlDisplayModule *module,
+                                  guint64 played_time)
 {
   ol_assert (module != NULL);
   ol_assert (module != NULL);
@@ -382,47 +388,43 @@ ol_scroll_module_set_played_time (struct OlDisplayModule *module, guint64 played
   ol_assert (priv != NULL);
   if (priv->lrc != NULL && priv->scroll != NULL)
   {
-    double percentage;
-    int lyric_id;
-    ol_lrc_get_lyric_by_time (priv->lrc,
-                              played_time,
-                              priv->duration,
-                              NULL,
-                              &percentage,
-                              &lyric_id);
-    ol_scroll_window_set_progress (priv->scroll, lyric_id, percentage);
+    OlLrcIter *iter = ol_lrc_iter_from_timestamp (priv->lrc,
+                                                  played_time);
+    ol_scroll_window_set_progress (priv->scroll,
+                                   ol_lrc_iter_get_id (iter),
+                                   ol_lrc_iter_compute_percentage (iter, played_time));
+    ol_lrc_iter_free (iter);
   }
 }
 
 void
-ol_scroll_module_set_lrc (struct OlDisplayModule *module, struct OlLrc *lrc_file)
+ol_scroll_module_set_lrc (struct OlDisplayModule *module,
+                          OlLrc *lrc)
 {
   ol_log_func ();
   ol_assert (module != NULL);
   ol_assert (module != NULL);
   OlScrollModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
-  priv->lrc = lrc_file;
-  if(priv->scroll == NULL)
-  {
-      priv->scroll = OL_SCROLL_WINDOW (ol_scroll_window_new ());
-  }
-  if (lrc_file == NULL)
+  if (priv->lrc != NULL)
+    g_object_unref (priv->lrc);
+  priv->lrc = lrc;
+  if (priv->lrc == NULL)
     ol_scroll_window_set_whole_lyrics(priv->scroll, NULL);
   else
   {
+    g_object_ref (priv->lrc);
     /*dump the whole lyrics of a song*/
-    int count = ol_lrc_item_count (lrc_file);
-    GPtrArray *whole_lyrics = g_ptr_array_new_with_free_func (g_free);
-    const struct OlLrcItem *info = NULL;
-    int i;
-    for (i = 0; i < count; i++)
+    GPtrArray *text_array = g_ptr_array_new_with_free_func (g_free);
+    OlLrcIter *iter = ol_lrc_iter_from_id (lrc, 0);
+    const char *text = NULL;
+    while (ol_lrc_iter_loop (iter, NULL, NULL, &text))
     {
-      info = ol_lrc_get_item (lrc_file, i);
-      g_ptr_array_add (whole_lyrics, g_strdup (ol_lrc_item_get_lyric (info)));
+      g_ptr_array_add (text_array, g_strdup (text));
     }
-    ol_scroll_window_set_whole_lyrics(priv->scroll, whole_lyrics);
-    g_ptr_array_unref (whole_lyrics);
+    ol_scroll_window_set_whole_lyrics(priv->scroll, text_array);
+    g_ptr_array_unref (text_array);
+    ol_lrc_iter_free (iter);
   }
 }
 

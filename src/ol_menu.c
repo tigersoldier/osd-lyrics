@@ -37,7 +37,6 @@
 #include "ol_app.h"
 #include "ol_gui.h"
 #include "ol_search_dialog.h"
-#include "ol_lrc_parser.h"
 #include "ol_player.h"
 #include "ol_debug.h"
 
