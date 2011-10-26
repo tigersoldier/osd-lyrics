@@ -61,6 +61,27 @@ def decode_non_utf8(content):
     else:
         return content
 
+def metadata_equal(lhs, rhs):
+    """
+    Tell if two metadatas are equal.
+
+    Two metadatas are equal if:
+    - The locations are not empty and are equal, or
+    - The titles, artists and albums are equal.
+    """
+    try:
+        if lhs['location'] == rhs['location'] and lhs['location'] != '':
+            return True
+    except:
+        pass
+    keys = ['title', 'artist', 'album']
+    for key in keys:
+        if (key in lhs) != (key in rhs):
+            return False
+        if key in lhs and lhs[key] != rhs[key]:
+            return False
+    return True
+
 class LyricsService(dbus.service.Object):
 
     scheme_handlers = {
@@ -77,7 +98,7 @@ class LyricsService(dbus.service.Object):
 
     def _lrc_from_file(self, urlparts):
         if urlparts.scheme == 'file':
-            path = urllib.url2pathname(urlparts.path)
+            path = urllib.url2pathname(osdlyrics.utils.ensure_utf8(urlparts.path))
         else:
             path = urlparts.path
         try:
@@ -86,6 +107,34 @@ class LyricsService(dbus.service.Object):
             return False, ''
         content = decode_non_utf8(file.read())
         return True, content
+
+    def lrc_uri_from_metadata(self, metadata):
+        """
+        Gets the uri of lyrics file assigned to the metadata.
+
+        Returns two values: in_db, uri
+        - `in_db`: True if the uri is found from the lyric assignment database
+        - `uri`: The URI of the LRC file. If not found, None will be returned.
+        """
+        uri = self._db.find(metadata)
+        if uri == '':
+            return True, 'none:'
+        found = uri is not None
+        if not found:
+            uri = self._expand_patterns(metadata)
+        # For historical reason, uri may be absolute path of the file system
+        # rather than the URI with a scheme. We need to convert this type of URI
+        # to the URI with scheme of 'file:'
+        if uri:
+            url_parts = urlparse.urlparse(uri)
+            if not url_parts.scheme:
+                uri = osdlyrics.utils.path2uri(uri)
+        return found, uri
+
+    def assign_lrc_uri(self, metadata, uri):
+        self._db.assign(metadata, uri)
+        if metadata_equal(metadata, self._metadata):
+            self.CurrentLyricsChanged()
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='a{sv}',
@@ -102,37 +151,20 @@ class LyricsService(dbus.service.Object):
                          in_signature='a{sv}',
                          out_signature='bss')
     def GetRawLyrics(self, metadata):
-        path = self._db.find(metadata)
-        if path is None:
+        in_db, uri = self.lrc_uri_from_metadata (metadata)
+        if not uri:
             return False, '', ''
-        if path == '':
-            return True, 'none:', ''
-        url = urlparse.urlparse(path)
-        ret, lrc = False, ''
-        if not url.scheme: # no scheme, consider to be a plain file path
-            ret, lrc = self._lrc_from_file(url)
-            path = osdlyrics.utils.path2uri(path)
-        elif url.scheme in LyricsService.scheme_handlers:
-            handler = getattr(self, LyricsService.scheme_handlers[url.scheme])
-            ret, lrc =  handler(url)
-        if not ret:  # lyrics not assigned, try to find lrc file according to patterns
-            path = self._expand_patterns(metadata)
-            if path is not None:
-                url = urlparse.ParseResult(scheme='',
-                                           netloc='',
-                                           path=path,
-                                           params='',
-                                           query='',
-                                           fragment='')
-                ret, lrc = self._lrc_from_file(url)
-            if ret:
-                # LRC file not found in database but found according to
-                # matching rules, assign the new LRC file to the lyrics
-                path = osdlyrics.utils.path2uri(path)
-                self._db.assign(metadata, path)
-            else:
-                path = ''
-        return ret, path, lrc
+        if uri == 'none:':
+            return True, uri, ''
+        url_parts = urlparse.urlparse(uri)
+        handler = getattr(self, LyricsService.scheme_handlers[url_parts.scheme])
+        ret, lrc =  handler(url_parts)
+        if ret and not in_db:
+            self.assign_lrc_uri(metadata, uri)
+        if not ret:
+            return False, '', ''
+        else:
+            return True, uri, lrc
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='',
@@ -162,14 +194,20 @@ class LyricsService(dbus.service.Object):
             f.close()
         except:
             return ''
-        self._db.assign(metadata, osdlyrics.utils.path2uri(path))
-        return path
+        uri = osdlyrics.utils.path2uri(path)
+        self.assign_lrc_uri(metadata, uri)
+        return uri
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='a{sv}s',
                          out_signature='')
     def AssignLyricFile(self, metadata, filepath):
-        self._db.assign(metadata, osdlyrics.utils.path2uri(filepath))
+        self.assign_lrc_uri(metadata, osdlyrics.utils.path2uri(filepath))
+
+    @dbus.service.signal(dbus_interface=osdlyrics.LYRICS_INTERFACE,
+                         signature='')
+    def CurrentLyricsChanged(self):
+        pass
 
     def _expand_patterns(self, metadata):
         file_patterns = self._config.get_string_list('General/lrc-filename',
@@ -194,6 +232,7 @@ class LyricsService(dbus.service.Object):
     def set_current_metadata(self, metadata):
         logging.debug('Setting current metadata: %s' % metadata)
         self._metadata = metadata
+        in_db, self._current_uri = self.lrc_uri_from_metadata(metadata)
 
 def doc_test():
     import doctest

@@ -77,6 +77,14 @@ def ensure_unicode(value):
         return value.decode('utf8')
     return value
 
+def ensure_utf8(value):
+    r"""
+    If value is a unicode, encode with utf-8. Otherwise return it directly.
+    """
+    if isinstance(value, unicode):
+        return value.encode('utf8')
+    return value
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

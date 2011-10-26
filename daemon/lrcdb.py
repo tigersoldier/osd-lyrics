@@ -23,22 +23,13 @@ import os.path
 import config
 import urllib
 import osdlyrics.utils
+from osdlyrics.utils import ensure_unicode, ensure_utf8
 from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ALBUM, \
     METADATA_ARTIST, METADATA_TRACKNUM
 
 __all__ = (
     'LrcDb',
     )
-
-def ensure_unicode(string):
-    if isinstance(string, str):
-        return string.decode('utf8')
-    return string
-
-def ensure_utf8(string):
-    if isinstance(string, unicode):
-        return string.encode('utf8')
-    return string
 
 def unicode_metadata(metadata):
     ret = {}
