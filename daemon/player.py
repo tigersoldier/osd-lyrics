@@ -192,6 +192,10 @@ class PlayerSupport(dbus.service.Object):
     def PlayerConnected(self, player_info):
         pass
 
+    @property
+    def current_player(self):
+        return self._mpris1_player
+
 class Mpris1Root(osdlyrics.dbusext.Object):
     """ Root object of MPRIS1
     """
@@ -242,6 +246,9 @@ class Mpris1Player(osdlyrics.dbusext.Object):
                                                             self.CapsChange))
         self._signals.append(self._player.connect_to_signal('StatusChange',
                                                             self.StatusChange))
+        self.TrackChange(self.GetMetadata())
+        self.CapsChange(self.GetCaps())
+        self.StatusChange(self.GetStatus())
 
     def disconnect_player(self):
         for signal in self._signals:
