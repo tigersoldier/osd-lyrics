@@ -168,6 +168,16 @@ test_copy ()
   ol_metadata_free (metadata2);
 }
 
+void
+test_variant (void)
+{
+  OlMetadata *metadata = ol_metadata_new ();
+  set_metadata (metadata);
+  GVariant *variant = ol_metadata_to_variant (metadata);
+  g_variant_unref (variant);
+  ol_metadata_free (metadata);
+}
+
 int
 main ()
 {
@@ -177,5 +187,6 @@ main ()
   test_clear ();
   test_serialize ();
   test_deserialize ();
+  test_variant ();
   return 0;
 }
