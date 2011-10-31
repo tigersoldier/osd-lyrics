@@ -15,7 +15,6 @@ AM_CPPFLAGS = \
 	@SQLITE_CFLAGS@ \
 	@X11_CFLAGS@ \
 	@APP_INDICATOR_CFLAGS@ \
-	-I$(top_srcdir)/lib/chardetect/include \
 	-DDATADIR='"$(datadir)"' \
 	-DICONDIR='"$(OL_ICONDIR)"' \
 	-DGUIDIR='"$(OL_GUIDIR)"'
@@ -29,7 +28,6 @@ LDADD = \
 	@SQLITE_LIBS@ \
 	@X11_LIBS@ \
 	@APP_INDICATOR_LIBS@ \
-	../lib/chardetect/libchardetect.a \
 	-lstdc++
 
 noinst_HEADERS = \
@@ -63,7 +61,6 @@ noinst_HEADERS = \
 	ol_lrc_fetch_utils.h \
 	ol_lrc.h \
 	ol_lyrics.h \
-	ol_lrclib.h \
 	ol_lyric_manage.h \
 	ol_marshal.h \
 	ol_md5.h \
@@ -139,7 +136,6 @@ osdlyrics_SOURCES = \
 	ol_marshal.c \
 	ol_stock.c \
 	ol_notify.c \
-	ol_lrclib.c \
 	ol_player_chooser.c \
 	ol_gussian_blur.c
 

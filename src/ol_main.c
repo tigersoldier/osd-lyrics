@@ -41,14 +41,12 @@
 #include "ol_stock.h"
 #include "ol_app.h"
 #include "ol_notify.h"
-#include "ol_lrclib.h"
 #include "ol_debug.h"
 #include "ol_player_chooser.h"
 
 #define REFRESH_INTERVAL 100
 #define INFO_INTERVAL 500
 #define TIMEOUT_WAIT_LAUNCH 5000
-#define LRCDB_FILENAME "lrc.db"
 
 gboolean _arg_debug_cb (const gchar *option_name,
                         const gchar *value,
@@ -72,7 +70,7 @@ static OlMetadata *metadata = NULL;
 static OlLrc *current_lrc = NULL;
 static OlLyrics *lyrics_proxy = NULL;
 static char *display_mode = NULL;
-static struct OlDisplayModule *module = NULL;
+static struct OlDisplayModule *display_module = NULL;
 static int search_id = -1;
 static gboolean initialized = FALSE;
 static enum _PlayerLostAction {
@@ -142,9 +140,9 @@ _on_config_changed (OlConfig *config,
       if (display_mode != NULL)
         g_free (display_mode);
       display_mode = g_strdup (mode);
-      ol_display_module_free (module);
-      module = ol_display_module_new (display_mode, player);
-      ol_display_module_set_lrc (module, current_lrc);
+      ol_display_module_free (display_module);
+      display_module = ol_display_module_new (display_mode, player);
+      ol_display_module_set_lrc (display_module, current_lrc);
     }
     g_free (mode);
   }
@@ -157,7 +155,7 @@ _download_callback (struct OlLrcDownloadResult *result)
   if (result->filepath != NULL)
     ol_app_assign_lrcfile (result->metadata, result->filepath, TRUE);
   else
-    ol_display_module_download_fail_message (module, _("Download failed"));
+    ol_display_module_download_fail_message (display_module, _("Download failed"));
 }
 
 static void
@@ -170,10 +168,10 @@ _search_msg_callback (int _search_id,
   switch (msg_type)
   {
   case OL_LRC_SEARCH_MSG_ENGINE:
-    if (module != NULL)
+    if (display_module != NULL)
     {
       char *msg = g_strdup_printf (_("Searching lyrics from %s"), _(message));
-      ol_display_module_search_fail_message (module, msg);
+      ol_display_module_search_fail_message (display_module, msg);
       g_free (msg);
     }
     break;
@@ -195,12 +193,12 @@ _search_callback (struct OlLrcFetchResult *result,
     char *filename = ol_lyric_download_path (result->metadata);
     if (filename == NULL)
     {
-      ol_display_module_download_fail_message (module, _("Cannot create the lyric directory"));
+      ol_display_module_download_fail_message (display_module, _("Cannot create the lyric directory"));
     }
     else
     {
-      if (module != NULL) {
-        ol_display_module_clear_message (module);
+      if (display_module != NULL) {
+        ol_display_module_clear_message (display_module);
       }
       ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
                             result->metadata,
@@ -210,8 +208,8 @@ _search_callback (struct OlLrcFetchResult *result,
   }
   else
   {
-    if (module != NULL)
-      ol_display_module_search_fail_message (module, _("Lyrics not found"));
+    if (display_module != NULL)
+      ol_display_module_search_fail_message (display_module, _("Lyrics not found"));
   }
 }
 
@@ -267,17 +265,6 @@ ol_app_assign_lrcfile (const OlMetadata *info,
       g_error_free (error);
     }
   }
-  /* if (ol_metadata_equal (metadata, info)) */
-  /* { */
-  /*   if (current_lrc != NULL) */
-  /*   { */
-  /*     g_object_unref (lrc_file); */
-  /*     lrc_file = NULL; */
-  /*   } */
-  /*   if (filepath != NULL) */
-  /*     lrc_file = ol_lrc_new (filepath); */
-  /*   ol_display_module_set_lrc (module, lrc_file); */
-  /* } */
   return TRUE;
 }
 
@@ -285,7 +272,7 @@ static void
 _track_changed_cb (void)
 {
   ol_log_func ();
-  ol_display_module_set_lrc (module, NULL);
+  ol_display_module_set_lrc (display_module, NULL);
   ol_player_get_metadata (player, metadata);
   _change_lrc ();
   OlConfig *config = ol_config_get_instance ();
@@ -299,8 +286,8 @@ _change_lrc (void)
   if (current_lrc)
     g_object_unref (current_lrc);
   current_lrc = ol_lyrics_get_current_lyrics (lyrics_proxy);
-  if (module)
-    ol_display_module_set_lrc (module, current_lrc);
+  if (display_module)
+    ol_display_module_set_lrc (display_module, current_lrc);
   if (current_lrc == NULL &&
       !ol_is_string_empty (ol_metadata_get_title (metadata)))
     ol_app_download_lyric (metadata);
@@ -373,6 +360,9 @@ _player_connected_cb (void)
 static void
 _player_lost_cb (void)
 {
+  /* try to connect to other player first */
+  if (ol_player_is_connected (player))
+    return;
   switch (player_lost_action)
   {
   case ACTION_LAUNCH_DEFAULT:
@@ -424,7 +414,7 @@ _update_position (gpointer data)
   ol_log_func ();
   guint64 time = 0;
   ol_player_get_position (player, &time);
-  ol_display_module_set_played_time (module, time);
+  ol_display_module_set_played_time (display_module, time);
   return TRUE;
 }
 
@@ -733,20 +723,11 @@ _init_dbus_connection_done (void)
   ol_stock_init ();
   ol_display_module_init ();
   display_mode = ol_config_get_string (config, "General", "display-mode");
-  module = ol_display_module_new (display_mode, player);
+  display_module = ol_display_module_new (display_mode, player);
   ol_trayicon_init ();
   ol_notify_init ();
   ol_keybinding_init ();
   ol_lrc_fetch_module_init ();
-  char *lrcdb_file = g_strdup_printf ("%s/%s/%s",
-                                      g_get_user_config_dir (),
-                                      PACKAGE_NAME,
-                                      LRCDB_FILENAME);
-  if (!ol_lrclib_init (lrcdb_file))
-  {
-    ol_error ("Initialize lrclib failed");
-  }
-  g_free (lrcdb_file);
   ol_lrc_fetch_add_async_download_callback (_download_callback);
 
   if (ol_player_is_connected (player))
@@ -775,14 +756,13 @@ _uninitialize (void)
   ol_metadata_free (metadata);
   metadata = NULL;
   ol_notify_unload ();
-  ol_display_module_free (module);
+  ol_display_module_free (display_module);
   if (display_mode != NULL)
     g_free (display_mode);
   display_mode = NULL;
-  module = NULL;
+  display_module = NULL;
   ol_display_module_unload ();
   ol_trayicon_free ();
-  ol_lrclib_unload ();
   ol_config_unload ();
   ol_lrc_fetch_module_unload (); 
 }

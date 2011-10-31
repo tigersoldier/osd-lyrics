@@ -1,7 +1,6 @@
 check_PROGRAMS = \
 	ol_osd_window_test \
 	ol_player_test\
-	ol_lrc_parser_test\
 	ol_lrc_test \
 	ol_lrc_fetch_test \
 	ol_config_test \
@@ -12,7 +11,6 @@ check_PROGRAMS = \
 	ol_utils_cmdline_test \
 	ol_fork_test \
 	ol_metadata_test \
-	ol_lrclib_test \
 	ol_utils_dbus_test \
 	ol_utils_test \
 	ol_gussian_blur_test
@@ -28,7 +26,7 @@ AM_CPPFLAGS = \
 	@SQLITE_CFLAGS@ \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/tests \
-	-I$(top_srcdir)/lib/chardetect/include
+	$(NULL)
 
 LDADD = \
 	@GTK2_LIBS@ \
@@ -37,8 +35,7 @@ LDADD = \
 	@MPD_LIBS@ \
 	@CURL_LIBS@ \
 	@SQLITE_LIBS@ \
-	../../lib/chardetect/libchardetect.a \
-	-lstdc++
+	$(NULL)
 
 noinst_HEADERS = \
 	ol_test_util.h
@@ -64,11 +61,6 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(NULL)
-
-ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_lrc_parser.c \
-	$(top_srcdir)/src/ol_utils.c
 
 ol_lrc_test_SOURCES = ol_lrc_test.c \
 	$(top_srcdir)/src/ol_debug.c \
@@ -151,13 +143,6 @@ ol_fork_test_SOURCES = \
 ol_metadata_test_SOURCES = \
 	ol_metadata_test.c \
 	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_metadata.c \
-	$(top_srcdir)/src/ol_utils.c
-
-ol_lrclib_test_SOURCES = \
-	ol_lrclib_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_lrclib.c \
 	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c
 
