@@ -41,7 +41,7 @@ OlPlayer* ol_app_get_player (void);
 
 OlLrc *ol_app_get_current_lyric (void);
 
-gboolean ol_app_assign_lrcfile (const OlMetadata *info,
+gboolean ol_app_assign_lrcfile (OlMetadata *info,
                                 const char *filepath,
                                 gboolean update);
 /** 

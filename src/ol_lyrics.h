@@ -105,9 +105,9 @@ OlLrc *ol_lyrics_get_lyrics (OlLyrics *proxy,
  *         pointed to an empty string rather than #NULL.
  */
 gboolean ol_lyrics_get_raw_lyrics (OlLyrics *proxy,
-                                    OlMetadata *metadata,
-                                    char **uri,
-                                    char **content);
+                                   OlMetadata *metadata,
+                                   char **uri,
+                                   char **content);
 
 /**
  * Gets the content of the LRC file assigned to the current track in
@@ -124,8 +124,8 @@ gboolean ol_lyrics_get_raw_lyrics (OlLyrics *proxy,
  *         pointed to an empty string rather than #NULL.
  */
 gboolean ol_lyrics_get_current_raw_lyrics (OlLyrics *proxy,
-                                            char **uri,
-                                            char **content);
+                                           char **uri,
+                                           char **content);
 
 /**
  * Sets the content of LRC file for given metadata.

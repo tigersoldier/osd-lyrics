@@ -66,7 +66,7 @@ static GOptionEntry cmdargs[] =
 static guint name_watch_id = 0;
 static guint position_timer = 0;
 static OlPlayer *player = NULL;
-static OlMetadata *metadata = NULL;
+static OlMetadata *current_metadata = NULL;
 static OlLrc *current_lrc = NULL;
 static OlLyrics *lyrics_proxy = NULL;
 static char *display_mode = NULL;
@@ -241,12 +241,12 @@ ol_app_get_current_lyric ()
 }
 
 gboolean
-ol_app_assign_lrcfile (const OlMetadata *info,
+ol_app_assign_lrcfile (OlMetadata *metadata,
                        const char *filepath,
                        gboolean update)
 {
   ol_log_func ();
-  ol_assert_ret (info != NULL, FALSE);
+  ol_assert_ret (metadata != NULL, FALSE);
   ol_assert_ret (filepath == NULL || ol_path_is_file (filepath), FALSE);
   if (update)
   {
@@ -273,11 +273,11 @@ _track_changed_cb (void)
 {
   ol_log_func ();
   ol_display_module_set_lrc (display_module, NULL);
-  ol_player_get_metadata (player, metadata);
+  ol_player_get_metadata (player, current_metadata);
   _change_lrc ();
   OlConfig *config = ol_config_get_instance ();
   if (ol_config_get_bool (config, "General", "notify-music"))
-    ol_notify_music_change (metadata, ol_player_get_icon_path (player));
+    ol_notify_music_change (current_metadata, ol_player_get_icon_path (player));
 }
 
 static void
@@ -289,8 +289,8 @@ _change_lrc (void)
   if (display_module)
     ol_display_module_set_lrc (display_module, current_lrc);
   if (current_lrc == NULL &&
-      !ol_is_string_empty (ol_metadata_get_title (metadata)))
-    ol_app_download_lyric (metadata);
+      !ol_is_string_empty (ol_metadata_get_title (current_metadata)))
+    ol_app_download_lyric (current_metadata);
 }
 
 static void
@@ -427,7 +427,7 @@ ol_app_get_player ()
 OlMetadata*
 ol_app_get_current_music ()
 {
-  return metadata;
+  return current_metadata;
 }
 
 void
@@ -717,7 +717,7 @@ _init_dbus_connection_done (void)
   g_signal_connect (config, "changed",
                     G_CALLBACK (_on_config_changed),
                     NULL);
-  metadata = ol_metadata_new ();
+  current_metadata = ol_metadata_new ();
   _init_player ();
   _init_lyrics_proxy ();
   ol_stock_init ();
@@ -753,8 +753,8 @@ _uninitialize (void)
   g_object_unref (lyrics_proxy);
   player = NULL;
   g_bus_unwatch_name (name_watch_id);
-  ol_metadata_free (metadata);
-  metadata = NULL;
+  ol_metadata_free (current_metadata);
+  current_metadata = NULL;
   ol_notify_unload ();
   ol_display_module_free (display_module);
   if (display_mode != NULL)
