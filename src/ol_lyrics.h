@@ -22,7 +22,6 @@
 
 #include <gio/gio.h>
 #include "ol_metadata.h"
-#include "ol_lrc.h"
 
 G_BEGIN_DECLS
 
@@ -50,6 +49,8 @@ struct _OlLyricsClass
 {
   GDBusProxyClass parent_class;
 };
+
+#include "ol_lrc.h"
 
 GType ol_lyrics_get_type (void) G_GNUC_CONST;
 

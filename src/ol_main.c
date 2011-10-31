@@ -440,9 +440,6 @@ ol_app_adjust_lyric_offset (int offset_ms)
   int old_offset = ol_lrc_get_offset (lrc);
   int new_offset = old_offset - offset_ms;
   ol_lrc_set_offset (lrc, new_offset);
-  ol_lyrics_set_offset (lyrics_proxy,
-                        ol_lrc_get_uri (lrc),
-                        new_offset);
 }
 
 static void

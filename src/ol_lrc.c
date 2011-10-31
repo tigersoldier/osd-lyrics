@@ -46,6 +46,14 @@ struct _OlLrcPrivate
   GHashTable *metadata;
   GPtrArray *items;
   guint64 duration;
+  OlLyrics *lyric_proxy;
+  guint save_offset_timer;
+};
+
+struct SaveOffsetData
+{
+  OlLrc *lrc;
+  int offset;
 };
 
 #define OL_LRC_GET_PRIVATE(object)                                   \
@@ -59,6 +67,8 @@ static void ol_lrc_item_free (struct OlLrcItem *item);
 /* -------------- OlLrcIter private methods --------------*/
 static OlLrcIter *ol_lrc_iter_new (OlLrc *lrc, guint index);
 static struct OlLrcItem *ol_lrc_iter_get_item (OlLrcIter *iter);
+/* ---------------Save offset functions ----------------- */
+static gboolean _save_offset_timeout (OlLrc *lrc);
 
 G_DEFINE_TYPE (OlLrc, ol_lrc, G_TYPE_OBJECT);
 
@@ -77,19 +87,26 @@ ol_lrc_init (OlLrc *lrc)
   priv->items = g_ptr_array_new_with_free_func ((GDestroyNotify) ol_lrc_item_free);
   /* ensure there is at lease one line */
   g_ptr_array_add (priv->items, ol_lrc_item_new (0, ""));
+
   priv->metadata = g_hash_table_new_full (g_str_hash,
                                           g_str_equal,
                                           (GDestroyNotify) g_free,
                                           (GDestroyNotify) g_free);
+  priv->save_offset_timer = 0;
   priv->offset = 0;
 };
 
 OlLrc *
-ol_lrc_new (const gchar *uri)
+ol_lrc_new (OlLyrics *lyric_proxy,
+            const gchar *uri)
 {
   OlLrc *lrc = OL_LRC (g_object_new (OL_TYPE_LRC, NULL));
   OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
   priv->uri = g_strdup (uri);
+  if (lyric_proxy)
+    priv->lyric_proxy = g_object_ref (lyric_proxy);
+  else
+    priv->lyric_proxy = NULL;
   return lrc;
 }
 
@@ -97,9 +114,22 @@ static void
 ol_lrc_finalize (GObject *object)
 {
   OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (object);
+  if (priv->save_offset_timer > 0)
+  {
+    g_source_remove (priv->save_offset_timer);
+    priv->save_offset_timer = 0;
+    ol_lyrics_set_offset (priv->lyric_proxy,
+                          priv->uri,
+                          priv->offset);
+  }
   g_ptr_array_free (priv->items, TRUE);
   g_hash_table_destroy (priv->metadata);
   g_free (priv->uri);
+  if (priv->lyric_proxy)
+  {
+    g_object_unref (priv->lyric_proxy);
+    priv->lyric_proxy = NULL;
+  }
   priv->items = NULL;
   priv->metadata = NULL;
   priv->uri = NULL;
@@ -216,6 +246,18 @@ ol_lrc_get_item_count (OlLrc *lrc)
   return priv->items->len;
 }
 
+static gboolean
+_save_offset_timeout (OlLrc *lrc)
+{
+  ol_assert_ret (OL_IS_LRC (lrc), FALSE);
+  OlLrcPrivate *priv = OL_LRC_GET_PRIVATE (lrc);
+  ol_lyrics_set_offset (priv->lyric_proxy,
+                        priv->uri,
+                        priv->offset);
+  priv->save_offset_timer = 0;
+  return FALSE;
+}
+
 void
 ol_lrc_set_offset (OlLrc *lrc,
                    int offset)
@@ -226,6 +268,17 @@ ol_lrc_set_offset (OlLrc *lrc,
   g_hash_table_replace (priv->metadata,
                         g_strdup ("offset"),
                         g_strdup_printf ("%d", priv->offset));
+  if (priv->lyric_proxy)
+  {
+    if (priv->save_offset_timer > 0)
+    {
+      g_source_remove (priv->save_offset_timer);
+      priv->save_offset_timer = 0;
+    }
+    priv->save_offset_timer = g_timeout_add (1000,
+                                             (GSourceFunc) _save_offset_timeout,
+                                             lrc);
+  }
 }
 
 int

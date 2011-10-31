@@ -48,6 +48,8 @@ struct _OlLrcClass
   GObjectClass parent_class;
 };
 
+#include "ol_lyrics.h"
+
 GType ol_lrc_get_type (void);
 
 /** 
@@ -67,7 +69,8 @@ struct _OlLrcIter;
  * @return The OlLrc instance of the file, or NULL if filename doesn't exist.
  *         You should free it with g_object_unref.
  */
-OlLrc *ol_lrc_new (const gchar *uri);
+OlLrc *ol_lrc_new (OlLyrics *lyric_proxy,
+                   const gchar *uri);
 
 /** 
  * Sets the LRC attributes from GVariant
@@ -123,11 +126,13 @@ const char *ol_lrc_get_attribute (OlLrc *lrc,
  */
 guint ol_lrc_get_item_count (OlLrc *lrc);
 
-/** 
+/**
  * Update the offset of the lrc file
  *
- * Note that this function only update the offset in the memory. To update
- * the offset of the LRC file, you should call set_offset of OlLyrics object.
+ * If the #lyrics_proxy is set in ol_lrc_new(), the ol_lyrics_set_offset() will be
+ * invoked automatically. To avoid performance issue, the ol_lyrics_set_offset() will
+ * not be called right after ol_lrc_set_offset() is called. The #OlLrc object will
+ * sync the offset change 1 second after last ol_lrc_set_offset() call.
  *
  * @param lrc
  * @param offset The offset of which should be ajusted 

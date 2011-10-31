@@ -24,7 +24,8 @@ static void ol_lyrics_g_signal (GDBusProxy *proxy,
                                 const gchar *sender_name,
                                 const gchar *signal_name,
                                 GVariant *parameters);
-static OlLrc *ol_lyrics_get_lrc_from_variant (GVariant *variant);
+static OlLrc *ol_lyrics_get_lrc_from_variant (OlLyrics *proxy,
+                                              GVariant *variant);
 
 G_DEFINE_TYPE (OlLyrics, ol_lyrics, G_TYPE_DBUS_PROXY);
 
@@ -138,7 +139,7 @@ ol_lyrics_proxy_new_finish (GAsyncResult *res,
 }
 
 static OlLrc *
-ol_lyrics_get_lrc_from_variant (GVariant *variant)
+ol_lyrics_get_lrc_from_variant (OlLyrics *proxy, GVariant *variant)
 {
   OlLrc *lrc = NULL;
   gboolean found;
@@ -147,7 +148,7 @@ ol_lyrics_get_lrc_from_variant (GVariant *variant)
   g_variant_get (variant, "(bs@a{ss}@aa{sv})", &found, &uri, &metadata, &content);
   if (found)
   {
-    lrc = ol_lrc_new (uri);
+    lrc = ol_lrc_new (proxy, uri);
     ol_lrc_set_attributes_from_variant (lrc, metadata);
     ol_lrc_set_content_from_variant (lrc, content);
   }
@@ -172,7 +173,7 @@ ol_lyrics_get_current_lyrics (OlLyrics *proxy)
                                           &error);
   if (ret)
   {
-    lrc = ol_lyrics_get_lrc_from_variant (ret);
+    lrc = ol_lyrics_get_lrc_from_variant (proxy, ret);
     g_variant_unref (ret);
   }
   else
@@ -201,7 +202,7 @@ ol_lyrics_get_lyrics (OlLyrics *proxy,
                                           &error);
   if (ret)
   {
-    lrc = ol_lyrics_get_lrc_from_variant (ret);
+    lrc = ol_lyrics_get_lrc_from_variant (proxy, ret);
     g_variant_unref (ret);
   }
   else
