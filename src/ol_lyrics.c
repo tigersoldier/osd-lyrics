@@ -378,8 +378,6 @@ ol_lyrics_set_offset (OlLyrics *proxy,
                                           &error);
   if (ret)
   {
-    gchar *uri = NULL;
-    g_variant_get (ret, "(s)", &uri);
     g_variant_unref (ret);
     return TRUE;
   }

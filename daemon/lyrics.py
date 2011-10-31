@@ -161,7 +161,7 @@ def load_from_uri(uri):
     url_parts = urlparse.urlparse(osdlyrics.utils.ensure_utf8(uri))
     return URI_LOAD_HANDLERS[url_parts.scheme](url_parts)
 
-def save_to_file(urlparts):
+def save_to_file(urlparts, content):
     """
     Save the content of file to urlparse.ParseResult
 
@@ -176,7 +176,7 @@ def save_to_file(urlparts):
     except IOError, e:
         logging.warning("Cannot write to file %s: %s" % (path, e))
         return False
-    file.write(ensure_utf8(content))
+    file.write(osdlyrics.utils.ensure_utf8(content))
     return True
 
 def save_to_uri(uri, content):
@@ -186,11 +186,11 @@ def save_to_uri(uri, content):
     Return True if succeeded, or False if failed.
     """
     URI_SAVE_HANDLERS = {
-        'file': save_from_file,
+        'file': save_to_file,
         }
 
     url_parts = urlparse.urlparse(osdlyrics.utils.ensure_utf8(uri))
-    return URI_SAVE_HANDLERS[url_parts.scheme](url_parts)
+    return URI_SAVE_HANDLERS[url_parts.scheme](url_parts, content)
 
 def update_lrc_offset(content, offset):
     r"""
