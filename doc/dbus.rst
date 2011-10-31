@@ -173,7 +173,7 @@ AssignLyricFile(a{sv}:metadata, s:uri) -> nothing
   Assigns an LRC file to given metadata. The ``uri`` should follow the format described in `Lyric URI`_.
 
 SetOffset(s:uri, i:offset_ms)
-  Sets the offset of an LRC file. The ``uri`` should be a valid lyrics URI described in `Lyric URI`_. The ``offset`` is in milliseconds.
+  Sets the offset of an LRC file. The ``uri`` should be a valid lyrics URI described in `Lyric URI`_. The ``offset`` is in milliseconds. Errors will be raise as exceptions.
 
 Signals
 ~~~~~~~

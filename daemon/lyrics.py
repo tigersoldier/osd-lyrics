@@ -18,6 +18,7 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
+import re
 import logging
 import urlparse
 import urllib
@@ -30,6 +31,7 @@ import osdlyrics.config
 import osdlyrics.lrc
 from osdlyrics.pattern import expand_file, expand_path
 from osdlyrics import LYRICS_OBJECT_PATH, LYRICS_INTERFACE as INTERFACE
+from osdlyrics.exceptions import Error
 import lrcdb
 
 DEFAULT_FILE_PATTERNS = [
@@ -43,6 +45,27 @@ DEFAULT_PATH_PATTERNS = [
     '~/.lyrics',
     '%',
     ]
+
+SUPPORTED_SCHEMES = [
+    'file',
+#    'tag',
+    'none',
+    ]
+
+class InvalidUriException(Error):
+    """ Exception of invalid uri.
+    """
+    
+    def __init__(self, uri):
+        Error.__init__(self, "Invalid URI: %s" % uri)
+
+class CannotLoadLrcException(Error):
+    def __init__(self, uri):
+        Error.__init__(self, "Cannot load lrc file from %s" % uri)
+
+class CannotSaveLrcException(Error):
+    def __init__(self, uri):
+        Error.__init__(self, "Cannot save lrc file to %s" % uri)
 
 def decode_non_utf8(content):
     r"""
@@ -82,6 +105,17 @@ def metadata_equal(lhs, rhs):
             return False
     return True
 
+def is_valid_uri(uri):
+    """
+    Tell if a URI is valid.
+
+    A valid URI must begin with the schemes defined in SUPPORTED_SCHEMES
+    """
+    for scheme in SUPPORTED_SCHEMES:
+        if uri.startswith(scheme + ':'):
+            return True
+    return False
+
 def ensure_uri_scheme(uri):
     """
     Converts a file path to an URI with scheme of "file:", leaving other URI not
@@ -94,6 +128,90 @@ def ensure_uri_scheme(uri):
         if not url_parts.scheme:
             uri = osdlyrics.utils.path2uri(uri)
     return uri
+
+def load_from_file(urlparts):
+    """
+    Load the content of file from urlparse.ParseResult
+
+    Return the content of the file, or None if error raised.
+    """
+    if urlparts.scheme == 'file':
+        path = urllib.url2pathname(urlparts.path)
+    else:
+        path = urlparts.path
+    try:
+        file = open(path)
+    except IOError, e:
+        logging.warning("Cannot read from file %s: %s" % (path, e))
+        return None
+    content = decode_non_utf8(file.read())
+    return content
+
+def load_from_uri(uri):
+    """
+    Load the content of LRC file from given URI
+    
+    If loaded, return the content. If failed, return None.
+    """
+    URI_LOAD_HANDLERS = {
+        'file': load_from_file,
+        'none': lambda uri: '',
+        }
+
+    url_parts = urlparse.urlparse(osdlyrics.utils.ensure_utf8(uri))
+    return URI_LOAD_HANDLERS[url_parts.scheme](url_parts)
+
+def save_to_file(urlparts):
+    """
+    Save the content of file to urlparse.ParseResult
+
+    Return True if succeeded
+    """
+    if urlparts.scheme == 'file':
+        path = urllib.url2pathname(urlparts.path)
+    else:
+        path = urlparts.path
+    try:
+        file = open(path, 'w')
+    except IOError, e:
+        logging.warning("Cannot write to file %s: %s" % (path, e))
+        return False
+    file.write(ensure_utf8(content))
+    return True
+
+def save_to_uri(uri, content):
+    """
+    Save the content of LRC file to given URI.
+
+    Return True if succeeded, or False if failed.
+    """
+    URI_SAVE_HANDLERS = {
+        'file': save_from_file,
+        }
+
+    url_parts = urlparse.urlparse(osdlyrics.utils.ensure_utf8(uri))
+    return URI_SAVE_HANDLERS[url_parts.scheme](url_parts)
+
+def update_lrc_offset(content, offset):
+    r"""
+    Replace the offset attributes in the content of LRC file.
+    >>> update_lrc_offset('no tag', 100)
+    '[offset:100]\nno tag'
+    >>> update_lrc_offset('[ti:title]\n[offset:200]\nSome lrc', 100)
+    '[ti:title]\n[offset:100]\nSome lrc'
+    >>> update_lrc_offset('[ti:title][offset:200]Some lrc\nanother', 100)
+    '[ti:title][offset:100]Some lrc\nanother'
+    >>> update_lrc_offset('Some [offset:200] lrc', 100)
+    '[offset:100]\nSome [offset:200] lrc'
+    >>> update_lrc_offset('[[offset:200]] lrc', 100)
+    '[offset:100]\n[[offset:200]] lrc'
+    """
+    search_result = re.search(r'^(\[[^\]]*\])*?\[offset:(.*?)\]', content, re.MULTILINE)
+    if search_result is None:
+        return '[offset:%s]\n%s' % (offset, content)
+    return '%s%s%s' % (content[:search_result.start(2)],
+                       offset,
+                       content[search_result.end(2):])
 
 class LyricsService(dbus.service.Object):
 
@@ -108,23 +226,6 @@ class LyricsService(dbus.service.Object):
         self._db = lrcdb.LrcDb()
         self._config = osdlyrics.config.Config(conn)
         self._metadata = {}
-
-    def _lrc_from_file(self, urlparts):
-        if urlparts.scheme == 'file':
-            path = urllib.url2pathname(osdlyrics.utils.ensure_utf8(urlparts.path))
-        else:
-            path = urlparts.path
-        try:
-            file = open(path)
-        except IOError, e:
-            return False, ''
-        content = decode_non_utf8(file.read())
-        return True, content
-
-    def _lrc_content_from_uri(self, uri):
-        url_parts = urlparse.urlparse(uri)
-        handler = getattr(self, LyricsService.scheme_handlers[url_parts.scheme])
-        return handler(url_parts)
 
     def find_lrc_from_db(self, metadata):
         uri = self._db.find(metadata)
@@ -150,25 +251,25 @@ class LyricsService(dbus.service.Object):
             return ret, uri, attr, lines
         else:
             return ret, uri, {}, []
-    
+
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
                          in_signature='a{sv}',
                          out_signature='bss')
     def GetRawLyrics(self, metadata):
         uri = self.find_lrc_from_db(metadata)
-        ret = False
+        lrc = None
         if uri:
             if uri == 'none:':
                 return True, uri, ''
-            ret, lrc = self._lrc_content_from_uri(uri)
-            if ret:
-                return ret, uri, lrc
+            lrc = load_from_uri(uri)
+            if lrc is not None:
+                return True, uri, lrc
         uri = self.find_lrc_by_pattern(metadata)
         if uri:
-            ret, lrc = self._lrc_content_from_uri(uri)
-            if ret:
+            lrc = load_from_uri(uri)
+            if lrc is not None:
                 self.assign_lrc_uri(metadata, uri)
-        if not ret:
+        if lrc is None:
             return False, '', ''
         else:
             return True, uri, lrc
@@ -215,6 +316,19 @@ class LyricsService(dbus.service.Object):
                          signature='')
     def CurrentLyricsChanged(self):
         pass
+
+    @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
+                         in_signature='si',
+                         out_signature='')
+    def SetOffset(self, uri, offset_ms):
+        if not is_valid_uri(uri):
+            raise InvalidUriException(uri)
+        content = load_from_uri(uri)
+        if content is None:
+            raise CannotLoadLrcException(uri)
+        content = update_lrc_offset(content, offset_ms)
+        if not save_to_uri(uri, content):
+            raise CannotSaveLrcException(uri)
 
     def _expand_patterns(self, metadata):
         file_patterns = self._config.get_string_list('General/lrc-filename',
