@@ -37,7 +37,6 @@
 #include "ol_display_module.h"
 #include "ol_keybindings.h"
 #include "ol_lrc_fetch_module.h"
-#include "ol_lyric_manage.h"
 #include "ol_stock.h"
 #include "ol_app.h"
 #include "ol_notify.h"
@@ -152,10 +151,30 @@ static void
 _download_callback (struct OlLrcDownloadResult *result)
 {
   ol_log_func ();
-  if (result->filepath != NULL)
-    ol_app_assign_lrcfile (result->metadata, result->filepath, TRUE);
+  if (result->content != NULL)
+  {
+    GError *error = NULL;
+    gchar *uri = ol_lyrics_set_content (lyrics_proxy,
+                                        result->metadata,
+                                        result->content,
+                                        &error);
+    if (!uri)
+    {
+      ol_errorf ("Set content failed: %s\n",
+                 error->message);
+      g_error_free (error);
+    }
+    else
+    {
+      printf ("%s\n", uri);
+      ol_debugf ("Set content to %s\n", uri);
+      g_free (uri);
+    }
+  }
   else
+  {
     ol_display_module_download_fail_message (display_module, _("Download failed"));
+  }
 }
 
 static void
@@ -190,21 +209,11 @@ _search_callback (struct OlLrcFetchResult *result,
   search_id = -1;
   if (result->count > 0 && result->candidates != 0)
   {
-    char *filename = ol_lyric_download_path (result->metadata);
-    if (filename == NULL)
-    {
-      ol_display_module_download_fail_message (display_module, _("Cannot create the lyric directory"));
+    if (display_module != NULL) {
+      ol_display_module_clear_message (display_module);
     }
-    else
-    {
-      if (display_module != NULL) {
-        ol_display_module_clear_message (display_module);
-      }
-      ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
-                            result->metadata,
-                            filename);
-      g_free (filename);
-    }
+    ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
+                          result->metadata);
   }
   else
   {

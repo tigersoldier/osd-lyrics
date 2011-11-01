@@ -89,11 +89,11 @@ typedef OlLrcCandidate *(*Lrc_Search) (const OlMetadata *metadata,
                                        const char *local_charset);
 
 /** 
- * @brief download the lrc and store it in the file system
+ * @brief download the lrc and return the content.
+ *
+ * @return The content. If failed, return NULL. Must be freed with g_free()
  */
-typedef int (*Lrc_Download) (OlLrcCandidate *candidates,
-                             const char *pathname,
-                             const char *charset);
+typedef char *(*Lrc_Download) (OlLrcCandidate *candidates, size_t *len);
 
 typedef struct _OlLrcFetchEngine OlLrcFetchEngine;
 struct _OlLrcFetchEngine

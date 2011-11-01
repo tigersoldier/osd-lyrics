@@ -208,29 +208,33 @@ ol_lrc_fetch_xiami_search(const OlMetadata *metadata, int *size, const char* cha
   return ret;
 }
 
-int 
+char *
 ol_lrc_fetch_xiami_download(OlLrcCandidate *candidate,
-                            const char *pathname,
-                            const char *charset)
+                            size_t *len)
 {
   ol_log_func ();
-  ol_assert_ret (candidate != NULL, -1);
-  ol_assert_ret (pathname != NULL, -1);
-  FILE *fp;
-  int ret = 0;
+  ol_assert_ret (candidate != NULL, NULL);
+  char *ret = NULL;
+  struct memo content = {.mem_base = NULL, .mem_len = 0};
 
-  if ((fp = fopen(pathname, "w")) == NULL)
+  if (fetch_into_memory (ol_lrc_candidate_get_url (candidate),
+                         NULL,
+                         NULL,
+                         NULL,
+                         0,
+                         &content) < 0)
   {
-    ret = -1;
+    ol_errorf ("Download lyrics (%s, %s, %s) failed\n",
+               candidate->url, candidate->title, candidate->artist);
   }
   else
   {
-    fetch_into_file (ol_lrc_candidate_get_url (candidate),
-                     NULL,
-                     fp);
-    fclose(fp);
-    ret = 0;
+    ret = g_new (char, content.mem_len + 1);
+    memcpy (ret, content.mem_base, content.mem_len);
+    ret[content.mem_len] = '\0';
   }
+  if (len != NULL)
+    *len = content.mem_len;
   return ret;
 }
 

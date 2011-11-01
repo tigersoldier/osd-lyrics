@@ -52,7 +52,7 @@ ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
   OlLrcCandidate candidate = {{0}};
   if (ol_lrc_candidate_list_get_selected (list, &candidate))
   {
-    ol_lrc_fetch_begin_download (engine, &candidate, metadata, filepath, NULL);
+    ol_lrc_fetch_begin_download (engine, &candidate, metadata, NULL);
   }
   OlConfig *config = ol_config_get_instance ();
   GtkToggleButton *prompt_btn = GTK_TOGGLE_BUTTON (ol_gui_get_widget ("choose-do-not-prompt"));
@@ -110,26 +110,23 @@ void
 ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
                       const OlLrcCandidate *candidates,
                       int count,
-                      const OlMetadata *_metadata,
-                      const char *filename)
+                      const OlMetadata *_metadata)
 {
   ol_log_func ();
   if (window == NULL && !internal_init ())
     return;
-  if (lrcengine == NULL || candidates == NULL || count <= 0 || filename == NULL)
+  if (lrcengine == NULL || candidates == NULL || count <= 0)
   {
     gtk_widget_hide (window);
     return;
   }
   if (filepath != NULL)
     g_free (filepath);
-  filepath = g_strdup (filename);
   engine = lrcengine;
   ol_lrc_candidate_list_set_list (list, candidates, count);
   if (metadata == NULL)
     metadata = ol_metadata_new ();
   ol_metadata_copy (metadata, _metadata);
-    
   gboolean prompt = TRUE;
   OlConfig *config = ol_config_get_instance ();
   if (config != NULL)

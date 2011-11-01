@@ -164,8 +164,10 @@ GetCurrentRawLyrics() -> b, s, s
   
   Returns the content of LRC file of current playing track.
 
-SetLyricContent(a{sv}:metadata, s:content) -> s
+SetLyricContent(a{sv}:metadata, ay:content) -> s
   Sets the lyrics of specified metadata by content of LRC file.
+
+  The content is a byte string rather than utf-8 string so that the content can be encoded in other charsets.
   
   Returns the URI of assigned lyrics. The URI follows the format described in `Lyric URI`_. If the given metadata cannot be expended to a valid path, or errors raised when saving the content to the file, an empty string is returned and the lyrics to the metadata is not changed.
 

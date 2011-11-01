@@ -39,9 +39,8 @@ struct CandidateParserData
 static OlLrcCandidate* _search(const OlMetadata *metadata,
                                int *size,
                                const char* charset);
-static int _download (OlLrcCandidate *candidate,
-                      const char *pathname,
-                      const char *charset);
+static char* _download (OlLrcCandidate *candidate,
+                        size_t *len);
 static char* _encode_request_field (const char *value);
 
 static void _parse_candidate (GMarkupParseContext *context,
@@ -227,14 +226,12 @@ _search(const OlMetadata *metadata,
   return retval;
 }
 
-static int
+static char *
 _download(OlLrcCandidate *candidate,
-          const char *pathname,
-          const char *charset)
+          size_t *len)
 {
-  ol_assert_ret (candidate != NULL, -1);
-  ol_assert_ret (pathname != NULL, -1);
-  int ret = 0;
+  ol_assert_ret (candidate != NULL, NULL);
+  char *ret = NULL;
   int id = atoi (candidate->url);
   char *data = g_strdup_printf ("%s%s", candidate->artist, candidate->title);
   int code = _calc_download_code (id, data);
@@ -247,22 +244,15 @@ _download(OlLrcCandidate *candidate,
   {
     ol_errorf ("Download lyrics (%s, %s, %s) failed\n",
                candidate->url, candidate->title, candidate->artist);
-    ret = -1;
   }
   else
   {
-    GError *error = NULL;
-    if (!g_file_set_contents (pathname,
-                              content.mem_base,
-                              content.mem_len,
-                              &error))
-    {
-      ol_errorf ("Cannot save lyric file %s: %s\n",
-                 error->message);
-      g_error_free (error);
-      ret = -1;
-    }
+    ret = g_new (char, content.mem_len + 1);
+    memcpy (ret, content.mem_base, content.mem_len);
+    ret[content.mem_len] = '\0';
   }
+  if (len != NULL)
+    *len = content.mem_len;
   if (content.mem_base != NULL)
     free (content.mem_base);
   g_free (data);

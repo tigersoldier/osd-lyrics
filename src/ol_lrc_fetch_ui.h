@@ -28,8 +28,7 @@ struct _OlLrcFetchEngine;
 void ol_lrc_fetch_ui_show (struct _OlLrcFetchEngine *engine,
                            const struct _OlLrcCandidate *candidates,
                            int count,
-                           const OlMetadata *metadata,
-                           const char *filename);
+                           const OlMetadata *metadata);
                            
 
 #endif /* _OL_LRC_FETCH_UI_H_ */

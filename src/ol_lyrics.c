@@ -314,9 +314,9 @@ ol_lyrics_set_content (OlLyrics *proxy,
   ol_assert_ret (content != NULL, NULL);
   GVariant *ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
                                           "SetLyricContent",
-                                          g_variant_new ("(@a{sv}s)",
+                                          g_variant_new ("(@a{sv}@ay)",
                                                          ol_metadata_to_variant (metadata),
-                                                         content),
+                                                         g_variant_new_bytestring (content)),
                                           G_DBUS_CALL_FLAGS_NO_AUTO_START,
                                           -1,        /* timeout_secs */
                                           NULL,      /* cancellable */

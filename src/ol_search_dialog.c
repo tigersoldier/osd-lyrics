@@ -21,7 +21,6 @@
 #include "ol_gui.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_app.h"
-#include "ol_lyric_manage.h"
 #include "ol_config.h"
 #include "ol_lrc_candidate_list.h"
 #include "ol_lrc_engine_list.h"
@@ -76,14 +75,10 @@ ol_search_dialog_download_click (GtkWidget *widget,
   OlLrcCandidate *candidate = ol_lrc_candidate_new ();
   ol_lrc_candidate_list_get_selected (widgets.list,
                                       candidate);
-  char *filename = ol_lyric_download_path (global_metadata);
-  if (filename != NULL)
-  {
-    ol_lrc_fetch_begin_download (engine, candidate,
-                                 global_metadata, filename,
-                                 NULL);
-    g_free (filename);
-  }
+  ol_lrc_fetch_begin_download (engine,
+                               candidate,
+                               global_metadata,
+                               NULL);
   ol_lrc_candidate_free (candidate);
   return TRUE;
 }

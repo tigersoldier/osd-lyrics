@@ -18,6 +18,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>           /* for WEXITSTATUS */
 #include <glib.h>
 #include "ol_lrc_fetch_module.h"
 #include "ol_fork.h"
@@ -203,19 +204,18 @@ internal_search_callback (void *ret_data,
 
 static int
 internal_download (OlLrcFetchEngine *engine,
-                   OlLrcCandidate *candidate,
-                   const char *filepath)
+                   OlLrcCandidate *candidate)
 {
   ol_log_func ();
   ol_assert_ret (engine != NULL, 1);
   ol_assert_ret (candidate != NULL, 1);
-  ol_assert_ret (filepath != NULL, 1);
-  if (engine->download (candidate,
-                        filepath,
-                        "UTF-8") >= 0)
+  size_t len;
+  char *content = engine->download (candidate, &len);
+  if (content)
   {
-    ol_debugf ("download %s success\n", filepath);
-    fprintf (fret, "%s", filepath);
+    ol_debugf ("download %s success\n", candidate->title);
+    fwrite (content, sizeof (char), len, fret);
+    g_free (content);
     return 0;
   }
   else
@@ -231,16 +231,16 @@ internal_download_callback (void *ret_data,
                             void *userdata)
 {
   struct OlLrcDownloadResult *result = userdata;
-  if (ret_size == 0)
+  if (WEXITSTATUS (status) != 0)
   {
-    result->filepath = NULL;
+    result->content = NULL;
     internal_invoke_callback (download_listeners, result);
   }
   else
   {
-    char *filepath = g_new0 (char, ret_size + 1);
-    strncpy (filepath, (char *)ret_data, ret_size);
-    result->filepath = filepath;
+    char *content = g_new (char, ret_size + 1);
+    strncpy (content, (char *)ret_data, ret_size);
+    result->content = content;
     internal_invoke_callback (download_listeners, result);
   }
   g_free (result);
@@ -398,17 +398,14 @@ void
 ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                              OlLrcCandidate *candidate,
                              const OlMetadata *metadata,
-                             const char *pathname,
                              void *userdata)
 {
   ol_log_func ();
   ol_assert (engine != NULL);
   ol_assert (candidate != NULL);
-  ol_assert (pathname != NULL);
-  ol_debugf ("  pathname: %s\n", pathname);
   struct OlLrcDownloadResult *result = g_new0 (struct OlLrcDownloadResult, 1);
   result->id = ++download_id;
-  result->filepath = NULL;
+  result->content = NULL;
   if (metadata != NULL)
   {
     result->metadata = ol_metadata_new ();
@@ -419,7 +416,7 @@ ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
   
   if (ol_fork (internal_download_callback, result, NULL) == 0)
   {
-    int ret = internal_download (engine, candidate, pathname);
+    int ret = internal_download (engine, candidate);
     fflush (fret);
     fclose (fret);
     exit (ret);

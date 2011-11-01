@@ -36,7 +36,7 @@ struct OlLrcDownloadResult
 {
   int id;
   OlMetadata *metadata;
-  const char *filepath;
+  const char *content;
   void *userdata;
 };
 
@@ -121,7 +121,6 @@ void ol_lrc_fetch_cancel_search (int search_id);
 void ol_lrc_fetch_begin_download (OlLrcFetchEngine *engine,
                                   OlLrcCandidate *candidate,
                                   const OlMetadata *info,
-                                  const char *pathname,
                                   void *userdata);
 
 void ol_lrc_fetch_module_init ();
