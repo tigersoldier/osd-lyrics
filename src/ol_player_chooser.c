@@ -30,6 +30,7 @@
 G_DEFINE_TYPE(OlPlayerChooser, ol_player_chooser, GTK_TYPE_DIALOG)
 
 static const int DEFAULT_N_COLUMN = 4;
+static const char *DEFAULT_ICON_NAME = "media-playback-start";
 
 typedef struct _OlPlayerChooserPrivate
 {
@@ -196,6 +197,34 @@ _app_command_exists (GAppInfo *app_info)
   return FALSE;
 }
 
+static GtkWidget *
+_load_image_from_gicon (GIcon *icon)
+{
+  GtkIconTheme *icon_theme = gtk_icon_theme_get_default ();
+  GtkIconInfo *icon_info;
+  if ((icon_info = gtk_icon_theme_lookup_by_gicon (icon_theme,
+                                                   icon,
+                                                   GTK_ICON_SIZE_BUTTON,
+                                                   0)) != NULL)
+  {
+    gtk_icon_info_free (icon_info);
+    return gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_BUTTON);
+  }
+  else
+  {
+    return gtk_image_new_from_icon_name (DEFAULT_ICON_NAME, GTK_ICON_SIZE_BUTTON);
+  }
+}
+
+static GtkWidget *
+_load_image_from_name (const char *icon_name)
+{
+  GtkIconTheme *icon_theme = gtk_icon_theme_get_default ();
+  if (!gtk_icon_theme_has_icon (icon_theme, icon_name))
+    icon_name = DEFAULT_ICON_NAME;
+  return gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_BUTTON);
+}
+
 static GtkWidget
 *_image_from_app_info (GAppInfo *app_info)
 {
@@ -203,15 +232,11 @@ static GtkWidget
   GtkWidget *image = NULL;
   if (icon)
   {
-    image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_BUTTON);
+    image = _load_image_from_gicon (icon);
   }
   else
   {
-    const char *icon_name = g_app_info_get_executable (app_info);
-    GtkIconTheme *icon_theme = gtk_icon_theme_get_default ();
-    if (!gtk_icon_theme_has_icon (icon_theme, icon_name))
-      icon_name = "media-playback-start";
-    image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_DIALOG);
+    image = _load_image_from_name (g_app_info_get_executable (app_info));
   }
   gtk_image_set_pixel_size (GTK_IMAGE (image), 64);
   return image;

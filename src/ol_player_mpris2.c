@@ -25,7 +25,7 @@
 #include "ol_utils.h"
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
-#include "ol_player_utils.h"
+#include "ol_app_info.h"
 #include "ol_debug.h"
 
 static const char *PATH = "/org/mpris/MediaPlayer2";
@@ -412,9 +412,25 @@ _get_app_info_list (void)
   GList *ret = NULL;
   int i;
   for (i = 0; i < G_N_ELEMENTS (KNOWN_PLAYERS); i++)
-    ret = ol_player_app_info_list_from_cmdline (ret,
-                                                KNOWN_PLAYERS[i].name,
-                                                KNOWN_PLAYERS[i].command);
+  {
+    GError *error = NULL;
+    OlAppInfo *info = ol_app_info_new (KNOWN_PLAYERS[i].command,
+                                       KNOWN_PLAYERS[i].name,
+                                       KNOWN_PLAYERS[i].icon_name,
+                                       OL_APP_INFO_PREFER_DESKTOP_FILE,
+                                       &error);
+    if (info)
+    {
+      ret = g_list_prepend (ret, info);
+    }
+    else
+    {
+      ol_errorf ("Cannot get player app info for %s: %s\n",
+                 KNOWN_PLAYERS[i].name,
+                 error->message);
+      g_error_free (error);
+    }
+  }
   return ret;
 }
 

@@ -604,8 +604,15 @@ _icon_new_from_name (const gchar *icon_name)
         (strcmp (p, ".png") == 0 ||
          strcmp (p, ".xpm") == 0 ||
          strcmp (p, ".svg") == 0))
-      *p = 0;
-    icon = g_themed_icon_new (icon_name);
+    {
+      gchar *real_name = g_strndup (icon_name, p - icon_name);
+      icon = g_themed_icon_new (real_name);
+      g_free (real_name);
+    }
+    else
+    {
+      icon = g_themed_icon_new (icon_name);
+    }
   }
   return icon;
 }

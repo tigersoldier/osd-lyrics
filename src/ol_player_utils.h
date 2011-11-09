@@ -33,18 +33,4 @@ struct OlPlayer;
 GList *ol_player_get_app_info_list (struct OlPlayer *player,
                                     GList *list);
 
-/** 
- * Prepend an GAppInfo to list according to name and cmd
- * 
- * This will try to get from .desktop file first, then from the command line
- *
- * @param list The original list of pointer to GAppInfo
- * @param cmd The command line to append
- * 
- * @return The new list of pointer to GAppInfo
- */
-GList *ol_player_app_info_list_from_cmdline (GList *list,
-                                             const char *name,
-                                             const char *cmd);
-
 #endif /* _OL_PLAYER_UTILS_H_ */

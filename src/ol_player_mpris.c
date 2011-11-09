@@ -28,7 +28,7 @@
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
 #include "ol_music_info.h"
-#include "ol_player_utils.h"
+#include "ol_app_info.h"
 #include "ol_debug.h"
 
 enum MprisCaps {
@@ -72,7 +72,7 @@ struct KnownPlayers
 
 static struct KnownPlayers KNOWN_PLAYERS[] = {
   {"Amarok 2", "amarok", "org.kde.amarok", "amarok", FALSE}, /* Supported in 2.4 */
-  {"Audacious 2", "audacious2", "org.mpris.audacious", "audacious2", TRUE},
+  {NULL, "audacious", "org.mpris.audacious", NULL, TRUE},
   {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE},
   {"Decibel", "decibel-audio-player", "org.mpris.dap", "decibel-audio-player", FALSE},
   {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", TRUE},
@@ -546,9 +546,25 @@ _get_app_info_list (void)
   GList *ret = NULL;
   int i;
   for (i = 0; i < G_N_ELEMENTS (KNOWN_PLAYERS); i++)
-    ret = ol_player_app_info_list_from_cmdline (ret,
-                                                KNOWN_PLAYERS[i].name,
-                                                KNOWN_PLAYERS[i].command);
+  {
+    GError *error = NULL;
+    OlAppInfo *info = ol_app_info_new (KNOWN_PLAYERS[i].command,
+                                       KNOWN_PLAYERS[i].name,
+                                       KNOWN_PLAYERS[i].icon_name,
+                                       OL_APP_INFO_PREFER_DESKTOP_FILE |
+                                       OL_APP_INFO_WITH_PREFIX,
+                                       &error);
+    if (!info)
+    {
+      ol_errorf ("Cannot get player app info: %s\n",
+                 error->message);
+      g_error_free (error);
+    }
+    else
+    {
+      ret = g_list_prepend (ret, info);
+    }
+  }
   return ret;
 }
 
