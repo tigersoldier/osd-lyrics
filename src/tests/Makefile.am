@@ -1,6 +1,6 @@
 check_PROGRAMS = \
 	ol_osd_window_test \
-	ol_player_test\
+	ol_player_test \
 	ol_lrc_parser_test\
 	ol_lrc_test \
 	ol_lrc_fetch_test \
@@ -85,7 +85,9 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c \
 	$(top_srcdir)/src/ol_utils_dbus.c \
-	$(top_srcdir)/src/ol_music_info.c 
+	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_app_info.c \
+	$(NULL)
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
 	$(top_srcdir)/src/ol_debug.c \

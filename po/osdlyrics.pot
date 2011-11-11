@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-03 10:49+0800\n"
+"POT-Creation-Date: 2011-11-11 15:54+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,28 +125,42 @@ msgstr ""
 msgid "%d lyrics found :)"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:83
+#: ../src/ol_player_chooser.c:84
 msgid "Supported players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:88
+#: ../src/ol_player_chooser.c:89
 msgid "All players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:94
+#: ../src/ol_player_chooser.c:95
 msgid "Use command:"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:99
+#: ../src/ol_player_chooser.c:100
 msgid "Launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:112
+#: ../src/ol_player_chooser.c:113
 msgid "Remember my choice"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:145
+#: ../src/ol_player_chooser.c:146
 msgid "Choose a player to launch"
+msgstr ""
+
+#: ../src/ol_app_info.c:182 ../src/ol_app_info.c:192
+msgid "Unnamed"
+msgstr ""
+
+#: ../src/ol_scroll_window.c:52
+msgid ""
+"Drag to move the window\n"
+"Hold CTRL to seek"
+msgstr ""
+
+#: ../src/ol_scroll_window.c:53
+msgid "Drag to move the window"
 msgstr ""
 
 #: ../data/dialogs.glade.h:2
