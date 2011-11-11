@@ -88,6 +88,9 @@ static enum _PlayerLostAction {
 static void _initialize (int argc, char **argv);
 static gint _refresh_music_info (gpointer data);
 static gint _refresh_player_info (gpointer data);
+static void _start_refresh_music_info (void);
+static void _stop_refresh_music_info (void);
+static void _start_refresh_player_info (void);
 static void _wait_for_player_launch (void);
 static void _player_lost_cb (void);
 static void _player_chooser_response_cb (GtkDialog *dialog,
@@ -406,6 +409,11 @@ _refresh_player_info (gpointer data)
       _update_player_status (ol_player_get_status (player));
     _check_music_change ();
   }
+  else
+  {
+    if (_get_active_player ())
+      _start_refresh_music_info ();
+  }
   return TRUE;
 }
 
@@ -513,7 +521,10 @@ _refresh_music_info (gpointer data)
 {
   ol_log_func ();
   if (player == NULL && !_get_active_player ())
-    return TRUE;
+  {
+    _stop_refresh_music_info ();
+    return FALSE;
+  }
   gint time = 0;
   if (player && !ol_player_get_played_time (player, &time))
   {
@@ -656,8 +667,31 @@ _initialize (int argc, char **argv)
   }
   g_free (lrcdb_file);
   ol_lrc_fetch_add_async_download_callback (_download_callback);
-  refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
-  info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
+  _start_refresh_player_info ();
+}
+
+static void
+_start_refresh_player_info (void)
+{
+  if (info_timer == 0)
+    info_timer = g_timeout_add (INFO_INTERVAL, _refresh_player_info, NULL);
+}
+
+static void
+_start_refresh_music_info (void)
+{
+  if (refresh_source == 0)
+    refresh_source = g_timeout_add (REFRESH_INTERVAL, _refresh_music_info, NULL);
+}
+
+static void
+_stop_refresh_music_info (void)
+{
+  if (refresh_source > 0)
+  {
+    g_source_remove (refresh_source);
+    refresh_source = 0;
+  }
 }
 
 int

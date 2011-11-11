@@ -76,7 +76,7 @@ static struct KnownPlayers KNOWN_PLAYERS[] = {
   {NULL, "audacious", "org.mpris.audacious", NULL, TRUE, TRUE},
   {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE, TRUE},
   {"Decibel", "decibel-audio-player", "org.mpris.dap", "decibel-audio-player", FALSE, TRUE},
-  {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", TRUE, TRUE},
+  {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", FALSE, TRUE},
   {"Qmmp", "qmmp", "org.mpris.qmmp", "qmmp", FALSE, TRUE},
   {"VLC", "vlc --control dbus", "org.mpris.vlc", "vlc", TRUE, FALSE},
 };

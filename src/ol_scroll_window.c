@@ -1003,8 +1003,11 @@ ol_scroll_window_set_can_seek (OlScrollWindow *scroll,
 {
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
-  priv->can_seek = TRUE;
-  ol_scroll_window_update_tooltip (scroll);
+  if (can_seek != priv->can_seek)
+  {
+    priv->can_seek = can_seek;
+    ol_scroll_window_update_tooltip (scroll);
+  }
 }
 
 gboolean
