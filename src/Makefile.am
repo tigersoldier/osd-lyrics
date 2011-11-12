@@ -30,7 +30,9 @@ LDADD = \
 	@X11_LIBS@ \
 	@APP_INDICATOR_LIBS@ \
 	../lib/chardetect/libchardetect.a \
-	-lstdc++
+	-lm \
+	-lstdc++ \
+	$(NULL)
 
 noinst_HEADERS = \
 	gettext.h \
