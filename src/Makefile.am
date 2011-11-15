@@ -39,6 +39,7 @@ noinst_HEADERS = \
 	ol_about.h \
 	ol_app.h \
 	ol_app_info.h \
+	ol_app_chooser_widget.h \
 	ol_cell_renderer_button.h \
 	ol_color.h \
 	ol_commands.h \
@@ -112,6 +113,7 @@ noinst_HEADERS = \
 
 osdlyrics_SOURCES = \
 	ol_app_info.c \
+	ol_app_chooser_widget.c \
 	ol_debug.c \
 	ol_main.c \
 	ol_singleton.c \
