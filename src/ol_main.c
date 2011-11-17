@@ -116,7 +116,7 @@ _on_config_changed (OlConfig *config,
                     gchar *name,
                     gpointer userdata)
 {
-  if (strcmp (name, "display-mode") == 0)
+  if (module != NULL && strcmp (name, "display-mode") == 0)
   {
     char *mode = ol_config_get_string (config, group, name);
     if (display_mode == NULL ||
@@ -250,7 +250,8 @@ ol_app_assign_lrcfile (const OlMusicInfo *info,
     }
     if (filepath != NULL)
       lrc_file = ol_lrc_new (filepath);
-    ol_display_module_set_lrc (module, lrc_file);
+    if (module != NULL)
+      ol_display_module_set_lrc (module, lrc_file);
   }
   return TRUE;
 }
@@ -286,8 +287,8 @@ _on_music_changed ()
   {
     ol_display_module_set_music_info (module, &music_info);
     ol_display_module_set_duration (module, previous_duration);
+    ol_display_module_set_lrc (module, NULL);
   }
-  ol_display_module_set_lrc (module, NULL);
   if (!_check_lyric_file () &&
       !ol_is_string_empty (ol_music_info_get_title (&music_info)))
     ol_app_download_lyric (&music_info);
@@ -518,6 +519,14 @@ _player_connected_cb (void)
       gtk_widget_get_visible (GTK_WIDGET (player_chooser)))
     ol_player_chooser_set_info_by_state (player_chooser,
                                          OL_PLAYER_CHOOSER_STATE_CONNECTED);
+  if (!module)
+  {
+    /* Initialize display modules */
+    OlConfig *config = ol_config_get_instance ();
+    ol_display_module_init ();
+    display_mode = ol_config_get_string (config, "General", "display-mode");
+    module = ol_display_module_new (display_mode);
+  }
   player_lost_action = ACTION_QUIT;
 }
 
@@ -534,7 +543,8 @@ _get_active_player (void)
   {
     _player_connected_cb ();
   }
-  ol_display_module_set_player (module, player);
+  if (module != NULL)
+    ol_display_module_set_player (module, player);
   return player != NULL;
 }
 
@@ -561,7 +571,8 @@ _refresh_music_info (gpointer data)
     previous_position = -1;
     return TRUE;
   }
-  ol_display_module_set_played_time (module, time);
+  if (module != NULL)
+    ol_display_module_set_played_time (module, time);
   return TRUE;
 }
 
@@ -666,15 +677,10 @@ _initialize (int argc, char **argv)
   }
   ol_stock_init ();
   ol_player_init ();
-  /* Initialize display modules */
-  ol_display_module_init ();
   OlConfig *config = ol_config_get_instance ();
-  display_mode = ol_config_get_string (config, "General", "display-mode");
-  module = ol_display_module_new (display_mode);
   g_signal_connect (config, "changed",
                     G_CALLBACK (_on_config_changed),
                     NULL);
-
   ol_trayicon_inital ();
   ol_notify_init ();
   ol_keybinding_init ();
@@ -723,10 +729,21 @@ main (int argc, char **argv)
   gtk_main ();
   ol_player_unload ();
   ol_notify_unload ();
-  ol_display_module_free (module);
-  if (display_mode != NULL) g_free (display_mode);
-  display_mode = NULL;
-  module = NULL;
+  if (module != NULL)
+  {
+    ol_display_module_free (module);
+    module = NULL;
+  }
+  if (display_mode != NULL)
+  {
+    g_free (display_mode);
+    display_mode = NULL;
+  }
+  if (player_chooser != NULL)
+  {
+    gtk_widget_destroy (GTK_WIDGET (player_chooser));
+    player_chooser = NULL;
+  }
   ol_display_module_unload ();
   ol_trayicon_free ();
   ol_lrclib_unload ();
