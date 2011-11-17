@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 17:00+0800\n"
+"POT-Creation-Date: 2011-11-17 23:18+0800\n"
 "PO-Revision-Date: 2010-10-21 03:15+0000\n"
 "Last-Translator: abuyop <Unknown>\n"
 "Language-Team: Malay <ms@li.org>\n"
@@ -39,28 +39,29 @@ msgstr ""
 msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:142
+#: ../src/ol_main.c:147
 msgid "Download failed"
 msgstr "Muat turun gagal"
 
-#: ../src/ol_main.c:157
+#: ../src/ol_main.c:162
+#, fuzzy, c-format
+msgid "Searching lyrics from %s"
+msgstr "Menggelintar lirik dari %s..."
+
+#: ../src/ol_main.c:185
 msgid "Cannot create the lyric directory"
 msgstr "Tidak dapat mencipta direktori lirik"
 
-#: ../src/ol_main.c:174
+#: ../src/ol_main.c:201
 msgid "Lyrics not found"
 msgstr "Lirik tidak ditemui"
 
-#: ../src/ol_main.c:191
-msgid "Searching lyrics"
-msgstr "Menggelintar lirik"
-
-#: ../src/ol_main.c:460
+#: ../src/ol_main.c:507
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "Pemain yang disokong tidak dijalankan, tutup.\n"
 
-#: ../src/ol_main.c:581
+#: ../src/ol_main.c:652
 #, fuzzy
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
@@ -68,7 +69,7 @@ msgstr ""
 "Aras mesej nyahpepijat untuk dilog, boleh jadi 'tiada', 'ralat', "
 "'nyapepijat', atau 'info'"
 
-#: ../src/ol_main.c:603
+#: ../src/ol_main.c:675
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Lirik OSD yang lain sedang dijalankan, tutup."
 
@@ -84,20 +85,29 @@ msgstr "Artis tidak diketahui"
 msgid "OSD Lyrics"
 msgstr "Lirik OSD"
 
-#: ../src/ol_option.c:1711
+#: ../src/ol_option.c:1631
 msgid "Choose on startup"
 msgstr ""
 
-#: ../src/ol_option.c:1719 ../data/dialogs.glade.h:44
+#. gtk_list_store_append (liststore, &iter);
+#. gtk_list_store_set (liststore, &iter,
+#. 0, "Customize",
+#. 1, "",
+#. -1);
+#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:43
 msgid "Customize"
 msgstr "Suaikan"
 
-#: ../src/ol_option.c:1782
+#: ../src/ol_option.c:1713
 msgid "Select a folder"
 msgstr "Pilih folder"
 
 #: ../src/ol_lrc_fetch_ttplayer.c:274
 msgid "ttPlayer"
+msgstr ""
+
+#: ../src/ol_lrc_fetch_xiami.c:237
+msgid "Xiami"
 msgstr ""
 
 #: ../src/ol_lrc_candidate_list.c:43
@@ -122,31 +132,83 @@ msgstr "Maaf, tiada lirik ditemui :("
 msgid "%d lyrics found :)"
 msgstr "%d lirik ditemui :)"
 
-#: ../src/ol_player_chooser.c:84
+#: ../src/ol_player_chooser.c:243
 msgid "Supported players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:89
+#: ../src/ol_player_chooser.c:244
 msgid "All players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:95
+#: ../src/ol_player_chooser.c:248 ../src/ol_player_chooser.c:319
+#, fuzzy
+msgid "Choose a player to launch"
+msgstr "Pilih fail LRC untuk ditentukan"
+
+#: ../src/ol_player_chooser.c:264
 #, fuzzy
 msgid "Use command:"
 msgstr "Perintah pe_main:"
 
-#: ../src/ol_player_chooser.c:100
+#: ../src/ol_player_chooser.c:268
 msgid "Launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:113
+#: ../src/ol_player_chooser.c:281
 msgid "Remember my choice"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:146
+#: ../src/ol_player_chooser.c:387
+#, c-format
+msgid "Failed to launch %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:397
+#, c-format
+msgid "Launching %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:399
+#, c-format
+msgid ""
+"OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
+msgstr ""
+
+#: ../src/ol_player_chooser.c:510
 #, fuzzy
-msgid "Choose a player to launch"
+msgid "There is no supported player running"
+msgstr "Pemain yang disokong tidak dijalankan, tutup.\n"
+
+#: ../src/ol_player_chooser.c:511
+#, fuzzy
+msgid "Please choose a player below to launch"
 msgstr "Pilih fail LRC untuk ditentukan"
+
+#: ../src/ol_player_chooser.c:515
+#, c-format
+msgid "Failed to connect to %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:517
+#, c-format
+msgid ""
+"%s is not supported by OSD Lyrics, or not running. Please launch another "
+"player"
+msgstr ""
+
+#: ../src/ol_app_info.c:183 ../src/ol_app_info.c:193
+msgid "Unnamed"
+msgstr ""
+
+#: ../src/ol_scroll_window.c:52
+msgid ""
+"Drag to move the window\n"
+"Hold CTRL to seek"
+msgstr ""
+
+#: ../src/ol_scroll_window.c:53
+msgid "Drag to move the window"
+msgstr ""
 
 #: ../data/dialogs.glade.h:2
 #, no-c-format
@@ -209,47 +271,43 @@ msgid "<b>Lyrics</b>"
 msgstr ""
 
 #: ../data/dialogs.glade.h:22
-msgid "<b>Preview</b>"
-msgstr "<b>Pratonton</b>"
-
-#: ../data/dialogs.glade.h:23
 msgid "<b>Proxy</b>"
 msgstr ""
 
-#: ../data/dialogs.glade.h:24
+#: ../data/dialogs.glade.h:23
 msgid "<b>_Filename</b>"
 msgstr "<b>_Nama Fail</b>"
 
-#: ../data/dialogs.glade.h:25
+#: ../data/dialogs.glade.h:24
 msgid "<b>_Path</b>"
 msgstr "<b>_Laluan</b>"
 
-#: ../data/dialogs.glade.h:27
+#: ../data/dialogs.glade.h:26
 #, no-c-format
 msgid "A single \"%\" means the directory where the playing music is."
 msgstr "\"%\" tunggal menunjukkan dimana direktori muzik dimainkan."
 
-#: ../data/dialogs.glade.h:28
+#: ../data/dialogs.glade.h:27
 msgid "Ac_tive color:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:29
+#: ../data/dialogs.glade.h:28
 msgid "Acti_ve lyrics:"
 msgstr "Lirik akti_f:"
 
-#: ../data/dialogs.glade.h:30
+#: ../data/dialogs.glade.h:29
 msgid "Adjust lyric delay by +0.2 s"
 msgstr "Laras lengahan lirik ke +0.2 s"
 
-#: ../data/dialogs.glade.h:31
+#: ../data/dialogs.glade.h:30
 msgid "Adjust lyrics delay by -0.2 s"
 msgstr "Laras lengahan lirik ke -0.2 s"
 
-#: ../data/dialogs.glade.h:32
+#: ../data/dialogs.glade.h:31
 msgid "Always"
 msgstr ""
 
-#: ../data/dialogs.glade.h:33
+#: ../data/dialogs.glade.h:32
 msgid ""
 "An OSD lyric show compatible with various media players and supports lyrics "
 "downloading.\n"
@@ -257,86 +315,86 @@ msgstr ""
 "Paparan Lirik OSD dengan pelbagai jenis pemain media dan menyokong muat "
 "turun lirik.\n"
 
-#: ../data/dialogs.glade.h:35
+#: ../data/dialogs.glade.h:34
 msgid "Assign local LRC file to current music"
 msgstr "Tetapkan fail lirik setempat dengan muzik semasa"
 
-#: ../data/dialogs.glade.h:36
+#: ../data/dialogs.glade.h:35
 msgid "Au_to-detect system settings"
 msgstr ""
 
-#: ../data/dialogs.glade.h:37
+#: ../data/dialogs.glade.h:36
 msgid "Auto la_unch player:"
 msgstr "Lancar pemain secara automatik:"
 
-#: ../data/dialogs.glade.h:38
+#: ../data/dialogs.glade.h:37
 msgid "By lines"
 msgstr ""
 
-#: ../data/dialogs.glade.h:39
+#: ../data/dialogs.glade.h:38
 msgid "C_ustomize colors"
 msgstr "Sua_ikan warna"
 
-#: ../data/dialogs.glade.h:40
+#: ../data/dialogs.glade.h:39
 msgid "Choose LRC file to download"
 msgstr "Pilih fail LRC untuk dimuat turun"
 
-#: ../data/dialogs.glade.h:41
+#: ../data/dialogs.glade.h:40
 msgid "Colo_r:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:42
+#: ../data/dialogs.glade.h:41
 msgid "Color _Theme:"
 msgstr "_Warna Tema:"
 
-#: ../data/dialogs.glade.h:43
+#: ../data/dialogs.glade.h:42
 #, fuzzy
 msgid "Copyright 2009-2011 The OSD Lyrics project."
 msgstr "Hakcipta 2010 Projek OSD Lyrics."
 
-#: ../data/dialogs.glade.h:45
+#: ../data/dialogs.glade.h:44
 msgid "D_on't ask me again"
 msgstr "Jan_gan tanya saya lagi"
 
-#: ../data/dialogs.glade.h:46
+#: ../data/dialogs.glade.h:45
 msgid "Display mode:"
 msgstr ""
 
 #. In preference/download, automately download the most matched lyric
-#: ../data/dialogs.glade.h:48
+#: ../data/dialogs.glade.h:47
 msgid "Do_wnload the first candidate"
 msgstr "Muat turun pilihan pertama"
 
-#: ../data/dialogs.glade.h:49
+#: ../data/dialogs.glade.h:48
 msgid "Doc_k"
 msgstr ""
 
-#: ../data/dialogs.glade.h:50
+#: ../data/dialogs.glade.h:49
 msgid "Don't assign lyric to this music"
 msgstr "Jangan tetapkan lirik kepada muzik ini"
 
-#: ../data/dialogs.glade.h:51
+#: ../data/dialogs.glade.h:50
 msgid "F_irst line:"
 msgstr "_Baris pertama:"
 
-#: ../data/dialogs.glade.h:52
+#: ../data/dialogs.glade.h:51
 msgid "GPL v3"
 msgstr "GPL v3"
 
-#: ../data/dialogs.glade.h:53
+#: ../data/dialogs.glade.h:52
 msgid "HTTP"
 msgstr ""
 
-#: ../data/dialogs.glade.h:54
+#: ../data/dialogs.glade.h:53
 msgid "Hide the OSD Window"
 msgstr "Sembunyi Tetingkap OSD"
 
-#: ../data/dialogs.glade.h:55
+#: ../data/dialogs.glade.h:54
 msgid "If locked, you can't move OSD window by mouse"
 msgstr ""
 "Jika dikunci, anda tidak boleh alihkan tetingkap OSD menggunakan tetikus"
 
-#: ../data/dialogs.glade.h:56
+#: ../data/dialogs.glade.h:55
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
@@ -344,9 +402,14 @@ msgstr ""
 "Jika terdapat lebih dari satu fail lrc yang sepadan dengan syarat "
 "penggelintaran, muat turun yang pertama dahulu  tanpa maklumkan pengguna."
 
-#: ../data/dialogs.glade.h:57
+#: ../data/dialogs.glade.h:56
 msgid "Inactiv_e lyrics:"
 msgstr "Lirik ti_dak aktif:"
+
+#: ../data/dialogs.glade.h:57
+#, fuzzy
+msgid "Lyric _sites:"
+msgstr "Baris lirik:"
 
 #: ../data/dialogs.glade.h:58
 msgid "Lyric delay +"
@@ -450,151 +513,165 @@ msgid "Si_ngle line"
 msgstr "S_atu baris"
 
 #: ../data/dialogs.glade.h:84
+msgid "Strong"
+msgstr ""
+
+#: ../data/dialogs.glade.h:85
 msgid "T_ranslucent on mouse over"
 msgstr "L_utsinar bila penuding diatas"
 
-#: ../data/dialogs.glade.h:85
+#: ../data/dialogs.glade.h:86
 msgid "The artist of the current track"
 msgstr "Artis bagi trek semasa"
 
-#: ../data/dialogs.glade.h:86
+#: ../data/dialogs.glade.h:87
 msgid "The filename of the current track"
 msgstr "Nama fail bagi trek semasa"
 
-#: ../data/dialogs.glade.h:87
+#: ../data/dialogs.glade.h:88
 msgid "The number of the current track"
 msgstr "Nombor trek semasa"
 
-#: ../data/dialogs.glade.h:88
+#: ../data/dialogs.glade.h:89
 msgid "The title of album of the current track"
 msgstr "Tajuk album bagi trek semasa"
 
-#: ../data/dialogs.glade.h:89
+#: ../data/dialogs.glade.h:90
 msgid "The title of the current track"
 msgstr "Tajuk trek semasa"
 
-#: ../data/dialogs.glade.h:90
+#: ../data/dialogs.glade.h:91
 msgid "Transparent"
 msgstr ""
 
-#: ../data/dialogs.glade.h:91
+#: ../data/dialogs.glade.h:92
 msgid "Use _manual settings"
 msgstr ""
 
-#: ../data/dialogs.glade.h:92
+#: ../data/dialogs.glade.h:93
+msgid "Weak"
+msgstr ""
+
+#: ../data/dialogs.glade.h:94
 msgid "_Artist:"
 msgstr "_Artis:"
 
-#: ../data/dialogs.glade.h:93
+#: ../data/dialogs.glade.h:95
 msgid "_Assign lyric..."
 msgstr "_Tetapkan lirik..."
 
-#: ../data/dialogs.glade.h:94
+#: ../data/dialogs.glade.h:96
+msgid "_Blur:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:97
 msgid "_Double lines"
 msgstr "_Dua baris"
 
-#: ../data/dialogs.glade.h:95
+#: ../data/dialogs.glade.h:98
 msgid "_Download"
 msgstr "_Muat Turun"
 
-#: ../data/dialogs.glade.h:96
+#: ../data/dialogs.glade.h:99
 msgid "_Font:"
 msgstr "_Fon:"
 
 #. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:98
+#: ../data/dialogs.glade.h:101
 msgid "_From:"
 msgstr "_Dari:"
 
-#: ../data/dialogs.glade.h:99
+#: ../data/dialogs.glade.h:102
 msgid "_General"
 msgstr "_Am"
 
-#: ../data/dialogs.glade.h:100
+#: ../data/dialogs.glade.h:103
 msgid "_Hide"
 msgstr "_Sembunyi"
 
-#: ../data/dialogs.glade.h:101
+#: ../data/dialogs.glade.h:104
 msgid "_Host:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:102
+#: ../data/dialogs.glade.h:105
 msgid "_Inactive color:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:103
+#: ../data/dialogs.glade.h:106
 msgid "_Lock Position"
 msgstr "_Kunci Kedudukan"
 
-#: ../data/dialogs.glade.h:104
+#: ../data/dialogs.glade.h:107
 msgid "_Lyric Location"
 msgstr "_Lokasi Lirik"
 
-#: ../data/dialogs.glade.h:105
+#: ../data/dialogs.glade.h:108
 msgid "_Network"
 msgstr ""
 
-#: ../data/dialogs.glade.h:106
+#: ../data/dialogs.glade.h:109
 msgid "_No lyric"
 msgstr "_Tiada lirik"
 
-#: ../data/dialogs.glade.h:107
+#: ../data/dialogs.glade.h:110
 msgid "_OSD"
 msgstr "_OSD"
 
-#: ../data/dialogs.glade.h:108
+#: ../data/dialogs.glade.h:111
 msgid "_Scrolling"
 msgstr ""
 
-#: ../data/dialogs.glade.h:109
+#: ../data/dialogs.glade.h:112
 msgid "_Search"
 msgstr "_Gelintar"
 
-#: ../data/dialogs.glade.h:110
+#: ../data/dialogs.glade.h:113
 msgid "_Search lyric..."
 msgstr "_Gelintar lirik..."
 
-#: ../data/dialogs.glade.h:111
+#: ../data/dialogs.glade.h:114
 msgid "_Second line:"
 msgstr "Ba_ris kedua:"
 
-#: ../data/dialogs.glade.h:112
-msgid "_Site:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:113
+#: ../data/dialogs.glade.h:115
 msgid "_Title:"
 msgstr "_Tajuk:"
 
-#: ../data/dialogs.glade.h:114
+#: ../data/dialogs.glade.h:116
 msgid "_Type:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:115
+#: ../data/dialogs.glade.h:117
 msgid "_Username:"
 msgstr ""
 
-#: ../data/dialogs.glade.h:116
+#: ../data/dialogs.glade.h:118
 msgid "bottom"
 msgstr "bawah"
 
-#: ../data/dialogs.glade.h:117
+#: ../data/dialogs.glade.h:119
 msgid "http://code.google.com/p/osd-lyrics/"
 msgstr "http://code.google.com/p/osd-lyrics/"
 
-#: ../data/dialogs.glade.h:118
+#: ../data/dialogs.glade.h:120
 msgid "middle"
 msgstr "tengah"
 
-#: ../data/dialogs.glade.h:119
+#: ../data/dialogs.glade.h:121
 msgid "top"
 msgstr "atas"
 
-#: ../data/dialogs.glade.h:120
+#: ../data/dialogs.glade.h:122
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  abuyop https://launchpad.net/~abuyop"
+
+#~ msgid "Searching lyrics"
+#~ msgstr "Menggelintar lirik"
+
+#~ msgid "<b>Preview</b>"
+#~ msgstr "<b>Pratonton</b>"
 
 #~ msgid "None"
 #~ msgstr "Tiada"
