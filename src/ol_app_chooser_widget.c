@@ -30,7 +30,9 @@
     OlAppChooserWidgetPrivate))
 
 static const char *DEFAULT_ICON_NAME = "media-playback-start";
-static const int DEFAULT_N_COLUMN = 5;
+static const int DEFAULT_N_COLUMN = 4;
+static const int IMAGE_SIZE = 64;
+static const int LABLE_WIDTH = 80;
 
 enum _OlAppChooserWidgetSignals {
   APP_ACTIVATE_SIGNAL = 0,
@@ -137,10 +139,12 @@ ol_app_chooser_widget_set_app_list (OlAppChooserWidget *chooser,
   {
     GtkWidget *app_button = _new_app_button (chooser, i);
     gtk_widget_show_all (app_button);
-    gtk_table_attach_defaults (GTK_TABLE (chooser),
-                               app_button,
-                               col, col + 1,
-                               row, row + 1);
+    gtk_table_attach (GTK_TABLE (chooser),
+                      app_button,
+                      col, col + 1, /* left, right */
+                      row, row + 1, /* top, bottom */
+                      GTK_EXPAND, 0,         /* x and y options */
+                      0, 0);        /* x and y padding */
     row += (col + 1) / n_columns;
     col = (col + 1) % n_columns;
   }
@@ -181,7 +185,7 @@ _new_app_button (OlAppChooserWidget *chooser, guint index)
   
   GtkWidget *label = gtk_label_new (g_app_info_get_display_name (info));
   gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
-  gtk_widget_set_size_request (label, 80, -1);
+  gtk_widget_set_size_request (label, LABLE_WIDTH, -1);
   
   GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), image, TRUE, TRUE, 0);
@@ -263,7 +267,7 @@ static GtkWidget
   {
     image = _load_image_from_name (g_app_info_get_executable (app_info));
   }
-  gtk_image_set_pixel_size (GTK_IMAGE (image), 64);
+  gtk_image_set_pixel_size (GTK_IMAGE (image), IMAGE_SIZE);
   return image;
 }
 

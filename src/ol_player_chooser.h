@@ -30,6 +30,12 @@ enum OlPlayerChooserResponse {
   OL_PLAYER_CHOOSER_RESPONSE_LAUNCH,
 };
 
+enum OlPlayerChooserState {
+  OL_PLAYER_CHOOSER_STATE_NO_PLAYER,
+  OL_PLAYER_CHOOSER_STATE_CONNECTED,
+  OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL,
+};
+
 typedef struct _OlPlayerChooser OlPlayerChooser;
 typedef struct _OlPlayerChooserClass OlPlayerChooserClass;
 
@@ -53,5 +59,18 @@ GtkType ol_player_chooser_get_type (void);
  * @return 
  */
 GtkWidget *ol_player_chooser_new (GList *supported_players);
+
+void ol_player_chooser_set_info (OlPlayerChooser *window,
+                                 const char *title,
+                                 const char *description);
+
+void ol_player_chooser_set_image_by_name (OlPlayerChooser *window,
+                                          const char *icon_name);
+
+void ol_player_chooser_set_image_by_gicon (OlPlayerChooser *window,
+                                           GIcon *icon);
+
+void ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
+                                          enum OlPlayerChooserState state);
 
 #endif /* _OL_PLAYER_CHOOSER_H_ */

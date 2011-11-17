@@ -19,6 +19,7 @@
  */
 #include "ol_player_chooser.h"
 #include "ol_app_chooser_widget.h"
+#include "ol_app_info.h"
 #include "ol_intl.h"
 #include "ol_utils.h"
 #include "ol_config.h"
@@ -28,20 +29,34 @@
                                               ((obj),                   \
                                                ol_player_chooser_get_type (), \
                                                OlPlayerChooserPrivate))
+static const guint SUPPORT_CHOOSER_INDEX = 0;
+static const guint ALL_CHOOSER_INDEX = 1;
+static const guint MAX_CHOOSER_HEIGHT = 96 * 3; /* about 3 lines of apps */
+static const guint DEFAULT_APP_COLUMNS = 4;
+
 G_DEFINE_TYPE(OlPlayerChooser, ol_player_chooser, GTK_TYPE_DIALOG)
 
-static const int DEFAULT_N_COLUMN = 4;
+typedef struct _OlPlayerChooserPage
+{
+  GtkToggleButton *page_button;
+  GtkScrolledWindow *panel;
+  OlAppChooserWidget *chooser;
+  OlPlayerChooser *window;
+} OlPlayerChooserPage;
 
 typedef struct _OlPlayerChooserPrivate
 {
-  int n_columns;
-  OlAppChooserWidget *supported_chooser;
-  OlAppChooserWidget *all_chooser;
-  GtkExpander *supported_expander;
-  GtkExpander *all_expander;
+  GPtrArray *pages;
+  GtkBox *page_button_panel;
+  GSList *page_button_group;
+  GtkBox *chooser_panel;
+  GtkBox *custom_cmd_panel;
   GtkWidget *remember_button;
   GtkEntry *cmd_entry;
   GtkWidget *launch_button;
+  GtkLabel *info_label;
+  GtkImage *info_icon;
+  GAppInfo *launch_app;
 } OlPlayerChooserPrivate;
 
 static void _destroy (GtkObject *object);
@@ -52,8 +67,25 @@ static void _app_activate_cb (OlAppChooserWidget *chooser,
                               OlPlayerChooser *window);
 static void _launch_button_clicked_cb (GtkButton *button,
                                        OlPlayerChooser *window);
+static void _launch_app (OlPlayerChooser *window,
+                         GAppInfo *app_info);
+static void _set_launch_app (OlPlayerChooser *window,
+                             GAppInfo *app_info);
 static void _remember_cmd_if_needed (OlPlayerChooser *window,
                                      const char *cmd);
+static void _new_page (OlPlayerChooser *window,
+                       const char *page_name);
+static void _show_page (OlPlayerChooser *window,
+                        OlPlayerChooserPage *page);
+static void _show_page_by_index (OlPlayerChooser *window,
+                                 guint index);
+static void _page_button_toggled (GtkToggleButton *widget,
+                                  OlPlayerChooserPage *page);
+static OlAppChooserWidget *_get_chooser (OlPlayerChooser *window,
+                                         guint index);
+static void _setup_ui (OlPlayerChooser *window);
+static void _set_sensitive (OlPlayerChooser *window,
+                            gboolean sensitive);
 
 static void
 ol_player_chooser_class_init (OlPlayerChooserClass *klass)
@@ -74,29 +106,162 @@ static void
 ol_player_chooser_init (OlPlayerChooser *window)
 {
   OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
-  priv->n_columns = DEFAULT_N_COLUMN;
+  priv->pages = g_ptr_array_new_with_free_func (g_free);
+  priv->page_button_group = NULL;
+  _setup_ui (window);
+}
 
-  priv->supported_expander = GTK_EXPANDER (gtk_expander_new (_("Supported players")));
-  priv->supported_chooser = OL_APP_CHOOSER_WIDGET (ol_app_chooser_widget_new ());
-  g_signal_connect (priv->supported_chooser,
+static void
+_new_page (OlPlayerChooser *window,
+           const char *page_name)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  OlPlayerChooserPage *page = g_new (OlPlayerChooserPage, 1);
+  page->page_button = GTK_TOGGLE_BUTTON (gtk_radio_button_new_with_label (priv->page_button_group,
+                                                                          page_name));
+
+  priv->page_button_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (page->page_button));
+  gtk_toggle_button_set_mode (page->page_button, FALSE);
+  gtk_button_set_relief (GTK_BUTTON (page->page_button), GTK_RELIEF_NONE);
+  page->chooser = OL_APP_CHOOSER_WIDGET (ol_app_chooser_widget_new ());
+  gtk_widget_show (GTK_WIDGET (page->chooser));
+  page->panel = GTK_SCROLLED_WINDOW (gtk_scrolled_window_new (NULL, NULL));
+  gtk_scrolled_window_add_with_viewport (page->panel, GTK_WIDGET (page->chooser));
+  GtkViewport *viewport = GTK_VIEWPORT (gtk_bin_get_child (GTK_BIN (page->panel)));
+  gtk_viewport_set_shadow_type (viewport, GTK_SHADOW_NONE);
+  gtk_scrolled_window_set_policy (page->panel,
+                                  GTK_POLICY_NEVER,
+                                  GTK_POLICY_AUTOMATIC);
+  g_signal_connect (page->page_button,
+                    "toggled",
+                    G_CALLBACK (_page_button_toggled),
+                    page);
+  g_signal_connect (page->chooser,
                     "app-activate",
                     G_CALLBACK (_app_activate_cb),
                     window);
-  gtk_container_add (GTK_CONTAINER (priv->supported_expander),
-                     GTK_WIDGET (priv->supported_chooser));
+  _page_button_toggled (page->page_button, page);
+  if (priv->pages->len > 0)
+    gtk_box_pack_start (priv->page_button_panel,
+                        gtk_vseparator_new (),
+                        FALSE,
+                        FALSE,
+                        5);
+  gtk_box_pack_start (priv->page_button_panel,
+                      GTK_WIDGET (page->page_button),
+                      FALSE,    /* expand */
+                      FALSE,    /* fill */
+                      0);       /* padding */
+  gtk_box_pack_start (priv->chooser_panel,
+                      GTK_WIDGET (page->panel),
+                      TRUE,     /* expand */
+                      TRUE,     /* fill */
+                      0);       /* padding */
+  g_ptr_array_add (priv->pages, page);
+}
 
-  priv->all_expander = GTK_EXPANDER (gtk_expander_new (_("All players")));
-  priv->all_chooser = OL_APP_CHOOSER_WIDGET (ol_app_chooser_widget_new ());
-  g_signal_connect (priv->all_chooser,
-                    "app-activate",
-                    G_CALLBACK (_app_activate_cb),
-                    window);
-  gtk_container_add (GTK_CONTAINER (priv->all_expander),
-                     GTK_WIDGET (priv->all_chooser));
-  
-  GtkWidget *cmd_hbox = gtk_hbox_new (FALSE, 0);
+static void
+_page_button_toggled (GtkToggleButton *widget,
+                      OlPlayerChooserPage *page)
+{
+  gtk_widget_set_visible (GTK_WIDGET (page->panel),
+                          gtk_toggle_button_get_active (widget));
+}
+
+static void
+_show_page (OlPlayerChooser *window,
+            OlPlayerChooserPage *page)
+{
+  ol_assert (page != NULL);
+  gtk_toggle_button_set_active (page->page_button, TRUE);
+}
+
+static void
+_show_page_by_index (OlPlayerChooser *window,
+                     guint index)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  _show_page (window,
+              g_ptr_array_index (priv->pages, index));
+}
+
+static OlAppChooserWidget *
+_get_chooser (OlPlayerChooser *window,
+              guint index)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  OlPlayerChooserPage *page = g_ptr_array_index (priv->pages,
+                                                 index);
+  ol_assert_ret (page != NULL, NULL);
+  return page->chooser;
+}
+
+static void
+_set_apps_to_page (OlPlayerChooser *window,
+                   guint index,
+                   GList *app_list)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  OlAppChooserWidget *chooser = _get_chooser (window, index);
+  ol_app_chooser_widget_set_app_list (chooser, app_list, DEFAULT_APP_COLUMNS);
+  GtkRequisition chooser_req;
+  gint box_height;
+  gtk_widget_size_request (GTK_WIDGET (chooser), &chooser_req);
+  gtk_widget_get_size_request (GTK_WIDGET (priv->chooser_panel), NULL, &box_height);
+  gint height = MIN (MAX_CHOOSER_HEIGHT, 
+                     MAX (chooser_req.height, box_height));
+  if (height != box_height)
+    gtk_widget_set_size_request (GTK_WIDGET (priv->chooser_panel),
+                                 -1,
+                                 height);
+}
+
+static void
+_setup_ui (OlPlayerChooser *window)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  /* Setup info widgets */
+  priv->info_label = GTK_LABEL (gtk_label_new (NULL));
+  gtk_label_set_line_wrap (priv->info_label, TRUE);
+  gtk_misc_set_alignment (GTK_MISC (priv->info_label), 0.0, 0.0);
+  priv->info_icon = GTK_IMAGE (gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO,
+                                                         GTK_ICON_SIZE_DIALOG));
+  GtkWidget *info_box = gtk_hbox_new (FALSE, 10);
+  gtk_box_pack_start (GTK_BOX (info_box),
+                      GTK_WIDGET (priv->info_icon),
+                      FALSE,    /* expand */
+                      FALSE,    /* fill */
+                      0);
+  gtk_box_pack_start (GTK_BOX (info_box),
+                      GTK_WIDGET (priv->info_label),
+                      TRUE,     /* expand */
+                      TRUE,     /* fill */
+                      0);
+  /* Setup app choosers */
+  priv->page_button_panel = GTK_BOX (gtk_hbox_new (FALSE, 0));
+  priv->chooser_panel = GTK_BOX (gtk_hbox_new (FALSE, 0));
+  _new_page (window, _("Supported players"));
+  _new_page (window, _("All players"));
+  _set_apps_to_page (window,
+                     ALL_CHOOSER_INDEX,
+                     g_app_info_get_all_for_type ("audio/mp3"));
+  GtkWidget *apps_frame = gtk_frame_new (_("Choose a player to launch"));
+  GtkBox *page_vbox = GTK_BOX (gtk_vbox_new (FALSE, 0));
+  gtk_widget_show (GTK_WIDGET (page_vbox));
+  gtk_box_pack_start (page_vbox,
+                      GTK_WIDGET (priv->page_button_panel),
+                      FALSE,    /* expand */
+                      FALSE,    /* fill */
+                      0);       /* padding */
+  gtk_box_pack_end (page_vbox,
+                    GTK_WIDGET (priv->chooser_panel),
+                    FALSE,    /* expand */
+                    FALSE,    /* fill */
+                    0);       /* padding */
+  gtk_container_add (GTK_CONTAINER (apps_frame), GTK_WIDGET (page_vbox));
+  /* Setup custom command */
+  priv->custom_cmd_panel = GTK_BOX (gtk_hbox_new (FALSE, 5));
   GtkWidget *cmd_label = gtk_label_new (_("Use command:"));
-  gtk_misc_set_padding (GTK_MISC (cmd_label), 5, 0);
   GtkWidget *cmd_entry = gtk_entry_new ();
   priv->cmd_entry = GTK_ENTRY (cmd_entry);
   gtk_entry_set_activates_default (priv->cmd_entry, TRUE);
@@ -108,31 +273,30 @@ ol_player_chooser_init (OlPlayerChooser *window)
                     "clicked",
                     G_CALLBACK (_launch_button_clicked_cb),
                     window);
-  gtk_box_pack_start (GTK_BOX (cmd_hbox), cmd_label, FALSE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (cmd_hbox), cmd_entry, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (cmd_hbox), launch_button, FALSE, TRUE, 0);
+  gtk_box_pack_start (priv->custom_cmd_panel, cmd_label, FALSE, TRUE, 0);
+  gtk_box_pack_start (priv->custom_cmd_panel, cmd_entry, TRUE, TRUE, 0);
+  gtk_box_pack_start (priv->custom_cmd_panel, launch_button, FALSE, TRUE, 0);
 
   GtkWidget *final_hbox = gtk_hbox_new (FALSE, 0);
   GtkWidget *remember_button = gtk_check_button_new_with_label (_("Remember my choice"));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (remember_button), TRUE);
   priv->remember_button = remember_button;
   gtk_box_pack_start (GTK_BOX (final_hbox), remember_button, FALSE, TRUE, 0);
-
-  GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (window))),
-                     vbox);
+  /* Setup the whole dialog */
+  GtkWidget *vbox = gtk_dialog_get_content_area (GTK_DIALOG (window));
+  gtk_box_set_spacing (GTK_BOX (vbox), 10);
   gtk_box_pack_start (GTK_BOX (vbox),
-                      GTK_WIDGET (priv->supported_expander),
+                      info_box,
                       FALSE,
-                      TRUE,
+                      FALSE,
                       0);
   gtk_box_pack_start (GTK_BOX (vbox),
-                      GTK_WIDGET (priv->all_expander),
+                      apps_frame,
                       FALSE,
-                      TRUE,
+                      FALSE,
                       0);
   gtk_box_pack_start (GTK_BOX (vbox),
-                      cmd_hbox,
+                      GTK_WIDGET (priv->custom_cmd_panel),
                       FALSE,
                       TRUE,
                       0);
@@ -141,10 +305,16 @@ ol_player_chooser_init (OlPlayerChooser *window)
                     FALSE,
                     TRUE,
                     0);
-  gtk_widget_show_all (vbox);
+  gtk_widget_show (vbox);
+  gtk_widget_show_all (info_box);
+  gtk_widget_show (apps_frame);
+  gtk_widget_show_all (GTK_WIDGET (priv->page_button_panel));
+  gtk_widget_show (GTK_WIDGET (priv->chooser_panel));
+  gtk_widget_show_all (GTK_WIDGET (priv->custom_cmd_panel));
+  gtk_widget_show_all (GTK_WIDGET (final_hbox));
 
   gtk_dialog_add_button (GTK_DIALOG (window),
-                         GTK_STOCK_QUIT,
+                         GTK_STOCK_CLOSE,
                          GTK_RESPONSE_CLOSE);
   gtk_window_set_title (GTK_WINDOW (window), _("Choose a player to launch"));
   gtk_window_set_resizable (GTK_WINDOW (window), FALSE);
@@ -154,6 +324,17 @@ ol_player_chooser_init (OlPlayerChooser *window)
 static void
 _destroy (GtkObject *object)
 {
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (object);
+  if (priv->pages != NULL)
+  {
+    g_ptr_array_free (priv->pages, TRUE);
+    priv->pages = NULL;
+  }
+  if (priv->launch_app)
+  {
+    g_object_unref (priv->launch_app);
+    priv->launch_app = NULL;
+  }
   GTK_OBJECT_CLASS (ol_player_chooser_parent_class)->destroy (object);
 }
 
@@ -171,19 +352,17 @@ _set_supported_players (OlPlayerChooser *window,
                         GList *supported_players)
 {
   ol_assert (OL_IS_PLAYER_CHOOSER (window));
-  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
-  gtk_expander_set_expanded (priv->all_expander, TRUE);
+  _set_apps_to_page (window,
+                     SUPPORT_CHOOSER_INDEX,
+                     supported_players);
   if (supported_players != NULL)
   {
-    ol_app_chooser_widget_set_app_list (priv->supported_chooser,
-                                        supported_players,
-                                        0);
-    gtk_expander_set_expanded (priv->supported_expander, TRUE);
-    gtk_expander_set_expanded (priv->all_expander, FALSE);
+    _show_page_by_index (window, SUPPORT_CHOOSER_INDEX);
   }
-  ol_app_chooser_widget_set_app_list (priv->all_chooser,
-                                      g_app_info_get_all_for_type ("audio/mp3"),
-                                      ol_app_chooser_widget_get_columns (priv->supported_chooser));
+  else
+  {
+    _show_page_by_index (window, ALL_CHOOSER_INDEX);
+  }
 }
 
 static void
@@ -192,17 +371,58 @@ _app_activate_cb (OlAppChooserWidget *chooser,
                   OlPlayerChooser *window)
 {
   ol_assert (G_IS_APP_INFO (app_info));
+  _launch_app (window, app_info);
+}
+
+static void
+_launch_app (OlPlayerChooser *window,
+             GAppInfo *app_info)
+{
   GError *err = NULL;
   if (!g_app_info_launch (app_info, NULL, NULL, &err))
   {
-    ol_errorf ("Cannot launch %s: %s", g_app_info_get_commandline (app_info));
+    ol_errorf ("Cannot launch %s: %s",
+               g_app_info_get_commandline (app_info),
+               err->message);
+    gchar *title = g_strdup_printf (_("Failed to launch %s"),
+                                    g_app_info_get_name (app_info));
+    ol_player_chooser_set_info (window, title, err->message);
+    ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);
+    g_free (title);
     g_error_free (err);
   }
-  if (OL_IS_PLAYER_CHOOSER (window))
-	{
-    _remember_cmd_if_needed (window, g_app_info_get_commandline (app_info));
-    gtk_dialog_response (GTK_DIALOG (window), OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
+  else
+  {
+    _set_launch_app (window, app_info);
+    gchar *title = g_strdup_printf (_("Launching %s"),
+                                    g_app_info_get_name (app_info));
+    gchar *desc = g_strdup_printf (_("OSD Lyrics is trying to launch and connect to %s. Please wait for a second."),
+                                   g_app_info_get_name (app_info));
+    ol_player_chooser_set_info (window, title, desc);
+    g_free (title);
+    g_free (desc);
+    ol_player_chooser_set_image_by_gicon (window, g_app_info_get_icon (app_info));
+    _set_sensitive (window, FALSE);
+    if (OL_IS_PLAYER_CHOOSER (window))
+    {
+      _remember_cmd_if_needed (window, g_app_info_get_commandline (app_info));
+      gtk_dialog_response (GTK_DIALOG (window), OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
+    }
   }
+}
+
+static void
+_set_launch_app (OlPlayerChooser *window,
+                 GAppInfo *app_info)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  if (priv->launch_app)
+  {
+    g_object_unref (priv->launch_app);
+  }
+  if (app_info)
+    g_object_ref (app_info);
+  priv->launch_app = app_info;
 }
 
 static void
@@ -214,9 +434,13 @@ _launch_button_clicked_cb (GtkButton *button,
   const char *cmd = gtk_entry_get_text (priv->cmd_entry);
   if (ol_is_string_empty (cmd))
     return;
-  g_spawn_command_line_async (cmd, NULL);
-  _remember_cmd_if_needed (window, cmd);
-  gtk_dialog_response (GTK_DIALOG (window), OL_PLAYER_CHOOSER_RESPONSE_LAUNCH);
+  GAppInfo *app_info = G_APP_INFO (ol_app_info_new (cmd,
+                                                    NULL,
+                                                    NULL,
+                                                    OL_APP_INFO_PREFER_DESKTOP_FILE,
+                                                    NULL));
+  _launch_app (window, app_info);
+  g_object_unref (app_info);
 }
 
 static void
@@ -233,4 +457,89 @@ _remember_cmd_if_needed (OlPlayerChooser *window,
                           "startup-player",
                           cmd);
   }
+}
+
+void
+ol_player_chooser_set_info (OlPlayerChooser *window,
+                            const char *info,
+                            const char *description)
+{
+  ol_assert (OL_IS_PLAYER_CHOOSER (window));
+  ol_assert (info != NULL);
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  gchar *text;
+  if (description != NULL)
+    text = g_strdup_printf ("%s\n\n%s", info, description);
+  else
+    text = g_strdup (info);
+  gtk_label_set_text (priv->info_label, text);
+  g_free (text);
+}
+
+void
+ol_player_chooser_set_image_by_name (OlPlayerChooser *window,
+                                     const char *icon_name)
+{
+  ol_assert (OL_IS_PLAYER_CHOOSER (window));
+  ol_assert (icon_name != NULL);
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  gtk_image_set_from_icon_name (priv->info_icon, icon_name, GTK_ICON_SIZE_DIALOG);
+}
+
+void
+ol_player_chooser_set_image_by_gicon (OlPlayerChooser *window,
+                                      GIcon *icon)
+{
+  ol_assert (OL_IS_PLAYER_CHOOSER (window));
+  ol_assert (G_IS_ICON (icon));
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  gtk_image_set_from_gicon (priv->info_icon, icon, GTK_ICON_SIZE_DIALOG);
+}
+
+void
+ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
+                                     enum OlPlayerChooserState state)
+{
+  ol_assert (OL_IS_PLAYER_CHOOSER (window));
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  _set_sensitive (window, TRUE);
+  switch (state)
+  {
+  case OL_PLAYER_CHOOSER_STATE_NO_PLAYER:
+    ol_player_chooser_set_info (window,
+                                _("There is no supported player running"),
+                                _("Please choose a player below to launch"));
+    ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_INFO);
+    break;
+  case OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL: {
+    gchar *title = g_strdup_printf (_("Failed to connect to %s"),
+                                      g_app_info_get_name (priv->launch_app));
+    gchar *desc = g_strdup_printf (_("%s is not supported by OSD Lyrics, or not running. Please launch another player"),
+                                   g_app_info_get_name (priv->launch_app));
+    ol_player_chooser_set_info (window, title, desc);
+    ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);
+    g_free (title);
+    g_free (desc);
+    _set_launch_app (window, NULL);
+    break;
+  }
+  case OL_PLAYER_CHOOSER_STATE_CONNECTED:
+    gtk_widget_hide (GTK_WIDGET (window));
+    break;
+  default:
+    ol_errorf ("Unknown player chooser state %d\n", (int) state);
+  }
+}
+
+static void
+_set_sensitive (OlPlayerChooser *window,
+                gboolean sensitive)
+{
+  OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  gtk_widget_set_sensitive (GTK_WIDGET (priv->chooser_panel),
+                            sensitive);
+  gtk_widget_set_sensitive (GTK_WIDGET (priv->page_button_panel),
+                            sensitive);
+  gtk_widget_set_sensitive (GTK_WIDGET (priv->custom_cmd_panel),
+                            sensitive);
 }
