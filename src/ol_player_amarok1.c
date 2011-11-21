@@ -116,7 +116,7 @@ ol_player_amarok1_get_music_info (OlMusicInfo *info)
     return FALSE;
   if (!ol_player_amarok1_get_string (ALBUM_CMD, &info->album))
     return FALSE;
-  if (!ol_player_amarok1_get_uint (TRACK_CMD, &info->track_number))
+  if (!ol_player_amarok1_get_uint (TRACK_CMD, (guint *)&info->track_number))
     return FALSE;
   ol_debugf ("  title: %s\n"
              "  artist: %s\n"
@@ -131,7 +131,7 @@ static gboolean
 ol_player_amarok1_get_played_time (int *played_time)
 {
   ol_assert_ret (played_time != NULL, FALSE);
-  if (!ol_player_amarok1_get_uint (PLAYED_TIME_CMD, played_time))
+  if (!ol_player_amarok1_get_uint (PLAYED_TIME_CMD, (guint *)played_time))
     return FALSE;
   return TRUE;
 }
@@ -140,7 +140,7 @@ static gboolean
 ol_player_amarok1_get_music_length (int *music_length)
 {
   ol_assert_ret (music_length != NULL, FALSE);
-  if (!ol_player_amarok1_get_uint (MUSIC_LENGTH_CMD, music_length))
+  if (!ol_player_amarok1_get_uint (MUSIC_LENGTH_CMD, (guint *)music_length))
     return FALSE;
   *music_length *= 1000;
   return TRUE;

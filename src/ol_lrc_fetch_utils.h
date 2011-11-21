@@ -38,6 +38,7 @@
 #include<curl/easy.h>
 
 #include<limits.h>
+#include "config.h"
 
 #define LRC_RANK_THRESHOLD 50000
 
@@ -51,7 +52,12 @@
  * 
  * @return The converted length. In case of error, it sets errno and returns (size_t)(−1). 
  */
-size_t convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen);
+size_t convert(const char *from_charset,
+               const char *to_charset,
+               ICONV_CONST char *src,
+               size_t srclen,
+               char *dest,
+               size_t destlen);
 
 
 typedef size_t (*WriteCallback)(void *ptr, size_t size, size_t nmemb, void *data);

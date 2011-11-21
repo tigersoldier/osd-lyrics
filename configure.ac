@@ -49,6 +49,7 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([ftruncate gettimeofday memset pathconf sqrt strcasecmp strchr strdup strerror strrchr strstr])
+AM_ICONV
 
 #define paths
 OL_ICONDIR='${datadir}/${PACKAGE}/icons'
