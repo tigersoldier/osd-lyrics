@@ -86,6 +86,10 @@ static OlAppChooserWidget *_get_chooser (OlPlayerChooser *window,
 static void _setup_ui (OlPlayerChooser *window);
 static void _set_sensitive (OlPlayerChooser *window,
                             gboolean sensitive);
+static GtkEntryCompletion *_new_bin_completion (void);
+static gboolean _prepend_cmd_to_list (const char *path,
+                                      const char *filename,
+                                      gpointer userdata);
 
 static void
 ol_player_chooser_class_init (OlPlayerChooserClass *klass)
@@ -265,6 +269,7 @@ _setup_ui (OlPlayerChooser *window)
   GtkWidget *cmd_entry = gtk_entry_new ();
   priv->cmd_entry = GTK_ENTRY (cmd_entry);
   gtk_entry_set_activates_default (priv->cmd_entry, TRUE);
+  gtk_entry_set_completion (priv->cmd_entry, _new_bin_completion ());
   GtkWidget *launch_button = gtk_button_new_with_label (_("Launch"));
   gtk_widget_set_can_default (launch_button, TRUE);
   gtk_window_set_default (GTK_WINDOW (window), launch_button);
@@ -319,6 +324,51 @@ _setup_ui (OlPlayerChooser *window)
   gtk_window_set_title (GTK_WINDOW (window), _("Choose a player to launch"));
   gtk_window_set_resizable (GTK_WINDOW (window), FALSE);
   gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
+}
+
+static gboolean
+_prepend_cmd_to_list (const char *path,
+                      const char *filename,
+                      gpointer userdata)
+{
+  GList **cmds_p = userdata;
+  gchar *filepath = g_build_path (G_DIR_SEPARATOR_S, path, filename, NULL);
+  if (g_file_test (filepath, G_FILE_TEST_IS_EXECUTABLE) &&
+      !g_file_test (filepath, G_FILE_TEST_IS_DIR))
+  {
+    *cmds_p = g_list_prepend (*cmds_p, g_strdup (filename));
+  }
+  return TRUE;
+}
+
+static GtkEntryCompletion *
+_new_bin_completion (void)
+{
+  const gchar *path_env = g_getenv ("PATH");
+  gchar **pathdirs = g_strsplit (path_env, G_SEARCHPATH_SEPARATOR_S, 0);
+  gchar **pathiter = pathdirs;
+  GList *cmds_p[] = {NULL};
+  for (; *pathiter != NULL; pathiter++)
+  {
+    gchar *path = *pathiter;
+    ol_traverse_dir (path, FALSE, _prepend_cmd_to_list, cmds_p);
+  }
+  GList *cmds = cmds_p[0];
+  cmds = g_list_sort (cmds, (GCompareFunc)strcasecmp);
+  GtkListStore *list = gtk_list_store_new (1, G_TYPE_STRING);
+  for (; cmds != NULL; cmds = cmds->next)
+  {
+    GtkTreeIter iter;
+    gtk_list_store_append (list, &iter);
+    gtk_list_store_set (list, &iter, 0, cmds->data, -1);
+  }
+  g_list_free_full (cmds, g_free);
+  GtkEntryCompletion *comp = gtk_entry_completion_new ();
+  gtk_entry_completion_set_model (comp, GTK_TREE_MODEL (list));
+  gtk_entry_completion_set_text_column (comp, 0);
+  gtk_entry_completion_set_inline_completion (comp, TRUE);
+  gtk_entry_completion_set_inline_selection (comp, TRUE);
+  return comp;
 }
 
 static void

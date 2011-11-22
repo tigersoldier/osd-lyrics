@@ -196,4 +196,25 @@ gint ol_app_info_cmp (GAppInfo *a, GAppInfo *b);
  * @return TRUE on successful launch, FALSE otherwise.
  */
 gboolean ol_launch_app (const char *cmdline);
+
+/** 
+ * Pass names of all files and directories in the specified directory to given
+ * function.
+ * 
+ * @param dir The path of the directroy
+ * @param recursive Whether to visit subdirectories in the directory
+ * @param traverse_func The function to receive the file name. traverse_func will be
+ *                      called on each file once. If it returns FALSE, traversal will
+ *                      be ended.
+ * @param userdata
+ * 
+ * @return TRUE if the traversal is no interrupted because traverse_func returns
+ *         FALSE. The return value is intend to be used in recursive traversal.
+ */
+gboolean ol_traverse_dir (const char *dir,
+                          gboolean recursive,
+                          gboolean (*traverse_func) (const char *path,
+                                                     const char *filename,
+                                                     gpointer userdata),
+                          gpointer userdata);
 #endif // __OL_UTILS_H__
