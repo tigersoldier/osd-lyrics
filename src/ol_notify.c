@@ -74,7 +74,7 @@ static gboolean
 _init ()
 {
   if (!notify_is_initted())
-    notify_init (PACKAGE_NAME);
+    notify_init (_(PROGRAM_NAME));
   return TRUE;
 }
 

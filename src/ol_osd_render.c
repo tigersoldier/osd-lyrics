@@ -89,11 +89,15 @@ ol_osd_render_paint_text (OlOsdRenderContext *context,
   if (context->outline_width > 0)
   {
     cairo_set_line_width (cr, context->outline_width);
-    cairo_stroke (cr);
     if (context->blur_radius > 1e-4)
     {
+      cairo_stroke_preserve (cr);
       cairo_fill (cr);
       ol_gussian_blur (cairo_get_target (cr), context->blur_radius);
+    }
+    else
+    {
+      cairo_stroke (cr);
     }
   }
   cairo_restore (cr);

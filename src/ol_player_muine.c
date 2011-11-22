@@ -34,7 +34,7 @@ static const char *_icon_paths[] = {
 static DBusGProxy *proxy = NULL;
 static OlElapseEmulator *elapse_emulator = NULL;
 
-static const gboolean _ensure_connection (void);
+static gboolean _ensure_connection (void);
 static const char *_get_icon_path (void);
 static gboolean _get_activated (void);
 static gboolean _get_played_time (int *played_time);
@@ -219,7 +219,7 @@ _get_activated ()
   return _ensure_connection ();
 }
 
-static const gboolean
+static gboolean
 _ensure_connection ()
 {
   if (proxy != NULL) return TRUE;

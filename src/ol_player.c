@@ -34,6 +34,8 @@
 #include "ol_player_mpris.h"
 #include "ol_player_mpris2.h"
 #include "ol_player_utils.h"
+#include "ol_player_rhythmbox.h"
+#include "ol_player_rhythmcat.h"
 #ifdef ENABLE_AMAROK1
 #include "ol_player_amarok1.h"
 #endif  /* ENABLE_AMAROK1 */
@@ -58,11 +60,13 @@ ol_player_init ()
     ol_player_register (ol_player_listen_get ());
     ol_player_register (ol_player_gmusicbrowser_get ());
     ol_player_register (ol_player_mpris_get ());
+    ol_player_register (ol_player_rhythmbox_get ());
     ol_player_register (ol_player_mpris2_get ());
     ol_player_register (ol_player_moc_get ());
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
+    ol_player_register (ol_player_rhythmcat_get ());
 #ifdef ENABLE_AMAROK1
     ol_player_register (ol_player_amarok1_get ());
 #endif  /* ENABLE_AMAROK1 */

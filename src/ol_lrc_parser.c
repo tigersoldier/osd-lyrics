@@ -27,6 +27,7 @@
 #include "ol_utils.h"
 #include "chardetect.h"
 #include "ol_debug.h"
+#include "config.h"
 
 #define CHARSET_LEN 20
 
@@ -237,7 +238,8 @@ ol_lrc_parser_set_buffer (struct OlLrcParser *parser,
         size_t inlen = buflen;
         size_t outlen = buflen * 3;
         outbuf = g_new (char, outlen + 1);
-        char *in = inbuf, *out = outbuf;
+        ICONV_CONST char *in = inbuf;
+        char *out = outbuf;
         outbuf[0] = '\0';
         iconv (cd, &in, &inlen, &out, &outlen);
         if (outlen > 0)

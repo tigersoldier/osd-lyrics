@@ -23,6 +23,8 @@
 #include <pango/pangocairo.h>
 
 #include "ol_scroll_window.h"
+#include "ol_intl.h"
+#include "ol_marshal.h"
 #include "ol_color.h"
 #include "ol_debug.h"
 
@@ -47,6 +49,8 @@ static const gint DEFAULT_PADDING_Y = 5;
 static const gint DEFAULT_CORNER_RADIUS = 10;
 static const gint DEFAULT_FRAME_WIDTH = 7;
 static const double DEFAULT_BG_OPACITY = 0.9;
+static const gchar *TOOLTIP_WITH_SEEK = N_ ("Drag to move the window\nHold CTRL to seek");
+static const gchar *TOOLTIP_WITHOUT_SEEK = N_ ("Drag to move the window");
 /**********************************************/
 
 
@@ -70,8 +74,20 @@ struct __OlScrollWindowPrivate
   GtkWidget *window_container;
   GtkContainer *toolbar_container;
   enum OlScrollWindowScrollMode scroll_mode;
+  gboolean can_seek;
+  gboolean seeking;
+  gint saved_lyric_id;
+  gint saved_seek_offset;
+  gint saved_pointer_y;
+  gint current_pointer_y;
 };
 
+enum {
+  SEEK_SIGNAL,
+  LAST_SIGNAL,
+};
+
+static uint _signals[LAST_SIGNAL] = {0};
 
 static cairo_t* _get_cairo (OlScrollWindow *scroll, GtkWidget *widget);
 static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
@@ -79,6 +95,9 @@ static void _paint_bg (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr);
 static void _paint_text (OlScrollWindow *scroll, cairo_t *cr);
 static gint _calc_lrc_ypos (OlScrollWindow *scroll, double percentage);
+static void _calc_paint_pos (OlScrollWindow *scroll,
+                             gint *lyric_id,
+                             gint *lrc_y);
 
 static void ol_scroll_window_init (OlScrollWindow *self);
 static void ol_scroll_window_class_init (OlScrollWindowClass *klass);
@@ -94,8 +113,20 @@ static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
 
 static gboolean ol_scroll_window_button_press (GtkWidget *widget,
                                                GdkEventButton *event);
+static gboolean ol_scroll_window_button_release (GtkWidget *widget,
+                                               GdkEventButton *event);
 static gboolean ol_scroll_window_motion_notify (GtkWidget *widget,
                                                 GdkEventMotion *event);
+static void ol_scroll_window_begin_move_resize (GtkWidget *widget,
+                                                GdkEventButton *event);
+static void ol_scroll_window_begin_seek (OlScrollWindow *scroll,
+                                         GdkEventButton *event);
+static void ol_scroll_window_update_cursor (GtkWidget *widget,
+                                            GdkEventMotion *event);
+static void ol_scroll_window_seek (OlScrollWindow *scroll,
+                                   GdkEventMotion *event);
+static void ol_scroll_window_end_seek (OlScrollWindow *scroll);
+static void ol_scroll_window_update_tooltip (OlScrollWindow *scroll);
 
 G_DEFINE_TYPE (OlScrollWindow, ol_scroll_window, GTK_TYPE_WINDOW);
 
@@ -131,6 +162,8 @@ ol_scroll_window_init (OlScrollWindow *self)
   priv->frame_width = DEFAULT_FRAME_WIDTH;
   priv->text = NULL;
   priv->scroll_mode = OL_SCROLL_WINDOW_ALWAYS;
+  priv->can_seek = FALSE;
+  priv->seeking = FALSE;
   /*set allocation*/
   gtk_window_resize(GTK_WINDOW(self), DEFAULT_WIDTH, DEFAULT_HEIGHT);
   gtk_widget_add_events (GTK_WIDGET (self),
@@ -159,11 +192,15 @@ ol_scroll_window_init (OlScrollWindow *self)
   gtk_container_add (GTK_CONTAINER (priv->window_container),
                      GTK_WIDGET (priv->toolbar_container));
   gtk_widget_show_all (priv->window_container);
+  /* Set tooltips */
+  ol_scroll_window_update_tooltip (self);
   /* Connect signals */
   g_signal_connect (G_OBJECT (priv->window_container), "expose-event",
                     G_CALLBACK (ol_scroll_window_expose), self);
   g_signal_connect (G_OBJECT (self), "button-press-event",
                     G_CALLBACK (ol_scroll_window_button_press), self);
+  g_signal_connect (G_OBJECT (self), "button-release-event",
+                    G_CALLBACK (ol_scroll_window_button_release), self);
   g_signal_connect (G_OBJECT (self), "motion-notify-event",
                     G_CALLBACK (ol_scroll_window_motion_notify), self);
 }
@@ -176,6 +213,19 @@ ol_scroll_window_class_init (OlScrollWindowClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gtkobject_class = GTK_OBJECT_CLASS (klass);
   gtkobject_class->destroy = ol_scroll_window_destroy;
+  /* install signals */
+  _signals[SEEK_SIGNAL] =
+    g_signal_new ("seek",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                  0,            /* class_offset */
+                  NULL,         /* accumulator */
+                  NULL,         /* accumulator data */
+                  ol_marshal_VOID__UINT_DOUBLE,
+                  G_TYPE_NONE,
+                  2,
+                  G_TYPE_UINT,
+                  G_TYPE_DOUBLE);
   /*add private variables into OlScrollWindow*/
   g_type_class_add_private (gobject_class, sizeof (OlScrollWindowPrivate));
 }
@@ -255,6 +305,9 @@ ol_scroll_window_set_whole_lyrics (OlScrollWindow *scroll,
        progress info*/
     gtk_widget_queue_draw (GTK_WIDGET (scroll));
   }
+  ol_scroll_window_update_tooltip (scroll);
+  if (priv->seeking)
+    ol_scroll_window_end_seek (scroll);
 }
 
 static PangoLayout*
@@ -287,17 +340,22 @@ _get_cairo (OlScrollWindow *scroll, GtkWidget *widget)
 static double
 _get_active_color_ratio (OlScrollWindow *scroll, int line)
 {
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  int line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
+  gint current_lyric_id, lrc_y;
+  _calc_paint_pos (scroll, &current_lyric_id, &lrc_y);
   double ratio = 0.0;
-  if (line == scroll->current_lyric_id)
+  gdouble percentage = (gdouble) lrc_y / (gdouble) line_height;
+  if (line == current_lyric_id)
   {
-    ratio = (1.0 - scroll->percentage) / 0.1;
+    ratio = (1.0 - percentage) / 0.1;
     if (ratio > 1.0) ratio = 1.0;
     if (ratio < 0.0) ratio = 0.0;
     return ratio;
   }
-  else if (line == scroll->current_lyric_id + 1)
+  else if (line == current_lyric_id + 1)
   {
-    ratio = (scroll->percentage - 0.9) / 0.1;
+    ratio = (percentage - 0.9) / 0.1;
     if (ratio > 1.0) ratio = 1.0;
     if (ratio < 0.0) ratio = 0.0;
   }
@@ -370,6 +428,50 @@ _calc_lrc_ypos (OlScrollWindow *scroll, double percentage)
 }
 
 static void
+_calc_paint_pos (OlScrollWindow *scroll,
+                 gint *lyric_id,
+                 gint *lrc_y)
+{
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  if (priv->seeking)
+  {
+    gint line_height;
+    line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
+    gint id = priv->saved_lyric_id;
+    gint y = priv->saved_seek_offset - priv->current_pointer_y + priv->saved_pointer_y;
+    id += y / line_height;
+    y %= line_height;
+    if (y < 0)
+    {
+      y += line_height;
+      id--;
+    }
+    if (id < 0)
+    {
+      id = 0;
+      y = 0;
+    }
+    else if (id >= scroll->whole_lyrics->len)
+    {
+      id = scroll->whole_lyrics->len - 1;
+      y = line_height;
+    }
+    if (lyric_id)
+      *lyric_id = id;
+    if (lrc_y)
+      *lrc_y = y;
+  }
+  else
+  {
+    if (lyric_id)
+      *lyric_id = scroll->current_lyric_id;
+    priv->saved_lrc_y = _calc_lrc_ypos (scroll, scroll->percentage);
+    if (lrc_y)
+      *lrc_y = priv->saved_lrc_y;
+  }
+}
+
+static void
 _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
 {
   ol_assert (OL_IS_SCROLL_WINDOW (scroll));
@@ -378,7 +480,6 @@ _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   int line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
   int count = ol_scroll_window_compute_line_count (scroll);
-  double percentage = scroll->percentage;
   gint width, height;
   gdk_drawable_get_size (gtk_widget_get_window (GTK_WIDGET (scroll)),
                          &width, &height);
@@ -395,10 +496,14 @@ _paint_lyrics (OlScrollWindow *scroll, cairo_t *cr)
   cairo_close_path (cr);
   cairo_clip (cr);
   int i;
-  int begin = scroll->current_lyric_id - count / 2;
-  int end = scroll->current_lyric_id + count / 2 + 1;
-  priv->saved_lrc_y = _calc_lrc_ypos (scroll, percentage);
-  int ypos = height / 2  - priv->saved_lrc_y - (count / 2 + 1) * line_height;
+  gint current_lyric_id;
+  gint lrc_y;
+  _calc_paint_pos (scroll,
+                   &current_lyric_id,
+                   &lrc_y);
+  int begin = current_lyric_id - count / 2;
+  int end = current_lyric_id + count / 2 + 1;
+  int ypos = height / 2  - lrc_y - (count / 2 + 1) * line_height;
   cairo_set_source_rgb(cr,
                        priv->inactive_color.r,
                        priv->inactive_color.g,
@@ -617,48 +722,105 @@ _get_pointer_edge (gint x, gint y,
   return ret;
 }
 
-static gboolean 
-ol_scroll_window_button_press (GtkWidget * widget, 
-                               GdkEventButton * event)
+static void
+ol_scroll_window_begin_move_resize (GtkWidget *widget,
+                                    GdkEventButton *event)
 {
-  ol_assert_ret (OL_IS_SCROLL_WINDOW (widget), FALSE);
   gint width, height;
   GtkWindow *window = GTK_WINDOW (widget);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
   GdkWindowEdge edge;
   gtk_window_get_size (window, &width, &height);
-  if (event->button == 1) {
-    if (!_get_pointer_edge (event->x, event->y,
-                            width, height,
-                            priv->frame_width, priv->frame_width,
-                            priv->frame_width, priv->frame_width,
-                            &edge))
-      gtk_window_begin_move_drag (window,
+  if (!_get_pointer_edge (event->x, event->y,
+                          width, height,
+                          priv->frame_width, priv->frame_width,
+                          priv->frame_width, priv->frame_width,
+                          &edge))
+    gtk_window_begin_move_drag (window,
+                                event->button,
+                                (gint)event->x_root,
+                                (gint)event->y_root,
+                                event->time);
+  else
+    gtk_window_begin_resize_drag (window,
+                                  edge,
                                   event->button,
                                   (gint)event->x_root,
                                   (gint)event->y_root,
                                   event->time);
+}
+
+static void
+ol_scroll_window_begin_seek (OlScrollWindow *scroll,
+                             GdkEventButton *event)
+{
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->seeking = TRUE;
+  priv->saved_seek_offset = priv->saved_lrc_y;
+  priv->saved_pointer_y = event->y;
+  priv->saved_lyric_id = scroll->current_lyric_id;
+}
+
+static gboolean 
+ol_scroll_window_button_press (GtkWidget *widget, 
+                               GdkEventButton *event)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (widget), FALSE);
+  OlScrollWindow *scroll = OL_SCROLL_WINDOW (widget);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  if (event->button == 1) {
+    if (event->state & GDK_CONTROL_MASK && scroll->whole_lyrics != NULL &&
+        priv->can_seek)
+    {
+      ol_scroll_window_begin_seek (OL_SCROLL_WINDOW (widget), event);
+    }
     else
-      gtk_window_begin_resize_drag (window,
-                                    edge,
-                                    event->button,
-                                    (gint)event->x_root,
-                                    (gint)event->y_root,
-                                    event->time);
+    {
+      ol_scroll_window_begin_move_resize (widget, event);
+    }
   }
   return FALSE;
 }
 
-static gboolean
-ol_scroll_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
+static void
+ol_scroll_window_end_seek (OlScrollWindow *scroll)
+{
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->seeking = FALSE;
+}
+
+static gboolean 
+ol_scroll_window_button_release (GtkWidget *widget, 
+                                 GdkEventButton *event)
 {
   ol_assert_ret (OL_IS_SCROLL_WINDOW (widget), FALSE);
-  gint width, height;
-  GtkWindow *window = GTK_WINDOW (widget);
+  OlScrollWindow *scroll = OL_SCROLL_WINDOW (widget);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
+  if (priv->seeking)
+  {
+    gint current_lyric_id, lrc_y;
+    gint line_height = ol_scroll_window_get_font_height (scroll) + priv->line_margin;
+    _calc_paint_pos (scroll, &current_lyric_id, &lrc_y);
+    gdouble percentage = (gdouble) lrc_y / (gdouble) line_height;
+    ol_scroll_window_end_seek (scroll);
+    g_signal_emit (scroll,
+                   _signals[SEEK_SIGNAL],
+                   0,           /* detail */
+                   (guint)current_lyric_id,
+                   percentage);
+  }
+  return FALSE;
+}
+
+static void
+ol_scroll_window_update_cursor (GtkWidget *widget,
+                                GdkEventMotion *event)
+{
   GdkWindowEdge edge;
-  gtk_window_get_size (window, &width, &height);
+  gint width, height;
+  gtk_window_get_size (GTK_WINDOW (widget), &width, &height);
   GdkCursor *cursor = NULL;
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
   if (_get_pointer_edge (event->x, event->y,
                          width, height,
                          priv->frame_width, priv->frame_width,
@@ -696,6 +858,37 @@ ol_scroll_window_motion_notify (GtkWidget *widget, GdkEventMotion *event)
                          cursor);
   if (cursor)
     gdk_cursor_unref (cursor);
+}
+
+static void
+ol_scroll_window_seek (OlScrollWindow *scroll,
+                       GdkEventMotion *event)
+{
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  priv->current_pointer_y = event->y;
+  gtk_widget_queue_draw (GTK_WIDGET (scroll));
+}
+
+static gboolean
+ol_scroll_window_motion_notify (GtkWidget *widget,
+                                GdkEventMotion *event)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (widget), FALSE);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (widget);
+  if (priv->seeking)
+  {
+    ol_scroll_window_seek (OL_SCROLL_WINDOW (widget),
+                           event);
+  }
+  else if (event->state & GDK_CONTROL_MASK)
+  {
+    gdk_window_set_cursor (widget->window,
+                           NULL);
+  }
+  else
+  {
+    ol_scroll_window_update_cursor (widget, event);
+  }
   return FALSE;
 }
 
@@ -791,4 +984,36 @@ ol_scroll_window_get_scroll_mode (OlScrollWindow *scroll)
   ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), OL_SCROLL_WINDOW_ALWAYS);
   OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
   return priv->scroll_mode;
+}
+
+static void
+ol_scroll_window_update_tooltip (OlScrollWindow *scroll)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  if (priv->can_seek && scroll->whole_lyrics != NULL)
+    gtk_widget_set_tooltip_text (GTK_WIDGET (scroll), _(TOOLTIP_WITH_SEEK));
+  else
+    gtk_widget_set_tooltip_text (GTK_WIDGET (scroll), _(TOOLTIP_WITHOUT_SEEK));
+}
+
+void
+ol_scroll_window_set_can_seek (OlScrollWindow *scroll,
+                               gboolean can_seek)
+{
+  ol_assert (OL_IS_SCROLL_WINDOW (scroll));
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  if (can_seek != priv->can_seek)
+  {
+    priv->can_seek = can_seek;
+    ol_scroll_window_update_tooltip (scroll);
+  }
+}
+
+gboolean
+ol_scroll_window_get_can_seek (OlScrollWindow *scroll)
+{
+  ol_assert_ret (OL_IS_SCROLL_WINDOW (scroll), FALSE);
+  OlScrollWindowPrivate *priv = OL_SCROLL_WINDOW_GET_PRIVATE (scroll);
+  return priv->can_seek;
 }

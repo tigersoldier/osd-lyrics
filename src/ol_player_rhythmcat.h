@@ -1,6 +1,5 @@
-/* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ * Copyright (C) 2009-2011  Mike Ma <zhtx10@gmail.com>
  *
  * This file is part of OSD Lyrics.
  * 
@@ -17,16 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-#ifndef _OL_LRC_FETCH_MINILYRICS_H_
-#define _OL_LRC_FETCH_MINILYRICS_H_
 
-#include "ol_lrc_fetch.h"
+
+#ifndef __OL_PLAYER_RHYTHMCAT_H__
+#define __OL_PLAYER_RHYTHMCAT_H__
+
+#include "ol_player.h"
 
 /** 
- * @brief Returns the fetch engine of Minilyrics
+ * @brief Creates a controller of RhythmCat
  * 
- * @return 
+ * @return The controller of RhythmCat. It's allocated by g_new, so use g_free to free the memory
  */
-OlLrcFetchEngine *ol_lrc_fetch_minilyrics_engine ();
+struct OlPlayer* ol_player_rhythmcat_get ();
 
-#endif /* _OL_LRC_FETCH_MINILYRICS_H_ */
+#endif

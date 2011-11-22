@@ -296,7 +296,7 @@ ol_player_mpd_get ()
 {
   ol_log_func ();
   struct OlPlayer *controller = ol_player_new ("MPD");
-  ol_player_set_cmd (controller, "gksu /etc/init.d/mpd start");
+  ol_player_set_cmd (controller, "mpd");
   controller->get_music_info = ol_player_mpd_get_music_info;
   controller->get_activated = ol_player_mpd_get_activated;
   controller->get_played_time = ol_player_mpd_get_played_time;

@@ -149,7 +149,7 @@ static void _apply_kernel (cairo_surface_t *surface,
           int x1 = x + (i - kernel_orig) * DIR[d][0];
           int y1 = y + (i - kernel_orig) * DIR[d][1];
           int index1 = _pos_to_index (x1, y1, width, height);
-          if (index > 0)
+          if (index1 > 0)
           {
             sum += kernel[i];
             struct _pixel value = _num_to_pixel_with_factor (old_pixels[index1],
