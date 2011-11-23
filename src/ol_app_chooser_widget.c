@@ -126,7 +126,7 @@ ol_app_chooser_widget_set_app_list (OlAppChooserWidget *chooser,
       g_ptr_array_add (priv->app_list, g_object_ref (info));
   }
   g_ptr_array_sort (priv->app_list, (GCompareFunc) _app_info_cmp);
-  guint n_rows;
+  guint n_rows = 0;
   _calc_size (priv->app_list->len, &n_rows, &n_columns);
   priv->n_columns = n_columns;
   gtk_container_foreach (GTK_CONTAINER (chooser),
