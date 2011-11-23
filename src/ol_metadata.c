@@ -309,7 +309,8 @@ ol_metadata_deserialize (OlMetadata *metadata,
   ol_assert_ret (data != NULL, 0);
   int ret = 1;
   char *buffer = g_strdup (data);
-  char *title, *artist, *album, *track_number, *uri, *art, *duration = NULL;
+  char *title = NULL, *artist = NULL, *album = NULL, *track_number = NULL,
+    *uri = NULL, *art = NULL, *duration = NULL;
   title = artist = album = track_number = uri = NULL;
   title = buffer;
   if ((artist = ol_split_a_line (title)) == NULL)
