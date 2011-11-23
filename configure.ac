@@ -187,7 +187,6 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 AC_CONFIG_FILES([
         po/Makefile.in
 	Makefile
-	dailydeb.sh
 	src/Makefile
 	src/tests/Makefile
 	data/Makefile
