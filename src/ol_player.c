@@ -32,7 +32,6 @@
                  type, g_variant_get_type_string ((value)));    \
     }                                                           \
   } while (0);
-  
 
 #define OL_PLAYER_GET_PRIVATE(object)                                   \
   (G_TYPE_INSTANCE_GET_PRIVATE ((object), OL_TYPE_PLAYER, OlPlayerPrivate))
@@ -74,7 +73,7 @@ struct _OlPlayerPrivate
   gboolean connected;
   OlMetadata *metadata;
   enum OlPlayerStatus status;
-  enum OlPlayerCapacity caps;
+  enum OlPlayerCaps caps;
   guint64 position;
   guint position_timer;
   gchar *player_name;
@@ -1153,11 +1152,13 @@ ol_player_seek (OlPlayer *player, guint64 pos_ms)
     return FALSE;
   g_dbus_proxy_call (private->mpris1_proxy,
                      "PositionSet",
-                     g_variant_new_int32 (pos_ms),
+                     g_variant_new ("(i)", (gint32)pos_ms),
                      G_DBUS_CALL_FLAGS_NO_AUTO_START,
                      -1,        /* timeout_msec */
                      NULL,      /* cancellable */
                      NULL,      /* callback */
                      NULL);     /* user_data */
+  private->position = pos_ms;
+  ol_player_fetch_position_async (player);
   return TRUE;
 }

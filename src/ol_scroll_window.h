@@ -150,4 +150,9 @@ void ol_scroll_window_set_scroll_mode (OlScrollWindow *scroll,
                                        enum OlScrollWindowScrollMode mode);
 
 enum OlScrollWindowScrollMode ol_scroll_window_get_scroll_mode (OlScrollWindow *scroll);
+
+void ol_scroll_window_set_can_seek (OlScrollWindow *scroll,
+                                    gboolean can_seek);
+
+gboolean ol_scroll_window_get_can_seek (OlScrollWindow *scroll);
 #endif /* __OL_SCROLL_WINDOW_H__ */

@@ -30,6 +30,7 @@
 #include "ol_app.h"
 #include "ol_player.h"
 #include "ol_lrc.h"
+#include "config.h"
 
 typedef struct _OlScrollModule OlScrollModule;
 
@@ -51,7 +52,10 @@ static OlScrollModule* ol_scroll_module_new (struct OlDisplayModule *module,
 static void ol_scroll_module_free (struct OlDisplayModule *module);
 static void _metadata_changed_cb (OlPlayer *player,
                                   OlScrollModule *module);
+static void _caps_changed_cb (OlPlayer *player,
+                              OlScrollModule *module);
 static void _update_metadata (OlScrollModule *module);
+static void _update_caps (OlScrollModule *module);
 static void ol_scroll_module_set_played_time (struct OlDisplayModule *module,
                                               guint64 played_time);
 static void ol_scroll_module_set_lrc (struct OlDisplayModule *module,
@@ -77,6 +81,10 @@ static gboolean _close_clicked_cb (GtkButton *button,
 static gboolean _button_release_cb (OlScrollWindow *scroll,
                                     GdkEventButton *event,
                                     gpointer userdata);
+static void _seek_cb (OlScrollWindow *scroll,
+                      guint id,
+                      gdouble percentage,
+                      gpointer userdata);
 static void _scroll_cb (OlScrollWindow *osd,
                         GdkEventScroll *event,
                         gpointer data);
@@ -131,6 +139,34 @@ _window_configure_cb (GtkWidget *widget,
   ol_config_set_int_no_emit (config, "ScrollMode", "width", width);
   ol_config_set_int_no_emit (config, "ScrollMode", "height", height);
   return FALSE;
+}
+
+static void _seek_cb (OlScrollWindow *scroll,
+                      guint id,
+                      gdouble percentage,
+                      gpointer userdata)
+{
+  OlScrollModule *module = userdata;
+  if (module->lrc)
+  {
+    OlLrcIter *iter = ol_lrc_iter_from_id (module->lrc, id);
+    if (!ol_lrc_iter_is_valid (iter))
+    {
+      ol_errorf ("Seek to an invalid ID: %u\n", id);
+      ol_lrc_iter_free (iter);
+      return;
+    }
+    gint64 iter_time = ol_lrc_iter_get_timestamp (iter);
+    guint64 duration = ol_lrc_iter_get_duration (iter);
+    ol_lrc_iter_free (iter);
+    gint64 new_time = iter_time + duration * percentage;
+    ol_player_seek (module->player, new_time);
+    ol_scroll_window_set_progress (module->scroll,
+                                   id,
+                                   percentage);
+    /* avoid players send played time before seeked. */
+    g_usleep (200000);
+  }
 }
 
 static void
@@ -256,6 +292,9 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   {
     return;
   }
+  GtkWindow *window = GTK_WINDOW (module->scroll);
+  gtk_window_set_title (window, PROGRAM_NAME);
+  gtk_window_set_icon_name (window, PACKAGE_NAME);
   GtkWidget *toolbar = _toolbar_new (module);
   ol_scroll_window_add_toolbar (module->scroll,
                                 toolbar);
@@ -275,6 +314,9 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
                     module);
   g_signal_connect (module->scroll, "scroll-event",
                     G_CALLBACK (_scroll_cb),
+                    module);
+  g_signal_connect (module->scroll, "seek",
+                    G_CALLBACK (_seek_cb),
                     module);
   g_signal_connect (config, "changed",
                     G_CALLBACK (_config_change_handler),
@@ -299,6 +341,11 @@ ol_scroll_module_new (struct OlDisplayModule *module,
                     G_CALLBACK (_metadata_changed_cb),
                     priv);
   _update_metadata (priv);
+  g_signal_connect (player,
+                    "caps-changed",
+                    G_CALLBACK (_caps_changed_cb),
+                    priv);
+  _update_caps (priv);
   return priv;
 }
 
@@ -346,31 +393,55 @@ static void
 _set_metadata_as_text (OlScrollModule *module)
 {
   ol_assert (module != NULL);
-  char *text = NULL;
+  gchar *text = NULL;
+  gchar *title = NULL;
   if (module->scroll != NULL)
   {
     if (ol_metadata_get_title (module->metadata) != NULL)
     {
       if (ol_metadata_get_artist (module->metadata) != NULL)
+      {
         text = g_strdup_printf ("%s\n%s",
                                 ol_metadata_get_title (module->metadata),
                                 ol_metadata_get_artist (module->metadata));
+        title = g_strdup_printf ("%s - %s - %s",
+                                 ol_metadata_get_artist (module->metadata),
+                                 ol_metadata_get_title (module->metadata),
+                                 PROGRAM_NAME);
+      }
       else
+      {
         text = g_strdup_printf ("%s", ol_metadata_get_title (module->metadata));
+        title = g_strdup_printf ("%s - %s",
+                                 ol_metadata_get_title (module->metadata),
+                                 PROGRAM_NAME);
+      }
     }
+    ol_scroll_window_set_text (module->scroll, text);
+    if (!title)
+    {
+      gtk_window_set_title (GTK_WINDOW (module->scroll),
+                            PROGRAM_NAME);
+    }
+    else
+    {
+      gtk_window_set_title (GTK_WINDOW (module->scroll),
+                            title);
+      g_free (title);
+    }
+    if (text != NULL)
+      g_free (text);
   }
-  ol_scroll_window_set_text (module->scroll, text);
-  if (text != NULL)
-    g_free (text);
 }
 
-static void _metadata_changed_cb (OlPlayer *player,
+static void
+_metadata_changed_cb (OlPlayer *player,
                                   OlScrollModule *module)
 {
   _update_metadata (module);
 }
 
-void
+static void
 _update_metadata (OlScrollModule *module)
 {
   ol_assert (module != NULL);
@@ -378,11 +449,27 @@ _update_metadata (OlScrollModule *module)
   _set_metadata_as_text (module);
 }
 
-void
+static void
+_caps_changed_cb (OlPlayer *player,
+                  OlScrollModule *module)
+{
+  _update_caps (module);
+}
+
+static void
+_update_caps (OlScrollModule *module)
+{
+  ol_assert (module != NULL);
+  ol_assert (module->player != NULL);
+  ol_assert (module->scroll != NULL);
+  ol_scroll_window_set_can_seek (module->scroll,
+                                 ol_player_get_caps (module->player) & OL_PLAYER_SEEK);
+}
+
+static void
 ol_scroll_module_set_played_time (struct OlDisplayModule *module,
                                   guint64 played_time)
 {
-  ol_assert (module != NULL);
   ol_assert (module != NULL);
   OlScrollModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
@@ -483,5 +570,7 @@ ol_scroll_module_get_class ()
   klass->set_lrc = ol_scroll_module_set_lrc;
   /* klass->set_message = ol_scroll_module_set_message; */
   klass->set_played_time = ol_scroll_module_set_played_time;
+  /* klass->set_player = ol_scroll_module_set_player; */
+  /* klass->set_status = ol_scroll_module_set_status; */
   return klass;
 }

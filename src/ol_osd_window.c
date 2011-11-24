@@ -51,6 +51,7 @@ static const double LINE_PADDING = 0.0;
 static const int BORDER_WIDTH = 5;
 static const int DEFAULT_WIDTH = 1024;
 static const int MAX_LYRIC_LEN = 256;
+static const int DEFAULT_FADE_IN_SIZE = 20;
 
 enum DragState
 {
@@ -137,6 +138,11 @@ static double ol_osd_window_compute_lyric_xpos (OlOsdWindow *osd,
                                                 double percentage);
 static int ol_osd_window_compute_lyric_ypos (OlOsdWindow *osd);
 static void ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr);
+static cairo_pattern_t *ol_osd_window_create_text_mask (OlOsdWindow *osd,
+                                                        cairo_t *cr,
+                                                        int line,
+                                                        gdouble text_xpos,
+                                                        gdouble alpha);
 static void ol_osd_window_emit_move (OlOsdWindow *osd);
 static void ol_osd_window_emit_resize (OlOsdWindow *osd);
 static GdkWindowEdge ol_osd_window_get_edge_on_point (OlOsdWindow *osd,
@@ -1060,22 +1066,106 @@ ol_osd_window_paint_lyrics (OlOsdWindow *osd, cairo_t *cr)
       height = cairo_image_surface_get_height (priv->active_lyric_surfaces[line]);
       xpos = ol_osd_window_compute_lyric_xpos (osd, line, osd->percentage[line]);
       xpos += BORDER_WIDTH;
+      cairo_pattern_t *text_mask = ol_osd_window_create_text_mask (osd,
+                                                                   cr,
+                                                                   line,
+                                                                   xpos,
+                                                                   alpha);
       cairo_save (cr);
       cairo_rectangle (cr, xpos, ypos, (double)width * percentage, height);
       cairo_clip (cr);
       cairo_set_source_surface (cr, priv->active_lyric_surfaces[line], xpos, ypos);
-      cairo_paint_with_alpha (cr, alpha);
+      if (text_mask)
+        cairo_mask (cr, text_mask);
+      else
+        cairo_paint_with_alpha (cr, alpha);
       cairo_restore (cr);
       cairo_save (cr);
-      cairo_rectangle (cr, xpos + width * percentage, ypos, (double)width * (1.0 - percentage), height);
+      cairo_rectangle (cr,
+                       xpos + width * percentage,
+                       ypos,
+                       (double)width * (1.0 - percentage), height);
       cairo_clip (cr);
       cairo_set_source_surface (cr, priv->inactive_lyric_surfaces[line], xpos, ypos);
-      cairo_paint_with_alpha (cr, alpha);
+      if (text_mask)
+        cairo_mask (cr, text_mask);
+      else
+        cairo_paint_with_alpha (cr, alpha);
+      if (text_mask)
+        cairo_pattern_destroy (text_mask);
       cairo_restore (cr);
     }
     ypos += font_height * (1 + LINE_PADDING);
   }
   cairo_restore (cr);
+}
+
+static cairo_pattern_t *
+ol_osd_window_create_text_mask (OlOsdWindow *osd,
+                                cairo_t *cr,
+                                int line,
+                                gdouble text_xpos,
+                                gdouble alpha)
+{
+  OlOsdWindowPrivate *priv = OL_OSD_WINDOW_GET_PRIVATE (osd);
+  int left, width;
+  ol_osd_window_get_osd_size (osd, &width, NULL);
+  left = BORDER_WIDTH;
+  int text_width = cairo_image_surface_get_width (priv->active_lyric_surfaces[line]);
+  int fade_in_size = DEFAULT_FADE_IN_SIZE;
+  if (fade_in_size * 2 > width)
+    fade_in_size = width / 2;
+  if (priv->composited)
+  {
+    cairo_pattern_t *pattern = cairo_pattern_create_linear (left,
+                                                            0.0,
+                                                            left + width,
+                                                            0.0);
+    /* Set fade in on left edge */
+    if (text_xpos < left)
+    {
+      cairo_pattern_add_color_stop_rgba (pattern,
+                                         0.0, /* offset */
+                                         1.0, 1.0, 1.0, 0.0); /* r,g,b,a */
+      gdouble loffset = 0.0;
+      if (left - text_xpos < fade_in_size)
+        loffset = (gdouble) (left - text_xpos) / (gdouble) width;
+      else
+        loffset = (gdouble) fade_in_size / (gdouble) width;
+      cairo_pattern_add_color_stop_rgba (pattern,
+                                         loffset, /* offset */
+                                         1.0, 1.0, 1.0, alpha); /* r,g,b,a */
+    }
+    else
+    {
+      cairo_pattern_add_color_stop_rgba (pattern,
+                                         0.0, /* offset */
+                                         1.0, 1.0, 1.0, alpha); /* r,g,b,a */
+    }
+    /* Set fade out on the right edge */
+    if (text_xpos + text_width > left + width)
+    {
+      gdouble roffset = 0.0;
+      if (text_xpos + text_width - (left + width) < fade_in_size)
+        roffset = 1.0 - (gdouble) (text_xpos + text_width - (left + width)) / (gdouble) width;
+      else
+        roffset = 1.0 - (gdouble) (fade_in_size) / (gdouble) width;
+      cairo_pattern_add_color_stop_rgba (pattern,
+                                         roffset, /* offset */
+                                         0.0, 0.0, 0.0, alpha); /* r,g,b,a */
+      cairo_pattern_add_color_stop_rgba (pattern,
+                                         1.0, /* offset */
+                                         0.0, 0.0, 0.0, 0.0); /* r,g,b,a */
+    }
+    else
+    {
+      cairo_pattern_add_color_stop_rgba (pattern,
+                                         1.0, /* offset */
+                                         0.0, 0.0, 0.0, alpha); /* r,g,b,a */
+    }
+    return pattern;
+  }
+  return NULL;
 }
 
 static void

@@ -28,6 +28,7 @@
 #include "ol_lrc_fetch.h"
 #include "ol_utils.h"
 #include "ol_utils_network.h"
+#include "config.h"
 #include "ol_debug.h"
 
 static long cntimeout = 6;
@@ -36,12 +37,17 @@ const int RANK_SCALE = 100000;
 static gboolean _set_curl_proxy (CURL *curl_handler);
 
 size_t
-convert(const char *from_charset, const char *to_charset, char *src, size_t srclen, char *dest, size_t destlen)
+convert(const char *from_charset,
+        const char *to_charset,
+        ICONV_CONST char *src,
+        size_t srclen,
+        char *dest,
+        size_t destlen)
 {
   ol_log_func ();
   size_t ret;
   iconv_t cv;
-  char **input = &src;
+  ICONV_CONST char **input = &src;
   char **output = &dest;
   memset(dest, 0, destlen);
   size_t destleft = destlen;

@@ -32,7 +32,7 @@ enum OlPlayerStatus {
   OL_PLAYER_ERROR,
 };
 
-enum OlPlayerCapacity {
+enum OlPlayerCaps {
   OL_PLAYER_PLAY =        1 << 1,
   OL_PLAYER_PREV =        1 << 2,
   OL_PLAYER_NEXT =        1 << 3,

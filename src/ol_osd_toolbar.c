@@ -50,7 +50,7 @@ struct ButtonSpec
 };
 
 static void _player_control (OlPlayer *player,
-                             enum OlPlayerCapacity capacity,
+                             enum OlPlayerCaps caps,
                              gboolean (*cmd) (OlPlayer *player));
 static void _play_clicked (GtkButton *button, OlOsdToolbar *toolbar);
 static void _pause_clicked (GtkButton *button, OlOsdToolbar *toolbar);
@@ -77,11 +77,11 @@ const static struct ButtonSpec btn_spec[] = {
 
 static void
 _player_control (OlPlayer *player,
-                 enum OlPlayerCapacity capacity,
+                 enum OlPlayerCaps caps,
                  gboolean (*cmd) (OlPlayer *player))
 {
   if (player != NULL &&
-      (ol_player_get_caps (player) & capacity))
+      (ol_player_get_caps (player) & caps))
   {
     cmd (player);
   }

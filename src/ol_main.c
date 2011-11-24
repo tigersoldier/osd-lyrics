@@ -79,6 +79,7 @@ static enum _PlayerLostAction {
   ACTION_WAIT_LAUNCH,
   ACTION_QUIT,
 } player_lost_action = ACTION_LAUNCH_DEFAULT;
+static OlPlayerChooser *player_chooser = NULL;
 
 static void _initialize (int argc, char **argv);
 static void _wait_for_player_launch (void);
@@ -130,7 +131,7 @@ _on_config_changed (OlConfig *config,
                     gchar *name,
                     gpointer userdata)
 {
-  if (strcmp (name, "display-mode") == 0)
+  if (display_module != NULL && strcmp (name, "display-mode") == 0)
   {
     char *mode = ol_config_get_string (config, group, name);
     if (display_mode == NULL ||
@@ -281,7 +282,8 @@ static void
 _track_changed_cb (void)
 {
   ol_log_func ();
-  ol_display_module_set_lrc (display_module, NULL);
+  if (display_module != NULL)
+    ol_display_module_set_lrc (display_module, NULL);
   ol_player_get_metadata (player, current_metadata);
   _change_lrc ();
   OlConfig *config = ol_config_get_instance ();
@@ -352,18 +354,13 @@ _player_chooser_response_cb (GtkDialog *dialog,
     break;
   case GTK_RESPONSE_DELETE_EVENT:
   case GTK_RESPONSE_CLOSE:
-    gtk_main_quit ();
+    gtk_widget_hide (GTK_WIDGET (dialog));
+    if (!ol_player_is_connected (player))
+      gtk_main_quit ();
     break;
   default:
     ol_errorf ("Unknown response id: %d\n", response_id);
   }
-  gtk_widget_destroy (GTK_WIDGET (dialog));
-}
-
-static void
-_player_connected_cb (void)
-{
-  player_lost_action = ACTION_QUIT;
 }
 
 static void
@@ -372,6 +369,7 @@ _player_lost_cb (void)
   /* try to connect to other player first */
   if (ol_player_is_connected (player))
     return;
+  _stop_position_timer ();
   switch (player_lost_action)
   {
   case ACTION_LAUNCH_DEFAULT:
@@ -396,15 +394,25 @@ _player_lost_cb (void)
         g_free (player_cmd);
       }
     }
-    /* TODO: */
-    /* GList *supported_players = ol_player_get_support_players (); */
-    GList *supported_players = NULL;
-    GtkWidget *player_chooser = ol_player_chooser_new (supported_players);
-    g_signal_connect (player_chooser,
-                      "response",
-                      G_CALLBACK (_player_chooser_response_cb),
-                      NULL);
-    gtk_widget_show (player_chooser);
+    if (!player_chooser)
+    {
+      /* TODO: */
+      /* GList *supported_players = ol_player_get_support_players (); */
+      GList *supported_players = NULL;
+      player_chooser = OL_PLAYER_CHOOSER (ol_player_chooser_new (supported_players));
+      g_signal_connect (player_chooser,
+                        "response",
+                        G_CALLBACK (_player_chooser_response_cb),
+                        NULL);
+      ol_player_chooser_set_info_by_state (player_chooser,
+                                           OL_PLAYER_CHOOSER_STATE_NO_PLAYER);
+    }
+    else
+    {
+      ol_player_chooser_set_info_by_state (player_chooser,
+                                           OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL);
+    }
+    gtk_widget_show (GTK_WIDGET (player_chooser));
     player_lost_action = ACTION_NONE;
     break;
   }
@@ -417,13 +425,33 @@ _player_lost_cb (void)
   }
 }
 
+static void
+_player_connected_cb (void)
+{
+  if (player_chooser != NULL &&
+      gtk_widget_get_visible (GTK_WIDGET (player_chooser)))
+    ol_player_chooser_set_info_by_state (player_chooser,
+                                         OL_PLAYER_CHOOSER_STATE_CONNECTED);
+  if (!display_module)
+  {
+    /* Initialize display modules */
+    OlConfig *config = ol_config_get_instance ();
+    ol_display_module_init ();
+    display_mode = ol_config_get_string (config, "General", "display-mode");
+    display_module = ol_display_module_new (display_mode, player);
+  }
+  player_lost_action = ACTION_QUIT;
+  _start_position_timer ();
+}
+
 static gint
 _update_position (gpointer data)
 {
   ol_log_func ();
   guint64 time = 0;
   ol_player_get_position (player, &time);
-  ol_display_module_set_played_time (display_module, time);
+  if (display_module)
+    ol_display_module_set_played_time (display_module, time);
   return TRUE;
 }
 
@@ -727,9 +755,6 @@ _init_dbus_connection_done (void)
   _init_player ();
   _init_lyrics_proxy ();
   ol_stock_init ();
-  ol_display_module_init ();
-  display_mode = ol_config_get_string (config, "General", "display-mode");
-  display_module = ol_display_module_new (display_mode, player);
   ol_trayicon_init ();
   ol_notify_init ();
   ol_keybinding_init ();
@@ -738,7 +763,7 @@ _init_dbus_connection_done (void)
 
   if (ol_player_is_connected (player))
   {
-    player_lost_action = ACTION_QUIT;
+    _player_connected_cb ();
   }
   else
   {
@@ -762,11 +787,21 @@ _uninitialize (void)
   ol_metadata_free (current_metadata);
   current_metadata = NULL;
   ol_notify_unload ();
-  ol_display_module_free (display_module);
+  if (display_module != NULL)
+  {
+    ol_display_module_free (display_module);
+    display_module = NULL;
+  }
   if (display_mode != NULL)
+  {
     g_free (display_mode);
-  display_mode = NULL;
-  display_module = NULL;
+    display_mode = NULL;
+  }
+  if (player_chooser != NULL)
+  {
+    gtk_widget_destroy (GTK_WIDGET (player_chooser));
+    player_chooser = NULL;
+  }
   ol_display_module_unload ();
   ol_trayicon_free ();
   ol_config_unload ();

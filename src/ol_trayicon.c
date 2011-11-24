@@ -146,9 +146,11 @@ void ol_trayicon_init ()
 
   if (status_icon == NULL)
   {
-    status_icon = gtk_status_icon_new_from_stock (OL_STOCK_TRAYICON);
+    status_icon = gtk_status_icon_new_from_icon_name (OL_STOCK_TRAYICON);
+    gtk_status_icon_set_tooltip_text (status_icon, _(PROGRAM_NAME));
+    gtk_status_icon_set_name (status_icon, PACKAGE_NAME);
+    gtk_status_icon_set_title (status_icon, _(PROGRAM_NAME));
     gtk_status_icon_set_visible (status_icon, TRUE);
-    gtk_status_icon_set_tooltip (status_icon, _("OSD Lyrics"));
 
     /* Connect signals */
     g_signal_connect (G_OBJECT (status_icon), "popup-menu",

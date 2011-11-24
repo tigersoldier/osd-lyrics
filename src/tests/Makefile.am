@@ -1,6 +1,6 @@
 check_PROGRAMS = \
 	ol_osd_window_test \
-	ol_player_test\
+	ol_player_test \
 	ol_lrc_test \
 	ol_lrc_fetch_test \
 	ol_config_test \
@@ -13,7 +13,9 @@ check_PROGRAMS = \
 	ol_metadata_test \
 	ol_utils_dbus_test \
 	ol_utils_test \
-	ol_gussian_blur_test
+	ol_gussian_blur_test \
+	ol_app_info_test \
+	$(NULL)
 
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
@@ -160,3 +162,9 @@ ol_gussian_blur_test_SOURCES = \
 	ol_gussian_blur_test.c \
 	$(top_srcdir)/src/ol_gussian_blur.c \
 	$(top_srcdir)/src/ol_debug.c
+
+ol_app_info_test_SOURCES = \
+	ol_app_info_test.c \
+	$(top_srcdir)/src/ol_app_info.c \
+	$(top_srcdir)/src/ol_debug.c \
+	$(NULL)

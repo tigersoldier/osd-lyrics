@@ -393,3 +393,41 @@ ol_launch_app (const char *cmdline)
   g_object_unref (G_OBJECT (app));
   return ret;
 }
+
+gboolean
+ol_traverse_dir (const char *dirname,
+                 gboolean recursive,
+                 gboolean (*traverse_func) (const char *path,
+                                            const char *filename,
+                                            gpointer userdata),
+                 gpointer userdata)
+{
+  ol_assert_ret (dirname != NULL, FALSE);
+  ol_assert_ret (traverse_func != NULL, FALSE);
+  GError *error = NULL;
+  GDir *dir = g_dir_open (dirname, 0, &error);
+  if (!dir)
+  {
+    ol_error ("Cannot open directory %s: %s\n", dirname, error->message);
+    return FALSE;
+  }
+  const gchar *filename = NULL;
+  while ((filename = g_dir_read_name (dir)) != NULL)
+  {
+    if (!traverse_func (dirname, filename, userdata))
+      return FALSE;
+    if (recursive)
+    {
+      gchar *filepath = g_build_path (G_DIR_SEPARATOR_S,
+                                      dirname, filename, NULL);
+      if (g_file_test (filepath, G_FILE_TEST_IS_DIR))
+        if (!ol_traverse_dir (filepath, recursive, traverse_func, userdata))
+        {
+          g_free (filepath);
+          return FALSE;
+        }
+      g_free (filepath);
+    }
+  }
+  return TRUE;
+}
