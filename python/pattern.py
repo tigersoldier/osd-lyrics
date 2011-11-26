@@ -24,6 +24,16 @@ import urllib
 import os.path
 from exceptions import PatternException
 
+def lookup_metadata(metadata, key):
+    """
+    Look up a value from metadata. If the given key doesn't exists in the metadata,
+    None will be returned.
+    """
+    if key in metadata:
+        return metadata[key]
+    else:
+        return None
+
 def expand_file(pattern, metadata):
     """
     Expands the pattern to a file name according to the infomation of a music
@@ -85,7 +95,7 @@ def expand_file(pattern, metadata):
                     has_tag = True
                     parts.append('%')
                 elif tag == 'f':
-                    location = metadata.setdefault(consts.METADATA_URI, None)
+                    location = lookup_metadata(metadata, consts.METADATA_URI)
                     if not location:
                         raise PatternException('Location not found in metadata')
                     uri = urlparse.urlparse(location)
@@ -100,7 +110,7 @@ def expand_file(pattern, metadata):
                     has_tag = True
                     parts.append(root)
                 elif tag in keys:
-                    value = metadata.setdefault(keys[tag], None)
+                    value = lookup_metadata(metadata, keys[tag])
                     if not value:
                         raise PatternException('%s not in metadata' % keys[tag])
                     has_tag = True
@@ -146,7 +156,7 @@ def expand_path(pattern, metadata):
     PatternException: 'Location not found in metadata'
     """
     if pattern == '%':
-        location = metadata.setdefault(consts.METADATA_URI, None)
+        location = lookup_metadata(metadata, consts.METADATA_URI)
         if not location:
             raise PatternException('Location not found in metadata')
         uri = urlparse.urlparse(location)

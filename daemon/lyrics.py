@@ -30,6 +30,7 @@ import chardet
 import osdlyrics
 import osdlyrics.config
 import osdlyrics.lrc
+from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ARTIST
 from osdlyrics.pattern import expand_file, expand_path
 from osdlyrics import LYRICS_OBJECT_PATH, LYRICS_INTERFACE as INTERFACE
 from osdlyrics.exceptions import Error
@@ -53,6 +54,9 @@ SUPPORTED_SCHEMES = [
     'none',
     ]
 
+DETECT_CHARSET_GUESS_MIN_LEN = 40
+DETECT_CHARSET_GUESS_MAX_LEN = 100
+
 class InvalidUriException(Error):
     """ Exception of invalid uri.
     """
@@ -72,6 +76,15 @@ class DecodeException(Error):
     def __init__(self, msg):
         Error.__init__(self, msg)
 
+def metadata_description(metadata):
+    if METADATA_TITLE in metadata:
+        if METADATA_ARTIST in metadata:
+            return '%s(%s)' % (metadata[METADATA_TITLE], metadata[METADATA_ARTIST])
+        else:
+            return '%s' % metadata[METADATA_TITLE]
+    else:
+        return '[Unknown]'
+
 def decode_by_charset(content):
     r"""
     Detect the charset encoding of a string and decodes to unicode strings.
@@ -84,8 +97,21 @@ def decode_by_charset(content):
     if not isinstance(content, str):
         return content
     encoding = chardet.detect(content)['encoding']
+    if not encoding and len(content) > DETECT_CHARSET_GUESS_MIN_LEN:
+        content_len = len(content)
+        content_half = content_len / 2
+        if content_half <= DETECT_CHARSET_GUESS_MAX_LEN and content_half >= DETECT_CHARSET_GUESS_MIN_LEN:
+            slice_end = content_half
+        elif content_half > DETECT_CHARSET_GUESS_MAX_LEN:
+            slice_end = DETECT_CHARSET_GUESS_MAX_LEN
+        else:
+            slice_end = DETECT_CHARSET_GUESS_MIN_LEN
+        logging.warning('Failed to detect encoding, try to decode a part of it')
+        encoding = chardet.detect(content[:20])['encoding']
+        logging.warning('guess encoding from part: ' + encoding)
     if not encoding:
-        raise DecodeException('Cannot decode string %s', content)
+        logging.warning('Failed to detect encoding, use utf-8 as fallback')
+        encoding = 'utf-8'
     return content.decode(encoding, 'replace')
 
 def metadata_equal(lhs, rhs):
@@ -97,11 +123,11 @@ def metadata_equal(lhs, rhs):
     - The titles, artists and albums are equal.
     """
     try:
-        if lhs['location'] == rhs['location'] and lhs['location'] != '':
+        if lhs[METADATA_URI] == rhs[METADATA_URI] and lhs[METADATA_URI] != '':
             return True
     except:
         pass
-    keys = ['title', 'artist', 'album']
+    keys = [METADATA_TITLE, METADATA_ARTIST, METADATA_ALBUM]
     for key in keys:
         if (key in lhs) != (key in rhs):
             return False
@@ -290,12 +316,12 @@ class LyricsService(dbus.service.Object):
             if lrc is not None:
                 self.assign_lrc_uri(metadata, uri)
         if lrc is None:
-            logging.info("LRC for track %s(%s) not found" %
-                         (metadata['title'], metadata['artist']))
+            logging.info("LRC for track %s not found" %
+                         metadata_description(metadata))
             return False, '', ''
         else:
-            logging.info("LRC for track %s(%s) found: %s" %
-                         (metadata['title'], metadata['artist'], uri))
+            logging.info("LRC for track %s found: %s" %
+                         (metadata_description(metadata), uri))
             return True, uri, lrc
 
     @dbus.service.method(dbus_interface=osdlyrics.LYRICS_INTERFACE,
@@ -315,7 +341,7 @@ class LyricsService(dbus.service.Object):
                          out_signature='s',
                          byte_arrays=True)
     def SetLyricContent(self, metadata, content):
-        uri = self.find_lrc_from_db(metadata)
+        uri = self.find_lrc_from_db(self._metadata)
         if uri is None or not save_to_uri(uri, content, False):
             uri = ''
         if uri == '':
