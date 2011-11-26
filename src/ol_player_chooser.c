@@ -362,7 +362,8 @@ _new_bin_completion (void)
     gtk_list_store_append (list, &iter);
     gtk_list_store_set (list, &iter, 0, cmds->data, -1);
   }
-  g_list_free_full (cmds, g_free);
+  for (; cmds != NULL; cmds = g_list_delete_link (cmds, cmds))
+    g_free (cmds->data);
   GtkEntryCompletion *comp = gtk_entry_completion_new ();
   gtk_entry_completion_set_model (comp, GTK_TREE_MODEL (list));
   gtk_entry_completion_set_text_column (comp, 0);
