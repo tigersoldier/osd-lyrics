@@ -214,9 +214,22 @@ internal_download (OlLrcFetchEngine *engine,
   if (content)
   {
     ol_debugf ("download %s success\n", candidate->title);
-    fwrite (content, sizeof (char), len, fret);
+    char *buffer = content;
+    size_t left = len;
+    int wrote;
+    while (left > 0)
+    {
+      wrote = fwrite (buffer, sizeof (char), left, fret);
+      if (wrote == 0)
+        break;
+      buffer += wrote;
+      left -= wrote;
+    }
     g_free (content);
-    return 0;
+    if (left == 0)
+      return 0;
+    else
+      return 1;
   }
   else
   {
