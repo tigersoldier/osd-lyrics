@@ -18,6 +18,7 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 
+import logging
 import sqlite3
 import os.path
 import config
@@ -56,6 +57,21 @@ def normalize_location(location):
         location = 'file://' + urllib.pathname2url(ensure_utf8(location))
     return location.decode('utf8')
 
+def query_param_from_metadata(metadata):
+    """
+    Generate query dict from metadata
+    """
+    param = {
+        METADATA_TITLE: metadata[METADATA_TITLE] if METADATA_TITLE in metadata else '',
+        METADATA_ARTIST: metadata[METADATA_ARTIST] if METADATA_ARTIST in metadata else '',
+        METADATA_ALBUM: metadata[METADATA_ALBUM] if METADATA_ALBUM in metadata else '',
+        }
+    try:
+        param[METADATA_TRACKNUM] = int(metadata[METADATA_TRACKNUM])
+    except:
+        param[METADATA_TRACKNUM] = 0
+    return param
+
 class LrcDb(object):
     """ Database to store location of LRC files
     """
@@ -66,7 +82,8 @@ class LrcDb(object):
 CREATE TABLE IF NOT EXISTS %s (
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
   title TEXT, artist TEXT, album TEXT, tracknum INTEGER,
-  uri TEXT UNIQUE ON CONFLICT REPLACE, lrcpath TEXT
+  uri TEXT UNIQUE ON CONFLICT REPLACE,
+  lrcpath TEXT
 )
 """ % TABLE_NAME
 
@@ -86,7 +103,10 @@ UPDATE %s
 
     QUERY_LOCATION = 'uri = ?'
 
-    QUERY_INFO = {'title': 'title', 'artist': 'artist', 'album': 'album'}
+    QUERY_INFO = {METADATA_TITLE: 'title',
+                  METADATA_ARTIST: 'artist',
+                  METADATA_ALBUM: 'album',
+                  METADATA_TRACKNUM: 'tracknum'}
 
     def __init__(self, dbfile=None):
         """
@@ -119,6 +139,7 @@ UPDATE %s
         else:
             location = ''
         if self._find_by_location(metadata):
+            logging.debug('Assign lyric file %s to track of location %s' % (uri, location))
             c.execute(LrcDb.UPDATE_LYRIC, (uri, location,))
         else:
             title = metadata[METADATA_TITLE] if METADATA_TITLE in metadata else ''
@@ -128,6 +149,7 @@ UPDATE %s
                 tracknum = int(metadata[METADATA_TRACKNUM])
             except:
                 tracknum = 0
+            logging.debug('Assign lyrics file %s to track %s. %s - %s in album %s @ %s' % (uri, tracknum, artist, title, album, location))
             c.execute(LrcDb.ASSIGN_LYRIC, (title, artist, album, tracknum, location, uri))
         self._conn.commit()
         c.close()
@@ -155,28 +177,28 @@ UPDATE %s
 
     def _find_by_condition(self, where_clause, parameters=None):
         query = LrcDb.FIND_LYRIC + where_clause
+        logging.debug('Find by condition, query = %s, params = %s' % (query, parameters))
         c = self._conn.cursor()
         c.execute(query, parameters)
         r = c.fetchone()
+        logging.debug('Fetch result: %s' % r)
         if r:
             return r[0]
         return None
 
     def _find_by_location(self, metadata):
-        location = metadata.setdefault('location', None)
-        if not location:
+        if not METADATA_URI in metadata or metadata[METADATA_URI] == '':
             return None
-        location = normalize_location(location)
+        location = normalize_location(metadata[METADATA_URI])
         return self._find_by_condition(LrcDb.QUERY_LOCATION, (location,))
 
     def _find_by_info(self, metadata):
         query = []
         for mkey, qkey in LrcDb.QUERY_INFO.items():
-            if mkey in metadata:
-                query.append('%s=:%s' % (qkey, mkey))
+            query.append('%s=:%s' % (qkey, mkey))
         if len(query) > 0:
             return self._find_by_condition(' AND '.join(query),
-                                           metadata)
+                                           query_param_from_metadata(metadata))
         return None
 
 def test():
@@ -207,6 +229,9 @@ def test():
     >>> db.assign(metadata_utf8, '\xe8\xb7\xaf\xe5\xbe\x84')
     >>> db.find(metadata_uni)
     u'\u8def\u5f84'
+    >>> db.assign(metadata_utf8, '\xe8\xb7\xaf\xe5\xbe\x841')
+    >>> db.find(metadata_uni)
+    u'\u8def\u5f841'
     >>> db.find({'title': 'Tiger', 'artist': 'Soldiers', })
     >>> db.find({})
     """

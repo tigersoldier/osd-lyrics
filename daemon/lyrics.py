@@ -314,6 +314,7 @@ class LyricsService(dbus.service.Object):
         if uri:
             lrc = load_from_uri(uri)
             if lrc is not None:
+                logging.info("LRC for track %s not found in db but fount by pattern: %s" % (metadata_description(metadata), uri))
                 self.assign_lrc_uri(metadata, uri)
         if lrc is None:
             logging.info("LRC for track %s not found" %
