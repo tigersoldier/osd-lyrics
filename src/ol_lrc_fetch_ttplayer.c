@@ -28,6 +28,7 @@
 
 const char *PREFIX_SEARCH_URL = "http://ttlrcct.qianqian.com/dll/lyricsvr.dll?sh?";
 const char *DOWNLOAD_URL = "http://ttlrcct.qianqian.com/dll/lyricsvr.dll?dl?Id=%d&Code=%d&uid=01&mac=%012x";
+const char *FIELD_DELIMIT = "\'";
 
 struct CandidateParserData
 {
@@ -151,6 +152,7 @@ _encode_request_field (const char *value)
   char *utf16 = g_new0 (char, utf16_len);
   char *hex = NULL;
   char *lower_str = g_utf8_strdown (value, -1);
+  g_strdelimit (lower_str, FIELD_DELIMIT, ' ');
   len = _remove_whitespace (lower_str);
   utf16_len = convert ("UTF-8", "UTF16LE",
                        (char*)lower_str, len,
