@@ -30,6 +30,10 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/tests \
 	$(NULL)
 
+AM_CFLAGS = \
+	-Werror -Wall \
+	$(NULL)
+
 LDADD = \
 	@GTK2_LIBS@ \
 	@DBUS_GLIB_LIBS@ \

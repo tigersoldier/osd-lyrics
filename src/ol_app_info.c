@@ -492,7 +492,8 @@ _find_binfile (const gchar *binfile, gboolean match_prefix)
     ret = g_path_get_basename (filepath);
     g_free (filepath);
   }
-  g_list_free_full (path_list, g_free);
+  for (; path_list != NULL; path_list = g_list_delete_link (path_list, path_list))
+    g_free (path_list->data);
   return ret;
 }
 

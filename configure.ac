@@ -74,7 +74,21 @@ AC_ARG_WITH(gprof-support,
     gmondir="$withval"
     AC_SUBST(gmondir)
     ;;
-  esac 
+  esac
+])
+
+# dev restrict support
+AC_ARG_WITH(werror,
+[  --with-werror   Build with -Wall -Werror],
+[ case "$withval" in
+  yes)
+    AC_MSG_RESULT(yes)
+    CFLAGS="-Wall -Werror $CFLAGS"
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+    ;;
+  esac
 ])
 
 dnl app indicators in Ubuntu
