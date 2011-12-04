@@ -123,7 +123,7 @@ AC_CHECK_LIB([dl], [exp])
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0, 
                           gthread-2.0, 
                           gmodule-export-2.0,
-                          gio-2.0,
+                          gio-2.0 >= 2.26,
                           gio-unix-2.0])
 PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
