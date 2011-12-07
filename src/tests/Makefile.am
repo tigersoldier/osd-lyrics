@@ -71,6 +71,8 @@ ol_player_test_SOURCES = ol_player_test.c \
 ol_lrc_test_SOURCES = ol_lrc_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_lrc.c \
+	$(top_srcdir)/src/ol_lyrics.c \
+	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(NULL)
 
@@ -90,7 +92,7 @@ ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
 ol_config_test_SOURCES = \
 	$(top_srcdir)/src/ol_debug.c \
 	ol_config_test.c \
-	$(top_srcdir)/src/ol_config.c \
+	$(top_srcdir)/src/ol_config_proxy.c \
 	$(top_srcdir)/src/ol_marshal.c
 
 ol_color_test_SOURCES = \

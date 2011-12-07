@@ -2,6 +2,7 @@
 #include <glib-object.h>
 #include "ol_utils.h"
 #include "ol_test_util.h"
+#include "ol_debug.h"
 
 void
 g_value_free (GValue *value)
