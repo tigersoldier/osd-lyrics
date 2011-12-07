@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "ol_lrc.h"
 #include "ol_test_util.h"
@@ -48,6 +49,8 @@ void gbk_test ()
   prepare_data ();
   struct OlLrc *lrc = ol_lrc_new (WORK_FILE);
   struct OlLrc *gbklrc = ol_lrc_new (WORK_GBK);
+  ol_lrc_free (lrc);
+  ol_lrc_free (gbklrc);
 }
 
 void offset_test ()

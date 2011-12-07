@@ -15,7 +15,7 @@ callback (void *ret_data,
 {
   printf ("callback called\n");
   printf ("return status: %d\n", WEXITSTATUS (status));
-  printf ("received: %s\n", ret_data);
+  printf ("received: %s\n", (char*)ret_data);
   if (data != NULL)
     printf ("data: %s\n", (char *) data);
 }
@@ -91,4 +91,5 @@ main (int argc, char **argv)
   test_no_output ();
   test_exit_status ();
   g_main_loop_run (loop);
+  return 0;
 }

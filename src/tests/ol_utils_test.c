@@ -1,6 +1,8 @@
+#include <string.h>
 #include <glib.h>
 #include <glib-object.h>
 #include "ol_utils.h"
+#include "ol_debug.h"
 #include "ol_test_util.h"
 
 void
