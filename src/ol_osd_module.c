@@ -474,6 +474,7 @@ ol_osd_module_set_played_time (struct OlDisplayModule *module,
           priv->current_line = 1 - priv->current_line;
           priv->lrc_id = priv->lrc_next_id;
           priv->lrc_next_id = -1;
+          ol_osd_window_set_current_line (priv->window, priv->current_line);
         }
         else
         {
