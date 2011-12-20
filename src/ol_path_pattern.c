@@ -50,6 +50,38 @@ static char* ol_uri_get_filename (char *dest,
                                   const char *uri,
                                   gboolean with_ext);
 
+static gboolean is_cue_sheeted (const char *uri);
+
+static gboolean
+is_cue_sheeted (const char *uri)
+{
+  static const char *CUE_EXTS[] = {"ape", "tta"};
+  gboolean free_filename = FALSE;
+  gchar *filename = (char*)uri;
+  gboolean ret = FALSE;
+  int i;
+  if (strstr(uri, "file:") == uri)
+  {
+    filename = g_filename_from_uri (uri, NULL, NULL);
+    free_filename = TRUE;
+  }
+  char *ext = strrchr (filename, '.');
+  if (ext == NULL)
+    goto finish;
+  for (i = 0; i < G_N_ELEMENTS (CUE_EXTS); i++)
+  {
+    if (g_ascii_strcasecmp (ext + 1, CUE_EXTS[i]) == 0)
+    {
+      ret = TRUE;
+      goto finish;
+    }
+  }
+ finish:
+  if (free_filename)
+    g_free (filename);
+  return ret;
+}
+
 int
 ol_path_get_lrc_pathname (const char *path_pattern,
                           const char *file_pattern,
@@ -158,7 +190,23 @@ ol_path_expand_file_pattern (const char *pattern,
         else
         {
           if (ol_uri_get_filename (buffer, BUFFER_SIZE, music_info->uri, FALSE)) {
-            append = replace_invalid_str (buffer);
+            char *filename = NULL;
+            if (is_cue_sheeted (music_info->uri))
+            {
+              if (music_info->track_number > 0)
+                filename = g_strdup_printf ("%s-%d", buffer, music_info->track_number);
+              else if (music_info->title != NULL)
+                filename = g_strdup_printf ("%s-%s", buffer, music_info->title);
+            }
+            if (filename == NULL)
+            {
+              append = replace_invalid_str (buffer);
+            }
+            else
+            {
+              append = replace_invalid_str (filename);
+              g_free (filename);
+            }
             free_append = TRUE;
           }
         }
