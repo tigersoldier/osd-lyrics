@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <glib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_lrc_fetch_module.h"
 #include "ol_test_util.h"
@@ -101,4 +102,5 @@ main (int argc, char **argv)
                                          dummy_search_callback,
                                          "Callback User data");
   gtk_main ();
+  return 0;
 }

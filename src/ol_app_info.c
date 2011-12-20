@@ -93,9 +93,6 @@ static gboolean _app_info_remove_supports_type (GAppInfo *appinfo,
                                                 GError **error);
 static gboolean _app_info_can_delete (GAppInfo *appinfo);
 static gboolean _app_info_do_delete (GAppInfo *appinfo);
-static gboolean _app_info_set_as_last_used_for_type (GAppInfo *appinfo,
-                                                     const char *content_type,
-                                                     GError **error);
 
 G_DEFINE_TYPE_WITH_CODE (OlAppInfo, ol_app_info, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_APP_INFO,
@@ -137,7 +134,6 @@ ol_app_info_iface_init (GAppInfoIface *iface)
   iface->do_delete = _app_info_do_delete;
   iface->get_commandline = _app_info_get_commandline;
   iface->get_display_name = _app_info_get_display_name;
-  iface->set_as_last_used_for_type = _app_info_set_as_last_used_for_type;
 }
 
 static GAppInfo *
@@ -337,18 +333,6 @@ _app_info_do_delete (GAppInfo *appinfo)
   return FALSE;
 }
 
-static gboolean
-_app_info_set_as_last_used_for_type (GAppInfo *appinfo,
-                                     const char *content_type,
-                                     GError **error)
-{
-  if (error)
-    *error = g_error_new (g_quark_from_string ("OSD Lyrics"),
-                          0,    /* error code */
-                          "OlAppInfo does not support set_as_last_used_for_type");
-  return FALSE;
-}
-
 OlAppInfo *
 ol_app_info_new (const char *cmdline,
                  const char *name,
@@ -492,7 +476,8 @@ _find_binfile (const gchar *binfile, gboolean match_prefix)
     ret = g_path_get_basename (filepath);
     g_free (filepath);
   }
-  g_list_free_full (path_list, g_free);
+  for (; path_list != NULL; path_list = g_list_delete_link (path_list, path_list))
+    g_free (path_list->data);
   return ret;
 }
 

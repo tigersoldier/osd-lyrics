@@ -3,8 +3,6 @@ bin_PROGRAMS = osdlyrics
 #ol_player_test
 #TEST = $(check_PROGRAMS)
 
-AM_CFLAGS = -Wall -Werror
-
 AM_CPPFLAGS = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \

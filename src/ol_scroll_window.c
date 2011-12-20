@@ -686,7 +686,7 @@ _get_pointer_edge (gint x, gint y,
   ol_assert_ret (left >= 0, FALSE);
   ol_assert_ret (right >= 0, FALSE);
   gboolean ret = TRUE;
-  GdkWindowEdge ret_edge;
+  GdkWindowEdge ret_edge = GDK_WINDOW_EDGE_EAST;
   if (x < left)
   {
     if (y < top)

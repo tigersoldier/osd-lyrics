@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "ol_lrc_parser.h"
 #include "ol_test_util.h"
 
@@ -77,4 +78,5 @@ int main()
   test_file ();
   test_bom ();
   test_no_newline ();
+  return 0;
 }

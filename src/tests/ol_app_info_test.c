@@ -23,7 +23,7 @@ const char *DESKTOP_CANDIDATES[][2] = {
   { "pidgin", "pidgin.desktop" },
   { "firefox", "firefox.desktop" },
   { "smplayer", "smplayer.desktop" },
-  NULL,
+  { NULL, NULL },
 };
 
 int desktop_cmd = -1;
@@ -32,7 +32,7 @@ static void
 init (void)
 {
   int i;
-  for (i = 0; DESKTOP_CANDIDATES[i] != NULL; i++)
+  for (i = 0; DESKTOP_CANDIDATES[i][0] != NULL; i++)
   {
     gchar *path = NULL;
     if ((path = g_find_program_in_path (DESKTOP_CANDIDATES[i][0])) != NULL)
@@ -132,7 +132,6 @@ prefix_test (void)
 static void
 quote_test (void)
 {
-  GError *error = NULL;
   GAppInfo *info = G_APP_INFO (ol_app_info_new (COMMAND_WITH_ARG_SPACE,
                                                 NULL,
                                                 NULL,
@@ -197,4 +196,5 @@ main (int argc, char **argv)
   prefix_test ();
   quote_test ();
   second_exe_test ();
+  return 0;
 }

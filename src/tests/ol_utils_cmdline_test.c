@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "ol_utils_cmdline.h"
 #include "ol_test_util.h"
 
@@ -29,7 +30,7 @@ test_int ()
   int sum;
   const char *cmd = "expr 3 + 2";
   const int ans = 5;
-  gboolean ret = ol_cmd_get_int ("expr 3 + 2", &sum);
+  gboolean ret = ol_cmd_get_int (cmd, &sum);
   ol_test_expect (ret == TRUE);
   ol_test_expect (sum == ans);
   ret = ol_cmd_get_int ("/home/", &sum);

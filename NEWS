@@ -1,3 +1,23 @@
+Version 0.4.2:
+ * UI improvements:
+  - Player choose dialog redesigned
+  - Fade out on the edge of lyric text in OSD mode if it is too long
+  - Drag to seek in scrolling mode
+
+ * Player support:
+  - Bring back support for Rhythmbox prior to 0.13
+  - Support RhythmCat
+  - Auto-detect the launch command for Audacious 2 and 3
+  - Do not require root privilege to launch MPD
+
+ * Bug fixes:
+  - Blurring in OSD mode will not cause a frame around lyrics
+  - Fix compilation issue in BDS systems.
+  - Fix track duration in MPRIS support
+  - Deal with player launch commands with %f or %U as arguments
+  - ttPlayer engine can search lyrics with ' in the title
+  - CUE sheets are supported now
+
 Version 0.4.1: 2011-07-19
  * Choose player if no supported player running on launch
  * Outline blur on OSD mode
