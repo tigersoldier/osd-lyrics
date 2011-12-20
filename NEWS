@@ -16,6 +16,7 @@ Version 0.4.2:
   - Fix track duration in MPRIS support
   - Deal with player launch commands with %f or %U as arguments
   - ttPlayer engine can search lyrics with ' in the title
+  - CUE sheets are supported now
 
 Version 0.4.1: 2011-07-19
  * Choose player if no supported player running on launch
