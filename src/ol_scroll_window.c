@@ -87,7 +87,7 @@ enum {
   LAST_SIGNAL,
 };
 
-static uint _signals[LAST_SIGNAL] = {0};
+static guint _signals[LAST_SIGNAL] = {0};
 
 static cairo_t* _get_cairo (OlScrollWindow *scroll, GtkWidget *widget);
 static PangoLayout* _get_pango (OlScrollWindow *scroll, cairo_t *cr);
