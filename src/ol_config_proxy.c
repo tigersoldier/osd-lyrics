@@ -27,6 +27,12 @@ enum OlConfigProxySingals {
   LAST_SINGAL,
 };
 
+enum _GetResult {
+  GET_RESULT_OK = 0,
+  GET_RESULT_FAILED,
+  GET_RESULT_MISSING,
+};
+
 static guint _signals[LAST_SINGAL];
 static OlConfigProxy *config_proxy = NULL;
 
@@ -241,15 +247,16 @@ ol_config_proxy_set_str_list (OlConfigProxy *config,
                               parameters);
 }
 
-static gboolean
+static enum _GetResult
 ol_config_proxy_get (OlConfigProxy *config,
                      const gchar *method,
                      const gchar *key,
                      const gchar *format_string,
                      gpointer retval)
 {
-  ol_assert_ret (OL_IS_CONFIG_PROXY (config), FALSE);
-  ol_assert_ret (key != NULL, FALSE);
+  ol_assert_ret (OL_IS_CONFIG_PROXY (config), GET_RESULT_FAILED);
+  ol_assert_ret (key != NULL, GET_RESULT_FAILED);
+  enum _GetResult ret = GET_RESULT_OK;
   GError *error = NULL;
   GVariant *value = g_dbus_proxy_call_sync (G_DBUS_PROXY (config),
                                             method,
@@ -264,25 +271,31 @@ ol_config_proxy_get (OlConfigProxy *config,
     {
       gchar *error_name = g_dbus_error_get_remote_error (error);
       if (strcmp (error_name, OL_ERROR_VALUE_NOT_EXIST) == 0)
+      {
         ol_debugf ("Key %s not exists, use default value\n", key);
+        ret = GET_RESULT_MISSING;
+      }
       else
+      {
         ol_errorf ("Failed to get config %s: %s\n", key, error->message);
+        ret = GET_RESULT_FAILED;
+      }
       g_free (error_name);
     }
     else
     {
       ol_errorf ("%s failed. Cannot get value %s from config: %s\n",
                  method, key, error->message);
+      ret = GET_RESULT_FAILED;
     }
     g_error_free (error);
-    return FALSE;
   }
   else
   {
     g_variant_get (value, format_string, retval);
     g_variant_unref (value);
-    return TRUE;
   }
+  return ret;
 }
 
 gboolean
@@ -291,10 +304,19 @@ ol_config_proxy_get_bool (OlConfigProxy *config,
                           gboolean default_value)
 {
   gboolean ret;
-  if (ol_config_proxy_get (config, "GetBool", key, "(b)", &ret))
+  switch (ol_config_proxy_get (config, "GetBool", key, "(b)", &ret))
+  {
+  case GET_RESULT_OK:
     return ret;
-  else
+  case GET_RESULT_MISSING:
+    ol_config_proxy_set_bool (config, key, default_value);
     return default_value;
+  case GET_RESULT_FAILED:
+    return default_value;
+  default:
+    ol_error ("Unknown return value from ol_config_proxy_get");
+    return default_value;
+  }
 }
 
 gint
@@ -303,10 +325,19 @@ ol_config_proxy_get_int (OlConfigProxy *config,
                          gint default_value)
 {
   gint ret;
-  if (ol_config_proxy_get (config, "GetInt", key, "(i)", &ret))
+  switch (ol_config_proxy_get (config, "GetInt", key, "(i)", &ret))
+  {
+  case GET_RESULT_OK:
     return ret;
-  else
+  case GET_RESULT_MISSING:
+    ol_config_proxy_set_int (config, key, default_value);
     return default_value;
+  case GET_RESULT_FAILED:
+    return default_value;
+  default:
+    ol_error ("Unknown return value from ol_config_proxy_get");
+    return default_value;
+  }
 }
 
 gdouble
@@ -315,10 +346,19 @@ ol_config_proxy_get_double (OlConfigProxy *config,
                             gdouble default_value)
 {
   gint ret;
-  if (ol_config_proxy_get (config, "GetDouble", key, "(d)", &ret))
+  switch (ol_config_proxy_get (config, "GetDouble", key, "(d)", &ret))
+  {
+  case GET_RESULT_OK:
     return ret;
-  else
+  case GET_RESULT_MISSING:
+    ol_config_proxy_set_double (config, key, default_value);
     return default_value;
+  case GET_RESULT_FAILED:
+    return default_value;
+  default:
+    ol_error ("Unknown return value from ol_config_proxy_get");
+    return default_value;
+  }
 }
 
 gchar*
@@ -327,10 +367,20 @@ ol_config_proxy_get_string (OlConfigProxy *config,
                             const gchar *default_value)
 {
   gchar *ret;
-  if (ol_config_proxy_get (config, "GetDouble", key, "(d)", &ret))
+  switch (ol_config_proxy_get (config, "GetString", key, "(s)", &ret))
+  {
+  case GET_RESULT_OK:
     return ret;
-  else
+  case GET_RESULT_MISSING:
+    if (default_value != NULL)
+      ol_config_proxy_set_string (config, key, default_value);
     return g_strdup (default_value);
+  case GET_RESULT_FAILED:
+    return g_strdup (default_value);
+  default:
+    ol_error ("Unknown return value from ol_config_proxy_get");
+    return g_strdup (default_value);
+  }
 }
 
 gchar**
