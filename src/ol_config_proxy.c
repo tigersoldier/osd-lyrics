@@ -187,6 +187,10 @@ ol_config_proxy_set (OlConfigProxy *config,
     g_hash_table_insert (priv->temp_values,
                          g_strdup (key),
                          g_variant_ref_sink (value));
+    g_signal_emit (config,
+                   _signals[SIGNAL_CHANGED],
+                   g_quark_from_string (key),
+                   key);
     return TRUE;
   }
   else
