@@ -74,7 +74,7 @@ ol_config_proxy_class_init (OlConfigProxyClass *klass)
   proxy_class->g_signal = ol_config_proxy_g_signal;
   /* proxy_class->g_properties_changed = ol_lyrics_g_properties_changed; */
   _signals[SIGNAL_CHANGED] =
-    g_signal_new ("value-changed",
+    g_signal_new ("changed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_FIRST | G_SIGNAL_DETAILED,
                   0,            /* class_offset */
@@ -184,13 +184,15 @@ ol_config_proxy_set (OlConfigProxy *config,
   if (key[0] == '.')
   {
     OlConfigProxyPrivate *priv = OL_CONFIG_PROXY_GET_PRIVATE (config);
+    g_variant_ref_sink (value);
     g_hash_table_insert (priv->temp_values,
                          g_strdup (key),
-                         g_variant_ref_sink (value));
+                         g_variant_new ("(*)", g_variant_ref_sink (value)));
     g_signal_emit (config,
                    _signals[SIGNAL_CHANGED],
                    g_quark_from_string (key),
                    key);
+    g_variant_unref (value);
     return TRUE;
   }
   else
@@ -389,7 +391,7 @@ gdouble
 ol_config_proxy_get_double (OlConfigProxy *config,
                             const gchar *key)
 {
-  gint ret;
+  gdouble ret;
   switch (ol_config_proxy_get (config, "GetDouble", key, "(d)", &ret))
   {
   case GET_RESULT_OK:
@@ -454,6 +456,8 @@ ol_config_proxy_get_str_list (OlConfigProxy *config,
     retval[list_size] = NULL;
     g_variant_unref (value);
     g_variant_iter_free (iter);
+    if (len)
+      *len = list_size;
     return retval;
   }
 }
