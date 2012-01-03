@@ -32,7 +32,7 @@
 #include "ol_lrc_fetch_ui.h"
 #include "ol_trayicon.h"
 #include "ol_intl.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_consts.h"
 #include "ol_display_module.h"
 #include "ol_keybindings.h"
@@ -89,10 +89,9 @@ static void _player_chooser_response_cb (GtkDialog *dialog,
 static void _search_callback (struct OlLrcFetchResult *result,
                             void *userdata);
 static void _download_callback (struct OlLrcDownloadResult *result);
-static void _on_config_changed (OlConfig *config,
-                                gchar *group,
-                                gchar *name,
-                                gpointer userdata);
+static void _display_mode_changed (OlConfigProxy *config,
+                                   const gchar *key,
+                                   gpointer userdata);
 static void _init_dbus_connection (void);
 static void _init_dbus_connection_done (void);
 static void _init_player (void);
@@ -126,26 +125,22 @@ static void _stop_position_timer (void);
 static void _change_lrc (void);
 
 static void
-_on_config_changed (OlConfig *config,
-                    gchar *group,
-                    gchar *name,
-                    gpointer userdata)
+_display_mode_changed (OlConfigProxy *config,
+                       const gchar *key,
+                       gpointer userdata)
 {
-  if (display_module != NULL && strcmp (name, "display-mode") == 0)
+  char *mode = ol_config_proxy_get_string (config, key);
+  if (display_mode == NULL ||
+      ol_stricmp (mode, display_mode, -1) != 0)
   {
-    char *mode = ol_config_get_string (config, group, name);
-    if (display_mode == NULL ||
-        ol_stricmp (mode, display_mode, -1) != 0)
-    {
-      if (display_mode != NULL)
-        g_free (display_mode);
-      display_mode = g_strdup (mode);
-      ol_display_module_free (display_module);
-      display_module = ol_display_module_new (display_mode, player);
-      ol_display_module_set_lrc (display_module, current_lrc);
-    }
-    g_free (mode);
+    if (display_mode != NULL)
+      g_free (display_mode);
+    display_mode = g_strdup (mode);
+    ol_display_module_free (display_module);
+    display_module = ol_display_module_new (display_mode, player);
+    ol_display_module_set_lrc (display_module, current_lrc);
   }
+  g_free (mode);
 }
 
 static void
@@ -229,11 +224,10 @@ ol_app_download_lyric (OlMetadata *metadata)
   ol_log_func ();
   if (search_id > 0)
     ol_lrc_fetch_cancel_search (search_id);
-  OlConfig *config = ol_config_get_instance ();
-  char **engine_list = ol_config_get_str_list (config,
-                                               "Download",
-                                               "download-engine",
-                                               NULL);
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  char **engine_list = ol_config_proxy_get_str_list (config,
+                                                     "Download/download-engine",
+                                                     NULL);
   search_id = ol_lrc_fetch_begin_search (engine_list,
                                          metadata,
                                          _search_msg_callback,
@@ -286,8 +280,8 @@ _track_changed_cb (void)
     ol_display_module_set_lrc (display_module, NULL);
   ol_player_get_metadata (player, current_metadata);
   _change_lrc ();
-  OlConfig *config = ol_config_get_instance ();
-  if (ol_config_get_bool (config, "General", "notify-music"))
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  if (ol_config_proxy_get_bool (config, "General/notify-music"))
     ol_notify_music_change (current_metadata, ol_player_get_icon_path (player));
 }
 
@@ -377,10 +371,9 @@ _player_lost_cb (void)
   {
     if (player_lost_action == ACTION_LAUNCH_DEFAULT)
     {
-      OlConfig *config = ol_config_get_instance ();
-      char *player_cmd = ol_config_get_string (config,
-                                               "General",
-                                               "startup-player");
+      OlConfigProxy *config = ol_config_proxy_get_instance ();
+      char *player_cmd = ol_config_proxy_get_string (config,
+                                                     "General/startup-player");
       if (!ol_is_string_empty (player_cmd))
       {
         ol_debugf ("Running %s\n", player_cmd);
@@ -435,9 +428,9 @@ _player_connected_cb (void)
   if (!display_module)
   {
     /* Initialize display modules */
-    OlConfig *config = ol_config_get_instance ();
+    OlConfigProxy *config = ol_config_proxy_get_instance ();
     ol_display_module_init ();
-    display_mode = ol_config_get_string (config, "General", "display-mode");
+    display_mode = ol_config_proxy_get_string (config, "General/display-mode");
     display_module = ol_display_module_new (display_mode, player);
   }
   player_lost_action = ACTION_QUIT;
@@ -747,9 +740,9 @@ _init_lyrics_proxy (void)
 static void
 _init_dbus_connection_done (void)
 {
-  OlConfig *config = ol_config_get_instance ();
-  g_signal_connect (config, "changed",
-                    G_CALLBACK (_on_config_changed),
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  g_signal_connect (config, "changed::General/display-mode",
+                    G_CALLBACK (_display_mode_changed),
                     NULL);
   current_metadata = ol_metadata_new ();
   _init_player ();

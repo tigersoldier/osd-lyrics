@@ -27,7 +27,7 @@
 #include "ol_menu.h"
 #include "ol_stock.h"
 #include "ol_player.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_debug.h"
 
 #if HAVE_APP_INDICATOR
@@ -52,9 +52,9 @@ static void
 activate (GtkStatusIcon* status_icon,
           gpointer user_data)
 {
-  OlConfig *config = ol_config_get_instance ();
-  ol_config_set_bool (config, "General", "visible",
-                      !ol_config_get_bool (config, "General", "visible"));
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  ol_config_proxy_set_bool (config, ".visible",
+                            !ol_config_proxy_get_bool (config, ".visible"));
 }
 
 static gboolean

@@ -21,7 +21,7 @@
 #include "ol_gui.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_app.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_lrc_candidate_list.h"
 #include "ol_lrc_engine_list.h"
 #include "ol_intl.h"
@@ -227,11 +227,10 @@ ol_search_dialog_show ()
                       ol_metadata_get_artist (global_metadata));
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
-  OlConfig *config = ol_config_get_instance ();
-  char **engine_names = ol_config_get_str_list (config, 
-                                                "Download",
-                                                "download-engine",
-                                                NULL);
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  char **engine_names = ol_config_proxy_get_str_list (config, 
+                                                      "Download/download-engine",
+                                                      NULL);
   ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (widgets.engine),
                                        engine_names);
   g_strfreev (engine_names);
