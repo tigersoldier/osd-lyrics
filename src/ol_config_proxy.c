@@ -22,6 +22,12 @@
 #include "ol_consts.h"
 #include "ol_debug.h"
 
+#define OL_CONFIG_PROXY_GET_PRIVATE(obj)                          \
+  (G_TYPE_INSTANCE_GET_PRIVATE                                    \
+   ((obj),                                                        \
+    OL_TYPE_CONFIG_PROXY,                                         \
+    OlConfigProxyPrivate))
+
 enum OlConfigProxySingals {
   SIGNAL_CHANGED = 0,
   LAST_SINGAL,
@@ -33,12 +39,17 @@ enum _GetResult {
   GET_RESULT_MISSING,
 };
 
+typedef struct {
+  GHashTable *temp_values;
+} OlConfigProxyPrivate;
+
 static guint _signals[LAST_SINGAL];
 static OlConfigProxy *config_proxy = NULL;
 
 G_DEFINE_TYPE (OlConfigProxy, ol_config_proxy, G_TYPE_DBUS_PROXY);
 
 static OlConfigProxy *ol_config_proxy_new (void);
+static void ol_config_proxy_finalize (GObject *object);
 static void ol_config_proxy_g_signal (GDBusProxy *proxy,
                                       const gchar *sender_name,
                                       const gchar *signal_name,
@@ -49,13 +60,13 @@ static void ol_config_proxy_value_changed_cb (OlConfigProxy *proxy,
 static void
 ol_config_proxy_class_init (OlConfigProxyClass *klass)
 {
-  /* GObjectClass *gobject_class; */
+  GObjectClass *gobject_class;
   GDBusProxyClass *proxy_class;
 
-  /* g_type_class_add_private (klass, sizeof (OlConfigProxyPrivate)); */
+  g_type_class_add_private (klass, sizeof (OlConfigProxyPrivate));
 
-  /* gobject_class = G_OBJECT_CLASS (klass); */
-  /* gobject_class->finalize     = ol_config_proxy_finalize; */
+  gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->finalize = ol_config_proxy_finalize;
   /* gobject_class->get_property = org_osdlyrics_lyrics_proxy_get_property; */
   /* gobject_class->set_property = org_osdlyrics_lyrics_proxy_set_property; */
 
@@ -77,6 +88,19 @@ ol_config_proxy_class_init (OlConfigProxyClass *klass)
 static void
 ol_config_proxy_init (OlConfigProxy *proxy)
 {
+  OlConfigProxyPrivate *priv = OL_CONFIG_PROXY_GET_PRIVATE (proxy);
+  priv->temp_values = g_hash_table_new_full (g_str_hash,
+                                             g_str_equal,
+                                             g_free,
+                                             (GDestroyNotify) g_variant_unref);
+}
+
+static void
+ol_config_proxy_finalize (GObject *object)
+{
+  OlConfigProxyPrivate *priv = OL_CONFIG_PROXY_GET_PRIVATE (object);
+  g_hash_table_destroy (priv->temp_values);
+  priv->temp_values = NULL;
 }
 
 static OlConfigProxy *
@@ -153,26 +177,39 @@ ol_config_proxy_unload (void)
 static gboolean
 ol_config_proxy_set (OlConfigProxy *config,
                      const gchar *method,
-                     GVariant *parameters)
+                     const gchar *key,
+                     GVariant *value)
 {
-  GError *error = NULL;
-  GVariant *ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (config),
-                                          method,
-                                          parameters,
-                                          G_DBUS_CALL_FLAGS_NO_AUTO_START,
-                                          -1,   /* timeout_secs */
-                                          NULL, /* cancellable */
-                                          &error);
-  if (ret)
+  ol_assert_ret (key != NULL && key[0] != '\0', FALSE);
+  if (key[0] == '.')
   {
-    g_variant_unref (ret);
+    OlConfigProxyPrivate *priv = OL_CONFIG_PROXY_GET_PRIVATE (config);
+    g_hash_table_insert (priv->temp_values,
+                         g_strdup (key),
+                         g_variant_ref_sink (value));
     return TRUE;
   }
   else
   {
-    ol_errorf ("Cannot set config value: %s\n", error->message);
-    g_error_free (error);
-    return FALSE;
+    GError *error = NULL;
+    GVariant *ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (config),
+                                            method,
+                                            g_variant_new ("(s*)", key, value),
+                                            G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                            -1,   /* timeout_secs */
+                                            NULL, /* cancellable */
+                                            &error);
+    if (ret)
+    {
+      g_variant_unref (ret);
+      return TRUE;
+    }
+    else
+    {
+      ol_errorf ("Cannot set config value: %s\n", error->message);
+      g_error_free (error);
+      return FALSE;
+    }
   }
 }
 
@@ -185,7 +222,8 @@ ol_config_proxy_set_bool (OlConfigProxy *config,
   ol_assert_ret (key != NULL, FALSE);
   return ol_config_proxy_set (config,
                               "SetBool",
-                              g_variant_new ("(sb)", key, value));
+                              key,
+                              g_variant_new ("b", value));
 }
 
 gboolean
@@ -197,7 +235,8 @@ ol_config_proxy_set_int (OlConfigProxy *config,
   ol_assert_ret (key != NULL, FALSE);
   return ol_config_proxy_set (config,
                               "SetInt",
-                              g_variant_new ("(si)", key, value));
+                              key,
+                              g_variant_new ("i", value));
 }
 
 gboolean
@@ -209,7 +248,8 @@ ol_config_proxy_set_double (OlConfigProxy *config,
   ol_assert_ret (key != NULL, FALSE);
   return ol_config_proxy_set (config,
                               "SetDouble",
-                              g_variant_new ("(sd)", key, value));
+                              key,
+                              g_variant_new ("d", value));
 }
 
 gboolean
@@ -222,13 +262,14 @@ ol_config_proxy_set_string (OlConfigProxy *config,
   ol_assert_ret (value != NULL, FALSE);
   return ol_config_proxy_set (config,
                               "SetString",
-                              g_variant_new ("(ss)", key, value));
+                              key,
+                              g_variant_new ("s", value));
 }
 
 gboolean
 ol_config_proxy_set_str_list (OlConfigProxy *config,
                               const gchar *key,
-                              const gchar **value,
+                              const gchar * const *value,
                               gint len)
 {
   ol_assert_ret (OL_IS_CONFIG_PROXY (config), FALSE);
@@ -240,11 +281,12 @@ ol_config_proxy_set_str_list (OlConfigProxy *config,
   {
     g_variant_builder_add (builder, "s", value[i]);
   }
-  GVariant *parameters = g_variant_new ("(sas)", key, builder);
+  GVariant *gvalue = g_variant_new ("as", builder);
   g_variant_builder_unref (builder);
   return ol_config_proxy_set (config,
                               "SetStringList",
-                              parameters);
+                              key,
+                              gvalue);
 }
 
 static enum _GetResult
@@ -258,13 +300,18 @@ ol_config_proxy_get (OlConfigProxy *config,
   ol_assert_ret (key != NULL, GET_RESULT_FAILED);
   enum _GetResult ret = GET_RESULT_OK;
   GError *error = NULL;
-  GVariant *value = g_dbus_proxy_call_sync (G_DBUS_PROXY (config),
-                                            method,
-                                            g_variant_new ("(s)", key),
-                                            G_DBUS_CALL_FLAGS_NO_AUTO_START,
-                                            -1,   /* timeout_secs */
-                                            NULL, /* cancellable */
-                                            &error);
+  GVariant *value = NULL;
+  OlConfigProxyPrivate *priv = OL_CONFIG_PROXY_GET_PRIVATE (config);
+  if (key[0] == '.')
+    value = g_hash_table_lookup (priv->temp_values, key);
+  else
+    value = g_dbus_proxy_call_sync (G_DBUS_PROXY (config),
+                                    method,
+                                    g_variant_new ("(s)", key),
+                                    G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                    -1,   /* timeout_secs */
+                                    NULL, /* cancellable */
+                                    &error);
   if (!value)
   {
     if (g_dbus_error_is_remote_error (error))
@@ -300,8 +347,7 @@ ol_config_proxy_get (OlConfigProxy *config,
 
 gboolean
 ol_config_proxy_get_bool (OlConfigProxy *config,
-                          const gchar *key,
-                          gboolean default_value)
+                          const gchar *key)
 {
   gboolean ret;
   switch (ol_config_proxy_get (config, "GetBool", key, "(b)", &ret))
@@ -309,20 +355,17 @@ ol_config_proxy_get_bool (OlConfigProxy *config,
   case GET_RESULT_OK:
     return ret;
   case GET_RESULT_MISSING:
-    ol_config_proxy_set_bool (config, key, default_value);
-    return default_value;
   case GET_RESULT_FAILED:
-    return default_value;
+    return FALSE;
   default:
     ol_error ("Unknown return value from ol_config_proxy_get");
-    return default_value;
+    return FALSE;
   }
 }
 
 gint
 ol_config_proxy_get_int (OlConfigProxy *config,
-                         const gchar *key,
-                         gint default_value)
+                         const gchar *key)
 {
   gint ret;
   switch (ol_config_proxy_get (config, "GetInt", key, "(i)", &ret))
@@ -330,20 +373,17 @@ ol_config_proxy_get_int (OlConfigProxy *config,
   case GET_RESULT_OK:
     return ret;
   case GET_RESULT_MISSING:
-    ol_config_proxy_set_int (config, key, default_value);
-    return default_value;
   case GET_RESULT_FAILED:
-    return default_value;
+    return 0;
   default:
     ol_error ("Unknown return value from ol_config_proxy_get");
-    return default_value;
+    return 0;
   }
 }
 
 gdouble
 ol_config_proxy_get_double (OlConfigProxy *config,
-                            const gchar *key,
-                            gdouble default_value)
+                            const gchar *key)
 {
   gint ret;
   switch (ol_config_proxy_get (config, "GetDouble", key, "(d)", &ret))
@@ -351,20 +391,17 @@ ol_config_proxy_get_double (OlConfigProxy *config,
   case GET_RESULT_OK:
     return ret;
   case GET_RESULT_MISSING:
-    ol_config_proxy_set_double (config, key, default_value);
-    return default_value;
   case GET_RESULT_FAILED:
-    return default_value;
+    return 0.0;
   default:
     ol_error ("Unknown return value from ol_config_proxy_get");
-    return default_value;
+    return 0.0;
   }
 }
 
 gchar*
 ol_config_proxy_get_string (OlConfigProxy *config,
-                            const gchar *key,
-                            const gchar *default_value)
+                            const gchar *key)
 {
   gchar *ret;
   switch (ol_config_proxy_get (config, "GetString", key, "(s)", &ret))
@@ -372,14 +409,10 @@ ol_config_proxy_get_string (OlConfigProxy *config,
   case GET_RESULT_OK:
     return ret;
   case GET_RESULT_MISSING:
-    if (default_value != NULL)
-      ol_config_proxy_set_string (config, key, default_value);
-    return g_strdup (default_value);
-  case GET_RESULT_FAILED:
-    return g_strdup (default_value);
+    return NULL;
   default:
     ol_error ("Unknown return value from ol_config_proxy_get");
-    return g_strdup (default_value);
+    return NULL;
   }
 }
 

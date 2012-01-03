@@ -71,7 +71,10 @@ OlConfigProxy* ol_config_proxy_get_instance (void);
  * @brief Sets an boolean property to the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param value The value of the property
  * 
  * @return If succeed, returns TRUE
@@ -84,7 +87,10 @@ gboolean ol_config_proxy_set_bool (OlConfigProxy *config,
  * @brief Sets an int property to the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param value The value of the property
  * 
  * @return If succeed, returns TRUE
@@ -97,7 +103,10 @@ gboolean ol_config_proxy_set_int (OlConfigProxy *config,
  * @brief Sets a double property to the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param value The value of the property
  * 
  * @return If succeed, returns TRUE
@@ -110,7 +119,10 @@ gboolean ol_config_proxy_set_double (OlConfigProxy *config,
  * @brief Sets a string property to the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param value The value of the property
  * 
  * @return If succeed, returns TRUE
@@ -123,7 +135,10 @@ gboolean ol_config_proxy_set_string (OlConfigProxy *config,
  * @brief Sets a string list property to the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param value The value of the property
  * @param len The length of the string property. -1 to indicate the list is
  *            terminated with NULL.
@@ -132,79 +147,88 @@ gboolean ol_config_proxy_set_string (OlConfigProxy *config,
  */
 gboolean ol_config_proxy_set_str_list (OlConfigProxy *config,
                                  const gchar *key,
-                                 const gchar **value,
+                                 const gchar * const *value,
                                  gint len);
 
 /** 
  * @brief Gets a boolean property from the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param default_value The default value to return if the config service is
  *                      unavaliable or the key is not found in the config.
  * 
  * @return If succeed, returns int value of the content. \
- *         If fail, returns the default value.
+ *         If fail or the key does not exist, FALSE is returned.
  */
 gboolean ol_config_proxy_get_bool (OlConfigProxy *config,
-                                   const gchar *key,
-                                   gboolean default_value);
+                                   const gchar *key);
 
 /** 
  * @brief Gets a int property from the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param default_value The default value to return if the config service is
  *                      unavaliable or the key is not found in the config.
  * 
  * @return If succeed, returns int value of the content. \
- *         If fail, returns the default value.
+ *         If fail or the key does not exist, 0 is retuened.
  */
 gint ol_config_proxy_get_int (OlConfigProxy *config,
-                              const gchar *key,
-                              gint default_value);
-
+                              const gchar *key);
 /** 
  * @brief Gets a double property from the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param default_value The default value to return if the config service is
  *                      unavaliable or the key is not found in the config.
  * 
  * @return If succeed, returns double value of the content. \
- *         If fail, returns the default value.
+ *         If fail or the key does not exist, 0.0 is returned.
  */
 gdouble ol_config_proxy_get_double (OlConfigProxy *config,
-                                    const gchar *key,
-                                    gdouble default_value);
-
+                                    const gchar *key);
 /** 
  * @brief Gets a string property of the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param default_value The default value to return if the config service is
  *                      unavaliable or the key is not found in the config.
  * 
  * @return If succeed, returns duplicated string value of the content, \
- *         must be freed by g_free. If fail, returns NULL.
+ *         must be freed by g_free. If fail or the key does not exist, returns NULL.
  */
 gchar* ol_config_proxy_get_string (OlConfigProxy *config,
-                                   const gchar *key,
-                                   const gchar *default_value);
+                                   const gchar *key);
 
 /** 
  * @brief Gets a string property of the config
  * 
  * @param config An OlConfigProxy
- * @param key The key of the config value, should be in the form of "group/name"
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
  * @param len return location of length of string list, or NULL
  * 
  * @return a NULL-terminated string array or NULL if the specified key cannot
- *           be found.
- *           The array should be freed with g_strfreev().
+ *         be found. The array should be freed with g_strfreev().
+ *         If fail or the key does not exist, NULL will be returned.
  */
 gchar** ol_config_proxy_get_str_list (OlConfigProxy *config,
                                       const char *key,

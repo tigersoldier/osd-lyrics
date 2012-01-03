@@ -29,19 +29,25 @@ test_singleton ()
 }
 
 void
-test_default_value ()
+test_basic_value ()
 {
   printf ("%s\n", __FUNCTION__);
   OlConfigProxy *config = ol_config_proxy_get_instance ();
   assert (config != NULL);
-  ol_test_expect (ol_config_proxy_get_int (config, "Test/default_int", -1) == -1);
-  ol_test_expect (ol_config_proxy_get_double (config, "Test/default_double", 123.45) == 123.45);
-  ol_test_expect (ol_config_proxy_get_bool (config, "Test/default_bool", FALSE) == FALSE);
-  ol_test_expect (ol_config_proxy_get_bool (config, "Test/default_bool", TRUE) == FALSE);
-  gchar *strval = ol_config_proxy_get_string (config, "Test/default_str", NULL);
-  strval = ol_config_proxy_get_string (config, "Test/default_str", "Default");
-  ol_test_expect_streq (strval, "Default");
-  strval = ol_config_proxy_get_string (config, "Test/default_str", "NotDefault");
+  ol_test_expect (ol_config_proxy_get_int (config, "Test/default_int") == 0);
+  ol_test_expect (ol_config_proxy_set_int (config, "Test/default_int", 42) == TRUE);
+  ol_test_expect (ol_config_proxy_get_int (config, "Test/default_int") == 42);
+  
+  ol_test_expect (ol_config_proxy_get_double (config, "Test/default_double") == 0.0);
+  
+  ol_test_expect (ol_config_proxy_get_bool (config, "Test/default_bool") == FALSE);
+  ol_test_expect (ol_config_proxy_set_bool (config, "Test/default_bool", TRUE) == TRUE);
+  ol_test_expect (ol_config_proxy_get_bool (config, "Test/default_bool") == TRUE);
+  
+  gchar *strval = ol_config_proxy_get_string (config, "Test/default_str");
+  ol_test_expect (strval == NULL);
+  ol_test_expect (ol_config_proxy_set_string (config, "Test/default_str", "Default") == TRUE);
+  strval = ol_config_proxy_get_string (config, "Test/default_str");
   ol_test_expect_streq (strval, "Default");
   g_free (strval);
   /* g_strfreev (ol_config_proxy_get_str_list (config, "OSD", "active-lrc-color", NULL)) */;
