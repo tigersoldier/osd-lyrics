@@ -371,7 +371,6 @@ ol_config_proxy_set_default (OlConfigProxy *config,
                    g_quark_from_string (key),
                    key);
     g_variant_unref (value);
-    return TRUE;
   }
   else
   {
@@ -384,6 +383,7 @@ ol_config_proxy_set_default (OlConfigProxy *config,
     }
     g_variant_builder_add (priv->default_builder, "{sv}", key, value);
   }
+  return TRUE;
 }
 
 gboolean

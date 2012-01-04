@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_player.h"
 #include "ol_debug.h"
@@ -256,7 +257,7 @@ int
 main (int argc, char **argv)
 {
   ol_log_set_level (OL_INFO);
-  char usage[] = "Usage: ol_player_test <play|pause|info|next|prev|status|capacity>";
+  /* char usage[] = "Usage: ol_player_test <play|pause|info|next|prev|status|capacity>"; */
   gtk_init (&argc, &argv);
   /* if (argc < 2 || argc > 3) */
   /* { */

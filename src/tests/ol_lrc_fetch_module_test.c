@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <glib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_lrc_fetch_module.h"
 #include "ol_test_util.h"
@@ -30,15 +31,17 @@ dummy_search (const OlMetadata *metadata,
 /** 
  * @brief download the lrc and store it in the file system
  */
-static int
+static char*
 dummy_download (OlLrcCandidate *candidates,
-                const char *pathname,
-                const char *charset)
+                size_t *len)
 {
   fprintf (stderr, "downloading: title: %s, artist: %s, url: %s\n",
            candidates->title, candidates->artist, candidates->url);
   sleep (2);
-  return TRUE;
+  char *ret = g_strdup ("A new dummy lyric downloaded\n");
+  if (len)
+    *len = strlen (ret);
+  return ret;
 }
 
 OlLrcFetchEngine engine = {
@@ -67,16 +70,15 @@ dummy_search_callback (struct OlLrcFetchResult *result,
   ol_lrc_fetch_begin_download (result->engine,
                                &result->candidates[0],
                                NULL,
-                               "abc",
                                "abc");
 }
 
 void
 dummy_download_callback (struct OlLrcDownloadResult *result)
 {
-  fprintf (stderr, "Download Callback invoked, file is %s\n", result->filepath);
+  fprintf (stderr, "Download Callback invoked, userdata is %s\n", (char*)result->userdata);
   ol_test_expect (result->userdata != NULL);
-  ol_test_expect (strcmp (result->filepath, (char *)result->userdata) == 0);
+  ol_test_expect (strcmp ("abc", (char *)result->userdata) == 0);
 }
 
 int
@@ -101,4 +103,5 @@ main (int argc, char **argv)
                                          "Callback User data");
   gtk_main ();
   ol_metadata_free (metadata);
+  return 0;
 }

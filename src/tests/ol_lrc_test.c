@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "ol_lrc.h"
 #include "ol_test_util.h"
@@ -99,7 +100,7 @@ set_attribute (OlLrc *lrc, const char *attributes[][2], int count)
 void
 test_init (void)
 {
-  OlLrc *lrc = ol_lrc_new (DEFAULT_URI);
+  OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   ol_test_expect (strcmp (ol_lrc_get_uri (lrc), DEFAULT_URI) == 0);
   ol_test_expect (ol_lrc_get_item_count (lrc) == 1);
 }
@@ -107,7 +108,7 @@ test_init (void)
 void
 test_content (void)
 {
-  OlLrc *lrc = ol_lrc_new (DEFAULT_URI);
+  OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   set_content (lrc, DEFAULT_CONTENTS, G_N_ELEMENTS (DEFAULT_CONTENTS));
   int i;
   ol_test_expect (ol_lrc_get_item_count (lrc) == G_N_ELEMENTS (DEFAULT_CONTENTS));
@@ -147,7 +148,7 @@ test_content (void)
 void
 test_attribute (void)
 {
-  OlLrc *lrc = ol_lrc_new (DEFAULT_URI);
+  OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   set_attribute (lrc, DEFAULT_ATTRIBUTES, G_N_ELEMENTS (DEFAULT_ATTRIBUTES));
   ol_test_expect (strcmp (ol_lrc_get_attribute (lrc, "ti"), "Title") == 0);
   ol_test_expect (strcmp (ol_lrc_get_attribute (lrc, "ar"), "Artist") == 0);
@@ -165,7 +166,7 @@ test_attribute (void)
 void
 test_offset (void)
 {
-  OlLrc *lrc = ol_lrc_new (DEFAULT_URI);
+  OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   ol_test_expect (ol_lrc_get_offset (lrc) == 0);
   ol_lrc_set_offset (lrc, ANOTHER_OFFSET);
   ol_test_expect (ol_lrc_get_offset (lrc) == ANOTHER_OFFSET);
@@ -187,7 +188,7 @@ test_offset (void)
 void
 test_duration (void)
 {
-  OlLrc *lrc = ol_lrc_new (DEFAULT_URI);
+  OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   set_content (lrc, DEFAULT_CONTENTS, G_N_ELEMENTS (DEFAULT_CONTENTS));
   OlLrcIter *iter = ol_lrc_iter_from_id (lrc, 3);
   ol_test_expect (ol_lrc_iter_get_duration (iter) ==
@@ -208,7 +209,7 @@ test_duration (void)
 void
 test_seek (void)
 {
-  OlLrc *lrc = ol_lrc_new (DEFAULT_URI);
+  OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   set_content (lrc, DEFAULT_CONTENTS, G_N_ELEMENTS (DEFAULT_CONTENTS));
   int i;
   for (i = 0; i < G_N_ELEMENTS (DEFAULT_SEEK); i++)

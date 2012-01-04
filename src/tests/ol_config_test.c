@@ -8,6 +8,7 @@
  * 
  */
 #include <assert.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_config_proxy.h"
 #include "ol_test_util.h"
@@ -91,7 +92,7 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
   init_config ();
   test_singleton ();
-  test_default_value ();
+  test_basic_value ();
   test_set_value ();
   return 0;
 }

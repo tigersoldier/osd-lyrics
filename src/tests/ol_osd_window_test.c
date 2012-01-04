@@ -30,4 +30,5 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
   basic_test ();
   long_lyric_test ();
+  return 0;
 }

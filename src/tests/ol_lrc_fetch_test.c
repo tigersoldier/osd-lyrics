@@ -24,7 +24,7 @@ void test_long_url ()
                          "Little Lotte/The Mirror (Angel of Music)");
   ol_metadata_set_artist (metadata,
                           "泉こなた（平野綾），柊かがみ（加藤英美里），柊つかさ（福原香織），高良みゆき（遠藤綾）");
-  OlLrcCandidate *candidates = ol_lrc_fetch_get_engine (enginename)->search (metadata, &lrc_count, "UTF-8");
+  ol_lrc_fetch_get_engine (enginename)->search (metadata, &lrc_count, "UTF-8");
   ol_metadata_free (metadata);
 }
 
@@ -55,7 +55,11 @@ void test_download ()
   ol_metadata_set_artist (metadata, "王菲");
   OlLrcCandidate *candidates = ol_lrc_fetch_get_engine (enginename)->search (metadata, &lrc_count, "UTF-8");
   if (lrc_count > 0)
-    ol_lrc_fetch_get_engine (enginename)->download (&candidates[0], "/tmp/tmplrctest.lrc", "UTF-8");
+  {
+    size_t size;
+    gchar *content = ol_lrc_fetch_get_engine (enginename)->download (&candidates[0], &size);
+    g_free (content);
+  }
   ol_metadata_free (metadata);
 }
 
@@ -104,7 +108,7 @@ test_candidate_deserialize ()
   int size = ol_lrc_candidate_serialize (cand1, NULL, 0);
   int buf_size = size + 10;
   char *buffer = malloc (buf_size);
-  int real_size = ol_lrc_candidate_serialize (cand1, buffer, buf_size);
+  ol_lrc_candidate_serialize (cand1, buffer, buf_size);
   ol_test_expect (ol_lrc_candidate_deserialize (cand2, buffer));
   ol_test_expect (strcmp (ol_lrc_candidate_get_title (cand2),
                           title) == 0);

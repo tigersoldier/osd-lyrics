@@ -98,6 +98,11 @@ _get_lyric_url (const char *song_id)
   if (end == start)
     return NULL;
   char *ret = g_strndup (start, end - start);
+  if (!g_str_has_suffix (ret, ".lrc"))
+  {
+    g_free (ret);
+    ret = NULL;
+  }
   free (content.mem_base);
   return ret;
 }

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <gtk/gtk.h>
 #include "ol_lrc_fetch_ui.h"
 #include "ol_lrc_fetch.h"
 #define N_CANDIDATE 10
@@ -19,9 +20,9 @@ void test_show ()
     sprintf (candidates[i].artist, "Artist #%d", i);
   }
   ol_lrc_fetch_ui_show (&engine,
-                        candidates, N_CANDIDATE,
-                        NULL,
-                        "");
+                        candidates,
+                        N_CANDIDATE,
+                        NULL);
   gtk_main ();
 }
 
