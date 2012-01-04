@@ -12,6 +12,7 @@ configure
 config.guess
 config.sub
 py-compile
+install-sh
 configure.scan
 po/POTFILES
 missing
