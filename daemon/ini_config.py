@@ -112,12 +112,13 @@ class IniConfig(dbus.service.Object):
         except:
             raise ValueNotExistError(key)
 
-    def _set_value(self, key, value):
+    def _set_value(self, key, value, overwrite=True):
         section, name = self._split_key(key, True)
-        self._confparser.set(section, name, str(value))
-        self._changed_signals[key] = True
-        self._schedule_save()
-        self._schedule_signal()
+        if overwrite or not self._confparser.has_option(section, name):
+            self._confparser.set(section, name, str(value))
+            self._changed_signals[key] = True
+            self._schedule_save()
+            self._schedule_signal()
 
     @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
                          in_signature='sb',
@@ -148,6 +149,15 @@ class IniConfig(dbus.service.Object):
                          out_signature='')
     def SetStringList(self, key, value):
         self._set_value(key, join(value))
+
+    @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
+                         in_signature='a{sv}',
+                         out_signature='')
+    def SetDefaultValues(self, values):
+        for k, v in values.items():
+            if isinstance(v, list):
+                v = join(v)
+            self._set_value(k, v, False)
 
     def _schedule_save(self, filename=None):
         if self._save_timer is None:

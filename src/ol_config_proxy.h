@@ -17,15 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-/**
- * @file   ol_config_proxy.h
- * @author Tiger Soldier <tigersoldi@gmail.com>
- * @date   Wed Jun 17 09:56:19 2009
- * 
- * @brief  Provide a singleton config object for getting/setting config of this app
- * 
- * 
- */
+
 #ifndef _OL_CONFIG_PROXY_H_
 #define _OL_CONFIG_PROXY_H_
 
@@ -235,9 +227,111 @@ gchar** ol_config_proxy_get_str_list (OlConfigProxy *config,
                                       gsize *len);
 
 /** 
+ * Sets the default value to a boolean config entry.
+ * It is similar to ol_config_proxy_set_bool(). The difference is when a key
+ * exists, the value will not be overwritten.
+ * 
+ * @param config An OlConfigProxy
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
+ * @param value The value of the property
+ * 
+ * @return If succeed, returns TRUE
+ */
+gboolean ol_config_proxy_set_bool_default (OlConfigProxy *config,
+                                           const gchar *key,
+                                           gboolean value);
+
+/** 
+ * Sets the default value to a integer config entry.
+ *
+ * It is similar to ol_config_proxy_set_int(). The difference is when a key exists,
+ * the value will not be overwritten.
+ * 
+ * @param config An OlConfigProxy
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
+ * @param value The value of the property
+ * 
+ * @return If succeed, returns TRUE
+ */
+gboolean ol_config_proxy_set_int_default (OlConfigProxy *config,
+                                          const gchar *key,
+                                          gint value);
+
+/** 
+ * Sets the default value to a double config entry.
+ *
+ * It is similar to ol_config_proxy_set_double(). The difference is when a key
+ * exists, the value will not be overwritten.
+ * 
+ * @param config An OlConfigProxy
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
+ * @param value The value of the property
+ * 
+ * @return If succeed, returns TRUE
+ */
+gboolean ol_config_proxy_set_double_default (OlConfigProxy *config,
+                                             const gchar *key,
+                                             gdouble value);
+
+/** 
+ * Sets the default value to a string config entry.
+ *
+ * It is similar to ol_config_proxy_set_string(). The difference is when a key
+ * exists, the value will not be overwritten.
+ * 
+ * @param config An OlConfigProxy
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
+ * @param value The value of the property
+ * 
+ * @return If succeed, returns TRUE
+ */
+gboolean ol_config_proxy_set_string_default (OlConfigProxy *config,
+                                             const gchar *key,
+                                             const gchar* value);
+
+/** 
+ * Sets the default value to a string list config entry.
+ *
+ * It is similar to ol_config_proxy_set_string_list(). The difference is when a key
+ * exists, the value will not be overwritten.
+ * 
+ * @param config An OlConfigProxy
+ * @param key The key of the config value, should be in the form of "group/name", or
+ *            any name started with a dot, like '.visible'. A key starting with a dot
+ *            indicates that it is a temporary config entry and should not be sync
+ *            to the config file.
+ * @param value The value of the property
+ * @param len The length of the string property. -1 to indicate the list is
+ *            terminated with NULL.
+ * 
+ * @return If succeed, returns TRUE
+ */
+gboolean ol_config_proxy_set_str_list_default (OlConfigProxy *config,
+                                               const gchar *key,
+                                               const gchar * const *value,
+                                               gint len);
+/** 
  * @brief Unload config module
  * 
  */
 void ol_config_proxy_unload (void);
+
+/** 
+ * Sync the config settings immediately.
+ *
+ */
+void ol_config_proxy_sync (OlConfigProxy *config);
 
 #endif /* _OL_CONFIG_PROXY_H_ */

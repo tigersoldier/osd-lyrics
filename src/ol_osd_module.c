@@ -510,7 +510,6 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   osd->display = FALSE;
   OlConfigProxy *config = ol_config_proxy_get_instance ();
   ol_assert (config != NULL);
-  ol_config_proxy_set_bool (config, ".visible", TRUE);
   
   _bind_all_config (osd);
   

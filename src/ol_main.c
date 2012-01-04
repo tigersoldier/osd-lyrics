@@ -32,6 +32,7 @@
 #include "ol_lrc_fetch_ui.h"
 #include "ol_trayicon.h"
 #include "ol_intl.h"
+#include "ol_config_updater.h"
 #include "ol_config_proxy.h"
 #include "ol_consts.h"
 #include "ol_display_module.h"
@@ -432,6 +433,9 @@ _player_connected_cb (void)
     ol_display_module_init ();
     display_mode = ol_config_proxy_get_string (config, "General/display-mode");
     display_module = ol_display_module_new (display_mode, player);
+    g_signal_connect (config, "changed::General/display-mode",
+                      G_CALLBACK (_display_mode_changed),
+                      NULL);
   }
   player_lost_action = ACTION_QUIT;
   _start_position_timer ();
@@ -740,10 +744,7 @@ _init_lyrics_proxy (void)
 static void
 _init_dbus_connection_done (void)
 {
-  OlConfigProxy *config = ol_config_proxy_get_instance ();
-  g_signal_connect (config, "changed::General/display-mode",
-                    G_CALLBACK (_display_mode_changed),
-                    NULL);
+  ol_config_update ();
   current_metadata = ol_metadata_new ();
   _init_player ();
   _init_lyrics_proxy ();
@@ -797,8 +798,8 @@ _uninitialize (void)
   }
   ol_display_module_unload ();
   ol_trayicon_free ();
-  ol_config_unload ();
-  ol_lrc_fetch_module_unload (); 
+  ol_lrc_fetch_module_unload ();
+  ol_config_proxy_unload ();
 }
 
 static void

@@ -38,7 +38,7 @@ noinst_HEADERS = \
 	ol_cell_renderer_button.h \
 	ol_color.h \
 	ol_commands.h \
-	ol_config.h \
+	ol_config_updater.h \
 	ol_config_property.h \
 	ol_config_proxy.h \
 	ol_consts.h \
@@ -93,7 +93,7 @@ osdlyrics_SOURCES = \
 	ol_app_chooser_widget.c \
 	ol_debug.c \
 	ol_main.c \
-	ol_config.c \
+	ol_config_updater.c \
 	ol_config_proxy.c \
 	ol_gui.c \
 	ol_about.c \

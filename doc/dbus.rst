@@ -228,6 +228,17 @@ GetStringList(s:name) -> as
 SetStringList(s:name, as:value)
   Sets an array of string.
 
+SetDefaultValues(a{sv}:values)
+  Sets a set of default values. The existing values will not be overwrited, only 
+values that not exists will be set.
+
+  Parameters:
+
+  - `values`: a dictionary, the key is the name of the value, and the value is the 
+              value itself. The value should be one of the following types: b, i, d,
+              s, as, which are boolean, integer, double, string, string list,
+              respectively.
+
 Signals
 ~~~~~~~
 
