@@ -24,22 +24,20 @@ import osdlyrics
 import osdlyrics.utils
 import ConfigParser
 import glib
+from errors import DBusError
 
-class Error(Exception):
-    def __init__(self, message):
-        self._message = message
+class MalformedKeyError(DBusError):
+    def __init__(self, *args):
+        DBusError.__init__(self, *args)
 
-    def __str__(self):
-        return repr(self._message)
-
-class MalformedKeyError(Error):
-    def __init__(self, message=''):
-        Error.__init__(self, message)
+class ValueNotExistError(DBusError):
+    def __init__(self, key=''):
+        DBusError.__init__(self, 'Value of key %s does not exist' % key)
 
 class IniConfig(dbus.service.Object):
     """ Implement org.osdlyrics.Config
     """
-    
+
     def __init__(self,
                  conn,
                  filename=osdlyrics.utils.get_config_path('osdlyrics.conf')):
@@ -59,7 +57,7 @@ class IniConfig(dbus.service.Object):
             raise MalformedKeyError('%s is an invalid key. Keys must be in the ' \
                                         'form of "Section/Name"' % key)
         if len(parts[0]) == 0 or len(parts[1]) == 0:
-            raise MalformedKeyError('Section or name must not be empty')
+            raise MalformedKeyError('Malformed key "%s". Section or name must not be empty' % key)
         if add_section and not self._confparser.has_section(parts[0]):
             self._confparser.add_section(parts[0])
         return parts[0], parts[1]
@@ -69,42 +67,58 @@ class IniConfig(dbus.service.Object):
                          out_signature='b')
     def GetBool(self, key):
         section, name = self._split_key(key)
-        return self._confparser.getboolean(section, name)
+        try:
+            return self._confparser.getboolean(section, name)
+        except:
+            raise ValueNotExistError(key)
 
     @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
                          in_signature='s',
                          out_signature='i')
     def GetInt(self, key):
         section, name = self._split_key(key)
-        return self._confparser.getint(section, name)
+        try:
+            return self._confparser.getint(section, name)
+        except:
+            raise ValueNotExistError(key)
 
     @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
                          in_signature='s',
                          out_signature='d')
     def GetDouble(self, key):
         section, name = self._split_key(key)
-        return self._confparser.getfloat(section, name)
+        try:
+            return self._confparser.getfloat(section, name)
+        except:
+            raise ValueNotExistError(key)
 
     @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
                          in_signature='s',
                          out_signature='s')
     def GetString(self, key):
         section, name = self._split_key(key)
-        return self._confparser.get(section, name)
+        try:
+            return self._confparser.get(section, name)
+        except:
+            raise ValueNotExistError(key)
 
     @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
                          in_signature='s',
                          out_signature='as')
     def GetStringList(self, key):
         value = self.GetString(key)
-        return split(value)
+        try:
+            return split(value)
+        except:
+            raise ValueNotExistError(key)
 
-    def _set_value(self, key, value):
+    def _set_value(self, key, value, overwrite=True):
         section, name = self._split_key(key, True)
-        self._confparser.set(section, name, str(value))
-        self._changed_signals[key] = True
-        self._schedule_save()
-        self._schedule_signal()
+        if overwrite or not self._confparser.has_option(section, name):
+            self._confparser.set(section, name, str(value))
+            self._changed_signals[key] = True
+            self._schedule_save()
+            self._schedule_signal()
 
     @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
                          in_signature='sb',
@@ -135,6 +149,15 @@ class IniConfig(dbus.service.Object):
                          out_signature='')
     def SetStringList(self, key, value):
         self._set_value(key, join(value))
+
+    @dbus.service.method(dbus_interface=osdlyrics.CONFIG_BUS_NAME,
+                         in_signature='a{sv}',
+                         out_signature='')
+    def SetDefaultValues(self, values):
+        for k, v in values.items():
+            if isinstance(v, list):
+                v = join(v)
+            self._set_value(k, v, False)
 
     def _schedule_save(self, filename=None):
         if self._save_timer is None:

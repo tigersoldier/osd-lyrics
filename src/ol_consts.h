@@ -26,19 +26,34 @@
 #define OL_IFACE_DAEMON "org.osdlyrics.Daemon"
 /* The object path of daemon controlling */
 #define OL_OBJECT_DAEMON "/org/osdlyrics/Daemon"
+
 /* The interface of player module */
 #define OL_IFACE_PLAYER "org.osdlyrics.Player"
 /* The object path of player support */
 #define OL_OBJECT_PLAYER "/org/osdlyrics/Player"
+
 /* The interface of lyrics module */
 #define OL_IFACE_LYRICS "org.osdlyrics.Lyrics"
 /* The object path of lyrics module */
 #define OL_OBJECT_LYRICS "/org/osdlyrics/Lyrics"
+
+/* The D-Bus well-known name for OSD Lyrics Config */
+#define OL_SERVICE_CONFIG "org.osdlyrics.Config"
+/* The interface of config service */
+#define OL_IFACE_CONFIG "org.osdlyrics.Config"
+/* The object path of config service */
+#define OL_OBJECT_CONFIG "/org/osdlyrics/Config"
+
 /* The interface of MPRIS1 */
 #define OL_IFACE_MPRIS1 "org.freedesktop.MediaPlayer"
 /* The object path of player control of MPRIS1 */
 #define OL_OBJECT_MPRIS1_PLAYER "/Player"
+
 /* The bus name of the GUI process */
 #define OL_CLIENT_BUS_NAME "org.osdlyrics.Client.Gtk"
+
+/* Exceptions */
+#define OL_ERROR_MALFORMED_KEY "org.osdlyrics.Error.MalformedKey"
+#define OL_ERROR_VALUE_NOT_EXIST "org.osdlyrics.Error.ValueNotExist"
 
 #endif /* _OL_CONSTS_H_ */

@@ -185,11 +185,11 @@ CurrentLyricsChanged()
 
 Configure
 ---------
-The well-known bus name of configure module is ``org.osdlyrics.config``
+The well-known bus name of configure module is ``org.osdlyrics.Config``
 
 The object path of configuration is ``/org/osdlyrics/Config``.
 
-The interface is ``org.osdlyrics.Config``.
+The interface is ``org.osdlyrics.config``.
 
 The name of configure options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,40 +199,60 @@ Methods
 ~~~~~~~
 
 GetInt(s:name) -> int32
-    Gets an int32 in config. If the value of name does not exists, default_value will be returned.
+  Gets an int32 in config. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised. 
 
 SetInt(s:name, int32:value)
   Sets an int32 value.
 
 GetString(s:name) -> s
-  Gets a string. If the value of name does not exists, default_value will be returned.
+  Gets a string. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised.
 
 SetString(s:name, s:value)
   Sets a string value.
 
 GetBool(s:name) -> b
-  Gets a boolean value. If the value of name does not exists, default_value will be returned.
+  Gets a boolean value. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised.
 
 SetBool(s:name, b:value)
   Sets a boolean value.
 
 GetDouble(s:name) -> d
-  Gets a double value. If the value of name does not exists, default_value will be returned.
+  Gets a double value. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised.
 
 SetDouble(s:name, d:value)
   Sets a double value.
 
 GetStringList(s:name) -> as
-  Gets an array of strings. If the value of name does not exists, default_value will be returned.
+  Gets an array of strings. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised.
 
 SetStringList(s:name, as:value)
   Sets an array of string.
+
+SetDefaultValues(a{sv}:values)
+  Sets a set of default values. The existing values will not be overwrited, only 
+values that not exists will be set.
+
+  Parameters:
+
+  - `values`: a dictionary, the key is the name of the value, and the value is the 
+              value itself. The value should be one of the following types: b, i, d,
+              s, as, which are boolean, integer, double, string, string list,
+              respectively.
 
 Signals
 ~~~~~~~
 
 ValueChanged(as:name_list)
   Emit when one or more config value has been changed. ``name_list`` is a list of names of changed values.
+
+Exceptions
+~~~~~~~~~~
+
+org.osdlyrics.Error.ValueNotExistError
+  If the name does not exist when calling Get series methods, a ``org.osdlyrics.Error.ValueNotExist`` will be raised.
+
+org.osdlyrics.Error.MalformedKeyError
+  If the key does not follow the "group/name" format, a ``org.osdlyrics.Error.MalformedKey``  will be raised.
 
 Lyrics searching
 ----------------

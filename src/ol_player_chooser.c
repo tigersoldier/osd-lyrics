@@ -22,7 +22,7 @@
 #include "ol_app_info.h"
 #include "ol_intl.h"
 #include "ol_utils.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_debug.h"
 
 #define OL_PLAYER_CHOOSER_GET_PRIVATE(obj)   (G_TYPE_INSTANCE_GET_PRIVATE  \
@@ -502,11 +502,10 @@ _remember_cmd_if_needed (OlPlayerChooser *window,
   OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (priv->remember_button)))
   {
-    OlConfig *config = ol_config_get_instance ();
-    ol_config_set_string (config,
-                          "General",
-                          "startup-player",
-                          cmd);
+    OlConfigProxy *config = ol_config_proxy_get_instance ();
+    ol_config_proxy_set_string (config,
+                                "General/startup-player",
+                                cmd);
   }
 }
 

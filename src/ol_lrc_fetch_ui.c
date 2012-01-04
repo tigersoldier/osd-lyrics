@@ -20,7 +20,7 @@
 #include "ol_lrc_fetch_ui.h"
 #include "ol_lrc_fetch.h"
 #include "ol_gui.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_lrc_fetch_module.h"
 #include "ol_lrc_candidate_list.h"
 #include "ol_debug.h"
@@ -54,16 +54,15 @@ ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
   {
     ol_lrc_fetch_begin_download (engine, &candidate, metadata, NULL);
   }
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   GtkToggleButton *prompt_btn = GTK_TOGGLE_BUTTON (ol_gui_get_widget ("choose-do-not-prompt"));
   if (prompt_btn != NULL && config != NULL)
   {
     if (gtk_toggle_button_get_active (prompt_btn))
     {
-      ol_config_set_bool (config, 
-                          "Download", 
-                          "download-first-lyric", 
-                          TRUE);
+      ol_config_proxy_set_bool (config, 
+                                "Download/download-first-lyric", 
+                                TRUE);
     }
   }
   gtk_widget_hide (window);
@@ -128,9 +127,9 @@ ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
     metadata = ol_metadata_new ();
   ol_metadata_copy (metadata, _metadata);
   gboolean prompt = TRUE;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config != NULL)
-    prompt = ol_config_get_bool (config, "Download", "download-first-lyric");
+    prompt = ol_config_proxy_get_bool (config, "Download/download-first-lyric");
   if (prompt || count == 1)
     ol_lrc_fetch_ui_download (GTK_WIDGET (download_button), NULL);
   else

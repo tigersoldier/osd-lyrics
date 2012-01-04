@@ -2,6 +2,7 @@
 #define _OL_TEST_UTIL_H_
 
 #include <stdio.h>
+#include <string.h>
 
 #define ol_test_expect(expr)                                      \
   if (!(expr))                                                    \

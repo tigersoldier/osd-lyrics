@@ -22,7 +22,7 @@
 #include "ol_scroll_module.h"
 #include "ol_metadata.h"
 #include "ol_scroll_window.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_color.h"
 #include "ol_stock.h"
 #include "ol_image_button.h"
@@ -45,6 +45,24 @@ struct _OlScrollModule
   OlLrc *lrc;
   OlScrollWindow *scroll;
   guint message_timer;
+  GList *config_bindings;
+};
+
+typedef void (*_ConfigSetFunc) (OlConfigProxy *config,
+                                const gchar *key,
+                                OlScrollModule *module);
+
+struct _ConfigBinding
+{
+  OlScrollModule *module;
+  guint change_handler;
+  _ConfigSetFunc setter;
+};
+
+struct _ConfigMapping
+{
+  const gchar *key;
+  _ConfigSetFunc setter;
 };
 
 static OlScrollModule* ol_scroll_module_new (struct OlDisplayModule *module,
@@ -67,10 +85,6 @@ static void ol_scroll_module_set_last_message (struct OlDisplayModule *module,
                                                const char *message);
 static void ol_scroll_module_clear_message (struct OlDisplayModule *module);
 
-static void _config_change_handler (OlConfig *config,
-                                    gchar *group,
-                                    gchar *name,
-                                    gpointer userdata);
 static gboolean _window_configure_cb (GtkWidget *widget,
                                       GdkEventConfigure *event,
                                       gpointer userdata);
@@ -88,6 +102,49 @@ static void _seek_cb (OlScrollWindow *scroll,
 static void _scroll_cb (OlScrollWindow *osd,
                         GdkEventScroll *event,
                         gpointer data);
+/* config handlers */
+static struct _ConfigBinding *_bind_config (const char *key,
+                                            _ConfigSetFunc setter,
+                                            OlScrollModule *module);
+static void _unbind_config (struct _ConfigBinding *binding);
+static void _bind_all_config (OlScrollModule *osd);
+static void _config_changed_cb (OlConfigProxy *config,
+                                const char *key,
+                                struct _ConfigBinding *binding);
+/* config value handlers */
+static void _font_changed_cb (OlConfigProxy *config,
+                              const char *key,
+                              OlScrollModule *module);
+static void _size_changed_cb (OlConfigProxy *config,
+                              const char *key,
+                              OlScrollModule *module);
+static void _active_color_changed_cb (OlConfigProxy *config,
+                                      const char *key,
+                                      OlScrollModule *module);
+static void _inactive_color_changed_cb (OlConfigProxy *config,
+                                        const char *key,
+                                        OlScrollModule *module);
+static void _bg_color_changed_cb (OlConfigProxy *config,
+                                  const char *key,
+                                  OlScrollModule *module);
+static void _opacity_changed_cb (OlConfigProxy *config,
+                                 const char *key,
+                                 OlScrollModule *module);
+static void _scroll_mode_changed_cb (OlConfigProxy *config,
+                                     const char *key,
+                                     OlScrollModule *module);
+
+static struct _ConfigMapping _config_mapping[] = {
+  { "ScrollMode/width", _size_changed_cb },
+  { "ScrollMode/height", _size_changed_cb },
+  { "ScrollMode/font-name", _font_changed_cb },
+  { "ScrollMode/active-lrc-color", _active_color_changed_cb },
+  { "ScrollMode/inactive-lrc-color", _inactive_color_changed_cb },
+  { "ScrollMode/bg-color", _bg_color_changed_cb },
+  { "ScrollMode/opacity", _opacity_changed_cb },
+  { "ScrollMode/scroll-mode", _scroll_mode_changed_cb },
+};
+static gboolean _config_is_setting = FALSE;
 
 static gboolean
 _button_release_cb (OlScrollWindow *scroll,
@@ -133,11 +190,15 @@ _window_configure_cb (GtkWidget *widget,
   OlScrollModule *module = (OlScrollModule*) user_data;
   if (module == NULL)
     return FALSE;
+  if (_config_is_setting)
+    return FALSE;
+  _config_is_setting = TRUE;
   gint width, height;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   gtk_window_get_size (GTK_WINDOW (widget), &width, &height);
-  ol_config_set_int_no_emit (config, "ScrollMode", "width", width);
-  ol_config_set_int_no_emit (config, "ScrollMode", "height", height);
+  ol_config_proxy_set_int (config, "ScrollMode/width", width);
+  ol_config_proxy_set_int (config, "ScrollMode/height", height);
+  _config_is_setting = FALSE;
   return FALSE;
 }
 
@@ -170,83 +231,105 @@ static void _seek_cb (OlScrollWindow *scroll,
 }
 
 static void
-_config_change_handler (OlConfig *config,
-                        gchar *group,
-                        gchar *name,
-                        gpointer userdata)
+_config_changed_cb (OlConfigProxy *config,
+                    const char *key,
+                    struct _ConfigBinding *binding)
 {
-  ol_debugf ("%s:[%s]%s\n", __FUNCTION__, group, name);
-  static const char *GROUP_NAME = "ScrollMode";
-  OlScrollModule *module = (OlScrollModule*) userdata;
-  if (module == NULL)
+  if (_config_is_setting)
     return;
-  OlScrollWindow *window = module->scroll;
-  if (window == NULL || !OL_IS_SCROLL_WINDOW (window))
-    return;
-  if (strcmp (group, GROUP_NAME) != 0)
-    return;
-  if (strcmp (name, "font-name") == 0)
+  _config_is_setting = TRUE;
+  binding->setter (config, key, binding->module);
+  _config_is_setting = FALSE;
+}
+
+static void
+_font_changed_cb (OlConfigProxy *config,
+                  const char *key,
+                  OlScrollModule *module)
+{
+  gchar *font = ol_config_proxy_get_string (config, "ScrollMode/font-name");
+  ol_assert (font != NULL);
+  ol_scroll_window_set_font_name (module->scroll, font);
+  g_free (font);
+}
+
+static void
+_size_changed_cb (OlConfigProxy *config,
+                  const char *key,
+                  OlScrollModule *module)
+{
+  gint width = ol_config_proxy_get_int (config, "ScrollMode/width");
+  gint height = ol_config_proxy_get_int (config, "ScrollMode/height");
+  gtk_window_resize (GTK_WINDOW (module->scroll), width, height);
+}
+
+static void
+_active_color_changed_cb (OlConfigProxy *config,
+                          const char *key,
+                          OlScrollModule *module)
+{
+  char *color_str = ol_config_proxy_get_string (config, key);
+  if (color_str != NULL)
   {
-    gchar *font = ol_config_get_string (config, group, "font-name");
-    ol_assert (font != NULL);
-    ol_scroll_window_set_font_name (window, font);
-    g_free (font);
+    OlColor color = ol_color_from_string (color_str);
+    ol_scroll_window_set_active_color (module->scroll, color);
+    g_free (color_str);
   }
-  else if (strcmp (name, "width") == 0 ||
-           strcmp (name, "height") == 0)
+}
+
+static void
+_inactive_color_changed_cb (OlConfigProxy *config,
+                            const char *key,
+                            OlScrollModule *module)
+{
+  char *color_str = ol_config_proxy_get_string (config, key);
+  if (color_str != NULL)
   {
-    gint width = ol_config_get_int (config, group, "width");
-    gint height = ol_config_get_int (config, group, "height");
-    gtk_window_resize (GTK_WINDOW (window), width, height);
+    OlColor color = ol_color_from_string (color_str);
+    ol_scroll_window_set_inactive_color (module->scroll, color);
+    g_free (color_str);
   }
-  else if (strcmp (name, "active-lrc-color") == 0)
+}
+
+static void
+_bg_color_changed_cb (OlConfigProxy *config,
+                      const char *key,
+                      OlScrollModule *module)
+{
+  char *color_str = ol_config_proxy_get_string (config, key);
+  if (color_str != NULL)
   {
-    char *color_str = ol_config_get_string (config, group, name);
-    if (color_str != NULL)
+    OlColor color = ol_color_from_string (color_str);
+    ol_scroll_window_set_bg_color (module->scroll, color);
+    g_free (color_str);
+  }
+}
+
+static void
+_opacity_changed_cb (OlConfigProxy *config,
+                     const char *key,
+                     OlScrollModule *module)
+{
+
+  double opacity = ol_config_proxy_get_double (config, key);
+  ol_scroll_window_set_bg_opacity (module->scroll, opacity);
+}
+
+static void
+_scroll_mode_changed_cb (OlConfigProxy *config,
+                         const char *key,
+                         OlScrollModule *module)
+{
+  char *scroll_mode = ol_config_proxy_get_string (config, key);
+  if (scroll_mode != NULL)
+  {
+    enum OlScrollWindowScrollMode mode = OL_SCROLL_WINDOW_ALWAYS;
+    if (g_strcasecmp (scroll_mode, "lines") == 0)
     {
-      OlColor color = ol_color_from_string (color_str);
-      ol_scroll_window_set_active_color (window, color);
-      g_free (color_str);
+      mode = OL_SCROLL_WINDOW_BY_LINES;
     }
-  }
-  else if (strcmp (name, "inactive-lrc-color") == 0)
-  {
-    char *color_str = ol_config_get_string (config, group, name);
-    if (color_str != NULL)
-    {
-      OlColor color = ol_color_from_string (color_str);
-      ol_scroll_window_set_inactive_color (window, color);
-      g_free (color_str);
-    }
-  }
-  else if (strcmp (name, "bg-color") == 0)
-  {
-    char *color_str = ol_config_get_string (config, group, name);
-    if (color_str != NULL)
-    {
-      OlColor color = ol_color_from_string (color_str);
-      ol_scroll_window_set_bg_color (window, color);
-      g_free (color_str);
-    }
-  }
-  else if (strcmp (name, "opacity") == 0)
-  {
-    double opacity = ol_config_get_double (config, group, name);
-    ol_scroll_window_set_bg_opacity (window, opacity);
-  }
-  else if (strcmp (name, "scroll-mode") == 0)
-  {
-    char *scroll_mode = ol_config_get_string (config, group, name);
-    if (scroll_mode != NULL)
-    {
-      enum OlScrollWindowScrollMode mode = OL_SCROLL_WINDOW_ALWAYS;
-      if (g_strcasecmp (scroll_mode, "lines") == 0)
-      {
-        mode = OL_SCROLL_WINDOW_BY_LINES;
-      }
-      ol_scroll_window_set_scroll_mode (window, mode);
-      g_free (scroll_mode);
-    }
+    ol_scroll_window_set_scroll_mode (module->scroll, mode);
+    g_free (scroll_mode);
   }
 }
 
@@ -282,6 +365,48 @@ _toolbar_new (OlScrollModule *module)
 }
 
 static void
+_bind_all_config (OlScrollModule *module)
+{
+  int i;
+  for (i = 0; i < G_N_ELEMENTS (_config_mapping); i++)
+  {
+    struct _ConfigBinding *binding = _bind_config (_config_mapping[i].key,
+                                                   _config_mapping[i].setter,
+                                                   module);
+    module->config_bindings = g_list_prepend (module->config_bindings, binding);
+  }
+}
+
+static struct _ConfigBinding *
+_bind_config (const char *key,
+              _ConfigSetFunc setter,
+              OlScrollModule *module)
+{
+  ol_assert_ret (key != NULL, FALSE);
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  struct _ConfigBinding *binding = g_new (struct _ConfigBinding, 1);
+  gchar *signal = g_strdup_printf ("changed::%s", key);
+  binding->module = module;
+  binding->setter = setter;
+  binding->change_handler = g_signal_connect (config,
+                                              signal,
+                                              (GCallback) _config_changed_cb,
+                                              binding);
+  g_free (signal);
+  setter (config, key, module);
+  return binding;
+}
+
+static void
+_unbind_config (struct _ConfigBinding *binding)
+{
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  ol_assert (binding != NULL);
+  g_signal_handler_disconnect (config, binding->change_handler);
+  g_free (binding);
+}
+
+static void
 ol_scroll_module_init_scroll (OlScrollModule *module)
 {
   ol_assert (module != NULL);
@@ -298,14 +423,7 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
   GtkWidget *toolbar = _toolbar_new (module);
   ol_scroll_window_add_toolbar (module->scroll,
                                 toolbar);
-  OlConfig *config = ol_config_get_instance ();
-  _config_change_handler (config, "ScrollMode", "width", module);
-  _config_change_handler (config, "ScrollMode", "font-name", module);
-  _config_change_handler (config, "ScrollMode", "active-lrc-color", module);
-  _config_change_handler (config, "ScrollMode", "inactive-lrc-color", module);
-  _config_change_handler (config, "ScrollMode", "bg-color", module);
-  _config_change_handler (config, "ScrollMode", "opacity", module);
-  _config_change_handler (config, "ScrollMode", "scroll-mode", module);
+  _bind_all_config (module);
   g_signal_connect (module->scroll, "configure-event",
                     G_CALLBACK (_window_configure_cb),
                     module);
@@ -317,9 +435,6 @@ ol_scroll_module_init_scroll (OlScrollModule *module)
                     module);
   g_signal_connect (module->scroll, "seek",
                     G_CALLBACK (_seek_cb),
-                    module);
-  g_signal_connect (config, "changed",
-                    G_CALLBACK (_config_change_handler),
                     module);
   
   gtk_widget_show(GTK_WIDGET (module->scroll));
@@ -335,6 +450,7 @@ ol_scroll_module_new (struct OlDisplayModule *module,
   priv->scroll = NULL;
   priv->lrc = NULL;
   priv->metadata = ol_metadata_new ();
+  priv->config_bindings = NULL;
   ol_scroll_module_init_scroll (priv);
   g_signal_connect (player,
                     "track-changed",
@@ -355,10 +471,8 @@ ol_scroll_module_free (struct OlDisplayModule *module)
   ol_assert (module != NULL);
   OlScrollModule *priv = ol_display_module_get_data (module);
   ol_assert (priv != NULL);
-  OlConfig *config = ol_config_get_instance ();
-  g_signal_handlers_disconnect_by_func (config,
-                                        _config_change_handler,
-                                        priv);
+  if (_config_is_setting)
+    return;
   if (module == NULL)
     return;
   if (priv->scroll != NULL)
@@ -385,6 +499,12 @@ ol_scroll_module_free (struct OlDisplayModule *module)
   {
     g_object_unref (priv->lrc);
     priv->lrc = NULL;
+  }
+  while (priv->config_bindings != NULL)
+  {
+    _unbind_config (priv->config_bindings->data);
+    priv->config_bindings = g_list_delete_link (priv->config_bindings,
+                                                priv->config_bindings);
   }
   g_free (priv);
 }

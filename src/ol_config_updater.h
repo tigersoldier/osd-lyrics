@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier
+ * Copyright (C) 2011  Tiger Soldier
  *
  * This file is part of OSD Lyrics.
  * OSD Lyrics is free software: you can redistribute it and/or modify
@@ -16,24 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-#include "ol_commands.h"
-#include "ol_config_proxy.h"
-#include "ol_debug.h"
 
-void
-ol_osd_lock_unlock ()
-{
-  OlConfigProxy *config = ol_config_proxy_get_instance ();
-  ol_assert (config != NULL);
-  ol_config_proxy_set_bool (config, "OSD/locked",
-                            !ol_config_proxy_get_bool (config, "OSD/locked"));
-}
+#ifndef _OL_CONFIG_UPDATER_H_
+#define _OL_CONFIG_UPDATER_H_
 
-void
-ol_show_hide ()
-{
-  OlConfigProxy *config = ol_config_proxy_get_instance ();
-  ol_assert (config != NULL);
-  ol_config_proxy_set_bool (config, "General/visible",
-                            !ol_config_proxy_get_bool (config, "General/visible"));
-}
+void ol_config_update (void);
+
+#endif /* _OL_CONFIG_UPDATER_H_ */

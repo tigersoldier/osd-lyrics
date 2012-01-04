@@ -19,7 +19,7 @@
  */
 #include "ol_utils_network.h"
 #include <string.h>
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_debug.h"
 
 static enum OlProxyType _get_proxy_type_from_system ();
@@ -34,8 +34,8 @@ _get_proxy_type_from_system ()
 enum OlProxyType
 ol_get_proxy_type ()
 {
-  OlConfig *config = ol_config_get_instance ();
-  char *proxy_setting = ol_config_get_string (config, "Download", "proxy");
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  char *proxy_setting = ol_config_proxy_get_string (config, "Download/proxy");
   enum OlProxyType type = OL_PROXY_NONE;
   if (proxy_setting != NULL &&
       strcmp (proxy_setting, "system") == 0)
@@ -45,7 +45,7 @@ ol_get_proxy_type ()
   else if (proxy_setting != NULL &&
            strcmp (proxy_setting, "manual") == 0)
   {
-    char *proxy_type = ol_config_get_string (config, "Download", "proxy-type");
+    char *proxy_type = ol_config_proxy_get_string (config, "Download/proxy-type");
     if (proxy_type != NULL && strcmp (proxy_type, "socks4") == 0)
       type = OL_PROXY_SOCKS4;
     else if (proxy_type != NULL && strcmp (proxy_type, "socks5") == 0)
@@ -64,30 +64,30 @@ char *
 ol_get_proxy_host ()
 {
   /* TODO: detect GNOME or KDE */
-  OlConfig *config = ol_config_get_instance ();
-  return ol_config_get_string (config, "Download", "proxy-host");
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  return ol_config_proxy_get_string (config, "Download/proxy-host");
 }
 
 int
 ol_get_proxy_port ()
 {
   /* TODO: detect GNOME or KDE */
-  OlConfig *config = ol_config_get_instance ();
-  return ol_config_get_int (config, "Download", "proxy-port");
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  return ol_config_proxy_get_int (config, "Download/proxy-port");
 }
 
 char *
 ol_get_proxy_username ()
 {
   /* TODO: detect GNOME or KDE */
-  OlConfig *config = ol_config_get_instance ();
-  return ol_config_get_string (config, "Download", "proxy-username");
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  return ol_config_proxy_get_string (config, "Download/proxy-username");
 }
 
 char *
 ol_get_proxy_password ()
 {
   /* TODO: detect GNOME or KDE */
-  OlConfig *config = ol_config_get_instance ();
-  return ol_config_get_string (config, "Download", "proxy-password");
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  return ol_config_proxy_get_string (config, "Download/proxy-password");
 }

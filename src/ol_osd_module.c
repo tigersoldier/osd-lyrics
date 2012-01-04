@@ -19,7 +19,7 @@
  */
 #include <string.h>
 #include "ol_metadata.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_player.h"
 #include "ol_osd_window.h"
 #include "ol_osd_toolbar.h"
@@ -49,7 +49,24 @@ struct _OlOsdModule
   OlOsdWindow *window;
   OlOsdToolbar *toolbar;
   guint message_source;
-  gulong config_signal;
+  GList *config_bindings;
+};
+
+typedef void (*_ConfigSetFunc) (OlConfigProxy *config,
+                                const gchar *key,
+                                OlOsdModule *osd);
+
+struct _ConfigBinding
+{
+  OlOsdModule *osd;
+  guint change_handler;
+  _ConfigSetFunc setter;
+};
+
+struct _ConfigMapping
+{
+  const gchar *key;
+  _ConfigSetFunc setter;
 };
 
 /** interfaces */
@@ -90,10 +107,10 @@ static void ol_osd_module_clear_message (struct OlDisplayModule *module);
 static void ol_osd_module_update_next_lyric (OlOsdModule *osd,
                                              OlLrcIter *iter);
 static void ol_osd_module_init_osd (OlOsdModule *osd);
-static void config_change_handler (OlConfig *config,
-                                   gchar *group,
-                                   gchar *name,
-                                   gpointer userdata);
+static gboolean hide_message (OlOsdModule *osd);
+static void clear_lyrics (OlOsdModule *osd);
+
+/* OSD Window signal handlers */
 static void ol_osd_moved_handler (OlOsdWindow *osd, gpointer data);
 static void ol_osd_resize_handler (OlOsdWindow *osd, gpointer data);
 static gboolean ol_osd_button_release (OlOsdWindow *osd,
@@ -102,27 +119,100 @@ static gboolean ol_osd_button_release (OlOsdWindow *osd,
 static void ol_osd_scroll (OlOsdWindow *osd,
                            GdkEventScroll *event,
                            gpointer data);
-static gboolean hide_message (OlOsdModule *osd);
-static void clear_lyrics (OlOsdModule *osd);
+
+/* Config handlers */
+static struct _ConfigBinding *_bind_config (const char *key,
+                                            _ConfigSetFunc setter,
+                                            OlOsdModule *osd);
+static void _unbind_config (struct _ConfigBinding *binding);
+static void _bind_all_config (OlOsdModule *osd);
+static void _config_changed_cb (OlConfigProxy *config,
+                                const char *key,
+                                struct _ConfigBinding *binding);
+static void _visible_changed_cb (OlConfigProxy *config,
+                                 const char *key,
+                                 OlOsdModule *osd);
+static void _width_changed_cb (OlConfigProxy *config,
+                               const char *key,
+                               OlOsdModule *osd);
+static void _mode_changed_cb (OlConfigProxy *config,
+                              const char *key,
+                              OlOsdModule *osd);
+static void _locked_changed_cb (OlConfigProxy *config,
+                                const char *key,
+                                OlOsdModule *osd);
+static void _line_count_changed_cb (OlConfigProxy *config,
+                                    const char *key,
+                                    OlOsdModule *osd);
+static void _font_changed_cb (OlConfigProxy *config,
+                              const char *key,
+                              OlOsdModule *osd);
+static void _pos_changed_cb (OlConfigProxy *config,
+                             const char *key,
+                             OlOsdModule *osd);
+static void _lrc_align_changed_cb (OlConfigProxy *config,
+                                   const char *key,
+                                   OlOsdModule *osd);
+static void _active_color_changed_cb (OlConfigProxy *config,
+                                      const char *key,
+                                      OlOsdModule *osd);
+static void _inactive_color_changed_cb (OlConfigProxy *config,
+                                        const char *key,
+                                        OlOsdModule *osd);
+static void _translucent_changed_cb (OlConfigProxy *config,
+                                     const char *key,
+                                     OlOsdModule *osd);
+static void _outline_changed_cb (OlConfigProxy *config,
+                                 const char *key,
+                                 OlOsdModule *osd);
+static void _blur_changed_cb (OlConfigProxy *config,
+                              const char *key,
+                              OlOsdModule *osd);
+
+static struct _ConfigMapping _config_mapping[] = {
+  { ".visible", _visible_changed_cb },
+  { "OSD/width", _width_changed_cb },
+  { "OSD/osd-window-mode", _mode_changed_cb },
+  { "OSD/locked", _locked_changed_cb },
+  { "OSD/line-count", _line_count_changed_cb },
+  { "OSD/font-name", _font_changed_cb },
+  { "OSD/x", _pos_changed_cb },
+  { "OSD/y", _pos_changed_cb },
+  { "OSD/lrc-align-0", _lrc_align_changed_cb },
+  { "OSD/lrc-align-1", _lrc_align_changed_cb },
+  { "OSD/active-lrc-color", _active_color_changed_cb },
+  { "OSD/inactive-lrc-color", _inactive_color_changed_cb },
+  { "OSD/translucent-on-mouse-over", _translucent_changed_cb },
+  { "OSD/outline-width", _outline_changed_cb },
+  { "OSD/blur-radius", _blur_changed_cb },
+};
+
+static gboolean _config_is_setting = FALSE;
 
 static void
 ol_osd_moved_handler (OlOsdWindow *osd, gpointer data)
 {
   ol_log_func ();
-  OlConfig *config = ol_config_get_instance ();
+  if (_config_is_setting)
+    return;
+  _config_is_setting = TRUE;
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   int x, y;
   ol_osd_window_get_pos (osd, &x, &y);
-  ol_config_set_int_no_emit (config, "OSD", "x", x);
-  ol_config_set_int_no_emit (config, "OSD", "y", y);
+  ol_config_proxy_set_int (config, "OSD/x", x);
+  ol_config_proxy_set_int (config, "OSD/y", y);
+  _config_is_setting = FALSE;
 }
 
 static void
 ol_osd_resize_handler (OlOsdWindow *osd, gpointer data)
 {
   ol_log_func ();
-  OlConfig *config = ol_config_get_instance ();
+  if (_config_is_setting)
+    return;
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   int width = ol_osd_window_get_width (osd);
-  ol_config_set_int_no_emit (config, "OSD", "width", width);
+  ol_config_proxy_set_int (config, "OSD/width", width);
 }
 
 static gboolean
@@ -160,6 +250,168 @@ ol_osd_scroll (OlOsdWindow *osd,
 }
 
 static void
+_config_changed_cb (OlConfigProxy *config,
+                    const char *key,
+                    struct _ConfigBinding *binding)
+{
+  if (_config_is_setting)
+    return;
+  _config_is_setting = TRUE;
+  binding->setter (config, key, binding->osd);
+  _config_is_setting = FALSE;
+}
+
+static void
+_visible_changed_cb (OlConfigProxy *config,
+                     const char *key,
+                     OlOsdModule *osd)
+{
+  gboolean visible = ol_config_proxy_get_bool (config, key);
+  if (visible)
+  {
+    gtk_widget_show (GTK_WIDGET (osd->window));
+  }
+  else
+  {
+    gtk_widget_hide (GTK_WIDGET (osd->window));
+  }
+}
+
+static void
+_width_changed_cb (OlConfigProxy *config,
+                   const char *key,
+                   OlOsdModule *osd)
+{
+  ol_osd_window_set_width (osd->window,
+                           ol_config_proxy_get_int (config, key));
+}
+
+static void
+_mode_changed_cb (OlConfigProxy *config,
+                  const char *key,
+                  OlOsdModule *osd)
+{
+  gchar *mode = ol_config_proxy_get_string (config, key);
+  if (strcmp (mode, "dock") == 0)
+    ol_osd_window_set_mode (osd->window, OL_OSD_WINDOW_DOCK);
+  else
+    ol_osd_window_set_mode (osd->window, OL_OSD_WINDOW_NORMAL);
+  g_free (mode);
+}
+
+static void
+_locked_changed_cb (OlConfigProxy *config,
+                    const char *key,
+                    OlOsdModule *osd)
+{
+  ol_osd_window_set_locked (osd->window,
+                            ol_config_proxy_get_bool (config, key));
+}
+
+static void
+_line_count_changed_cb (OlConfigProxy *config,
+                        const char *key,
+                        OlOsdModule *osd)
+{
+  osd->line_count = ol_config_proxy_get_int (config, key);
+  ol_osd_window_set_line_count (osd->window, osd->line_count);
+}
+
+static void
+_font_changed_cb (OlConfigProxy *config,
+                  const char *key,
+                  OlOsdModule *osd)
+{
+  gchar *font = ol_config_proxy_get_string (config, key);
+  ol_assert (font != NULL);
+  ol_osd_window_set_font_name (osd->window, font);
+  g_free (font);
+}
+
+static void
+_pos_changed_cb (OlConfigProxy *config,
+                 const char *key,
+                 OlOsdModule *osd)
+{
+  ol_osd_window_move (osd->window,
+                      ol_config_proxy_get_int (config, "OSD/x"),
+                      ol_config_proxy_get_int (config, "OSD/y"));
+}
+
+static void
+_lrc_align_changed_cb (OlConfigProxy *config,
+                       const char *key,
+                       OlOsdModule *osd)
+{
+  int line = 0;
+  if (key[strlen (key) - 1] == '1')
+    line = 1;
+  ol_osd_window_set_line_alignment (osd->window, line,
+                                    ol_config_proxy_get_double (config, key));
+}
+
+static void
+_active_color_changed_cb (OlConfigProxy *config,
+                          const char *key,
+                          OlOsdModule *osd)
+{
+  gsize len;
+  char **color_str = ol_config_proxy_get_str_list (config, key, &len);
+  ol_debugf ("len = %d\n", (int)len);
+  if (len != OL_LINEAR_COLOR_COUNT) return;
+  if (color_str != NULL)
+  {
+    OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
+    ol_osd_window_set_active_colors (osd->window, colors[0], colors[1], colors[2]);
+    g_free (colors);
+    g_strfreev (color_str);
+  }
+}
+
+static void
+_inactive_color_changed_cb (OlConfigProxy *config,
+                            const char *key,
+                            OlOsdModule *osd)
+{
+  gsize len;
+  char **color_str = ol_config_proxy_get_str_list (config, key, &len);
+  ol_debugf ("len = %d\n", (int)len);
+  if (len != OL_LINEAR_COLOR_COUNT) return;
+  if (color_str != NULL)
+  {
+    OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
+    ol_osd_window_set_inactive_colors (osd->window, colors[0], colors[1], colors[2]);
+    g_free (colors);
+    g_strfreev (color_str);
+  }
+}
+
+static void
+_translucent_changed_cb (OlConfigProxy *config,
+                         const char *key,
+                         OlOsdModule *osd)
+{
+  ol_osd_window_set_translucent_on_mouse_over (osd->window,
+                                               ol_config_proxy_get_bool (config, key));
+}
+
+static void
+_outline_changed_cb (OlConfigProxy *config,
+                     const char *key,
+                     OlOsdModule *osd)
+{
+  ol_osd_window_set_outline_width (osd->window, ol_config_proxy_get_int (config, key));
+}
+
+static void
+_blur_changed_cb (OlConfigProxy *config,
+                  const char *key,
+                  OlOsdModule *osd)
+{
+  ol_osd_window_set_blur_radius (osd->window, ol_config_proxy_get_double (config, key));
+}
+
+static void
 ol_osd_module_update_next_lyric (OlOsdModule *osd, OlLrcIter *iter)
 {
   if (osd->line_count == 1)
@@ -191,121 +443,45 @@ ol_osd_module_update_next_lyric (OlOsdModule *osd, OlLrcIter *iter)
 }
 
 static void
-config_change_handler (OlConfig *config,
-                       gchar *group,
-                       gchar *name,
-                       gpointer userdata)
+_bind_all_config (OlOsdModule *osd)
 {
-  ol_debugf ("%s:[%s]%s\n", __FUNCTION__, group, name);
-  OlOsdModule *osd = (OlOsdModule*) userdata;
-  if (osd == NULL)
-    return;
-  OlOsdWindow *window = osd->window;
-  /* OlOsdWindow *osd = OL_OSD_WINDOW (userdata); */
-  if (window == NULL || !OL_IS_OSD_WINDOW (window))
-    return;
-  if (strcmp (group, "OSD") != 0)
-    return;
-  if (strcmp (name, "locked") == 0)
+  int i;
+  for (i = 0; i < G_N_ELEMENTS (_config_mapping); i++)
   {
-    ol_debugf ("  locked: %d\n", ol_config_get_bool (config, group, name));
-    ol_osd_window_set_locked (window,
-                              ol_config_get_bool (config, group, name));
+    struct _ConfigBinding *binding = _bind_config (_config_mapping[i].key,
+                                                   _config_mapping[i].setter,
+                                                   osd);
+    osd->config_bindings = g_list_prepend (osd->config_bindings, binding);
   }
-  else if (strcmp (name, "x") == 0 || strcmp (name, "y") == 0)
-  {
-    ol_osd_window_move (window,
-                        ol_config_get_int (config, group, "x"),
-                        ol_config_get_int (config, group, "y"));
-  }
-  else if (strcmp (name, "font-name") == 0)
-  {
-    gchar *font = ol_config_get_string (config, group, name);
-    ol_assert (font != NULL);
-    ol_osd_window_set_font_name (window, font);
-    g_free (font);
-  }
-  else if (strcmp (name, "width") == 0)
-  {
-    ol_osd_window_set_width (window,
-                             ol_config_get_int (config, group, name));
-  }
-  else if (strcmp (name, "lrc-align-0") == 0)
-  {
-    ol_osd_window_set_line_alignment (window, 0,
-                                      ol_config_get_double (config, group, name));
-  }
-  else if (strcmp (name, "lrc-align-1") == 0)
-  {
-    ol_osd_window_set_line_alignment (window, 1,
-                                      ol_config_get_double (config, group, name));
-  }
-  else if (strcmp (name, "active-lrc-color") == 0)
-  {
-    gsize len;
-    char **color_str = ol_config_get_str_list (config, group, name, &len);
-    ol_debugf ("len = %d\n", (int)len);
-    if (len != OL_LINEAR_COLOR_COUNT) return;
-    if (color_str != NULL)
-    {
-      OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
-      ol_osd_window_set_active_colors (window, colors[0], colors[1], colors[2]);
-      g_free (colors);
-      g_strfreev (color_str);
-    }
-  }
-  else if (strcmp (name, "inactive-lrc-color") == 0)
-  {
-    gsize len;
-    char **color_str = ol_config_get_str_list (config, group, name, &len);
-    ol_debugf ("len = %d\n", (int)len);
-    if (len != OL_LINEAR_COLOR_COUNT) return;
-    if (color_str != NULL)
-    {
-      OlColor *colors = ol_color_from_str_list ((const char**)color_str, NULL);
-      ol_osd_window_set_inactive_colors (window, colors[0], colors[1], colors[2]);
-      g_free (colors);
-      g_strfreev (color_str);
-    }
-  }
-  else if (strcmp (name, "line-count") == 0)
-  {
-    osd->line_count = ol_config_get_int (config, group, name);
-    ol_osd_window_set_line_count (window, osd->line_count);
-  }
-  else if (strcmp (name, "visible") == 0)
-  {
-    gboolean visible = ol_config_get_bool (config, group, name);
-    if (visible)
-    {
-      gtk_widget_show (GTK_WIDGET (osd->window));
-    }
-    else
-    {
-      gtk_widget_hide (GTK_WIDGET (osd->window));
-    }
-  }
-  else if (strcmp (name, "translucent-on-mouse-over") == 0)
-  {
-    ol_osd_window_set_translucent_on_mouse_over (window, ol_config_get_bool (config, "OSD", name));
-  }
-  else if (strcmp (name, "outline-width") == 0)
-  {
-    ol_osd_window_set_outline_width (window, ol_config_get_int (config, group, name));
-  }
-  else if (strcmp (name, "osd-window-mode") == 0)
-  {
-    gchar *mode = ol_config_get_string (config, group, name);
-    if (strcmp (mode, "dock") == 0)
-      ol_osd_window_set_mode (window, OL_OSD_WINDOW_DOCK);
-    else
-      ol_osd_window_set_mode (window, OL_OSD_WINDOW_NORMAL);
-    g_free (mode);
-  }
-  else if (strcmp (name, "blur-radius") == 0)
-  {
-    ol_osd_window_set_blur_radius (window, ol_config_get_double (config, group, name));
-  }
+}
+
+static struct _ConfigBinding *
+_bind_config (const char *key,
+              _ConfigSetFunc setter,
+              OlOsdModule *osd)
+{
+  ol_assert_ret (key != NULL, FALSE);
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  struct _ConfigBinding *binding = g_new (struct _ConfigBinding, 1);
+  gchar *signal = g_strdup_printf ("changed::%s", key);
+  binding->osd = osd;
+  binding->setter = setter;
+  binding->change_handler = g_signal_connect (config,
+                                              signal,
+                                              (GCallback) _config_changed_cb,
+                                              binding);
+  g_free (signal);
+  setter (config, key, osd);
+  return binding;
+}
+
+static void
+_unbind_config (struct _ConfigBinding *binding)
+{
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
+  ol_assert (binding != NULL);
+  g_signal_handler_disconnect (config, binding->change_handler);
+  g_free (binding);
 }
 
 static void
@@ -332,23 +508,11 @@ ol_osd_module_init_osd (OlOsdModule *osd)
     ol_osd_toolbar_set_player (osd->toolbar, osd->player);
   }
   osd->display = FALSE;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   ol_assert (config != NULL);
-  ol_config_set_bool (config, "OSD", "visible", TRUE);
-  config_change_handler (config, "OSD", "width", osd);
-  config_change_handler (config, "OSD", "osd-window-mode", osd);
-  config_change_handler (config, "OSD", "visible", osd);
-  config_change_handler (config, "OSD", "locked", osd);
-  config_change_handler (config, "OSD", "line-count", osd);
-  config_change_handler (config, "OSD", "font-name", osd);
-  config_change_handler (config, "OSD", "x", osd);
-  config_change_handler (config, "OSD", "lrc-align-0", osd);
-  config_change_handler (config, "OSD", "lrc-align-1", osd);
-  config_change_handler (config, "OSD", "active-lrc-color", osd);
-  config_change_handler (config, "OSD", "inactive-lrc-color", osd);
-  config_change_handler (config, "OSD", "translucent-on-mouse-over", osd);
-  config_change_handler (config, "OSD", "outline-width", osd);
-  config_change_handler (config, "OSD", "blur-radius", osd);
+  
+  _bind_all_config (osd);
+  
   g_signal_connect (osd->window, "moved",
                     G_CALLBACK (ol_osd_moved_handler),
                     NULL);
@@ -361,9 +525,6 @@ ol_osd_module_init_osd (OlOsdModule *osd)
   g_signal_connect (osd->window, "scroll-event",
                     G_CALLBACK (ol_osd_scroll),
                     NULL);
-  osd->config_signal = g_signal_connect (config, "changed",
-                                         G_CALLBACK (config_change_handler),
-                                         osd);
 }
 
 static OlOsdModule*
@@ -381,6 +542,7 @@ ol_osd_module_new (struct OlDisplayModule *module,
   data->current_line = 0;
   data->message_source = 0;
   data->metadata = ol_metadata_new ();
+  data->config_bindings = NULL;
   ol_osd_module_init_osd (data);
   g_signal_connect (player,
                     "track-changed",
@@ -427,8 +589,12 @@ ol_osd_module_free (struct OlDisplayModule *module)
                                         priv);
   g_object_unref (priv->player);
   priv->player = NULL;
-  OlConfig *config = ol_config_get_instance ();
-  g_signal_handler_disconnect (config, priv->config_signal);
+  while (priv->config_bindings != NULL)
+  {
+    _unbind_config (priv->config_bindings->data);
+    priv->config_bindings = g_list_delete_link (priv->config_bindings,
+                                                priv->config_bindings);
+  }
   g_free (priv);
 }
 

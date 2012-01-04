@@ -22,7 +22,7 @@
 #include "ol_option.h"
 #include "ol_about.h"
 #include "ol_gui.h"
-#include "ol_config.h"
+#include "ol_config_proxy.h"
 #include "ol_lrc_fetch.h"
 #include "ol_osd_render.h"
 #include "ol_path_pattern.h"     /* For getting preview for LRC filename */
@@ -40,8 +40,7 @@ typedef struct _OptionWidgets OptionWidgets;
 struct CheckButtonOptions
 {
   const char *widget_name;
-  const char *config_name;
-  const char *config_group;
+  const char *key;
 };
 
 struct RadioStringValues
@@ -52,8 +51,7 @@ struct RadioStringValues
 
 struct RadioStringOptions
 {
-  const char *config_name;
-  const char *config_group;
+  const char *key;
   struct RadioStringValues *values;
 };
 
@@ -68,15 +66,13 @@ struct TogglePropertyOptions
 struct WidgetConfigOptions
 {
   const char *widget_name;
-  const char *config_group;
-  const char *config_name;
+  const char *key;
 };
 
 struct ComboStringOptions
 {
   const char *widget_name;
-  const char *config_group;
-  const char *config_name;
+  const char *key;
   const char **values;
 };
 
@@ -87,9 +83,9 @@ enum {
 };
 
 static struct CheckButtonOptions check_button_options[] = {
-  {"download-first-lyric", "download-first-lyric", "Download"},
-  {"translucent-on-mouse-over", "translucent-on-mouse-over", "OSD"},
-  {"notify-music", "notify-music", "General"},
+  {"download-first-lyric", "Download/download-first-lyric"},
+  {"translucent-on-mouse-over", "OSD/translucent-on-mouse-over"},
+  {"notify-music", "General/notify-music"},
 };
 
 static struct RadioStringValues proxy_values[] = {
@@ -106,43 +102,43 @@ static struct RadioStringValues osd_window_mode_values[] = {
 };
 
 static struct RadioStringOptions radio_str_options[] = {
-  {.config_name = "proxy", .config_group = "Download", .values = proxy_values},
-  {.config_name = "osd-window-mode", .config_group = "OSD", .values = osd_window_mode_values},
+  {.key = "Download/proxy", .values = proxy_values},
+  {.key = "OSD/osd-window-mode", .values = osd_window_mode_values},
 };
 
 static struct WidgetConfigOptions entry_str_options[] = {
-  {.widget_name = "proxy-host", .config_group = "Download", .config_name = "proxy-host"},
-  {.widget_name = "proxy-username", .config_group = "Download", .config_name = "proxy-username"},
-  {.widget_name = "proxy-passwd", .config_group = "Download", .config_name = "proxy-password"},
+  {.widget_name = "proxy-host", .key = "Download/proxy-host"},
+  {.widget_name = "proxy-username", .key = "Download/proxy-username"},
+  {.widget_name = "proxy-passwd", .key = "Download/proxy-password"},
 };
 
 static struct WidgetConfigOptions spin_int_options[] = {
-  {.widget_name = "proxy-port", .config_group = "Download", .config_name = "proxy-port"},
-  {.widget_name = "outline-width", .config_group = "OSD", .config_name = "outline-width"},
+  {.widget_name = "proxy-port", .key = "Download/proxy-port"},
+  {.widget_name = "outline-width", .key = "OSD/outline-width"},
 };
 
 static struct WidgetConfigOptions scale_double_options[] = {
-  {.widget_name = "scroll-opacity", .config_group = "ScrollMode", .config_name = "opacity"},
-  {.widget_name = "osd-blur-radius", .config_group = "OSD", .config_name = "blur-radius"},
+  {.widget_name = "scroll-opacity", .key = "ScrollMode/opacity"},
+  {.widget_name = "osd-blur-radius", .key = "OSD/blur-radius"},
 };
 
 static struct WidgetConfigOptions color_str_options[] = {
-  {.widget_name = "scroll-bg-color", .config_group = "ScrollMode", .config_name = "bg-color"},
-  {.widget_name = "scroll-active-lrc-color", .config_group = "ScrollMode", .config_name = "active-lrc-color"},
-  {.widget_name = "scroll-inactive-lrc-color", .config_group = "ScrollMode", .config_name = "inactive-lrc-color"},
+  {.widget_name = "scroll-bg-color", .key = "ScrollMode/bg-color"},
+  {.widget_name = "scroll-active-lrc-color", .key = "ScrollMode/active-lrc-color"},
+  {.widget_name = "scroll-inactive-lrc-color", .key = "ScrollMode/inactive-lrc-color"},
 };
 
 static struct WidgetConfigOptions font_str_options[] = {
-  {.widget_name = "scroll-font", .config_group = "ScrollMode", .config_name = "font-name"},
-  {.widget_name = "osd-font", .config_group = "OSD", .config_name = "font-name"},
+  {.widget_name = "scroll-font", .key = "ScrollMode/font-name"},
+  {.widget_name = "osd-font", .key = "OSD/font-name"},
 };
 
 static const char *proxy_types[] = {"http", "socks4", "socks5", NULL};
 static const char *scroll_modes[] = {"always", "lines", NULL};
 
 static struct ComboStringOptions combo_str_options[] = {
-  {.widget_name = "proxy-type", .config_group = "Download", .config_name = "proxy-type", .values = proxy_types},
-  {.widget_name = "scroll-scroll-mode", .config_group = "ScrollMode", .config_name = "scroll-mode", .values = scroll_modes},
+  {.widget_name = "proxy-type", .key = "Download/proxy-type", .values = proxy_types},
+  {.widget_name = "scroll-scroll-mode", .key = "ScrollMode/scroll-mode", .values = scroll_modes},
 };
 
 static struct _OptionWidgets
@@ -303,10 +299,9 @@ ol_option_display_mode_changed (GtkToggleButton *togglebutton,
     const char *mode = "OSD";
     if (GTK_WIDGET(togglebutton) == options.display_mode_scroll)
       mode = "scroll";
-    ol_config_set_string (ol_config_get_instance (),
-                          "General",
-                          "display-mode",
-                          mode);
+    ol_config_proxy_set_string (ol_config_proxy_get_instance (),
+                                "General/display-mode",
+                                mode);
   }
 }
 
@@ -358,9 +353,8 @@ ol_option_save_startup_player ()
 {
   if (options.startup_player != NULL)
   {
-    ol_config_set_string (ol_config_get_instance (),
-                          "General",
-                          "startup-player",
+    ol_config_proxy_set_string (ol_config_proxy_get_instance (),
+                          "General/startup-player",
                           gtk_entry_get_text (GTK_ENTRY (options.startup_player)));
   }
   return FALSE;
@@ -377,9 +371,8 @@ ol_option_osd_line_count_changed (GtkToggleButton *togglebutton,
     for (i = 0; i < 2; i++)
       if (GTK_WIDGET (togglebutton) == options.line_count[i])
       {
-        ol_config_set_int (ol_config_get_instance (),
-                           "OSD",
-                           "line-count", i + 1);
+        ol_config_proxy_set_int (ol_config_proxy_get_instance (),
+                                 "OSD/line-count", i + 1);
         return;
       }
 }
@@ -400,12 +393,11 @@ ol_option_osd_alignment_changed (GtkRange *range,
   {
     if (GTK_WIDGET (range) == options.lrc_align[i])
     {
-      char buffer[20];
-      sprintf (buffer, "lrc-align-%d", i);
-      ol_config_set_double (ol_config_get_instance (),
-                            "OSD",
-                            buffer, 
-                            gtk_range_get_value (range));
+      char buffer[24];
+      sprintf (buffer, "OSD/lrc-align-%d", i);
+      ol_config_proxy_set_double (ol_config_proxy_get_instance (),
+                                  buffer, 
+                                  gtk_range_get_value (range));
 
     }
   }
@@ -416,11 +408,11 @@ ol_option_osd_color_changed (GtkColorButton *widget,
                              gpointer user_data)
 {
   int i;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   GtkWidget **color_widgets[] =
     {options.active_lrc_color, options.inactive_lrc_color};
   char *color_props[] =
-    {"active-lrc-color", "inactive-lrc-color"};
+    {"OSD/active-lrc-color", "OSD/inactive-lrc-color"};
   int k;
   OlColor colors[OL_LINEAR_COLOR_COUNT];
   for (k = 0; k < 2; k++)
@@ -436,8 +428,7 @@ ol_option_osd_color_changed (GtkColorButton *widget,
       }
     }
     char **lrc_color_str = ol_color_to_str_list (colors, OL_LINEAR_COLOR_COUNT);
-    ol_config_set_str_list (config,
-                            "OSD",
+    ol_config_proxy_set_str_list (config,
                             color_props[k],
                             (const char**)lrc_color_str,
                             OL_LINEAR_COLOR_COUNT);
@@ -449,18 +440,17 @@ ol_option_osd_color_changed (GtkColorButton *widget,
 void
 ol_option_save_path_pattern ()
 {
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (options.lrc_path != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
     char **list = get_list_content (view);
     if (list)
     {
-      ol_config_set_str_list (config,
-                              "General",
-                              "lrc-path",
-                              (const char **)list,
-                              g_strv_length (list));
+      ol_config_proxy_set_str_list (config,
+                                    "General/lrc-path",
+                                    (const char **)list,
+                                    g_strv_length (list));
       g_strfreev (list);
     }
   }
@@ -469,18 +459,17 @@ ol_option_save_path_pattern ()
 void
 ol_option_save_file_pattern ()
 {
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (options.lrc_filename != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_filename);
     char **list = get_list_content (view);
     if (list != NULL)
     {
-      ol_config_set_str_list (config,
-                              "General",
-                              "lrc-filename",
-                              (const char **)list,
-                              g_strv_length (list));
+      ol_config_proxy_set_str_list (config,
+                                    "General/lrc-filename",
+                                    (const char **)list,
+                                    g_strv_length (list));
       g_strfreev (list);
     }
   }
@@ -490,15 +479,14 @@ ol_option_save_file_pattern ()
 void
 ol_option_download_engine_changed (GtkTreeModel *model)
 {
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   char **engine_names = ol_lrc_engine_list_get_engine_names (GTK_TREE_VIEW (options.download_engine));
   if (engine_names != NULL)
   {
-    ol_config_set_str_list (config,
-                            "Download",
-                            "download-engine",
-                            (const char**)engine_names,
-                            g_strv_length (engine_names));
+    ol_config_proxy_set_str_list (config,
+                                  "Download/download-engine",
+                                  (const char**)engine_names,
+                                  g_strv_length (engine_names));
     g_strfreev (engine_names);
   }
   else
@@ -711,7 +699,7 @@ static void
 load_osd ()
 {
   int i;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   ol_assert (config != NULL);
   /* Lrc align */
   for (i = 0; i < 2; i++)
@@ -719,24 +707,23 @@ load_osd ()
     GtkRange *lrc_align = GTK_RANGE (options.lrc_align[i]);
     if (lrc_align != NULL)
     {
-      char buffer[20];
-      sprintf (buffer, "lrc-align-%d", i);
+      char buffer[24];
+      sprintf (buffer, "OSD/lrc-align-%d", i);
       gtk_range_set_value (lrc_align,
-                           ol_config_get_double (config, "OSD", buffer));
+                           ol_config_proxy_get_double (config, buffer));
     }
   }
   /* [In]Active lrc color */
   GtkWidget **color_widgets[] =
     {options.active_lrc_color, options.inactive_lrc_color};
   char *color_props[] =
-    {"active-lrc-color", "inactive-lrc-color"};
+    {"OSD/active-lrc-color", "OSD/inactive-lrc-color"};
   int k;
   for (k = 0; k < 2; k++)
   {
-    char ** lrc_color_str = ol_config_get_str_list (config,
-                                                    "OSD",
-                                                    color_props[k],
-                                                    NULL);
+    char ** lrc_color_str = ol_config_proxy_get_str_list (config,
+                                                          color_props[k],
+                                                          NULL);
     for (i = 0; i < OL_LINEAR_COLOR_COUNT; i++)
     {
       if (color_widgets[k][i] != NULL)
@@ -749,7 +736,7 @@ load_osd ()
     g_strfreev (lrc_color_str);
   }
   /* OSD Line count */
-  int line_count = ol_config_get_int (config, "OSD", "line-count");
+  int line_count = ol_config_proxy_get_int (config, "OSD/line-count");
   if (line_count < 1) line_count = 1;
   if (line_count > 2) line_count = 2;
   line_count--;
@@ -908,7 +895,7 @@ radio_str_changed (GtkToggleButton *button,
   ol_assert (option != NULL);
   if (!gtk_toggle_button_get_active (button))
     return;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   const char *config_value = NULL;
   struct RadioStringValues *value = option->values;
   for (; value->widget_name != NULL && value->value != NULL; value++)
@@ -922,10 +909,9 @@ radio_str_changed (GtkToggleButton *button,
   }
   if (config_value != NULL)
   {
-    ol_config_set_string (config,
-                          option->config_group,
-                          option->config_name,
-                          config_value);
+    ol_config_proxy_set_string (config,
+                                option->key,
+                                config_value);
   }
 }
 
@@ -935,12 +921,11 @@ entry_str_changed (GtkEditable *widget,
 {
   ol_assert (GTK_IS_EDITABLE (widget));
   ol_assert (option != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   char *value = gtk_editable_get_chars (widget, 0, -1);
-  ol_config_set_string (config,
-                        option->config_group,
-                        option->config_name,
-                        value);
+  ol_config_proxy_set_string (config,
+                              option->key,
+                              value);
   g_free (value);
 }
 
@@ -950,12 +935,11 @@ spin_int_changed (GtkSpinButton *widget,
 {
   ol_assert (GTK_IS_SPIN_BUTTON (widget));
   ol_assert (option != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   int value = gtk_spin_button_get_value (widget);
-  ol_config_set_int (config,
-                     option->config_group,
-                     option->config_name,
-                     value);
+  ol_config_proxy_set_int (config,
+                           option->key,
+                           value);
 }
 
 static void
@@ -964,12 +948,11 @@ scale_double_changed (GtkScale *widget,
 {
   ol_assert (GTK_IS_RANGE (widget));
   ol_assert (option != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   double value = gtk_range_get_value (GTK_RANGE (widget));
-  ol_config_set_double (config,
-                        option->config_group,
-                        option->config_name,
-                        value);
+  ol_config_proxy_set_double (config,
+                              option->key,
+                              value);
 }
 
 static void
@@ -978,15 +961,14 @@ color_str_changed (GtkColorButton *widget,
 {
   ol_assert (GTK_IS_COLOR_BUTTON (widget));
   ol_assert (option != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   GdkColor gcolor;
   gtk_color_button_get_color (GTK_COLOR_BUTTON (widget), &gcolor);
   OlColor color = ol_color_from_gdk_color (gcolor);
   const char *value = ol_color_to_string (color);
-  ol_config_set_string (config,
-                        option->config_group,
-                        option->config_name,
-                        value);
+  ol_config_proxy_set_string (config,
+                              option->key,
+                              value);
 }
 
 static void
@@ -995,12 +977,11 @@ font_str_changed (GtkFontButton *widget,
 {
   ol_assert (GTK_IS_FONT_BUTTON (widget));
   ol_assert (option != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   const char *value = gtk_font_button_get_font_name (GTK_FONT_BUTTON (widget));
-  ol_config_set_string (config,
-                        option->config_group,
-                        option->config_name,
-                        value);
+  ol_config_proxy_set_string (config,
+                              option->key,
+                              value);
 }
 
 static void
@@ -1009,13 +990,12 @@ combo_str_changed (GtkComboBox *widget,
 {
   ol_assert (GTK_IS_COMBO_BOX (widget));
   ol_assert (option != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   int index = gtk_combo_box_get_active (widget);
   if (index < g_strv_length ((char**)option->values))
-    ol_config_set_string (config,
-                          option->config_group,
-                          option->config_name,
-                          option->values[index]);
+    ol_config_proxy_set_string (config,
+                                option->key,
+                                option->values[index]);
   else
     ol_errorf ("Index of combobox %s out of range. Value is %d\n",
                option->widget_name, index);
@@ -1025,7 +1005,7 @@ static void
 load_check_button_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (check_button_options); i++)
@@ -1034,9 +1014,8 @@ load_check_button_options ()
     if (check_button_options != NULL)
     {
       gtk_toggle_button_set_active (check_button, 
-                                    ol_config_get_bool (config,
-                                                        check_button_options[i].config_group,
-                                                        check_button_options[i].config_name));
+                                    ol_config_proxy_get_bool (config,
+                                                              check_button_options[i].key));
 
     }
   }
@@ -1046,28 +1025,26 @@ static void
 save_check_button_option (struct CheckButtonOptions* opt)
 {
   ol_assert (opt != NULL);
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   GtkToggleButton *check_button = GTK_TOGGLE_BUTTON (ol_gui_get_widget (opt->widget_name));
-  ol_config_set_bool (config,
-                      opt->config_group,
-                      opt->config_name,
-                      gtk_toggle_button_get_active (check_button));
+  ol_config_proxy_set_bool (config,
+                            opt->key,
+                            gtk_toggle_button_get_active (check_button));
 }
 
 static void
 load_radio_str_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (radio_str_options); i++)
   {
-    char *config_value = ol_config_get_string (config,
-                                               radio_str_options[i].config_group,
-                                               radio_str_options[i].config_name);
+    char *config_value = ol_config_proxy_get_string (config,
+                                                     radio_str_options[i].key);
     if (config_value == NULL)
       continue;
     struct RadioStringValues *value = radio_str_options[i].values;
@@ -1091,14 +1068,13 @@ static void
 load_entry_str_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (entry_str_options); i++)
   {
-    char *config_value = ol_config_get_string (config,
-                                               entry_str_options[i].config_group,
-                                               entry_str_options[i].config_name);
+    char *config_value = ol_config_proxy_get_string (config,
+                                                     entry_str_options[i].key);
     if (config_value == NULL)
       continue;
     GtkEntry *entry = GTK_ENTRY (ol_gui_get_widget (entry_str_options[i].widget_name)); 
@@ -1114,14 +1090,13 @@ static void
 load_spin_int_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (spin_int_options); i++)
   {
-    int config_value = ol_config_get_int (config,
-                                          spin_int_options[i].config_group,
-                                          spin_int_options[i].config_name);
+    int config_value = ol_config_proxy_get_int (config,
+                                                spin_int_options[i].key);
     GtkSpinButton *spin = GTK_SPIN_BUTTON (ol_gui_get_widget (spin_int_options[i].widget_name)); 
     if (spin != NULL)
     {
@@ -1134,14 +1109,13 @@ static void
 load_scale_double_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (scale_double_options); i++)
   {
-    double config_value = ol_config_get_double (config,
-                                                scale_double_options[i].config_group,
-                                                scale_double_options[i].config_name);
+    double config_value = ol_config_proxy_get_double (config,
+                                                      scale_double_options[i].key);
     GtkWidget *range = ol_gui_get_widget (scale_double_options[i].widget_name);
     if (GTK_IS_RANGE (range))
     {
@@ -1154,14 +1128,13 @@ static void
 load_color_str_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (color_str_options); i++)
   {
-    char* config_value = ol_config_get_string (config,
-                                               color_str_options[i].config_group,
-                                               color_str_options[i].config_name);
+    char* config_value = ol_config_proxy_get_string (config,
+                                                     color_str_options[i].key);
     if (config_value == NULL)
       continue;
     GtkWidget *button = ol_gui_get_widget (color_str_options[i].widget_name);
@@ -1179,14 +1152,13 @@ static void
 load_font_str_options ()
 {
   int i = 0;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config == NULL)
     return;
   for (i = 0; i < G_N_ELEMENTS (font_str_options); i++)
   {
-    char* config_value = ol_config_get_string (config,
-                                               font_str_options[i].config_group,
-                                               font_str_options[i].config_name);
+    char* config_value = ol_config_proxy_get_string (config,
+                                                     font_str_options[i].key);
     if (config_value == NULL)
       continue;
     GtkWidget *button = ol_gui_get_widget (font_str_options[i].widget_name);
@@ -1205,12 +1177,11 @@ load_combo_str_options ()
   int index;
   const char **combo_value;
   GtkComboBox *combo;
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   for (i = 0; i < G_N_ELEMENTS (combo_str_options); i++)
   {
-    char *config_value = ol_config_get_string (config,
-                                               combo_str_options[i].config_group,
-                                               combo_str_options[i].config_name);
+    char *config_value = ol_config_proxy_get_string (config,
+                                                     combo_str_options[i].key);
     if (config_value == NULL)
       continue;
     combo = GTK_COMBO_BOX (ol_gui_get_widget (combo_str_options[i].widget_name));
@@ -1232,12 +1203,11 @@ load_combo_str_options ()
 static void
 load_download ()
 {
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   /* Download engine */
-  char **download_engines = ol_config_get_str_list (config,
-                                                    "Download",
-                                                    "download-engine",
-                                                    NULL);
+  char **download_engines = ol_config_proxy_get_str_list (config,
+                                                          "Download/download-engine",
+                                                          NULL);
   _disconnect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
                                        ol_option_download_engine_changed);
   ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (options.download_engine),
@@ -1295,14 +1265,13 @@ set_list_content (GtkTreeView *view, char **list)
 static void
 load_general ()
 {
-  OlConfig *config = ol_config_get_instance ();
+  OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (options.lrc_path != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_path);
-    char **list = ol_config_get_str_list (config,
-                                          "General",
-                                          "lrc-path",
-                                          NULL);
+    char **list = ol_config_proxy_get_str_list (config,
+                                                "General/lrc-path",
+                                                NULL);
     if (list != NULL)
     {
       set_list_content (view, list);
@@ -1312,10 +1281,9 @@ load_general ()
   if (options.lrc_filename != NULL)
   {
     GtkTreeView *view = GTK_TREE_VIEW (options.lrc_filename);
-    char **list = ol_config_get_str_list (config,
-                                          "General",
-                                          "lrc-filename",
-                                          NULL);
+    char **list = ol_config_proxy_get_str_list (config,
+                                                "General/lrc-filename",
+                                                NULL);
     if (list != NULL)
     {
       set_list_content (view, list);
@@ -1323,9 +1291,8 @@ load_general ()
     }
   }
   /* Startup player */
-  char *player_cmd = ol_config_get_string (config,
-                                           "General",
-                                           "startup-player");
+  char *player_cmd = ol_config_proxy_get_string (config,
+                                                 "General/startup-player");
    gboolean startup_custom = TRUE;
    if (options.startup_player_cb != NULL)
    {
@@ -1370,9 +1337,8 @@ load_general ()
   }
   g_free (player_cmd);
 
-  char *display_mode = ol_config_get_string (config,
-                                             "General",
-                                             "display-mode");
+  char *display_mode = ol_config_proxy_get_string (config,
+                                                   "General/display-mode");
   if (options.display_mode_scroll != NULL &&
       ol_stricmp (display_mode, "scroll", -1) == 0)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (options.display_mode_scroll),
