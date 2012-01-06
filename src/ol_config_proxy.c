@@ -463,8 +463,13 @@ ol_config_proxy_get (OlConfigProxy *config,
   GVariant *value = NULL;
   OlConfigProxyPrivate *priv = OL_CONFIG_PROXY_GET_PRIVATE (config);
   if (key[0] == '.')
+  {
     value = g_hash_table_lookup (priv->temp_values, key);
+    if (value)
+      g_variant_ref (value);
+  }
   else
+  {
     value = g_dbus_proxy_call_sync (G_DBUS_PROXY (config),
                                     method,
                                     g_variant_new ("(s)", key),
@@ -472,6 +477,7 @@ ol_config_proxy_get (OlConfigProxy *config,
                                     -1,   /* timeout_secs */
                                     NULL, /* cancellable */
                                     &error);
+  }
   if (!value)
   {
     if (g_dbus_error_is_remote_error (error))
