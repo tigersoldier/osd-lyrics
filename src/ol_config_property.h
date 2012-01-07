@@ -109,7 +109,7 @@ static const OlConfigStrListValue config_str_list[] = {
 static const OlConfigBoolValue config_bool[] = {
   {"OSD/locked", TRUE},
   {".visible", TRUE},
-  {"OSD/translucent-on-mouse-over", FALSE},
+  {"OSD/translucent-on-mouse-over", TRUE},
   {"Download/download-first-lyric", FALSE},
   {"General/notify-music", TRUE},
 };
