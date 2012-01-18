@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "ol_lrc.h"
 #include "ol_test_util.h"
@@ -15,9 +16,20 @@ void prepare_data ()
 {
   char cmd[BUFLEN];
   snprintf (cmd, BUFLEN, "cp %s %s", FILENAME, TMPPATH);
-  system (cmd);
+  int ret;
+  ret = system (cmd);
+  if (ret == -1 || WEXITSTATUS (ret) != 0)
+  {
+    fprintf (stderr, "Faild to prepare data\n");
+    exit (1);
+  }
   snprintf (cmd, BUFLEN, "cp %s %s", GBK_FILENAME, TMPPATH);
-  system (cmd);
+  ret = system (cmd);
+  if (ret == -1 || WEXITSTATUS (ret) != 0)
+  {
+    fprintf (stderr, "Faild to prepare data\n");
+    exit (1);
+  }
 }
 
 void basic_test ()
@@ -48,6 +60,8 @@ void gbk_test ()
   prepare_data ();
   struct OlLrc *lrc = ol_lrc_new (WORK_FILE);
   struct OlLrc *gbklrc = ol_lrc_new (WORK_GBK);
+  ol_lrc_free (lrc);
+  ol_lrc_free (gbklrc);
 }
 
 void offset_test ()

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_player.h"
 
@@ -19,14 +20,14 @@ void get_music_info ()
     controller = NULL;
     return;
   }
-  guint time = 0;
+  gint time = 0;
   if (!controller->get_played_time (&time))
   {
     printf ("get ellasped time failed\n");
     controller = NULL;
     return;
   }
-  guint duration = 0;
+  gint duration = 0;
   if (!controller->get_music_length (&duration))
   {
     printf ("get duration failed\n");

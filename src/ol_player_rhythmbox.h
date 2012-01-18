@@ -17,16 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-#ifndef _OL_LRC_FETCH_SOGOU_H_
-#define _OL_LRC_FETCH_SOGOU_H_
+#ifndef _OL_PLAYER_RHYTHMBOX_H_
+#define _OL_PLAYER_RHYTHMBOX_H_
 
-#include "ol_lrc_fetch.h"
+#include "ol_player.h"
 
 /** 
- * @brief Returns the fetch engine of Sogou
+ * @brief Creates a controller of Rhythmbox
  * 
- * @return 
+ * @return The controller of Rhythmbox. It's allocated by g_new, so use g_free to free the memory
  */
-OlLrcFetchEngine *ol_lrc_fetch_sogou_engine ();
+struct OlPlayer* ol_player_rhythmbox_get ();
 
-#endif /* _OL_LRC_FETCH_SOGOU_H_ */
+#endif /* _OL_PLAYER_RHYTHMBOX_H_ */

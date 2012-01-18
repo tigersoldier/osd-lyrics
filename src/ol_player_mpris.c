@@ -28,7 +28,7 @@
 #include "ol_utils_dbus.h"
 #include "ol_elapse_emulator.h"
 #include "ol_music_info.h"
-#include "ol_player_utils.h"
+#include "ol_app_info.h"
 #include "ol_debug.h"
 
 enum MprisCaps {
@@ -47,7 +47,7 @@ struct OlPlayerMpris
   gchar *bus_name;
   gchar *icon_name;
   DBusGProxy *proxy;
-  DBusGProxyCall *call_id;
+  DBusGProxyCall *position_call_id;
   DBusGProxyCall *metadata_call_id;
   DBusGProxyCall *status_call_id;
   OlElapseEmulator *elapse_emulator;
@@ -68,16 +68,17 @@ struct KnownPlayers
   const char *bus_name;
   const char *icon_name;
   gboolean time_in_ms;
+  gboolean use_desktop_cmd;
 };
 
 static struct KnownPlayers KNOWN_PLAYERS[] = {
-  {"Amarok 2", "amarok", "org.kde.amarok", "amarok", FALSE}, /* Supported in 2.4 */
-  {"Audacious 2", "audacious2", "org.mpris.audacious", "audacious2", TRUE},
-  {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE},
-  {"Decibel", "decibel-audio-player", "org.mpris.dap", "decibel-audio-player", FALSE},
-  {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", TRUE},
-  {"Qmmp", "qmmp", "org.mpris.qmmp", "qmmp", FALSE},
-  {"VLC", "vlc --control dbus", "org.mpris.vlc", "vlc", TRUE},
+  {"Amarok 2", "amarok", "org.kde.amarok", "amarok", FALSE, TRUE}, /* Supported in 2.4 */
+  {NULL, "audacious", "org.mpris.audacious", NULL, TRUE, TRUE},
+  {"Clementine", "clementine", "org.mpris.clementine", "clementine", TRUE, TRUE},
+  {"Decibel", "decibel-audio-player", "org.mpris.dap", "decibel-audio-player", FALSE, TRUE},
+  {"Guayadeque", "guayadeque", "org.mpris.guayadeque", "guayadeque", FALSE, TRUE},
+  {"Qmmp", "qmmp", "org.mpris.qmmp", "qmmp", FALSE, TRUE},
+  {"VLC", "vlc --control dbus", "org.mpris.vlc", "vlc", TRUE, FALSE},
 };
 
 static const char *MPRIS_PREFIX = "org.mpris.";
@@ -165,6 +166,7 @@ _get_metadata_cb (DBusGProxy *proxy,
         sscanf (track_number_str, "%d", &mpris->track_number);
       else
         mpris->track_number = ol_get_int_from_hash_table (data_list, "tracknumber");
+      mpris->music_len = ol_get_uint_from_hash_table (data_list, "mtime");
       g_hash_table_destroy (data_list);
     }
   }
@@ -212,7 +214,7 @@ _get_played_time_cb (DBusGProxy *proxy,
                      DBusGProxyCall *call_id,
                      struct OlPlayerMpris *mpris)
 {
-    mpris->call_id =NULL;
+    mpris->position_call_id =NULL;
     GError *error = NULL;
     dbus_g_proxy_end_call (proxy,
                            call_id,
@@ -232,8 +234,8 @@ _get_played_time (int *played_time)
   ol_assert_ret (played_time != NULL, FALSE);
   if (mpris == NULL)
     return FALSE;
-  if (mpris->call_id == NULL)
-    mpris->call_id = dbus_g_proxy_begin_call (mpris->proxy,
+  if (mpris->position_call_id == NULL)
+    mpris->position_call_id = dbus_g_proxy_begin_call (mpris->proxy,
                                               GET_POSITION_METHOD,
                                               (DBusGProxyCallNotify)_get_played_time_cb,
                                               mpris,
@@ -513,6 +515,12 @@ _seek (int pos_ms)
 {
   if (mpris == NULL)
     return FALSE;
+  mpris->played_time = pos_ms;
+  if (mpris->position_call_id)
+  {
+    dbus_g_proxy_cancel_call (mpris->proxy, mpris->position_call_id);
+    mpris->position_call_id = 0;
+  }
   return dbus_g_proxy_call (mpris->proxy,
                             SET_POSITION_METHOD,
                             NULL,
@@ -545,9 +553,29 @@ _get_app_info_list (void)
   GList *ret = NULL;
   int i;
   for (i = 0; i < G_N_ELEMENTS (KNOWN_PLAYERS); i++)
-    ret = ol_player_app_info_list_from_cmdline (ret,
-                                                KNOWN_PLAYERS[i].name,
-                                                KNOWN_PLAYERS[i].command);
+  {
+    GError *error = NULL;
+    enum OlAppInfoFlags flags = OL_APP_INFO_USE_DESKTOP_ICON |
+      OL_APP_INFO_USE_DESKTOP_NAME;
+    if (KNOWN_PLAYERS[i].use_desktop_cmd)
+      flags |= OL_APP_INFO_USE_DESKTOP_CMDLINE;
+    OlAppInfo *info = ol_app_info_new (KNOWN_PLAYERS[i].command,
+                                       KNOWN_PLAYERS[i].name,
+                                       KNOWN_PLAYERS[i].icon_name,
+                                       flags |
+                                       OL_APP_INFO_WITH_PREFIX,
+                                       &error);
+    if (!info)
+    {
+      ol_errorf ("Cannot get player app info: %s\n",
+                 error->message);
+      g_error_free (error);
+    }
+    else
+    {
+      ret = g_list_prepend (ret, info);
+    }
+  }
   return ret;
 }
 

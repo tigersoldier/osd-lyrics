@@ -8,6 +8,7 @@
  * 
  */
 #include <assert.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "ol_config.h"
 
@@ -76,4 +77,5 @@ main (int argc, char **argv)
   test_singleton ();
   test_default_value ();
   test_set_value ();
+  return 0;
 }

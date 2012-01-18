@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-03 10:49+0800\n"
+"POT-Creation-Date: 2011-11-17 23:18+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,34 +35,34 @@ msgstr ""
 msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:143
+#: ../src/ol_main.c:147
 msgid "Download failed"
 msgstr ""
 
-#: ../src/ol_main.c:158
+#: ../src/ol_main.c:162
 #, c-format
 msgid "Searching lyrics from %s"
 msgstr ""
 
-#: ../src/ol_main.c:181
+#: ../src/ol_main.c:185
 msgid "Cannot create the lyric directory"
 msgstr ""
 
-#: ../src/ol_main.c:197
+#: ../src/ol_main.c:201
 msgid "Lyrics not found"
 msgstr ""
 
-#: ../src/ol_main.c:486
+#: ../src/ol_main.c:507
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
 
-#: ../src/ol_main.c:608
+#: ../src/ol_main.c:652
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr ""
 
-#: ../src/ol_main.c:631
+#: ../src/ol_main.c:675
 msgid "Another OSD Lyrics is running, exit."
 msgstr ""
 
@@ -125,28 +125,78 @@ msgstr ""
 msgid "%d lyrics found :)"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:83
+#: ../src/ol_player_chooser.c:243
 msgid "Supported players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:88
+#: ../src/ol_player_chooser.c:244
 msgid "All players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:94
+#: ../src/ol_player_chooser.c:248 ../src/ol_player_chooser.c:319
+msgid "Choose a player to launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:264
 msgid "Use command:"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:99
+#: ../src/ol_player_chooser.c:268
 msgid "Launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:112
+#: ../src/ol_player_chooser.c:281
 msgid "Remember my choice"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:145
-msgid "Choose a player to launch"
+#: ../src/ol_player_chooser.c:387
+#, c-format
+msgid "Failed to launch %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:397
+#, c-format
+msgid "Launching %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:399
+#, c-format
+msgid ""
+"OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
+msgstr ""
+
+#: ../src/ol_player_chooser.c:510
+msgid "There is no supported player running"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:511
+msgid "Please choose a player below to launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:515
+#, c-format
+msgid "Failed to connect to %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:517
+#, c-format
+msgid ""
+"%s is not supported by OSD Lyrics, or not running. Please launch another "
+"player"
+msgstr ""
+
+#: ../src/ol_app_info.c:183 ../src/ol_app_info.c:193
+msgid "Unnamed"
+msgstr ""
+
+#: ../src/ol_scroll_window.c:52
+msgid ""
+"Drag to move the window\n"
+"Hold CTRL to seek"
+msgstr ""
+
+#: ../src/ol_scroll_window.c:53
+msgid "Drag to move the window"
 msgstr ""
 
 #: ../data/dialogs.glade.h:2

@@ -1,6 +1,6 @@
 check_PROGRAMS = \
 	ol_osd_window_test \
-	ol_player_test\
+	ol_player_test \
 	ol_lrc_parser_test\
 	ol_lrc_test \
 	ol_lrc_fetch_test \
@@ -15,7 +15,9 @@ check_PROGRAMS = \
 	ol_lrclib_test \
 	ol_utils_dbus_test \
 	ol_utils_test \
-	ol_gussian_blur_test
+	ol_gussian_blur_test \
+	ol_app_info_test \
+	$(NULL)
 
 AM_CPPFLAGS = \
 	-DDATADIR='"$(datadir)"' \
@@ -28,7 +30,12 @@ AM_CPPFLAGS = \
 	@SQLITE_CFLAGS@ \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/tests \
-	-I$(top_srcdir)/lib/chardetect/include
+	-I$(top_srcdir)/lib/chardetect/include \
+	$(NULL)
+
+AM_CFLAGS = \
+	-Werror -Wall \
+	$(NULL)
 
 LDADD = \
 	@GTK2_LIBS@ \
@@ -38,7 +45,9 @@ LDADD = \
 	@CURL_LIBS@ \
 	@SQLITE_LIBS@ \
 	../../lib/chardetect/libchardetect.a \
-	-lstdc++
+	-lm \
+	-lstdc++ \
+	$(NULL)
 
 noinst_HEADERS = \
 	ol_test_util.h
@@ -74,6 +83,8 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player_juk.c \
 	$(top_srcdir)/src/ol_player_listen.c \
 	$(top_srcdir)/src/ol_player_gmusicbrowser.c \
+	$(top_srcdir)/src/ol_player_rhythmbox.c \
+	$(top_srcdir)/src/ol_player_rhythmcat.c \
 	$(top_srcdir)/src/ol_player_utils.c \
 	$(top_srcdir)/src/ol_elapse_emulator.c \
 	$(top_srcdir)/src/ol_config.c \
@@ -81,7 +92,9 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_utils_cmdline.c \
 	$(top_srcdir)/src/ol_utils_dbus.c \
-	$(top_srcdir)/src/ol_music_info.c 
+	$(top_srcdir)/src/ol_music_info.c \
+	$(top_srcdir)/src/ol_app_info.c \
+	$(NULL)
 
 ol_lrc_parser_test_SOURCES = ol_lrc_parser_test.c \
 	$(top_srcdir)/src/ol_debug.c \
@@ -193,3 +206,9 @@ ol_gussian_blur_test_SOURCES = \
 	ol_gussian_blur_test.c \
 	$(top_srcdir)/src/ol_gussian_blur.c \
 	$(top_srcdir)/src/ol_debug.c
+
+ol_app_info_test_SOURCES = \
+	ol_app_info_test.c \
+	$(top_srcdir)/src/ol_app_info.c \
+	$(top_srcdir)/src/ol_debug.c \
+	$(NULL)

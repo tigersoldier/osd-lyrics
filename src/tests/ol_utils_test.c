@@ -1,6 +1,8 @@
+#include <string.h>
 #include <glib.h>
 #include <glib-object.h>
 #include "ol_utils.h"
+#include "ol_debug.h"
 #include "ol_test_util.h"
 
 void
@@ -11,7 +13,7 @@ g_value_free (GValue *value)
 }
 
 void
-test_hashtable ()
+test_hashtable (void)
 {
   static const int INT_VALUE = 23840;
   static const char *STR_VALUE = "String Value";
@@ -56,12 +58,33 @@ test_hashtable ()
   g_hash_table_destroy (ht);
 }
 
+static gboolean
+traverse_func (const char *path,
+               const char *filename,
+               gpointer data)
+{
+  ol_test_expect (GPOINTER_TO_INT (data) == 123);
+  gchar *fullpath = g_build_path (G_DIR_SEPARATOR_S, path, filename, NULL);
+  ol_test_expect (g_file_test (fullpath, G_FILE_TEST_EXISTS));
+  g_free (fullpath);
+  return TRUE;
+}
+
+static void
+test_traverse (void)
+{
+  ol_traverse_dir ("/usr/bin",
+                   FALSE,
+                   traverse_func,
+                   GINT_TO_POINTER (123));
+}
+
 int
-main ()
+main (int argc, char **argv)
 {
   g_type_init ();
   ol_log_set_file ("-");
   test_hashtable ();
-  printf ("PASS\n");
+  test_traverse ();
   return 0;
 }

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 m4_define([OL_MAJOR_VER], [0])
 m4_define([OL_MINOR_VER], [4])
-m4_define([OL_MICRO_VER], [1])
+m4_define([OL_MICRO_VER], [2])
 m4_define([OL_BUILD], [])
 m4_define(OL_BUILD_VER,
           m4_esyscmd([if test x]OL_BUILD[ == x-git; then git log -1 --format=format:%ad --date=short | sed 's/-//g'; fi]))
@@ -48,7 +48,8 @@ AC_TYPE_SSIZE_T
 AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([ftruncate gettimeofday memset pathconf strchr strdup strerror strrchr strstr])
+AC_CHECK_FUNCS([ftruncate gettimeofday memset pathconf sqrt strcasecmp strchr strdup strerror strrchr strstr])
+AM_ICONV
 
 #define paths
 OL_ICONDIR='${datadir}/${PACKAGE}/icons'
@@ -81,7 +82,21 @@ AC_ARG_WITH(gprof-support,
     gmondir="$withval"
     AC_SUBST(gmondir)
     ;;
-  esac 
+  esac
+])
+
+# dev restrict support
+AC_ARG_WITH(werror,
+[  --with-werror   Build with -Wall -Werror],
+[ case "$withval" in
+  yes)
+    AC_MSG_RESULT(yes)
+    CFLAGS="-Wall -Werror $CFLAGS"
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+    ;;
+  esac
 ])
 
 dnl app indicators in Ubuntu
@@ -112,6 +127,7 @@ AS_IF([test "x$enable_amarok1" != xno],
   [AC_DEFINE([ENABLE_AMAROK1], [1], [Define if compile to support Amarok 1.4])])
 
 # Checks for libraries.
+AC_CHECK_LIB([dl], [exp])
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0, 
                           gthread-2.0, 
                           gmodule-export-2.0,

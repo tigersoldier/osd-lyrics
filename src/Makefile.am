@@ -3,8 +3,6 @@ bin_PROGRAMS = osdlyrics
 #ol_player_test
 #TEST = $(check_PROGRAMS)
 
-AM_CFLAGS = -Wall -Werror
-
 AM_CPPFLAGS = \
 	@GTK2_CFLAGS@ \
 	@DBUS_GLIB_CFLAGS@ \
@@ -30,12 +28,16 @@ LDADD = \
 	@X11_LIBS@ \
 	@APP_INDICATOR_LIBS@ \
 	../lib/chardetect/libchardetect.a \
-	-lstdc++
+	-lm \
+	-lstdc++ \
+	$(NULL)
 
 noinst_HEADERS = \
 	gettext.h \
 	ol_about.h \
 	ol_app.h \
+	ol_app_info.h \
+	ol_app_chooser_widget.h \
 	ol_cell_renderer_button.h \
 	ol_color.h \
 	ol_commands.h \
@@ -91,6 +93,8 @@ noinst_HEADERS = \
 	ol_player_xmms2.h \
 	ol_player_mpris2.h \
 	ol_player_utils.h \
+	ol_player_rhythmbox.h \
+	ol_player_rhythmcat.h \
 	ol_scroll_module.h \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
@@ -106,6 +110,8 @@ noinst_HEADERS = \
 	ol_utils.h
 
 osdlyrics_SOURCES = \
+	ol_app_info.c \
+	ol_app_chooser_widget.c \
 	ol_debug.c \
 	ol_main.c \
 	ol_singleton.c \
@@ -137,6 +143,8 @@ osdlyrics_SOURCES = \
 	ol_player_gmusicbrowser.c \
 	ol_player_mpris2.c \
 	ol_player_utils.c \
+	ol_player_rhythmbox.c \
+	ol_player_rhythmcat.c \
 	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \

@@ -533,7 +533,7 @@ ol_color_from_gdk_color (const GdkColor c)
 static GdkColor
 ol_color_to_gdk_color (const OlColor color)
 {
-  GdkColor ret;
+  GdkColor ret = { .pixel = 0 };
   ret.red = color.r * 65535;
   ret.green = color.g * 65535;
   ret.blue = color.b * 65535;

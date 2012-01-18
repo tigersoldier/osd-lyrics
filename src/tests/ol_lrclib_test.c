@@ -1,4 +1,5 @@
-#include <ol_lrclib.h>
+#include <string.h>
+#include "ol_lrclib.h"
 #include "ol_test_util.h"
 #include "ol_utils.h"
 
@@ -255,4 +256,5 @@ int main ()
   query_by_uri_test ();
   query_by_info_test ();
   escape_test ();
+  return 0;
 }

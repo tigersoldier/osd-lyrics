@@ -66,16 +66,6 @@ static int _set_where_with_info (const OlMusicInfo *info, char *where,
 static int _copy_str (char *dest, const char *src, size_t size);
 
 /** 
- * @brief Find the lrc file according to URI
- * 
- * @param uri The URI of the music, cannot be NULL
- * @param ret Return location of the LRC file
- * 
- * @return 1 if found, 0 if not found, -1 if error occurs
- */
-static int _find_by_uri (const char *uri, char **lrcpath);
-
-/** 
  * @brief Find the lrc file according to title, artist and album
  * 
  * @param info The music
@@ -92,8 +82,15 @@ _set_where_with_info (const OlMusicInfo *info, char *where,
   ol_assert_ret (info->title != NULL, -1);
   ol_assert_ret (where != NULL, -1);
   int cnt = 0;
-  cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, "title = ");
-  cnt += _copy_str (where + cnt, info->title, FIELD_BUFLEN - cnt);
+  if (info->title == NULL)
+  {
+    cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, "title is NULL");
+  }
+  else
+  {
+    cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, "title = ");
+    cnt += _copy_str (where + cnt, info->title, FIELD_BUFLEN - cnt);
+  }
   if (info->artist == NULL)
   {
     cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND artist is NULL");
@@ -112,54 +109,16 @@ _set_where_with_info (const OlMusicInfo *info, char *where,
     cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND album = ");
     cnt += _copy_str (where + cnt, info->album, FIELD_BUFLEN - cnt);
   }
-  cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND uri is NULL");
-  return cnt;
-}
-
-static int
-_find_by_uri (const char *uri, char **lrcpath)
-{
-  int code;
-  sqlite3_stmt *stmt;
-  static char query[QUERY_BUFLEN] = "";
-  static char where[FIELD_BUFLEN] = "";
-  int cnt = 0;
-  int ret = 0;
-  ol_assert_ret (uri != NULL, -1);
-  ol_assert_ret (lrcpath != NULL, -1);
-  cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, "uri = ");
-  cnt += _copy_str (where + cnt, uri, FIELD_BUFLEN - cnt);
-  snprintf (query, FIELD_BUFLEN, FIND_LYRIC, where);
-  ol_debugf ("%s\n", query);
-  code = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
-  if (code != SQLITE_OK)
+  if (info->uri == NULL)
   {
-    _show_error ();
-    return -1;
-  }
-  code = sqlite3_step (stmt);
-  if (code != SQLITE_ROW)
-  {
-    if (code == SQLITE_DONE)
-    {
-      *lrcpath = NULL;
-      ret = 0;
-    }
-    else
-    {
-      ret = -1;
-      _show_error ();
-    }
+    cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND uri is NULL");
   }
   else
   {
-    const char *path = (const char*)sqlite3_column_text (stmt, 0);
-    ol_debugf ("Path is: %s\n", path);
-    *lrcpath = g_strdup (path);
-    ret = 1;
+    cnt += snprintf (where + cnt, FIELD_BUFLEN - cnt, " AND uri = ");
+    cnt += _copy_str (where + cnt, info->uri, FIELD_BUFLEN - cnt);
   }
-  sqlite3_finalize (stmt);
-  return ret;
+  return cnt;
 }
 
 static int
@@ -359,12 +318,7 @@ ol_lrclib_find (const OlMusicInfo *info,
   ol_assert_ret (db != NULL, 0);
 
   int found = 0;
-  if (info->uri != NULL)
-  {
-    found = _find_by_uri (info->uri, lrcpath);
-  }
-  ol_debugf ("found = %d\n", found);
-  if (found == 0 && info->title != NULL)
+  if (info->title != NULL || info->uri != NULL)
   {
     found = _find_by_info (info, lrcpath);
   }
