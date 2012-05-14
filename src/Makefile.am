@@ -86,6 +86,7 @@ noinst_HEADERS = \
 	ol_player_juk.h \
 	ol_player_listen.h \
 	ol_player_moc.h \
+	ol_player_cmus.h \
 	ol_player_mpd.h \
 	ol_player_mpris.h \
 	ol_player_muine.h \
@@ -137,6 +138,7 @@ osdlyrics_SOURCES = \
 	ol_player_xmms2.c \
 	ol_player_juk.c \
 	ol_player_moc.c \
+	ol_player_cmus.c \
 	ol_player_mpd.c \
 	ol_player_muine.c \
 	ol_player_listen.c \

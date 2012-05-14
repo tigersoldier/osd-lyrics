@@ -28,6 +28,7 @@
 #include "ol_player_listen.h"
 #include "ol_player_gmusicbrowser.h"
 #include "ol_player_moc.h"
+#include "ol_player_cmus.h"
 #include "ol_player_quodlibet.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
@@ -63,6 +64,7 @@ ol_player_init ()
     ol_player_register (ol_player_rhythmbox_get ());
     ol_player_register (ol_player_mpris2_get ());
     ol_player_register (ol_player_moc_get ());
+    ol_player_register (ol_player_cmus_get ());
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
