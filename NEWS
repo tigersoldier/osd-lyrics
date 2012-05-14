@@ -1,8 +1,8 @@
-Version 0.4.2:
+Version 0.4.2: 2012-01-19
  * UI improvements:
   - Player choose dialog redesigned
   - Fade out on the edge of lyric text in OSD mode if it is too long
-  - Drag to seek in scrolling mode
+  - Drag-to-seek in scrolling mode
 
  * Player support:
   - Bring back support for Rhythmbox prior to 0.13
