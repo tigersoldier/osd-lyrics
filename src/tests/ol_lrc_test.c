@@ -16,9 +16,20 @@ void prepare_data ()
 {
   char cmd[BUFLEN];
   snprintf (cmd, BUFLEN, "cp %s %s", FILENAME, TMPPATH);
-  system (cmd);
+  int ret;
+  ret = system (cmd);
+  if (ret == -1 || WEXITSTATUS (ret) != 0)
+  {
+    fprintf (stderr, "Faild to prepare data\n");
+    exit (1);
+  }
   snprintf (cmd, BUFLEN, "cp %s %s", GBK_FILENAME, TMPPATH);
-  system (cmd);
+  ret = system (cmd);
+  if (ret == -1 || WEXITSTATUS (ret) != 0)
+  {
+    fprintf (stderr, "Faild to prepare data\n");
+    exit (1);
+  }
 }
 
 void basic_test ()

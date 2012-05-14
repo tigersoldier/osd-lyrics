@@ -30,7 +30,8 @@ AM_CPPFLAGS = \
 	@SQLITE_CFLAGS@ \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/tests \
-	-I$(top_srcdir)/lib/chardetect/include
+	-I$(top_srcdir)/lib/chardetect/include \
+	$(NULL)
 
 AM_CFLAGS = \
 	-Werror -Wall \
@@ -44,7 +45,9 @@ LDADD = \
 	@CURL_LIBS@ \
 	@SQLITE_LIBS@ \
 	../../lib/chardetect/libchardetect.a \
-	-lstdc++
+	-lm \
+	-lstdc++ \
+	$(NULL)
 
 noinst_HEADERS = \
 	ol_test_util.h
