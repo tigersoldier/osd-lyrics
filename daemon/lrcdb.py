@@ -55,7 +55,8 @@ def normalize_location(location):
     """
     if location and location[0] == '/':
         location = 'file://' + urllib.pathname2url(ensure_utf8(location))
-    return location.decode('utf8')
+    location = ensure_unicode(location)
+    return location
 
 def query_param_from_metadata(metadata):
     """
