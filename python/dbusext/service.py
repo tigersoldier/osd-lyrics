@@ -29,17 +29,17 @@ __all__ = (
     'property',
     )
 
-class ObjectType(dbus.service.Object.__metaclass__):
-    def __init__(cls, name, bases, dct):
-        for k, v in cls.__dict__.items():
-            if isinstance(v, dbus_prop.Property):
-                v.__name__ = k
-        super(ObjectType, cls).__init__(name, bases, dct)
+# class ObjectType(dbus.service.Object.__metaclass__):
+#     def __init__(cls, name, bases, dct):
+#         for k, v in self.__class__.__dict__.items():
+#             if isinstance(v, dbus_prop.Property):
+#                 v.__name__ = k
+#         super(ObjectType, cls).__init__(name, bases, dct)
 
 class Object(dbus.service.Object):
     """ DBus object wrapper which provides DBus property support
     """
-    __metaclass__ = ObjectType
+    # __metaclass__ = ObjectType
     def __init__(self, conn=None, object_path=None, bus_name=None):
         """
         Either conn or bus_name is required; object_path is also required.
@@ -192,9 +192,9 @@ def property(type_signature, dbus_interface, emit_change=True):
         return dbus_prop.Property(type_signature=type_signature,
                                   dbus_interface=dbus_interface,
                                   emit_change=emit_change,
+                                  name=fget.__name__,
                                   fget=fget)
     return dec_handler
-
 
 def test():
     BUS_NAME = 'org.example.test'

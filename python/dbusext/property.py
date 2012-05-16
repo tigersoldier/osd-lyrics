@@ -40,6 +40,7 @@ class Property(object):
         self.__dbus_interface = dbus_interface
         self._fset = fset
         self._fget = fget
+        self.__name__ = name
         self._emit_change = emit_change
         
     @property
