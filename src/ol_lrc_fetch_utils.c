@@ -70,92 +70,92 @@ _set_curl_proxy (CURL *curl_handler)
 {
   ol_assert_ret (curl_handler != NULL, FALSE);
   gboolean ret = TRUE;
-  enum OlProxyType type = ol_get_proxy_type ();
-  switch (type)
-  {
-  case OL_PROXY_NONE:
-    if (curl_easy_setopt (curl_handler, CURLOPT_PROXY, "") != CURLE_OK)
-    {
-      ol_errorf ("Failed to disable proxy\n");
-      ret = FALSE;
-    }
-    break;
-  case OL_PROXY_ENVAR:
-    /* TODO */
-    break;
-  case OL_PROXY_HTTP:
-    if (curl_easy_setopt (curl_handler, CURLOPT_PROXYTYPE,
-                          CURLPROXY_HTTP_1_0) != CURLE_OK)
-    {
-      ol_errorf ("Failed to set proxy type\n");
-      ret = FALSE;
-    }
-    break;
-  case OL_PROXY_SOCKS4:
-    if (curl_easy_setopt (curl_handler, CURLOPT_PROXYTYPE,
-                          CURLPROXY_SOCKS4) != CURLE_OK)
-    {
-      ol_errorf ("Failed to set proxy type\n");
-      ret = FALSE;
-    }
-    break;
-  case OL_PROXY_SOCKS5:
-    if (curl_easy_setopt (curl_handler, CURLOPT_PROXYTYPE,
-                          CURLPROXY_SOCKS5) != CURLE_OK)
-    {
-      ol_errorf ("Failed to set proxy type\n");
-      ret = FALSE;
-    }
-    break;
-  default:
-    ol_errorf ("Unknown proxy type: %d\n", (int) type);
-  }
-  if (ret && type != OL_PROXY_NONE && type != OL_PROXY_ENVAR)
-  {
-    char *host = ol_get_proxy_host ();
-    int port = ol_get_proxy_port ();
-    char *username = ol_get_proxy_username ();
-    char *password = ol_get_proxy_password ();
-    if (!ol_is_string_empty (host) &&
-        1 < port && port < (1 << 16))
-    {
-      if (curl_easy_setopt (curl_handler, CURLOPT_PROXY,
-                            host) != CURLE_OK)
-      {
-        ol_error ("Failed to set curl proxy host");
-        goto error;
-      }
-      if (curl_easy_setopt (curl_handler, CURLOPT_PROXYPORT,
-                            port) != CURLE_OK)
-      {
-        ol_error ("Failed to set curl proxy port");
-        goto error;
-      }
-      if (!ol_is_string_empty (username))
-      {
-        if (curl_easy_setopt (curl_handler, CURLOPT_PROXYUSERNAME,
-                              username) != CURLE_OK)
-        {
-          ol_error ("Failed to set curl proxy username");
-          goto error;
-        }
-        if (!ol_is_string_empty (password))
-          if (curl_easy_setopt (curl_handler, CURLOPT_PROXYPASSWORD,
-                                password) != CURLE_OK)
-          {
-            ol_error ("Failed to set curl proxy password");
-            goto error;
-          }
-      }
-    }
-    goto finish;
-  error:
-    ret = FALSE;
-  finish:
-    if (host != NULL) g_free (host);
-    if (username != NULL) g_free (username);
-    if (password != NULL) g_free (password);
-  }
+  /* enum OlProxyType type = ol_get_proxy_type (); */
+  /* switch (type) */
+  /* { */
+  /* case OL_PROXY_NONE: */
+  /*   if (curl_easy_setopt (curl_handler, CURLOPT_PROXY, "") != CURLE_OK) */
+  /*   { */
+  /*     ol_errorf ("Failed to disable proxy\n"); */
+  /*     ret = FALSE; */
+  /*   } */
+  /*   break; */
+  /* case OL_PROXY_ENVAR: */
+  /*   /\* TODO *\/ */
+  /*   break; */
+  /* case OL_PROXY_HTTP: */
+  /*   if (curl_easy_setopt (curl_handler, CURLOPT_PROXYTYPE, */
+  /*                         CURLPROXY_HTTP_1_0) != CURLE_OK) */
+  /*   { */
+  /*     ol_errorf ("Failed to set proxy type\n"); */
+  /*     ret = FALSE; */
+  /*   } */
+  /*   break; */
+  /* case OL_PROXY_SOCKS4: */
+  /*   if (curl_easy_setopt (curl_handler, CURLOPT_PROXYTYPE, */
+  /*                         CURLPROXY_SOCKS4) != CURLE_OK) */
+  /*   { */
+  /*     ol_errorf ("Failed to set proxy type\n"); */
+  /*     ret = FALSE; */
+  /*   } */
+  /*   break; */
+  /* case OL_PROXY_SOCKS5: */
+  /*   if (curl_easy_setopt (curl_handler, CURLOPT_PROXYTYPE, */
+  /*                         CURLPROXY_SOCKS5) != CURLE_OK) */
+  /*   { */
+  /*     ol_errorf ("Failed to set proxy type\n"); */
+  /*     ret = FALSE; */
+  /*   } */
+  /*   break; */
+  /* default: */
+  /*   ol_errorf ("Unknown proxy type: %d\n", (int) type); */
+  /* } */
+  /* if (ret && type != OL_PROXY_NONE && type != OL_PROXY_ENVAR) */
+  /* { */
+  /*   char *host = ol_get_proxy_host (); */
+  /*   int port = ol_get_proxy_port (); */
+  /*   char *username = ol_get_proxy_username (); */
+  /*   char *password = ol_get_proxy_password (); */
+  /*   if (!ol_is_string_empty (host) && */
+  /*       1 < port && port < (1 << 16)) */
+  /*   { */
+  /*     if (curl_easy_setopt (curl_handler, CURLOPT_PROXY, */
+  /*                           host) != CURLE_OK) */
+  /*     { */
+  /*       ol_error ("Failed to set curl proxy host"); */
+  /*       goto error; */
+  /*     } */
+  /*     if (curl_easy_setopt (curl_handler, CURLOPT_PROXYPORT, */
+  /*                           port) != CURLE_OK) */
+  /*     { */
+  /*       ol_error ("Failed to set curl proxy port"); */
+  /*       goto error; */
+  /*     } */
+  /*     if (!ol_is_string_empty (username)) */
+  /*     { */
+  /*       if (curl_easy_setopt (curl_handler, CURLOPT_PROXYUSERNAME, */
+  /*                             username) != CURLE_OK) */
+  /*       { */
+  /*         ol_error ("Failed to set curl proxy username"); */
+  /*         goto error; */
+  /*       } */
+  /*       if (!ol_is_string_empty (password)) */
+  /*         if (curl_easy_setopt (curl_handler, CURLOPT_PROXYPASSWORD, */
+  /*                               password) != CURLE_OK) */
+  /*         { */
+  /*           ol_error ("Failed to set curl proxy password"); */
+  /*           goto error; */
+  /*         } */
+  /*     } */
+  /*   } */
+  /*   goto finish; */
+  /* error: */
+  /*   ret = FALSE; */
+  /* finish: */
+  /*   if (host != NULL) g_free (host); */
+  /*   if (username != NULL) g_free (username); */
+  /*   if (password != NULL) g_free (password); */
+  /* } */
   return ret;
 }
 
