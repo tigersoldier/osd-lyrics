@@ -97,6 +97,10 @@ def decode_by_charset(content):
     if not isinstance(content, str):
         return content
     encoding = chardet.detect(content)['encoding']
+    # Sometimes, the content is well encoded but the last few bytes. This is common
+    # in the files downloaded by old versions of OSD Lyrics. In this case,chardet
+    # may fail to determine what the encoding it is. So we take half of the content
+    # of it and try again.
     if not encoding and len(content) > DETECT_CHARSET_GUESS_MIN_LEN:
         content_len = len(content)
         content_half = content_len / 2
@@ -107,10 +111,17 @@ def decode_by_charset(content):
         else:
             slice_end = DETECT_CHARSET_GUESS_MIN_LEN
         logging.warning('Failed to detect encoding, try to decode a part of it')
-        encoding = chardet.detect(content[:20])['encoding']
+        encoding = chardet.detect(content[:slice_end])['encoding']
         logging.warning('guess encoding from part: ' + encoding)
     if not encoding:
         logging.warning('Failed to detect encoding, use utf-8 as fallback')
+        encoding = 'utf-8'
+
+    # When we take half of the content to determine the encoding, chardet may
+    # think it be encoded with ascii, however the full content is probably encoded
+    # with utf-8. As ascii is an subset of utf-8, decoding an ascii string with
+    # utf-8 will always be right.
+    if encoding == 'ascii':
         encoding = 'utf-8'
     return content.decode(encoding, 'replace')
 
