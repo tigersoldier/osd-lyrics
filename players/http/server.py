@@ -25,7 +25,6 @@ import urlparse
 from validator import validate_params, param_str, param_enum, param_set, param_int
 from error import *
 from osdlyrics.player_proxy import \
-    Metadata, \
     STATUS_PLAYING, \
     STATUS_PAUSED, \
     STATUS_STOPPED, \
@@ -34,6 +33,7 @@ from osdlyrics.player_proxy import \
     CAPS_PAUSE, \
     CAPS_PLAY, \
     CAPS_SEEK
+from osdlyrics.metadata import Metadata
 
 PARAM_STATUS = param_enum({'playing': STATUS_PLAYING,
                            'paused': STATUS_PAUSED,

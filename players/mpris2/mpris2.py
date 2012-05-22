@@ -26,6 +26,7 @@ import osdlyrics.dbusext
 
 from dbus.mainloop.glib import DBusGMainLoop
 from osdlyrics.player_proxy import *
+from osdlyrics.metadata import Metadata
 
 PROXY_NAME = 'Mpris2'
 BUS_NAME = osdlyrics.PLAYER_PROXY_BUS_NAME_PREFIX + PROXY_NAME

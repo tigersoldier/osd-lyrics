@@ -30,6 +30,7 @@ ol_PYTHON = \
 	exceptions.py \
 	player_proxy.py \
 	timer.py \
+	metadata.py \
 	$(NULL)
 
 oldir = @pkgpythondir@

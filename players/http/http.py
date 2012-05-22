@@ -24,6 +24,7 @@ import datetime
 import time
 import osdlyrics.timer
 from osdlyrics.player_proxy import *
+from osdlyrics.metadata import Metadata
 
 CONNECTION_TIMEOUT = 1000
 
