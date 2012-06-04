@@ -97,7 +97,9 @@ internal_query_tooltip (GtkStatusIcon *status_icon,
     g_free (markup);
     
     struct OlPlayer *player = ol_app_get_player ();
-    const char *icon_path = ol_player_get_icon_path (player);
+    const char *icon_path = NULL;
+    if (player != NULL)
+      icon_path = ol_player_get_icon_path (player);
     GdkPixbuf *icon = NULL;
     if (icon_path != NULL)
     {
