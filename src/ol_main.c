@@ -497,6 +497,17 @@ _player_chooser_response_cb (GtkDialog *dialog,
 static void
 _player_lost_cb (void)
 {
+  if (_lost_action_delay_timer > 0)
+  {
+    g_source_remove (_lost_action_delay_timer);
+    _lost_action_delay_timer = 0;
+  }
+  ol_music_info_clear (&music_info);
+  if (module != NULL)
+  {
+    ol_display_module_free (module);
+    module = NULL;
+  }
   switch (player_lost_action)
   {
   case ACTION_LAUNCH_DEFAULT:
