@@ -348,6 +348,8 @@ ol_player_get_name (struct OlPlayer *player)
 const char *
 ol_player_get_icon_path (struct OlPlayer *player)
 {
+  if (player == NULL)
+    return NULL;
   if (player->get_icon_path != NULL)
     return player->get_icon_path ();
   else
