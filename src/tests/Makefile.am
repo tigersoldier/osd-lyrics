@@ -71,6 +71,7 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_player.c \
 	$(top_srcdir)/src/ol_player_amarok1.c \
 	$(top_srcdir)/src/ol_player_banshee.c \
+	$(top_srcdir)/src/ol_player_cmus.c \
 	$(top_srcdir)/src/ol_player_mpris.c \
 	$(top_srcdir)/src/ol_player_mpris2.c \
 	$(top_srcdir)/src/ol_player_exaile02.c \
