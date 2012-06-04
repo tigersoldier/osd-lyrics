@@ -33,6 +33,7 @@ static const guint SUPPORT_CHOOSER_INDEX = 0;
 static const guint ALL_CHOOSER_INDEX = 1;
 static const guint MAX_CHOOSER_HEIGHT = 96 * 3; /* about 3 lines of apps */
 static const guint DEFAULT_APP_COLUMNS = 4;
+static const guint WINDOW_BORDER_SIZE = 5;
 
 G_DEFINE_TYPE(OlPlayerChooser, ol_player_chooser, GTK_TYPE_DIALOG)
 
@@ -224,6 +225,7 @@ static void
 _setup_ui (OlPlayerChooser *window)
 {
   OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  gtk_container_set_border_width (GTK_CONTAINER (window), WINDOW_BORDER_SIZE);
   /* Setup info widgets */
   priv->info_label = GTK_LABEL (gtk_label_new (NULL));
   gtk_label_set_line_wrap (priv->info_label, TRUE);
