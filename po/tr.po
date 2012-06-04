@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-17 23:18+0800\n"
-"PO-Revision-Date: 2010-11-27 04:10+0000\n"
-"Last-Translator: Engin BAHADIR <Unknown>\n"
+"POT-Creation-Date: 2012-06-04 21:07+0800\n"
+"PO-Revision-Date: 2011-07-29 06:23+0000\n"
+"Last-Translator: Irmak Bıçakçıgil <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-06-04 13:40+0000\n"
-"X-Generator: Launchpad (build 13144)\n"
+"X-Launchpad-Export-Date: 2012-06-04 12:16+0000\n"
+"X-Generator: Launchpad (build 15353)\n"
 
 #: ../src/ol_menu.c:119
 msgid "LRC files"
@@ -27,7 +26,7 @@ msgstr "LRC Dosyaları"
 msgid "Choose LRC file to assign"
 msgstr "Atamak için LRC dosyası seçin"
 
-#: ../src/ol_main.c:60
+#: ../src/ol_main.c:61
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -35,41 +34,38 @@ msgstr ""
 "Kayda alınacak hata iletilerinin seviyesi, 'none', 'error', 'debug', veya "
 "'info' olarak belirtilebilir"
 
-#: ../src/ol_main.c:62
+#: ../src/ol_main.c:63
 msgid "Show version information"
-msgstr ""
+msgstr "Sürüm bilgisini göster"
 
-#: ../src/ol_main.c:147
+#: ../src/ol_main.c:153
 msgid "Download failed"
 msgstr "İndirme başarısız"
 
-#: ../src/ol_main.c:162
-#, fuzzy, c-format
+#: ../src/ol_main.c:168
+#, c-format
 msgid "Searching lyrics from %s"
-msgstr "%s içinde şarkı sözleri aranıyor..."
+msgstr ""
 
-#: ../src/ol_main.c:185
+#: ../src/ol_main.c:191
 msgid "Cannot create the lyric directory"
-msgstr "Şarkı Sözleri dizini oluşturulamıyor"
+msgstr "Şarkı sözleri dizini oluşturulamıyor"
 
-#: ../src/ol_main.c:201
+#: ../src/ol_main.c:207
 msgid "Lyrics not found"
 msgstr "Şarkı sözleri bulunamadı"
 
-#: ../src/ol_main.c:507
+#: ../src/ol_main.c:561
 #, c-format
-msgid "No supported player is running, exit.\n"
-msgstr "Desteklenen bir ortam oynatıcı yok, çık.\n"
+msgid "Player is not running. OSD Lyrics exits now.\n"
+msgstr ""
 
-#: ../src/ol_main.c:652
-#, fuzzy
+#: ../src/ol_main.c:710
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr ""
-"Kayda alınacak hata iletilerinin seviyesi, 'none', 'error', 'debug', veya "
-"'info' olarak belirtilebilir"
 
-#: ../src/ol_main.c:675
+#: ../src/ol_main.c:733
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Başka bir OSD Lyrics çalışıyor, çık."
 
@@ -81,20 +77,20 @@ msgstr "Bilinmeyen başlık"
 msgid "Unknown artist"
 msgstr "Bilinmeyen sanatçı"
 
-#: ../src/ol_trayicon.c:71 ../src/ol_trayicon.c:149
+#: ../src/ol_trayicon.c:71
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
 #: ../src/ol_option.c:1631
 msgid "Choose on startup"
-msgstr ""
+msgstr "Başlangıçta seç"
 
 #. gtk_list_store_append (liststore, &iter);
 #. gtk_list_store_set (liststore, &iter,
 #. 0, "Customize",
 #. 1, "",
 #. -1);
-#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:43
+#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:7
 msgid "Customize"
 msgstr "Özelleştir"
 
@@ -102,11 +98,11 @@ msgstr "Özelleştir"
 msgid "Select a folder"
 msgstr "Bir klasör seçiniz"
 
-#: ../src/ol_lrc_fetch_ttplayer.c:274
+#: ../src/ol_lrc_fetch_ttplayer.c:276
 msgid "ttPlayer"
 msgstr ""
 
-#: ../src/ol_lrc_fetch_xiami.c:237
+#: ../src/ol_lrc_fetch_xiami.c:242
 msgid "Xiami"
 msgstr ""
 
@@ -132,71 +128,79 @@ msgstr "Şarkı sözü bulunamadı :("
 msgid "%d lyrics found :)"
 msgstr "%d adet şarkı sözü bulundu :)"
 
-#: ../src/ol_player_chooser.c:243
+#: ../src/ol_player_chooser.c:249
 msgid "Supported players"
-msgstr ""
+msgstr "Desteklenen oynatıcılar"
 
-#: ../src/ol_player_chooser.c:244
+#: ../src/ol_player_chooser.c:250
 msgid "All players"
+msgstr "Tüm oynatıcılar"
+
+#: ../src/ol_player_chooser.c:254 ../src/ol_player_chooser.c:326
+msgid "Choose a player to launch"
+msgstr "Çalıştırmak için bir oynatıcı seç"
+
+#: ../src/ol_player_chooser.c:270
+msgid "Use command:"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:248 ../src/ol_player_chooser.c:319
-#, fuzzy
-msgid "Choose a player to launch"
-msgstr "Atamak için LRC dosyası seçin"
-
-#: ../src/ol_player_chooser.c:264
-#, fuzzy
-msgid "Use command:"
-msgstr "Oynatıcı komutu:"
-
-#: ../src/ol_player_chooser.c:268
+#: ../src/ol_player_chooser.c:275
 msgid "Launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:281
+#: ../src/ol_player_chooser.c:288
 msgid "Remember my choice"
-msgstr ""
+msgstr "Seçimimi hatırla"
 
-#: ../src/ol_player_chooser.c:387
+#: ../src/ol_player_chooser.c:440
 #, c-format
 msgid "Failed to launch %s"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:397
+#: ../src/ol_player_chooser.c:450
 #, c-format
 msgid "Launching %s"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:399
+#: ../src/ol_player_chooser.c:452
 #, c-format
 msgid ""
 "OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
 msgstr ""
 
-#: ../src/ol_player_chooser.c:510
-#, fuzzy
+#: ../src/ol_player_chooser.c:563
 msgid "There is no supported player running"
-msgstr "Desteklenen bir ortam oynatıcı yok, çık.\n"
-
-#: ../src/ol_player_chooser.c:511
-#, fuzzy
-msgid "Please choose a player below to launch"
-msgstr "Atamak için LRC dosyası seçin"
-
-#: ../src/ol_player_chooser.c:515
-#, c-format
-msgid "Failed to connect to %s"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:517
+#: ../src/ol_player_chooser.c:564
+msgid "Please choose a player below to launch"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:568
+#, c-format
+msgid "Fail to launch %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:570
 #, c-format
 msgid ""
 "%s is not supported by OSD Lyrics, or not running. Please launch another "
-"player"
+"player."
 msgstr ""
 
-#: ../src/ol_app_info.c:183 ../src/ol_app_info.c:193
+#: ../src/ol_player_chooser.c:580
+#, c-format
+msgid "Something wrong with %s"
+msgstr ""
+
+#: ../src/ol_player_chooser.c:582
+#, c-format
+msgid ""
+"It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. "
+"Please try launching it again, or launch another player instead."
+msgstr ""
+
+#: ../src/ol_app_info.c:179 ../src/ol_app_info.c:189
 msgid "Unnamed"
 msgstr ""
 
@@ -210,7 +214,235 @@ msgstr ""
 msgid "Drag to move the window"
 msgstr ""
 
+#: ../data/dialogs.glade.h:1
+msgid "Copyright 2009-2011 The OSD Lyrics project."
+msgstr "Telif Hakkı 2009-2011 OSD Lyrics projesi."
+
 #: ../data/dialogs.glade.h:2
+msgid ""
+"An OSD lyric show compatible with various media players and supports lyrics "
+"downloading.\n"
+msgstr ""
+"OSD lyric birçok ortam yürütücü ile uyumludur ve şarkı sözlerini indirmeyi "
+"destekler.\n"
+
+#: ../data/dialogs.glade.h:4
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr "http://code.google.com/p/osd-lyrics/"
+
+#: ../data/dialogs.glade.h:5
+msgid "GPL v3"
+msgstr "GPL v3"
+
+#: ../data/dialogs.glade.h:6
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Engin BAHADIR https://launchpad.net/~enginbah\n"
+"  GüneyTekfidan https://launchpad.net/~ubuntuturk-hotmail\n"
+"  Irmak Bıçakçıgil https://launchpad.net/~irmak\n"
+"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
+"  zeugma https://launchpad.net/~sunder67"
+
+#: ../data/dialogs.glade.h:8
+msgid "HTTP"
+msgstr ""
+
+#: ../data/dialogs.glade.h:9
+msgid "SOCKS4"
+msgstr ""
+
+#: ../data/dialogs.glade.h:10
+msgid "SOCKS5"
+msgstr ""
+
+#: ../data/dialogs.glade.h:11
+msgid "Always"
+msgstr "Her zaman"
+
+#: ../data/dialogs.glade.h:12
+msgid "By lines"
+msgstr ""
+
+#: ../data/dialogs.glade.h:13
+msgid "Preferences"
+msgstr "Tercihler"
+
+#: ../data/dialogs.glade.h:14
+msgid "Display mode:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:15
+msgid "OS_D"
+msgstr ""
+
+#: ../data/dialogs.glade.h:16
+msgid "Sc_rolling"
+msgstr ""
+
+#: ../data/dialogs.glade.h:17
+msgid "Auto la_unch player:"
+msgstr "Oynatıcı_yı otomatik başlat:"
+
+#: ../data/dialogs.glade.h:18
+msgid "Pla_yer command:"
+msgstr "Oynatıcı komutu:"
+
+#: ../data/dialogs.glade.h:19
+msgid "Show _bubble notification"
+msgstr ""
+
+#: ../data/dialogs.glade.h:20
+msgid "_General"
+msgstr "_Genel"
+
+#: ../data/dialogs.glade.h:21
+msgid "_Font:"
+msgstr "_Yazı tipi:"
+
+#. The outline width of text in OSD window
+#: ../data/dialogs.glade.h:23
+msgid "Out_line:"
+msgstr "_Çıkış satırı:"
+
+#: ../data/dialogs.glade.h:24
+msgid "_Blur:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:25
+msgid "Weak"
+msgstr ""
+
+#: ../data/dialogs.glade.h:26
+msgid "Strong"
+msgstr ""
+
+#: ../data/dialogs.glade.h:27
+msgid "Lyric lines:"
+msgstr "Şarkı sözü satırları:"
+
+#: ../data/dialogs.glade.h:28
+msgid "Si_ngle line"
+msgstr "Tekil satır"
+
+#: ../data/dialogs.glade.h:29
+msgid "_Double lines"
+msgstr "Çi_fte satırlar"
+
+#: ../data/dialogs.glade.h:30
+msgid "Mode:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:31
+msgid "Doc_k"
+msgstr ""
+
+#: ../data/dialogs.glade.h:32
+msgid "Nor_mal"
+msgstr ""
+
+#: ../data/dialogs.glade.h:33
+msgid "T_ranslucent on mouse over"
+msgstr "Fa_re üzerindeyken saydamlaştır"
+
+#: ../data/dialogs.glade.h:34
+msgid "F_irst line:"
+msgstr "_İlk satır"
+
+#: ../data/dialogs.glade.h:35
+msgid "_Second line:"
+msgstr "İkinci Dize"
+
+#: ../data/dialogs.glade.h:36
+msgid "<b>Lyric _Alignment</b>"
+msgstr "<b>Şarkı Sözü Hiz_ası</b>"
+
+#: ../data/dialogs.glade.h:37
+msgid "Color _Theme:"
+msgstr "Renk _Teması:"
+
+#: ../data/dialogs.glade.h:38
+msgid "C_ustomize colors"
+msgstr "Renkleri _özelleştir"
+
+#: ../data/dialogs.glade.h:39
+msgid "Acti_ve lyrics:"
+msgstr "Etkin şarkı sö_zleri:"
+
+#: ../data/dialogs.glade.h:40
+msgid "top"
+msgstr "üst"
+
+#: ../data/dialogs.glade.h:41
+msgid "middle"
+msgstr "orta"
+
+#: ../data/dialogs.glade.h:42
+msgid "bottom"
+msgstr "alt"
+
+#: ../data/dialogs.glade.h:43
+msgid "Inactiv_e lyrics:"
+msgstr "Etkin olmayan şarkı sözl_eri:"
+
+#: ../data/dialogs.glade.h:44
+msgid "<b>Lyric _Color</b>"
+msgstr "<b>Şarkı Sözü Ren_gi</b>"
+
+#: ../data/dialogs.glade.h:45
+msgid "_OSD"
+msgstr "_OSD"
+
+#: ../data/dialogs.glade.h:46
+msgid "Ac_tive color:"
+msgstr "_Etkin renk:"
+
+#: ../data/dialogs.glade.h:47
+msgid "_Inactive color:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:48
+msgid "Scroll _mode:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:49
+msgid "<b>Lyrics</b>"
+msgstr ""
+
+#: ../data/dialogs.glade.h:50
+msgid "Colo_r:"
+msgstr "_Renk:"
+
+#: ../data/dialogs.glade.h:51
+msgid "O_pacity:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:52
+msgid "Transparent"
+msgstr ""
+
+#: ../data/dialogs.glade.h:53
+msgid "Opaque"
+msgstr ""
+
+#: ../data/dialogs.glade.h:54
+msgid "<b>Background</b>"
+msgstr "<b>Arka Plan</b>"
+
+#: ../data/dialogs.glade.h:55
+msgid "_Scrolling"
+msgstr ""
+
+#: ../data/dialogs.glade.h:57
+#, no-c-format
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr "Tekil \"%\" işareti çalınan müziğin dizinini tanımlar."
+
+#: ../data/dialogs.glade.h:58
+msgid "<b>_Path</b>"
+msgstr "<b>_Yol</b>"
+
+#: ../data/dialogs.glade.h:60
 #, no-c-format
 msgid ""
 "  %t - Title\n"
@@ -220,180 +452,149 @@ msgid ""
 "  %f - File name (without extension)"
 msgstr ""
 "  %t - Başlık\n"
-"%p - Sanatçı\n"
-"%a - Albüm\n"
-"%n - Parça Numarası\n"
-"%f - Dosya Adı (uzantı olmadan)"
+"  %p - Sanatçı\n"
+"  %a - Albüm\n"
+"  %n - Parça Numarası\n"
+"  %f - Dosya Adı (uzantı olmadan)"
 
-#: ../data/dialogs.glade.h:8
-#, no-c-format
-msgid "%a - Album"
-msgstr "%a - Albüm"
-
-#: ../data/dialogs.glade.h:10
-#, no-c-format
-msgid "%f - Filename"
-msgstr "%f - Dosya Adı"
-
-#: ../data/dialogs.glade.h:12
-#, no-c-format
-msgid "%n - Track number"
-msgstr "%n - Parça numarası"
-
-#: ../data/dialogs.glade.h:14
-#, no-c-format
-msgid "%p - Artist"
-msgstr "%p - Sanatçı"
-
-#: ../data/dialogs.glade.h:16
-#, no-c-format
-msgid "%t - Title"
-msgstr "%t - Başlık"
-
-#: ../data/dialogs.glade.h:17
-msgid "<b>Background</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:18
-msgid "<b>Download</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:19
-msgid "<b>Lyric _Alignment</b>"
-msgstr "<b>Şarkı Sözü Hiz_ası</b>"
-
-#: ../data/dialogs.glade.h:20
-msgid "<b>Lyric _Color</b>"
-msgstr "<b>Şarkı Sözü Ren_gi</b>"
-
-#: ../data/dialogs.glade.h:21
-msgid "<b>Lyrics</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:22
-msgid "<b>Proxy</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:23
+#: ../data/dialogs.glade.h:65
 msgid "<b>_Filename</b>"
 msgstr "<b>_Dosya Adı</b>"
 
-#: ../data/dialogs.glade.h:24
-msgid "<b>_Path</b>"
-msgstr "<b>_Yol</b>"
+#: ../data/dialogs.glade.h:66
+msgid "_Lyric Location"
+msgstr "Şarkı Sözü _Dizini"
 
-#: ../data/dialogs.glade.h:26
-#, no-c-format
-msgid "A single \"%\" means the directory where the playing music is."
-msgstr "Tekil \"%\" işareti çalınan müziğin dizinini tanımlar."
-
-#: ../data/dialogs.glade.h:27
-msgid "Ac_tive color:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:28
-msgid "Acti_ve lyrics:"
-msgstr "Etkin şarkı sö_zleri:"
-
-#: ../data/dialogs.glade.h:29
-msgid "Adjust lyric delay by +0.2 s"
-msgstr "Şarkı sözü gecikmesini +0.2 s olarak ayarla"
-
-#: ../data/dialogs.glade.h:30
-msgid "Adjust lyrics delay by -0.2 s"
-msgstr "Şarkı sözü gecikmesini -0.2 s olarak ayarla"
-
-#: ../data/dialogs.glade.h:31
-msgid "Always"
-msgstr ""
-
-#: ../data/dialogs.glade.h:32
-msgid ""
-"An OSD lyric show compatible with various media players and supports lyrics "
-"downloading.\n"
-msgstr ""
-"OSD lyric birçok ortam yürütücü ile uyumludur ve şarkı sözlerini indirmeyi "
-"destekler.\n"
-
-#: ../data/dialogs.glade.h:34
-msgid "Assign local LRC file to current music"
-msgstr "Güncel parçaya yerel bir LRC dosyası ata"
-
-#: ../data/dialogs.glade.h:35
-msgid "Au_to-detect system settings"
-msgstr ""
-
-#: ../data/dialogs.glade.h:36
-msgid "Auto la_unch player:"
-msgstr "Oynatıcı_yı otomatik başlat:"
-
-#: ../data/dialogs.glade.h:37
-msgid "By lines"
-msgstr ""
-
-#: ../data/dialogs.glade.h:38
-msgid "C_ustomize colors"
-msgstr "_Renkleri özelleştir"
-
-#: ../data/dialogs.glade.h:39
-msgid "Choose LRC file to download"
-msgstr "İndirilecek LRC Dosyasını Seçin"
-
-#: ../data/dialogs.glade.h:40
-msgid "Colo_r:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:41
-msgid "Color _Theme:"
-msgstr "Renk _Teması:"
-
-#: ../data/dialogs.glade.h:42
-#, fuzzy
-msgid "Copyright 2009-2011 The OSD Lyrics project."
-msgstr "Copyright 2009 The OSD Lyrics project."
-
-#: ../data/dialogs.glade.h:44
-msgid "D_on't ask me again"
-msgstr "Tekrar s_orma"
-
-#: ../data/dialogs.glade.h:45
-msgid "Display mode:"
+#: ../data/dialogs.glade.h:67
+msgid "Lyric _sites:"
 msgstr ""
 
 #. In preference/download, automately download the most matched lyric
-#: ../data/dialogs.glade.h:47
+#: ../data/dialogs.glade.h:69
 msgid "Do_wnload the first candidate"
 msgstr "İlk sürümü in_dir"
 
-#: ../data/dialogs.glade.h:48
-msgid "Doc_k"
+#: ../data/dialogs.glade.h:70
+msgid "<b>Download</b>"
+msgstr "<b>İndir</b>"
+
+#: ../data/dialogs.glade.h:71
+msgid "No _proxy"
 msgstr ""
 
-#: ../data/dialogs.glade.h:49
-msgid "Don't assign lyric to this music"
-msgstr "Bu şarkıya şarkı sözü atama"
-
-#: ../data/dialogs.glade.h:50
-msgid "F_irst line:"
-msgstr "_İlk satır"
-
-#: ../data/dialogs.glade.h:51
-msgid "GPL v3"
-msgstr "GPL v3"
-
-#: ../data/dialogs.glade.h:52
-msgid "HTTP"
+#: ../data/dialogs.glade.h:72
+msgid "Au_to-detect system settings"
 msgstr ""
 
-#: ../data/dialogs.glade.h:53
-msgid "Hide the OSD Window"
-msgstr "OSD Penceresini Gizle"
+#: ../data/dialogs.glade.h:73
+msgid "Use _manual settings"
+msgstr ""
 
-#: ../data/dialogs.glade.h:54
+#: ../data/dialogs.glade.h:74
+msgid "_Host:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:75
+msgid "Po_rt:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:76
+msgid "_Type:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:77
+msgid "_Username:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:78
+msgid "Passwo_rd:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:79
+msgid "Show passwor_d"
+msgstr ""
+
+#: ../data/dialogs.glade.h:80
+msgid "<b>Proxy</b>"
+msgstr "<b>Vekil Sunucu</b>"
+
+#: ../data/dialogs.glade.h:81
+msgid "_Network"
+msgstr ""
+
+#: ../data/dialogs.glade.h:82
+msgid "OSD _mode"
+msgstr ""
+
+#: ../data/dialogs.glade.h:83
+msgid "Scrolling _mode"
+msgstr ""
+
+#: ../data/dialogs.glade.h:84
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Eğer kilitliyse, OSD penceresini hareket ettiremezsiniz"
 
-#: ../data/dialogs.glade.h:55
+#: ../data/dialogs.glade.h:85
+msgid "_Lock Position"
+msgstr "Konumu Ki_litle"
+
+#: ../data/dialogs.glade.h:86
+msgid "Hide the OSD Window"
+msgstr "OSD Penceresini Gizle"
+
+#: ../data/dialogs.glade.h:87
+msgid "_Hide"
+msgstr "_Gizle"
+
+#: ../data/dialogs.glade.h:88
+msgid "_Search lyric..."
+msgstr "Şarkı _sözü ara..."
+
+#: ../data/dialogs.glade.h:89
+msgid "Search lyrics from Internet"
+msgstr "Şarkı sözlerini internette ara"
+
+#: ../data/dialogs.glade.h:90
+msgid "_Assign lyric..."
+msgstr "Ş_arkı sözü ata..."
+
+#: ../data/dialogs.glade.h:91
+msgid "Assign local LRC file to current music"
+msgstr "Güncel parçaya yerel bir LRC dosyası ata"
+
+#: ../data/dialogs.glade.h:92
+msgid "_No lyric"
+msgstr "Şarkı sözü _yok"
+
+#: ../data/dialogs.glade.h:93
+msgid "Don't assign lyric to this music"
+msgstr "Bu şarkıya şarkı sözü atama"
+
+#: ../data/dialogs.glade.h:94
+msgid "Lyric delay -"
+msgstr "Şarkı sözü gecikmesi -"
+
+#: ../data/dialogs.glade.h:95
+msgid "Adjust lyrics delay by -0.2 s"
+msgstr "Şarkı sözü gecikmesini -0.2 s olarak ayarla"
+
+#: ../data/dialogs.glade.h:96
+msgid "Lyric delay +"
+msgstr "Şarkı sözü gecikmesi +"
+
+#: ../data/dialogs.glade.h:97
+msgid "Adjust lyric delay by +0.2 s"
+msgstr "Şarkı sözü gecikmesini +0.2 s olarak ayarla"
+
+#: ../data/dialogs.glade.h:98
+msgid "Choose LRC file to download"
+msgstr "İndirilecek LRC Dosyasını Seçin"
+
+#: ../data/dialogs.glade.h:99
+msgid "D_on't ask me again"
+msgstr "Tekrar s_orma"
+
+#: ../data/dialogs.glade.h:100
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
@@ -401,309 +602,75 @@ msgstr ""
 "Eğer arama kalıbınıza uyan birden fazla lrc dosyası varsa, kullanıcıyı "
 "uyarmadan ilkini indir."
 
-#: ../data/dialogs.glade.h:56
-msgid "Inactiv_e lyrics:"
-msgstr "Etkin olmayan şarkı sözl_eri:"
-
-#: ../data/dialogs.glade.h:57
-#, fuzzy
-msgid "Lyric _sites:"
-msgstr "Şarkı sözü satırları:"
-
-#: ../data/dialogs.glade.h:58
-msgid "Lyric delay +"
-msgstr "Şarkı sözü gecikmesi +"
-
-#: ../data/dialogs.glade.h:59
-msgid "Lyric delay -"
-msgstr "Şarkı sözü gecikmesi -"
-
-#: ../data/dialogs.glade.h:60
-msgid "Lyric lines:"
-msgstr "Şarkı sözü satırları:"
-
-#: ../data/dialogs.glade.h:61
-msgid "Mode:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:62
-msgid "No _proxy"
-msgstr ""
-
-#: ../data/dialogs.glade.h:63
-msgid "Nor_mal"
-msgstr ""
-
-#: ../data/dialogs.glade.h:64
-msgid "OSD _mode"
-msgstr ""
-
-#: ../data/dialogs.glade.h:65
-msgid "OS_D"
-msgstr ""
-
-#: ../data/dialogs.glade.h:66
-msgid "O_pacity:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:67
-msgid "Opaque"
-msgstr ""
-
-#. The outline width of text in OSD window
-#: ../data/dialogs.glade.h:69
-msgid "Out_line:"
-msgstr "_Çıkış satırı:"
-
-#: ../data/dialogs.glade.h:70
-msgid "Passwo_rd:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:71
-msgid "Pla_yer command:"
-msgstr "Oynatıcı komutu:"
-
-#: ../data/dialogs.glade.h:72
-msgid "Po_rt:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:73
-msgid "Preferences"
-msgstr "Tercihler"
-
-#: ../data/dialogs.glade.h:74
-msgid "SOCKS4"
-msgstr ""
-
-#: ../data/dialogs.glade.h:75
-msgid "SOCKS5"
-msgstr ""
-
-#: ../data/dialogs.glade.h:76
-msgid "Sc_rolling"
-msgstr ""
-
-#: ../data/dialogs.glade.h:77
-msgid "Scroll _mode:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:78
-msgid "Scrolling _mode"
-msgstr ""
-
-#: ../data/dialogs.glade.h:79
-msgid "Search lyrics"
-msgstr "Şarkı Sözü Ara"
-
-#: ../data/dialogs.glade.h:80
-msgid "Search lyrics from Internet"
-msgstr "Şarkı sözlerini internette ara"
-
-#: ../data/dialogs.glade.h:81
-msgid "Show _bubble notification"
-msgstr ""
-
-#: ../data/dialogs.glade.h:82
-msgid "Show passwor_d"
-msgstr ""
-
-#: ../data/dialogs.glade.h:83
-msgid "Si_ngle line"
-msgstr "Tekil satır"
-
-#: ../data/dialogs.glade.h:84
-msgid "Strong"
-msgstr ""
-
-#: ../data/dialogs.glade.h:85
-msgid "T_ranslucent on mouse over"
-msgstr "Fa_re üzerindeyken saydamlaştır"
-
-#: ../data/dialogs.glade.h:86
-msgid "The artist of the current track"
-msgstr "Güncel parçanın solisti"
-
-#: ../data/dialogs.glade.h:87
-msgid "The filename of the current track"
-msgstr "Güncel parçanın dosya adı"
-
-#: ../data/dialogs.glade.h:88
-msgid "The number of the current track"
-msgstr "Güncel parçanın numarası"
-
-#: ../data/dialogs.glade.h:89
-msgid "The title of album of the current track"
-msgstr "Güncel parçanın albüm başlığı"
-
-#: ../data/dialogs.glade.h:90
-msgid "The title of the current track"
-msgstr "Güncel parçanın başlığı"
-
-#: ../data/dialogs.glade.h:91
-msgid "Transparent"
-msgstr ""
-
-#: ../data/dialogs.glade.h:92
-msgid "Use _manual settings"
-msgstr ""
-
-#: ../data/dialogs.glade.h:93
-msgid "Weak"
-msgstr ""
-
-#: ../data/dialogs.glade.h:94
-msgid "_Artist:"
-msgstr "S_anatçı:"
-
-#: ../data/dialogs.glade.h:95
-msgid "_Assign lyric..."
-msgstr "Ş_arkı sözü ata..."
-
-#: ../data/dialogs.glade.h:96
-msgid "_Blur:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:97
-msgid "_Double lines"
-msgstr "Çi_fte satırlar"
-
-#: ../data/dialogs.glade.h:98
+#: ../data/dialogs.glade.h:101
 msgid "_Download"
 msgstr "İn_dir"
 
-#: ../data/dialogs.glade.h:99
-msgid "_Font:"
-msgstr "_Yazı tipi:"
-
-#. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:101
-msgid "_From:"
-msgstr "_Kaynak:"
-
 #: ../data/dialogs.glade.h:102
-msgid "_General"
-msgstr "_Genel"
-
-#: ../data/dialogs.glade.h:103
-msgid "_Hide"
-msgstr "_Gizle"
+msgid "The title of the current track"
+msgstr "Güncel parçanın başlığı"
 
 #: ../data/dialogs.glade.h:104
-msgid "_Host:"
-msgstr ""
+#, no-c-format
+msgid "%t - Title"
+msgstr "%t - Başlık"
 
 #: ../data/dialogs.glade.h:105
-msgid "_Inactive color:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:106
-msgid "_Lock Position"
-msgstr "Konumu Ki_litle"
+msgid "The artist of the current track"
+msgstr "Güncel parçanın solisti"
 
 #: ../data/dialogs.glade.h:107
-msgid "_Lyric Location"
-msgstr "Şarkı Sözü _Dizini"
+#, no-c-format
+msgid "%p - Artist"
+msgstr "%p - Sanatçı"
 
 #: ../data/dialogs.glade.h:108
-msgid "_Network"
-msgstr ""
-
-#: ../data/dialogs.glade.h:109
-msgid "_No lyric"
-msgstr "Şarkı sözü _yok"
+msgid "The title of album of the current track"
+msgstr "Güncel parçanın albüm başlığı"
 
 #: ../data/dialogs.glade.h:110
-msgid "_OSD"
-msgstr "_OSD"
+#, no-c-format
+msgid "%a - Album"
+msgstr "%a - Albüm"
 
 #: ../data/dialogs.glade.h:111
-msgid "_Scrolling"
-msgstr ""
-
-#: ../data/dialogs.glade.h:112
-msgid "_Search"
-msgstr "Ara_ma"
+msgid "The number of the current track"
+msgstr "Güncel parçanın numarası"
 
 #: ../data/dialogs.glade.h:113
-msgid "_Search lyric..."
-msgstr "Şarkı _sözü ara..."
+#, no-c-format
+msgid "%n - Track number"
+msgstr "%n - Parça numarası"
 
 #: ../data/dialogs.glade.h:114
-msgid "_Second line:"
-msgstr "İkinci Dize"
+msgid "The filename of the current track"
+msgstr "Güncel parçanın dosya adı"
 
-#: ../data/dialogs.glade.h:115
+#: ../data/dialogs.glade.h:116
+#, no-c-format
+msgid "%f - Filename"
+msgstr "%f - Dosya Adı"
+
+#: ../data/dialogs.glade.h:117
+msgid "Search lyrics"
+msgstr "Şarkı Sözü Ara"
+
+#: ../data/dialogs.glade.h:118
 msgid "_Title:"
 msgstr "_Başlık:"
 
-#: ../data/dialogs.glade.h:116
-msgid "_Type:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:117
-msgid "_Username:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:118
-msgid "bottom"
-msgstr "alt"
-
 #: ../data/dialogs.glade.h:119
-msgid "http://code.google.com/p/osd-lyrics/"
-msgstr "http://code.google.com/p/osd-lyrics/"
+msgid "_Artist:"
+msgstr "S_anatçı:"
 
 #: ../data/dialogs.glade.h:120
-msgid "middle"
-msgstr "orta"
+msgid "_Search"
+msgstr "Ara_ma"
 
-#: ../data/dialogs.glade.h:121
-msgid "top"
-msgstr "üst"
-
+#. From witch web site to search and download lyrics
 #: ../data/dialogs.glade.h:122
-msgid "translator-credits"
-msgstr ""
-"Launchpad Contributions:\n"
-"  Engin BAHADIR https://launchpad.net/~enginbah\n"
-"  GüneyTekfidan https://launchpad.net/~ubuntuturk-hotmail\n"
-"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
-"  zeugma https://launchpad.net/~sunder67"
+msgid "_From:"
+msgstr "_Kaynak:"
 
-#~ msgid "Searching lyrics"
-#~ msgstr "Şarkı Sözleri aranıyor"
-
-#~ msgid "<b>Preview</b>"
-#~ msgstr "<b>Önizleme</b>"
-
-#~ msgid "None"
-#~ msgstr "Hiçbiri"
-
-#~ msgid "_Width:"
-#~ msgstr "_Genişlik:"
-
-#~ msgid "Choose witch site you want to download from."
-#~ msgstr "Hangi Siteden İndirmek İstediğinizi Seçin"
-
-#~ msgid "MiniLyrics"
-#~ msgstr "MiniLyrics"
-
-#~ msgid "Sogou"
-#~ msgstr "Sogou"
-
-#~ msgid "Qianqian"
-#~ msgstr "Qianqian"
-
-#~ msgid "<b>Display mode</b>"
-#~ msgstr "<b>Görünüm kipi</b>"
-
-#~ msgid "OSD"
-#~ msgstr "OSD"
-
-#~ msgid "Scrolling"
-#~ msgstr "Kaydırma"
-
-#~ msgid "_Display notification"
-#~ msgstr "Bilgilen_dirmeyi görüntüle"
-
-#~ msgid "Download _engine:"
-#~ msgstr "İndirm_e motoru:"
+#~ msgid "No supported player is running, exit.\n"
+#~ msgstr "Desteklenen bir ortam oynatıcı yok, çık.\n"

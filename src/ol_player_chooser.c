@@ -33,6 +33,7 @@ static const guint SUPPORT_CHOOSER_INDEX = 0;
 static const guint ALL_CHOOSER_INDEX = 1;
 static const guint MAX_CHOOSER_HEIGHT = 96 * 3; /* about 3 lines of apps */
 static const guint DEFAULT_APP_COLUMNS = 4;
+static const guint WINDOW_BORDER_SIZE = 5;
 
 G_DEFINE_TYPE(OlPlayerChooser, ol_player_chooser, GTK_TYPE_DIALOG)
 
@@ -224,6 +225,7 @@ static void
 _setup_ui (OlPlayerChooser *window)
 {
   OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
+  gtk_container_set_border_width (GTK_CONTAINER (window), WINDOW_BORDER_SIZE);
   /* Setup info widgets */
   priv->info_label = GTK_LABEL (gtk_label_new (NULL));
   gtk_label_set_line_wrap (priv->info_label, TRUE);
@@ -563,9 +565,21 @@ ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
     ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_INFO);
     break;
   case OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL: {
-    gchar *title = g_strdup_printf (_("Failed to connect to %s"),
+    gchar *title = g_strdup_printf (_("Fail to launch %s"),
                                       g_app_info_get_name (priv->launch_app));
-    gchar *desc = g_strdup_printf (_("%s is not supported by OSD Lyrics, or not running. Please launch another player"),
+    gchar *desc = g_strdup_printf (_("%s is not supported by OSD Lyrics, or not running. Please launch another player."),
+                                   g_app_info_get_name (priv->launch_app));
+    ol_player_chooser_set_info (window, title, desc);
+    ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);
+    g_free (title);
+    g_free (desc);
+    _set_launch_app (window, NULL);
+    break;
+  }
+  case OL_PLAYER_CHOOSER_STATE_DISCONNECTED: {
+    gchar *title = g_strdup_printf (_("Something wrong with %s"),
+                                      g_app_info_get_name (priv->launch_app));
+    gchar *desc = g_strdup_printf (_("It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. Please try launching it again, or launch another player instead."),
                                    g_app_info_get_name (priv->launch_app));
     ol_player_chooser_set_info (window, title, desc);
     ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);

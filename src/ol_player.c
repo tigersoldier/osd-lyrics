@@ -28,6 +28,7 @@
 #include "ol_player_listen.h"
 #include "ol_player_gmusicbrowser.h"
 #include "ol_player_moc.h"
+#include "ol_player_cmus.h"
 #include "ol_player_quodlibet.h"
 #include "ol_player_juk.h"
 #include "ol_player_muine.h"
@@ -63,6 +64,7 @@ ol_player_init ()
     ol_player_register (ol_player_rhythmbox_get ());
     ol_player_register (ol_player_mpris2_get ());
     ol_player_register (ol_player_moc_get ());
+    ol_player_register (ol_player_cmus_get ());
     ol_player_register (ol_player_quodlibet_get ());
     ol_player_register (ol_player_juk_get ());
     ol_player_register (ol_player_muine_get ());
@@ -141,6 +143,7 @@ ol_player_get_active_player (void)
     ol_debugf ("trying %s\n", controller->name);
     if (controller && controller->get_activated ())
     {
+      ol_debugf ("Connected to %s\n", controller->name);
       return controller;
     }
   }
@@ -345,6 +348,8 @@ ol_player_get_name (struct OlPlayer *player)
 const char *
 ol_player_get_icon_path (struct OlPlayer *player)
 {
+  if (player == NULL)
+    return NULL;
   if (player->get_icon_path != NULL)
     return player->get_icon_path ();
   else

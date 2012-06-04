@@ -7,18 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-17 23:18+0800\n"
-"PO-Revision-Date: 2011-05-14 04:13+0000\n"
-"Last-Translator: Tuhut Vladut Emanuel <Unknown>\n"
+"POT-Creation-Date: 2012-06-04 21:07+0800\n"
+"PO-Revision-Date: 2012-04-01 10:38+0000\n"
+"Last-Translator: Ithreexas <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
-"== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-06-04 13:40+0000\n"
-"X-Generator: Launchpad (build 13144)\n"
+"X-Launchpad-Export-Date: 2012-06-04 12:16+0000\n"
+"X-Generator: Launchpad (build 15353)\n"
 
 #: ../src/ol_menu.c:119
 msgid "LRC files"
@@ -28,7 +26,7 @@ msgstr "Fișiere LRC"
 msgid "Choose LRC file to assign"
 msgstr "Alegeți fișierul LRC pentru atribuire"
 
-#: ../src/ol_main.c:60
+#: ../src/ol_main.c:61
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -36,41 +34,40 @@ msgstr ""
 "Nivelul de depanare a mesajelor din jurnal, poate fi \"nici unul\", \"eroare"
 "\", \"debug\", sau \"info\""
 
-#: ../src/ol_main.c:62
+#: ../src/ol_main.c:63
 msgid "Show version information"
-msgstr ""
+msgstr "Afișează informații despre versiune"
 
-#: ../src/ol_main.c:147
+#: ../src/ol_main.c:153
 msgid "Download failed"
 msgstr "Descărcare eșuată"
 
-#: ../src/ol_main.c:162
-#, fuzzy, c-format
+#: ../src/ol_main.c:168
+#, c-format
 msgid "Searching lyrics from %s"
-msgstr "Se caută versuri pentru %s..."
+msgstr "Se caută versuri de la %s"
 
-#: ../src/ol_main.c:185
+#: ../src/ol_main.c:191
 msgid "Cannot create the lyric directory"
 msgstr "Nu se poate crea directorul cu versuri"
 
-#: ../src/ol_main.c:201
+#: ../src/ol_main.c:207
 msgid "Lyrics not found"
 msgstr "Nu s-au găsit versuri"
 
-#: ../src/ol_main.c:507
+#: ../src/ol_main.c:561
 #, c-format
-msgid "No supported player is running, exit.\n"
-msgstr "Un player nesuportat rulează, ișire\n"
+msgid "Player is not running. OSD Lyrics exits now.\n"
+msgstr ""
 
-#: ../src/ol_main.c:652
-#, fuzzy
+#: ../src/ol_main.c:710
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr ""
-"Nivelul de depanare a mesajelor din jurnal, poate fi \"nici unul\", \"eroare"
-"\", \"debug\", sau \"info\""
+"Nivelul de depanare ar trebui să fie unul dintre "
+"'niciunul','erori','depanare', sau 'info'"
 
-#: ../src/ol_main.c:675
+#: ../src/ol_main.c:733
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Un alt OSD Lyrics rulează, ieșire"
 
@@ -82,20 +79,20 @@ msgstr "Titlul necunoscut"
 msgid "Unknown artist"
 msgstr "Artist necunoscut"
 
-#: ../src/ol_trayicon.c:71 ../src/ol_trayicon.c:149
+#: ../src/ol_trayicon.c:71
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
 #: ../src/ol_option.c:1631
 msgid "Choose on startup"
-msgstr ""
+msgstr "Alegeți la pornire"
 
 #. gtk_list_store_append (liststore, &iter);
 #. gtk_list_store_set (liststore, &iter,
 #. 0, "Customize",
 #. 1, "",
 #. -1);
-#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:43
+#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:7
 msgid "Customize"
 msgstr "Personalizează"
 
@@ -103,13 +100,13 @@ msgstr "Personalizează"
 msgid "Select a folder"
 msgstr "Selectați un director"
 
-#: ../src/ol_lrc_fetch_ttplayer.c:274
+#: ../src/ol_lrc_fetch_ttplayer.c:276
 msgid "ttPlayer"
 msgstr "ttPlayer"
 
-#: ../src/ol_lrc_fetch_xiami.c:237
+#: ../src/ol_lrc_fetch_xiami.c:242
 msgid "Xiami"
-msgstr ""
+msgstr "Xiami"
 
 #: ../src/ol_lrc_candidate_list.c:43
 msgid "Title"
@@ -126,92 +123,330 @@ msgstr "Se caută versuri pentru %s..."
 
 #: ../src/ol_search_dialog.c:32
 msgid "Ooops, no lyric found :("
-msgstr "Ooops, versuri negăsite :("
+msgstr "Ooops, nu s-au găsit versuri :("
 
 #: ../src/ol_search_dialog.c:33
 #, c-format
 msgid "%d lyrics found :)"
-msgstr "%d versuri găsite :)"
+msgstr "%d versurile au fost găsite :)"
 
-#: ../src/ol_player_chooser.c:243
+#: ../src/ol_player_chooser.c:249
 msgid "Supported players"
-msgstr ""
+msgstr "Playere suportate"
 
-#: ../src/ol_player_chooser.c:244
+#: ../src/ol_player_chooser.c:250
 msgid "All players"
-msgstr ""
+msgstr "Toate playerele"
 
-#: ../src/ol_player_chooser.c:248 ../src/ol_player_chooser.c:319
-#, fuzzy
+#: ../src/ol_player_chooser.c:254 ../src/ol_player_chooser.c:326
 msgid "Choose a player to launch"
-msgstr "Alegeți fișierul LRC pentru atribuire"
+msgstr "Alegeți un player pentru pornire"
 
-#: ../src/ol_player_chooser.c:264
-#, fuzzy
+#: ../src/ol_player_chooser.c:270
 msgid "Use command:"
-msgstr "Comandă pla_yer:"
+msgstr "Se utilizează comanda:"
 
-#: ../src/ol_player_chooser.c:268
+#: ../src/ol_player_chooser.c:275
 msgid "Launch"
-msgstr ""
+msgstr "Lansare"
 
-#: ../src/ol_player_chooser.c:281
+#: ../src/ol_player_chooser.c:288
 msgid "Remember my choice"
-msgstr ""
+msgstr "Se reține alegerea"
 
-#: ../src/ol_player_chooser.c:387
+#: ../src/ol_player_chooser.c:440
 #, c-format
 msgid "Failed to launch %s"
-msgstr ""
+msgstr "%s nu a putut fi pornit"
 
-#: ../src/ol_player_chooser.c:397
+#: ../src/ol_player_chooser.c:450
 #, c-format
 msgid "Launching %s"
-msgstr ""
+msgstr "Se pornește %s"
 
-#: ../src/ol_player_chooser.c:399
+#: ../src/ol_player_chooser.c:452
 #, c-format
 msgid ""
 "OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
 msgstr ""
+"OSD Lyrics încearcă să pornească și să se conecteze la %s. Vă rog să "
+"așteptați."
 
-#: ../src/ol_player_chooser.c:510
-#, fuzzy
+#: ../src/ol_player_chooser.c:563
 msgid "There is no supported player running"
-msgstr "Un player nesuportat rulează, ișire\n"
+msgstr "Nu rulează nici un player suportat."
 
-#: ../src/ol_player_chooser.c:511
-#, fuzzy
+#: ../src/ol_player_chooser.c:564
 msgid "Please choose a player below to launch"
-msgstr "Alegeți fișierul LRC pentru atribuire"
+msgstr "Alegeți un player pentru pornire."
 
-#: ../src/ol_player_chooser.c:515
-#, c-format
-msgid "Failed to connect to %s"
-msgstr ""
+#: ../src/ol_player_chooser.c:568
+#, fuzzy, c-format
+msgid "Fail to launch %s"
+msgstr "%s nu a putut fi pornit"
 
-#: ../src/ol_player_chooser.c:517
-#, c-format
+#: ../src/ol_player_chooser.c:570
+#, fuzzy, c-format
 msgid ""
 "%s is not supported by OSD Lyrics, or not running. Please launch another "
-"player"
+"player."
+msgstr ""
+"%s nu este suportat de OSD Lyrics sau nu rulează. Vă rug să porniți un alt "
+"player."
+
+#: ../src/ol_player_chooser.c:580
+#, c-format
+msgid "Something wrong with %s"
 msgstr ""
 
-#: ../src/ol_app_info.c:183 ../src/ol_app_info.c:193
-msgid "Unnamed"
+#: ../src/ol_player_chooser.c:582
+#, c-format
+msgid ""
+"It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. "
+"Please try launching it again, or launch another player instead."
 msgstr ""
+
+#: ../src/ol_app_info.c:179 ../src/ol_app_info.c:189
+msgid "Unnamed"
+msgstr "Nedenumit"
 
 #: ../src/ol_scroll_window.c:52
 msgid ""
 "Drag to move the window\n"
 "Hold CTRL to seek"
 msgstr ""
+"Trageți pentru a muta fereastra\n"
+"Țineți CTRL pentru a căuta"
 
 #: ../src/ol_scroll_window.c:53
 msgid "Drag to move the window"
-msgstr ""
+msgstr "Trageți pentru a muta fereastra"
+
+#: ../data/dialogs.glade.h:1
+msgid "Copyright 2009-2011 The OSD Lyrics project."
+msgstr "Drepturi de autor 2009-2011 The OSD Lyrics"
 
 #: ../data/dialogs.glade.h:2
+msgid ""
+"An OSD lyric show compatible with various media players and supports lyrics "
+"downloading.\n"
+msgstr ""
+"Un vizualizator de versuri compatibil cu o varietate de playere si suportă "
+"descărcarea versurilor.\n"
+
+#: ../data/dialogs.glade.h:4
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr "http://code.google.com/p/osd-lyrics/"
+
+#: ../data/dialogs.glade.h:5
+msgid "GPL v3"
+msgstr "GPL v3"
+
+#: ../data/dialogs.glade.h:6
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Ithreexas https://launchpad.net/~ithreexas"
+
+#: ../data/dialogs.glade.h:8
+msgid "HTTP"
+msgstr "HTTP"
+
+#: ../data/dialogs.glade.h:9
+msgid "SOCKS4"
+msgstr "SOCKS4"
+
+#: ../data/dialogs.glade.h:10
+msgid "SOCKS5"
+msgstr "SOCKS5"
+
+#: ../data/dialogs.glade.h:11
+msgid "Always"
+msgstr "Întotdeauna"
+
+#: ../data/dialogs.glade.h:12
+msgid "By lines"
+msgstr "De linii"
+
+#: ../data/dialogs.glade.h:13
+msgid "Preferences"
+msgstr "Preferințe"
+
+#: ../data/dialogs.glade.h:14
+msgid "Display mode:"
+msgstr "Mod afișare"
+
+#: ../data/dialogs.glade.h:15
+msgid "OS_D"
+msgstr "OS_D"
+
+#: ../data/dialogs.glade.h:16
+msgid "Sc_rolling"
+msgstr "De_rulare"
+
+#: ../data/dialogs.glade.h:17
+msgid "Auto la_unch player:"
+msgstr "Auto ru_lează player:"
+
+#: ../data/dialogs.glade.h:18
+msgid "Pla_yer command:"
+msgstr "Comandă pla_yer:"
+
+#: ../data/dialogs.glade.h:19
+msgid "Show _bubble notification"
+msgstr "Afișează_notificarea balon"
+
+#: ../data/dialogs.glade.h:20
+msgid "_General"
+msgstr "_General"
+
+#: ../data/dialogs.glade.h:21
+msgid "_Font:"
+msgstr "_Font:"
+
+#. The outline width of text in OSD window
+#: ../data/dialogs.glade.h:23
+msgid "Out_line:"
+msgstr "Con_tur"
+
+#: ../data/dialogs.glade.h:24
+msgid "_Blur:"
+msgstr "_Estompare"
+
+#: ../data/dialogs.glade.h:25
+msgid "Weak"
+msgstr "Slab"
+
+#: ../data/dialogs.glade.h:26
+msgid "Strong"
+msgstr "Aldin"
+
+#: ../data/dialogs.glade.h:27
+msgid "Lyric lines:"
+msgstr "Linii versuri:"
+
+#: ../data/dialogs.glade.h:28
+msgid "Si_ngle line"
+msgstr "O linie"
+
+#: ../data/dialogs.glade.h:29
+msgid "_Double lines"
+msgstr "_Linii duble"
+
+#: ../data/dialogs.glade.h:30
+msgid "Mode:"
+msgstr "Mod:"
+
+#: ../data/dialogs.glade.h:31
+msgid "Doc_k"
+msgstr "Doc_k"
+
+#: ../data/dialogs.glade.h:32
+msgid "Nor_mal"
+msgstr "Nor_mal"
+
+#: ../data/dialogs.glade.h:33
+msgid "T_ranslucent on mouse over"
+msgstr "T_ranslucid sub cursor"
+
+#: ../data/dialogs.glade.h:34
+msgid "F_irst line:"
+msgstr "P_rima linie"
+
+#: ../data/dialogs.glade.h:35
+msgid "_Second line:"
+msgstr "_A doua linie"
+
+#: ../data/dialogs.glade.h:36
+msgid "<b>Lyric _Alignment</b>"
+msgstr "<b>Aliniere_versuri</b>"
+
+#: ../data/dialogs.glade.h:37
+msgid "Color _Theme:"
+msgstr "Culoare_Temă"
+
+#: ../data/dialogs.glade.h:38
+msgid "C_ustomize colors"
+msgstr "P_ersonalizează culorile"
+
+#: ../data/dialogs.glade.h:39
+msgid "Acti_ve lyrics:"
+msgstr "Versuri acti_ve"
+
+#: ../data/dialogs.glade.h:40
+msgid "top"
+msgstr "sus"
+
+#: ../data/dialogs.glade.h:41
+msgid "middle"
+msgstr "mijloc"
+
+#: ../data/dialogs.glade.h:42
+msgid "bottom"
+msgstr "jos"
+
+#: ../data/dialogs.glade.h:43
+msgid "Inactiv_e lyrics:"
+msgstr "Versuri inactiv_e"
+
+#: ../data/dialogs.glade.h:44
+msgid "<b>Lyric _Color</b>"
+msgstr "<b>Culoare versuri</b>"
+
+#: ../data/dialogs.glade.h:45
+msgid "_OSD"
+msgstr "_OSD"
+
+#: ../data/dialogs.glade.h:46
+msgid "Ac_tive color:"
+msgstr "Culoare ac_tivă"
+
+#: ../data/dialogs.glade.h:47
+msgid "_Inactive color:"
+msgstr "_Culoare inactiv"
+
+#: ../data/dialogs.glade.h:48
+msgid "Scroll _mode:"
+msgstr "Mod_derulare"
+
+#: ../data/dialogs.glade.h:49
+msgid "<b>Lyrics</b>"
+msgstr "<b>Versuri</b>"
+
+#: ../data/dialogs.glade.h:50
+msgid "Colo_r:"
+msgstr "Culoa_re:"
+
+#: ../data/dialogs.glade.h:51
+msgid "O_pacity:"
+msgstr "O_pacitate:"
+
+#: ../data/dialogs.glade.h:52
+msgid "Transparent"
+msgstr "Transparent"
+
+#: ../data/dialogs.glade.h:53
+msgid "Opaque"
+msgstr "Opac"
+
+#: ../data/dialogs.glade.h:54
+msgid "<b>Background</b>"
+msgstr "<b>Fundal</b>"
+
+#: ../data/dialogs.glade.h:55
+msgid "_Scrolling"
+msgstr "_Derulare"
+
+#: ../data/dialogs.glade.h:57
+#, no-c-format
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr "Un singur \"%\" reprezintă directorul de unde se află muzica"
+
+#: ../data/dialogs.glade.h:58
+msgid "<b>_Path</b>"
+msgstr "<b>_Cale</b>"
+
+#: ../data/dialogs.glade.h:60
 #, no-c-format
 msgid ""
 "  %t - Title\n"
@@ -226,175 +461,144 @@ msgstr ""
 "  %n - Număr melodie\n"
 "  %f - Nume fișier (fără extensie)"
 
-#: ../data/dialogs.glade.h:8
-#, no-c-format
-msgid "%a - Album"
-msgstr "%a - Album"
-
-#: ../data/dialogs.glade.h:10
-#, no-c-format
-msgid "%f - Filename"
-msgstr "%f - Nume fișier"
-
-#: ../data/dialogs.glade.h:12
-#, no-c-format
-msgid "%n - Track number"
-msgstr "%n - Număr melodie"
-
-#: ../data/dialogs.glade.h:14
-#, no-c-format
-msgid "%p - Artist"
-msgstr "%p - Artist"
-
-#: ../data/dialogs.glade.h:16
-#, no-c-format
-msgid "%t - Title"
-msgstr "%t - Titlu"
-
-#: ../data/dialogs.glade.h:17
-msgid "<b>Background</b>"
-msgstr "<b>Fundal</b>"
-
-#: ../data/dialogs.glade.h:18
-msgid "<b>Download</b>"
-msgstr "<b>Descarcă</b>"
-
-#: ../data/dialogs.glade.h:19
-msgid "<b>Lyric _Alignment</b>"
-msgstr "<b>Aliniere_versuri</b>"
-
-#: ../data/dialogs.glade.h:20
-msgid "<b>Lyric _Color</b>"
-msgstr "<b>Culoare versuri</b>"
-
-#: ../data/dialogs.glade.h:21
-msgid "<b>Lyrics</b>"
-msgstr "<b>Versuri</b>"
-
-#: ../data/dialogs.glade.h:22
-msgid "<b>Proxy</b>"
-msgstr "<b>Proxy</b>"
-
-#: ../data/dialogs.glade.h:23
+#: ../data/dialogs.glade.h:65
 msgid "<b>_Filename</b>"
 msgstr "<b>_Nume Fișier</b>"
 
-#: ../data/dialogs.glade.h:24
-msgid "<b>_Path</b>"
-msgstr "<b>_Cale</b>"
+#: ../data/dialogs.glade.h:66
+msgid "_Lyric Location"
+msgstr "_Locația versurilor"
 
-#: ../data/dialogs.glade.h:26
-#, no-c-format
-msgid "A single \"%\" means the directory where the playing music is."
-msgstr "Un singur \"%\" reprezintă directorul de unde se află muzica"
-
-#: ../data/dialogs.glade.h:27
-msgid "Ac_tive color:"
-msgstr "Culoare ac_tivă"
-
-#: ../data/dialogs.glade.h:28
-msgid "Acti_ve lyrics:"
-msgstr "Versuri acty_ve"
-
-#: ../data/dialogs.glade.h:29
-msgid "Adjust lyric delay by +0.2 s"
-msgstr "Ajustează sincronizarea versurilor cu +0.2 s"
-
-#: ../data/dialogs.glade.h:30
-msgid "Adjust lyrics delay by -0.2 s"
-msgstr "Ajustează sincronizarea versurilor cu -0.2 s"
-
-#: ../data/dialogs.glade.h:31
-msgid "Always"
-msgstr "Întotdeauna"
-
-#: ../data/dialogs.glade.h:32
-msgid ""
-"An OSD lyric show compatible with various media players and supports lyrics "
-"downloading.\n"
-msgstr ""
-"Un vizualizator de versuri compatibil cu o varietate de playere si suportă "
-"descărcarea versurilor.\n"
-
-#: ../data/dialogs.glade.h:34
-msgid "Assign local LRC file to current music"
-msgstr "Asociază fișierul LRC local cu melodia curentă"
-
-#: ../data/dialogs.glade.h:35
-msgid "Au_to-detect system settings"
-msgstr "Au_to-detectează setătile sistemului"
-
-#: ../data/dialogs.glade.h:36
-msgid "Auto la_unch player:"
-msgstr "Auto ru_lează player:"
-
-#: ../data/dialogs.glade.h:37
-msgid "By lines"
-msgstr "De linii"
-
-#: ../data/dialogs.glade.h:38
-msgid "C_ustomize colors"
-msgstr "P_ersonalizează culorile"
-
-#: ../data/dialogs.glade.h:39
-msgid "Choose LRC file to download"
-msgstr "Alegeți fișierul LRC pentru descărcare"
-
-#: ../data/dialogs.glade.h:40
-msgid "Colo_r:"
-msgstr "Culoa_re:"
-
-#: ../data/dialogs.glade.h:41
-msgid "Color _Theme:"
-msgstr "Culoare_Temă"
-
-#: ../data/dialogs.glade.h:42
-#, fuzzy
-msgid "Copyright 2009-2011 The OSD Lyrics project."
-msgstr "Drepturi de autor 2009 Proiectul OSD Lyrics."
-
-#: ../data/dialogs.glade.h:44
-msgid "D_on't ask me again"
-msgstr "N_u mă mai întreba"
-
-#: ../data/dialogs.glade.h:45
-msgid "Display mode:"
-msgstr "Mod afișare"
+#: ../data/dialogs.glade.h:67
+msgid "Lyric _sites:"
+msgstr "Site-uri versuri"
 
 #. In preference/download, automately download the most matched lyric
-#: ../data/dialogs.glade.h:47
+#: ../data/dialogs.glade.h:69
 msgid "Do_wnload the first candidate"
 msgstr "De_scarcă primul fișier"
 
-#: ../data/dialogs.glade.h:48
-msgid "Doc_k"
-msgstr "Doc_k"
+#: ../data/dialogs.glade.h:70
+msgid "<b>Download</b>"
+msgstr "<b>Descarcă</b>"
 
-#: ../data/dialogs.glade.h:49
-msgid "Don't assign lyric to this music"
-msgstr "Nu asocia versuri melodiei"
+#: ../data/dialogs.glade.h:71
+msgid "No _proxy"
+msgstr "Fără_proxy"
 
-#: ../data/dialogs.glade.h:50
-msgid "F_irst line:"
-msgstr "P_rima linie"
+#: ../data/dialogs.glade.h:72
+msgid "Au_to-detect system settings"
+msgstr "Au_to-detectează setătile sistemului"
 
-#: ../data/dialogs.glade.h:51
-msgid "GPL v3"
-msgstr "GPL v3"
+#: ../data/dialogs.glade.h:73
+msgid "Use _manual settings"
+msgstr "Setătile utilizatorului"
 
-#: ../data/dialogs.glade.h:52
-msgid "HTTP"
-msgstr "HTTP"
+#: ../data/dialogs.glade.h:74
+msgid "_Host:"
+msgstr "_Gazdă"
 
-#: ../data/dialogs.glade.h:53
-msgid "Hide the OSD Window"
-msgstr "Ascunde fereastra OSD"
+#: ../data/dialogs.glade.h:75
+msgid "Po_rt:"
+msgstr "Po_rt:"
 
-#: ../data/dialogs.glade.h:54
+#: ../data/dialogs.glade.h:76
+msgid "_Type:"
+msgstr "_Tip:"
+
+#: ../data/dialogs.glade.h:77
+msgid "_Username:"
+msgstr "_Utilizator:"
+
+#: ../data/dialogs.glade.h:78
+msgid "Passwo_rd:"
+msgstr "Parol_ă"
+
+#: ../data/dialogs.glade.h:79
+msgid "Show passwor_d"
+msgstr "Arată parol_a"
+
+#: ../data/dialogs.glade.h:80
+msgid "<b>Proxy</b>"
+msgstr "<b>Proxy</b>"
+
+#: ../data/dialogs.glade.h:81
+msgid "_Network"
+msgstr "_Rețea"
+
+#: ../data/dialogs.glade.h:82
+msgid "OSD _mode"
+msgstr "mod_OSD"
+
+#: ../data/dialogs.glade.h:83
+msgid "Scrolling _mode"
+msgstr "Mod_derulare"
+
+#: ../data/dialogs.glade.h:84
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Dacă este blocat, nu puteți muta fereastra OSD cu mausul"
 
-#: ../data/dialogs.glade.h:55
+#: ../data/dialogs.glade.h:85
+msgid "_Lock Position"
+msgstr "_Poziție blocată"
+
+#: ../data/dialogs.glade.h:86
+msgid "Hide the OSD Window"
+msgstr "Ascunde fereastra OSD"
+
+#: ../data/dialogs.glade.h:87
+msgid "_Hide"
+msgstr "A_scunde"
+
+#: ../data/dialogs.glade.h:88
+msgid "_Search lyric..."
+msgstr "Căutare versuri"
+
+#: ../data/dialogs.glade.h:89
+msgid "Search lyrics from Internet"
+msgstr "Se caută versuri pe Internet"
+
+#: ../data/dialogs.glade.h:90
+msgid "_Assign lyric..."
+msgstr "_Asociere versuri..."
+
+#: ../data/dialogs.glade.h:91
+msgid "Assign local LRC file to current music"
+msgstr "Asociază fișierul LRC local cu melodia curentă"
+
+#: ../data/dialogs.glade.h:92
+msgid "_No lyric"
+msgstr "_Fără versuri"
+
+#: ../data/dialogs.glade.h:93
+msgid "Don't assign lyric to this music"
+msgstr "Nu asocia versuri melodiei"
+
+#: ../data/dialogs.glade.h:94
+msgid "Lyric delay -"
+msgstr "Sincronizare versuri -"
+
+#: ../data/dialogs.glade.h:95
+msgid "Adjust lyrics delay by -0.2 s"
+msgstr "Ajustează sincronizarea versurilor cu -0.2 s"
+
+#: ../data/dialogs.glade.h:96
+msgid "Lyric delay +"
+msgstr "Sincronizare versuri +"
+
+#: ../data/dialogs.glade.h:97
+msgid "Adjust lyric delay by +0.2 s"
+msgstr "Ajustează sincronizarea versurilor cu +0.2 s"
+
+#: ../data/dialogs.glade.h:98
+msgid "Choose LRC file to download"
+msgstr "Alegeți fișierul LRC pentru descărcare"
+
+#: ../data/dialogs.glade.h:99
+msgid "D_on't ask me again"
+msgstr "N_u mă mai întreba"
+
+#: ../data/dialogs.glade.h:100
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
@@ -402,300 +606,78 @@ msgstr ""
 "Dacă sunt mai multe fișiere LRC se potrivesc căutării, descarcă primul "
 "fișier fără a interoga utilizatorul."
 
-#: ../data/dialogs.glade.h:56
-msgid "Inactiv_e lyrics:"
-msgstr "Versuri inactiv_e"
-
-#: ../data/dialogs.glade.h:57
-#, fuzzy
-msgid "Lyric _sites:"
-msgstr "Linii versuri:"
-
-#: ../data/dialogs.glade.h:58
-msgid "Lyric delay +"
-msgstr "Sincronizare versuri +"
-
-#: ../data/dialogs.glade.h:59
-msgid "Lyric delay -"
-msgstr "Sincronizare versuri -"
-
-#: ../data/dialogs.glade.h:60
-msgid "Lyric lines:"
-msgstr "Linii versuri:"
-
-#: ../data/dialogs.glade.h:61
-msgid "Mode:"
-msgstr "Mod:"
-
-#: ../data/dialogs.glade.h:62
-msgid "No _proxy"
-msgstr "Fără_proxy"
-
-#: ../data/dialogs.glade.h:63
-msgid "Nor_mal"
-msgstr "Nor_mal"
-
-#: ../data/dialogs.glade.h:64
-msgid "OSD _mode"
-msgstr "mod_OSD"
-
-#: ../data/dialogs.glade.h:65
-msgid "OS_D"
-msgstr "OS_D"
-
-#: ../data/dialogs.glade.h:66
-msgid "O_pacity:"
-msgstr "O_pacitate:"
-
-#: ../data/dialogs.glade.h:67
-msgid "Opaque"
-msgstr "Opac"
-
-#. The outline width of text in OSD window
-#: ../data/dialogs.glade.h:69
-msgid "Out_line:"
-msgstr "Con_tur"
-
-#: ../data/dialogs.glade.h:70
-msgid "Passwo_rd:"
-msgstr "Parol_ă"
-
-#: ../data/dialogs.glade.h:71
-msgid "Pla_yer command:"
-msgstr "Comandă pla_yer:"
-
-#: ../data/dialogs.glade.h:72
-msgid "Po_rt:"
-msgstr "Po_rt:"
-
-#: ../data/dialogs.glade.h:73
-msgid "Preferences"
-msgstr "Preferințe"
-
-#: ../data/dialogs.glade.h:74
-msgid "SOCKS4"
-msgstr "SOCKS4"
-
-#: ../data/dialogs.glade.h:75
-msgid "SOCKS5"
-msgstr "SOCKS5"
-
-#: ../data/dialogs.glade.h:76
-msgid "Sc_rolling"
-msgstr "De_rulare"
-
-#: ../data/dialogs.glade.h:77
-msgid "Scroll _mode:"
-msgstr "Mod_derulare"
-
-#: ../data/dialogs.glade.h:78
-msgid "Scrolling _mode"
-msgstr "Mod_derulare"
-
-#: ../data/dialogs.glade.h:79
-msgid "Search lyrics"
-msgstr "Se caută versuri"
-
-#: ../data/dialogs.glade.h:80
-msgid "Search lyrics from Internet"
-msgstr "Se caută versuri pe Internet"
-
-#: ../data/dialogs.glade.h:81
-msgid "Show _bubble notification"
-msgstr "Afișează_notificarea balon"
-
-#: ../data/dialogs.glade.h:82
-msgid "Show passwor_d"
-msgstr "Arată parol_a"
-
-#: ../data/dialogs.glade.h:83
-msgid "Si_ngle line"
-msgstr "O linie"
-
-#: ../data/dialogs.glade.h:84
-msgid "Strong"
-msgstr ""
-
-#: ../data/dialogs.glade.h:85
-msgid "T_ranslucent on mouse over"
-msgstr "T_ranslucid sub cursor"
-
-#: ../data/dialogs.glade.h:86
-msgid "The artist of the current track"
-msgstr "Artistul melodiei curente"
-
-#: ../data/dialogs.glade.h:87
-msgid "The filename of the current track"
-msgstr "Numele fișierului melodiei curente"
-
-#: ../data/dialogs.glade.h:88
-msgid "The number of the current track"
-msgstr "Numărul melodiei curente"
-
-#: ../data/dialogs.glade.h:89
-msgid "The title of album of the current track"
-msgstr "Numele albumului melodiei curente"
-
-#: ../data/dialogs.glade.h:90
-msgid "The title of the current track"
-msgstr "Titlul melodiei curente"
-
-#: ../data/dialogs.glade.h:91
-msgid "Transparent"
-msgstr "Transparent"
-
-#: ../data/dialogs.glade.h:92
-msgid "Use _manual settings"
-msgstr "Setătile utilizatorului"
-
-#: ../data/dialogs.glade.h:93
-msgid "Weak"
-msgstr ""
-
-#: ../data/dialogs.glade.h:94
-msgid "_Artist:"
-msgstr "_Artist:"
-
-#: ../data/dialogs.glade.h:95
-msgid "_Assign lyric..."
-msgstr "_Asociere versuri..."
-
-#: ../data/dialogs.glade.h:96
-msgid "_Blur:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:97
-msgid "_Double lines"
-msgstr "_Linii duble"
-
-#: ../data/dialogs.glade.h:98
+#: ../data/dialogs.glade.h:101
 msgid "_Download"
 msgstr "_Descărcare"
 
-#: ../data/dialogs.glade.h:99
-msgid "_Font:"
-msgstr "_Font:"
-
-#. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:101
-msgid "_From:"
-msgstr "_De la:"
-
 #: ../data/dialogs.glade.h:102
-msgid "_General"
-msgstr "_General"
-
-#: ../data/dialogs.glade.h:103
-msgid "_Hide"
-msgstr "A_scunde"
+msgid "The title of the current track"
+msgstr "Titlul melodiei curente"
 
 #: ../data/dialogs.glade.h:104
-msgid "_Host:"
-msgstr "_Gazdă"
+#, no-c-format
+msgid "%t - Title"
+msgstr "%t - Titlu"
 
 #: ../data/dialogs.glade.h:105
-msgid "_Inactive color:"
-msgstr "_Culoare inactiv"
-
-#: ../data/dialogs.glade.h:106
-msgid "_Lock Position"
-msgstr "_Poziție blocată"
+msgid "The artist of the current track"
+msgstr "Artistul melodiei curente"
 
 #: ../data/dialogs.glade.h:107
-msgid "_Lyric Location"
-msgstr "_Locația versurilor"
+#, no-c-format
+msgid "%p - Artist"
+msgstr "%p - Artist"
 
 #: ../data/dialogs.glade.h:108
-msgid "_Network"
-msgstr "_Rețea"
-
-#: ../data/dialogs.glade.h:109
-msgid "_No lyric"
-msgstr "_Fără versuri"
+msgid "The title of album of the current track"
+msgstr "Numele albumului melodiei curente"
 
 #: ../data/dialogs.glade.h:110
-msgid "_OSD"
-msgstr "_OSD"
+#, no-c-format
+msgid "%a - Album"
+msgstr "%a - Album"
 
 #: ../data/dialogs.glade.h:111
-msgid "_Scrolling"
-msgstr "_Derulare"
-
-#: ../data/dialogs.glade.h:112
-msgid "_Search"
-msgstr "_Caută"
+msgid "The number of the current track"
+msgstr "Numărul melodiei curente"
 
 #: ../data/dialogs.glade.h:113
-msgid "_Search lyric..."
-msgstr "_Se caută versuri"
+#, no-c-format
+msgid "%n - Track number"
+msgstr "%n - Număr melodie"
 
 #: ../data/dialogs.glade.h:114
-msgid "_Second line:"
-msgstr "_A doua linie"
+msgid "The filename of the current track"
+msgstr "Numele fișierului melodiei curente"
 
-#: ../data/dialogs.glade.h:115
+#: ../data/dialogs.glade.h:116
+#, no-c-format
+msgid "%f - Filename"
+msgstr "%f - Nume fișier"
+
+#: ../data/dialogs.glade.h:117
+msgid "Search lyrics"
+msgstr "Căutare versuri"
+
+#: ../data/dialogs.glade.h:118
 msgid "_Title:"
 msgstr "_Titlu:"
 
-#: ../data/dialogs.glade.h:116
-msgid "_Type:"
-msgstr "_Tip:"
-
-#: ../data/dialogs.glade.h:117
-msgid "_Username:"
-msgstr "_Utilizator:"
-
-#: ../data/dialogs.glade.h:118
-msgid "bottom"
-msgstr "jos"
-
 #: ../data/dialogs.glade.h:119
-msgid "http://code.google.com/p/osd-lyrics/"
-msgstr "http://code.google.com/p/osd-lyrics/"
+msgid "_Artist:"
+msgstr "_Artist:"
 
 #: ../data/dialogs.glade.h:120
-msgid "middle"
-msgstr "mijloc"
+msgid "_Search"
+msgstr "_Caută"
 
-#: ../data/dialogs.glade.h:121
-msgid "top"
-msgstr "sus"
-
+#. From witch web site to search and download lyrics
 #: ../data/dialogs.glade.h:122
-msgid "translator-credits"
-msgstr ""
-"Launchpad Contributions:\n"
-"  Tuhut Vladut Emanuel https://launchpad.net/~ithreexas"
+msgid "_From:"
+msgstr "_De la:"
 
-#~ msgid "Searching lyrics"
-#~ msgstr "Se caută versurile"
+#~ msgid "No supported player is running, exit.\n"
+#~ msgstr "Un player nesuportat rulează, ișire\n"
 
-#~ msgid "<b>Preview</b>"
-#~ msgstr "<b>Previzualizare</b>"
-
-#~ msgid "_Site:"
-#~ msgstr "_Site:"
-
-#~ msgid "None"
-#~ msgstr "Nespecificat"
-
-#~ msgid "MiniLyrics"
-#~ msgstr "MiniLyrics"
-
-#~ msgid "Sogou"
-#~ msgstr "Sogou"
-
-#~ msgid "Qianqian"
-#~ msgstr "Qianqian"
-
-#~ msgid "<b>Display mode</b>"
-#~ msgstr "<b>Mod afișare</b>"
-
-#~ msgid "OSD"
-#~ msgstr "OSD"
-
-#~ msgid "Scrolling"
-#~ msgstr "Derulare"
-
-#~ msgid "_Display notification"
-#~ msgstr "_Arată notificare"
+#~ msgid "Failed to connect to %s"
+#~ msgstr "Conectarea la %s a eșuat"

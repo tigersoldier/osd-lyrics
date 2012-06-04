@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 m4_define([OL_MAJOR_VER], [0])
 m4_define([OL_MINOR_VER], [4])
-m4_define([OL_MICRO_VER], [2])
+m4_define([OL_MICRO_VER], [3])
 m4_define([OL_BUILD], [])
 m4_define(OL_BUILD_VER,
           m4_esyscmd([if test x]OL_BUILD[ == x-git; then git log -1 --format=format:%ad --date=short | sed 's/-//g'; fi]))
@@ -23,6 +23,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
+AM_PROG_AR
 AC_PROG_RANLIB
 AC_CONFIG_FILES([ po/Makefile.in
 	Makefile

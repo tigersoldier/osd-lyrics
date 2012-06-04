@@ -17,6 +17,7 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <stdio.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -65,6 +66,7 @@ static GOptionEntry cmdargs[] =
 
 static guint refresh_source = 0;
 static guint info_timer = 0;
+static guint _lost_action_delay_timer = 0;
 static struct OlPlayer *player = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
@@ -81,6 +83,7 @@ static enum _PlayerLostAction {
   ACTION_NONE = 0,
   ACTION_LAUNCH_DEFAULT,
   ACTION_CHOOSE_PLAYER,
+  ACTION_CHOOSE_PLAYER_DISCONNECTED,
   ACTION_WAIT_LAUNCH,
   ACTION_QUIT,
 } player_lost_action = ACTION_LAUNCH_DEFAULT;
@@ -93,6 +96,9 @@ static void _start_refresh_music_info (void);
 static void _stop_refresh_music_info (void);
 static void _start_refresh_player_info (void);
 static void _wait_for_player_launch (void);
+static void _set_player_lost_action (enum _PlayerLostAction action);
+static void _set_player_lost_action_delay (enum _PlayerLostAction action,
+                                           guint delay_ms);
 static void _player_lost_cb (void);
 static void _player_chooser_response_cb (GtkDialog *dialog,
                                          gint response_id,
@@ -419,18 +425,50 @@ _refresh_player_info (gpointer data)
   return TRUE;
 }
 
+static void
+_set_player_lost_action (enum _PlayerLostAction action)
+{
+  if (_lost_action_delay_timer)
+  {
+    g_source_remove (_lost_action_delay_timer);
+    _lost_action_delay_timer = 0;
+  }
+  player_lost_action = action;
+}
+
+static gboolean
+_player_lost_action_delay_cb (gpointer userdata)
+{
+  enum _PlayerLostAction action = GPOINTER_TO_INT (userdata);
+  _set_player_lost_action (action);
+  return FALSE;
+}
+
+static void
+_set_player_lost_action_delay (enum _PlayerLostAction action,
+                               guint delay_seconds)
+{
+  if (_lost_action_delay_timer)
+  {
+    g_source_remove (_lost_action_delay_timer);
+  }
+  _lost_action_delay_timer = g_timeout_add_seconds (delay_seconds,
+                                                    _player_lost_action_delay_cb,
+                                                    GINT_TO_POINTER ((int) action));
+}
+
 static gboolean
 _player_launch_timeout (gpointer userdata)
 {
   if (player_lost_action == ACTION_WAIT_LAUNCH)
-    player_lost_action = ACTION_CHOOSE_PLAYER;
+    _set_player_lost_action (ACTION_CHOOSE_PLAYER);
   return FALSE;
 }
 
 static void
 _wait_for_player_launch (void)
 {
-  player_lost_action = ACTION_WAIT_LAUNCH;
+  _set_player_lost_action (ACTION_WAIT_LAUNCH);
   g_timeout_add (TIMEOUT_WAIT_LAUNCH, _player_launch_timeout, NULL);
 }
 
@@ -459,10 +497,22 @@ _player_chooser_response_cb (GtkDialog *dialog,
 static void
 _player_lost_cb (void)
 {
+  if (_lost_action_delay_timer > 0)
+  {
+    g_source_remove (_lost_action_delay_timer);
+    _lost_action_delay_timer = 0;
+  }
+  ol_music_info_clear (&music_info);
+  if (module != NULL)
+  {
+    ol_display_module_free (module);
+    module = NULL;
+  }
   switch (player_lost_action)
   {
   case ACTION_LAUNCH_DEFAULT:
   case ACTION_CHOOSE_PLAYER:
+  case ACTION_CHOOSE_PLAYER_DISCONNECTED:
   {
     if (player_lost_action == ACTION_LAUNCH_DEFAULT)
     {
@@ -496,15 +546,19 @@ _player_lost_cb (void)
     }
     else
     {
-      ol_player_chooser_set_info_by_state (player_chooser,
-                                           OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL);
+      if (player_lost_action == ACTION_CHOOSE_PLAYER_DISCONNECTED)
+        ol_player_chooser_set_info_by_state (player_chooser,
+                                             OL_PLAYER_CHOOSER_STATE_DISCONNECTED);
+      else
+        ol_player_chooser_set_info_by_state (player_chooser,
+                                             OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL);
     }
     gtk_widget_show (GTK_WIDGET (player_chooser));
-    player_lost_action = ACTION_NONE;
+    _set_player_lost_action (ACTION_NONE);
     break;
   }
   case ACTION_QUIT:
-    printf (_("No supported player is running, exit.\n"));
+    printf (_("Player is not running. OSD Lyrics exits now.\n"));
     gtk_main_quit ();
     break;
   default:
@@ -527,7 +581,11 @@ _player_connected_cb (void)
     display_mode = ol_config_get_string (config, "General", "display-mode");
     module = ol_display_module_new (display_mode);
   }
-  player_lost_action = ACTION_QUIT;
+  /* If the player lost in 1 minute, it is possible that the player crashed or
+     something bad happen to the D-Bus connection. In this case, we should let
+     our use to choose another player rather than simply exit */
+  _set_player_lost_action (ACTION_CHOOSE_PLAYER_DISCONNECTED);
+  _set_player_lost_action_delay (ACTION_QUIT, 60);
 }
 
 static gboolean

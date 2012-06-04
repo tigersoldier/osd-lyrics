@@ -7,18 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-17 23:18+0800\n"
-"PO-Revision-Date: 2011-01-27 13:29+0000\n"
-"Last-Translator: Stanislav Hanzhin <Unknown>\n"
+"POT-Creation-Date: 2012-06-04 21:07+0800\n"
+"PO-Revision-Date: 2012-04-17 14:22+0000\n"
+"Last-Translator: Sergey Popov <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-06-04 13:40+0000\n"
-"X-Generator: Launchpad (build 13144)\n"
+"X-Launchpad-Export-Date: 2012-06-04 12:16+0000\n"
+"X-Generator: Launchpad (build 15353)\n"
 
 #: ../src/ol_menu.c:119
 msgid "LRC files"
@@ -26,9 +24,9 @@ msgstr "LRC-файлы"
 
 #: ../src/ol_menu.c:125
 msgid "Choose LRC file to assign"
-msgstr "Выверите назначаемый файл LRC"
+msgstr "Выберите назначаемый файл LRC"
 
-#: ../src/ol_main.c:60
+#: ../src/ol_main.c:61
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
@@ -36,41 +34,40 @@ msgstr ""
 "Уровень отладочных сообщений в логе может быть 'none', 'error', 'debug' или "
 "'info'"
 
-#: ../src/ol_main.c:62
+#: ../src/ol_main.c:63
 msgid "Show version information"
-msgstr ""
+msgstr "Показать информацию о версии программы"
 
-#: ../src/ol_main.c:147
+#: ../src/ol_main.c:153
 msgid "Download failed"
 msgstr "Ошибка загрузки данных"
 
-#: ../src/ol_main.c:162
-#, fuzzy, c-format
+#: ../src/ol_main.c:168
+#, c-format
 msgid "Searching lyrics from %s"
-msgstr "Поиск текстов в %s..."
+msgstr "Искать песни в %s"
 
-#: ../src/ol_main.c:185
+#: ../src/ol_main.c:191
 msgid "Cannot create the lyric directory"
 msgstr "Невозможно создать папку лирики"
 
-#: ../src/ol_main.c:201
+#: ../src/ol_main.c:207
 msgid "Lyrics not found"
 msgstr "Текст песни не найден"
 
-#: ../src/ol_main.c:507
+#: ../src/ol_main.c:561
 #, c-format
-msgid "No supported player is running, exit.\n"
-msgstr "Нет доступных плееров.\n"
+msgid "Player is not running. OSD Lyrics exits now.\n"
+msgstr ""
 
-#: ../src/ol_main.c:652
-#, fuzzy
+#: ../src/ol_main.c:710
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr ""
-"Уровень отладочных сообщений в логе может быть 'none', 'error', 'debug' или "
-"'info'"
+"уровень отладки должен быть одним из ``none'', ``error'', ``debug'', or "
+"``info''"
 
-#: ../src/ol_main.c:675
+#: ../src/ol_main.c:733
 msgid "Another OSD Lyrics is running, exit."
 msgstr "Приложение уже запущено."
 
@@ -82,20 +79,20 @@ msgstr "Неизвестный заголовок"
 msgid "Unknown artist"
 msgstr "Неизвестный исполнитель"
 
-#: ../src/ol_trayicon.c:71 ../src/ol_trayicon.c:149
+#: ../src/ol_trayicon.c:71
 msgid "OSD Lyrics"
 msgstr "OSD-показ текстов."
 
 #: ../src/ol_option.c:1631
 msgid "Choose on startup"
-msgstr ""
+msgstr "Выбрать при запуске"
 
 #. gtk_list_store_append (liststore, &iter);
 #. gtk_list_store_set (liststore, &iter,
 #. 0, "Customize",
 #. 1, "",
 #. -1);
-#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:43
+#: ../src/ol_option.c:1651 ../data/dialogs.glade.h:7
 msgid "Customize"
 msgstr "Настроить"
 
@@ -103,13 +100,13 @@ msgstr "Настроить"
 msgid "Select a folder"
 msgstr "Выберите каталог"
 
-#: ../src/ol_lrc_fetch_ttplayer.c:274
+#: ../src/ol_lrc_fetch_ttplayer.c:276
 msgid "ttPlayer"
-msgstr ""
+msgstr "ttPlayer"
 
-#: ../src/ol_lrc_fetch_xiami.c:237
+#: ../src/ol_lrc_fetch_xiami.c:242
 msgid "Xiami"
-msgstr ""
+msgstr "Xiami"
 
 #: ../src/ol_lrc_candidate_list.c:43
 msgid "Title"
@@ -133,71 +130,81 @@ msgstr "Текст не найден."
 msgid "%d lyrics found :)"
 msgstr "%d текст найден."
 
-#: ../src/ol_player_chooser.c:243
+#: ../src/ol_player_chooser.c:249
 msgid "Supported players"
-msgstr ""
+msgstr "Поддерживаемые плееры"
 
-#: ../src/ol_player_chooser.c:244
+#: ../src/ol_player_chooser.c:250
 msgid "All players"
-msgstr ""
+msgstr "Все плееры"
 
-#: ../src/ol_player_chooser.c:248 ../src/ol_player_chooser.c:319
-#, fuzzy
+#: ../src/ol_player_chooser.c:254 ../src/ol_player_chooser.c:326
 msgid "Choose a player to launch"
-msgstr "Выверите назначаемый файл LRC"
+msgstr "Выбрать плеер при запуске"
 
-#: ../src/ol_player_chooser.c:264
-#, fuzzy
+#: ../src/ol_player_chooser.c:270
 msgid "Use command:"
-msgstr "Команда плеера:"
+msgstr "Использовать команду:"
 
-#: ../src/ol_player_chooser.c:268
+#: ../src/ol_player_chooser.c:275
 msgid "Launch"
-msgstr ""
+msgstr "Запуск"
 
-#: ../src/ol_player_chooser.c:281
+#: ../src/ol_player_chooser.c:288
 msgid "Remember my choice"
-msgstr ""
+msgstr "Запомнить мой выбор"
 
-#: ../src/ol_player_chooser.c:387
+#: ../src/ol_player_chooser.c:440
 #, c-format
 msgid "Failed to launch %s"
-msgstr ""
+msgstr "Не удалось запустить %s"
 
-#: ../src/ol_player_chooser.c:397
+#: ../src/ol_player_chooser.c:450
 #, c-format
 msgid "Launching %s"
-msgstr ""
+msgstr "Запуск %s"
 
-#: ../src/ol_player_chooser.c:399
+#: ../src/ol_player_chooser.c:452
 #, c-format
 msgid ""
 "OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
 msgstr ""
 
-#: ../src/ol_player_chooser.c:510
-#, fuzzy
+#: ../src/ol_player_chooser.c:563
 msgid "There is no supported player running"
-msgstr "Нет доступных плееров.\n"
+msgstr "Не запущено совместимых проигрывателей"
 
-#: ../src/ol_player_chooser.c:511
-#, fuzzy
+#: ../src/ol_player_chooser.c:564
 msgid "Please choose a player below to launch"
-msgstr "Выверите назначаемый файл LRC"
+msgstr "Выберите проигрыватель из списка ниже для запуска"
 
-#: ../src/ol_player_chooser.c:515
-#, c-format
-msgid "Failed to connect to %s"
-msgstr ""
+#: ../src/ol_player_chooser.c:568
+#, fuzzy, c-format
+msgid "Fail to launch %s"
+msgstr "Не удалось запустить %s"
 
-#: ../src/ol_player_chooser.c:517
-#, c-format
+#: ../src/ol_player_chooser.c:570
+#, fuzzy, c-format
 msgid ""
 "%s is not supported by OSD Lyrics, or not running. Please launch another "
-"player"
+"player."
+msgstr ""
+"%s не поддерживается OSD Lyrics или не запущен. Пожалуйста, запустите дрегой "
+"проигрыватель"
+
+#: ../src/ol_player_chooser.c:580
+#, c-format
+msgid "Something wrong with %s"
 msgstr ""
 
-#: ../src/ol_app_info.c:183 ../src/ol_app_info.c:193
+#: ../src/ol_player_chooser.c:582
+#, c-format
+msgid ""
+"It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. "
+"Please try launching it again, or launch another player instead."
+msgstr ""
+
+#: ../src/ol_app_info.c:179 ../src/ol_app_info.c:189
 msgid "Unnamed"
 msgstr ""
 
@@ -211,7 +218,243 @@ msgstr ""
 msgid "Drag to move the window"
 msgstr ""
 
+#: ../data/dialogs.glade.h:1
+msgid "Copyright 2009-2011 The OSD Lyrics project."
+msgstr "Copyright 2009-2011 The OSD Lyrics project."
+
 #: ../data/dialogs.glade.h:2
+msgid ""
+"An OSD lyric show compatible with various media players and supports lyrics "
+"downloading.\n"
+msgstr ""
+"Вывод текста песен на экран (OSD) совместим с различными медиа-"
+"проигрывателями и поддерживает загрузку текстов из сети.\n"
+
+#: ../data/dialogs.glade.h:4
+msgid "http://code.google.com/p/osd-lyrics/"
+msgstr "http://code.google.com/p/osd-lyrics/"
+
+#: ../data/dialogs.glade.h:5
+msgid "GPL v3"
+msgstr "GPL v3"
+
+#: ../data/dialogs.glade.h:6
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Alexander Sapronov https://launchpad.net/~warmonger\n"
+"  Alexey Dokuchaev https://launchpad.net/~danfe\n"
+"  Alexey Kotlyarov https://launchpad.net/~koterpillar\n"
+"  Ivan Ysh https://launchpad.net/~gadjin\n"
+"  Klim https://launchpad.net/~klim\n"
+"  Nkolay Parukhin https://launchpad.net/~parukhin\n"
+"  Sergey Popov https://launchpad.net/~fil0soff\n"
+"  Stanislav Hanzhin https://launchpad.net/~hanzhin-stas\n"
+"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
+"  Vitaly Antonov https://launchpad.net/~legidium\n"
+"  gruzdev https://launchpad.net/~gruzdev\n"
+"  Андрей Моисеев https://launchpad.net/~o2"
+
+#: ../data/dialogs.glade.h:8
+msgid "HTTP"
+msgstr "HTTP"
+
+#: ../data/dialogs.glade.h:9
+msgid "SOCKS4"
+msgstr "SOCKS4"
+
+#: ../data/dialogs.glade.h:10
+msgid "SOCKS5"
+msgstr "SOCKS5"
+
+#: ../data/dialogs.glade.h:11
+msgid "Always"
+msgstr "Всегда"
+
+#: ../data/dialogs.glade.h:12
+msgid "By lines"
+msgstr "По линии"
+
+#: ../data/dialogs.glade.h:13
+msgid "Preferences"
+msgstr "Настройки"
+
+#: ../data/dialogs.glade.h:14
+msgid "Display mode:"
+msgstr "Режим отображения:"
+
+#: ../data/dialogs.glade.h:15
+msgid "OS_D"
+msgstr "OS_D"
+
+#: ../data/dialogs.glade.h:16
+msgid "Sc_rolling"
+msgstr "Прокр_утка"
+
+#: ../data/dialogs.glade.h:17
+msgid "Auto la_unch player:"
+msgstr "Автоматически запускаемый плеер:"
+
+#: ../data/dialogs.glade.h:18
+msgid "Pla_yer command:"
+msgstr "Команда плеера:"
+
+#: ../data/dialogs.glade.h:19
+msgid "Show _bubble notification"
+msgstr "Показывать всплывающие подсказки"
+
+#: ../data/dialogs.glade.h:20
+msgid "_General"
+msgstr "_Общие"
+
+#: ../data/dialogs.glade.h:21
+msgid "_Font:"
+msgstr "_Шрифт:"
+
+#. The outline width of text in OSD window
+#: ../data/dialogs.glade.h:23
+msgid "Out_line:"
+msgstr "Отступ"
+
+#: ../data/dialogs.glade.h:24
+msgid "_Blur:"
+msgstr ""
+
+#: ../data/dialogs.glade.h:25
+msgid "Weak"
+msgstr "Тише"
+
+#: ../data/dialogs.glade.h:26
+msgid "Strong"
+msgstr "Громче"
+
+#: ../data/dialogs.glade.h:27
+msgid "Lyric lines:"
+msgstr "Строки текста произведения"
+
+#: ../data/dialogs.glade.h:28
+msgid "Si_ngle line"
+msgstr "Одинарня линия"
+
+#: ../data/dialogs.glade.h:29
+msgid "_Double lines"
+msgstr "Двойные линии"
+
+#: ../data/dialogs.glade.h:30
+msgid "Mode:"
+msgstr "Режим:"
+
+#: ../data/dialogs.glade.h:31
+msgid "Doc_k"
+msgstr "Пан_ель"
+
+#: ../data/dialogs.glade.h:32
+msgid "Nor_mal"
+msgstr "_Нормально"
+
+#: ../data/dialogs.glade.h:33
+msgid "T_ranslucent on mouse over"
+msgstr "Полупрозрачный при наведением курсором мышки"
+
+#: ../data/dialogs.glade.h:34
+msgid "F_irst line:"
+msgstr "_Первая строка:"
+
+#: ../data/dialogs.glade.h:35
+msgid "_Second line:"
+msgstr "_Вторая строка:"
+
+#: ../data/dialogs.glade.h:36
+msgid "<b>Lyric _Alignment</b>"
+msgstr "<b>_Выравнивание лирики</b>"
+
+#: ../data/dialogs.glade.h:37
+msgid "Color _Theme:"
+msgstr "Цветовая _тема:"
+
+#: ../data/dialogs.glade.h:38
+msgid "C_ustomize colors"
+msgstr "_Настроить цвета"
+
+#: ../data/dialogs.glade.h:39
+msgid "Acti_ve lyrics:"
+msgstr "_Активная лирика:"
+
+#: ../data/dialogs.glade.h:40
+msgid "top"
+msgstr "сверху"
+
+#: ../data/dialogs.glade.h:41
+msgid "middle"
+msgstr "по середине"
+
+#: ../data/dialogs.glade.h:42
+msgid "bottom"
+msgstr "снизу"
+
+#: ../data/dialogs.glade.h:43
+msgid "Inactiv_e lyrics:"
+msgstr "_Неактивная лирика:"
+
+#: ../data/dialogs.glade.h:44
+msgid "<b>Lyric _Color</b>"
+msgstr "<b>_Цвет лирики</b>"
+
+#: ../data/dialogs.glade.h:45
+msgid "_OSD"
+msgstr "_OSD"
+
+#: ../data/dialogs.glade.h:46
+msgid "Ac_tive color:"
+msgstr "А_ктивный цвет:"
+
+#: ../data/dialogs.glade.h:47
+msgid "_Inactive color:"
+msgstr "_Неактивный цвет:"
+
+#: ../data/dialogs.glade.h:48
+msgid "Scroll _mode:"
+msgstr "Режим прокрутки"
+
+#: ../data/dialogs.glade.h:49
+msgid "<b>Lyrics</b>"
+msgstr "<b>Песни</b>"
+
+#: ../data/dialogs.glade.h:50
+msgid "Colo_r:"
+msgstr "_Цвет:"
+
+#: ../data/dialogs.glade.h:51
+msgid "O_pacity:"
+msgstr "Непрозрачность:"
+
+#: ../data/dialogs.glade.h:52
+msgid "Transparent"
+msgstr "Прозрачный"
+
+#: ../data/dialogs.glade.h:53
+msgid "Opaque"
+msgstr "Непрозрачный"
+
+#: ../data/dialogs.glade.h:54
+msgid "<b>Background</b>"
+msgstr "<b>Фон</b>"
+
+#: ../data/dialogs.glade.h:55
+msgid "_Scrolling"
+msgstr "Про_крутка"
+
+#: ../data/dialogs.glade.h:57
+#, no-c-format
+msgid "A single \"%\" means the directory where the playing music is."
+msgstr ""
+"Просто \"%\" означает каталог, в котором расположена играющая сейчас музыка."
+
+#: ../data/dialogs.glade.h:58
+msgid "<b>_Path</b>"
+msgstr "<b>_Путь</b>"
+
+#: ../data/dialogs.glade.h:60
 #, no-c-format
 msgid ""
 "  %t - Title\n"
@@ -226,176 +469,144 @@ msgstr ""
 "  %n - Номер дорожки\n"
 "  %f - Имя файла (без расширения)"
 
-#: ../data/dialogs.glade.h:8
-#, no-c-format
-msgid "%a - Album"
-msgstr "%a - Альбом"
-
-#: ../data/dialogs.glade.h:10
-#, no-c-format
-msgid "%f - Filename"
-msgstr "%f - имя файла"
-
-#: ../data/dialogs.glade.h:12
-#, no-c-format
-msgid "%n - Track number"
-msgstr "%n - номер дорожки"
-
-#: ../data/dialogs.glade.h:14
-#, no-c-format
-msgid "%p - Artist"
-msgstr "%p - Исполнитель"
-
-#: ../data/dialogs.glade.h:16
-#, no-c-format
-msgid "%t - Title"
-msgstr "%t - Заголовок"
-
-#: ../data/dialogs.glade.h:17
-msgid "<b>Background</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:18
-msgid "<b>Download</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:19
-msgid "<b>Lyric _Alignment</b>"
-msgstr "<b>_Выравнивание лирики</b>"
-
-#: ../data/dialogs.glade.h:20
-msgid "<b>Lyric _Color</b>"
-msgstr "<b>_Цвет лирики</b>"
-
-#: ../data/dialogs.glade.h:21
-msgid "<b>Lyrics</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:22
-msgid "<b>Proxy</b>"
-msgstr ""
-
-#: ../data/dialogs.glade.h:23
+#: ../data/dialogs.glade.h:65
 msgid "<b>_Filename</b>"
 msgstr "<b>Имя _файла</b>"
 
-#: ../data/dialogs.glade.h:24
-msgid "<b>_Path</b>"
-msgstr "<b>_Путь</b>"
+#: ../data/dialogs.glade.h:66
+msgid "_Lyric Location"
+msgstr "Распо_ложение текста"
 
-#: ../data/dialogs.glade.h:26
-#, no-c-format
-msgid "A single \"%\" means the directory where the playing music is."
-msgstr ""
-"Просто \"%\" означает каталог, в котором расположена играющая сейчас музыка."
-
-#: ../data/dialogs.glade.h:27
-msgid "Ac_tive color:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:28
-msgid "Acti_ve lyrics:"
-msgstr "_Активная лирика:"
-
-#: ../data/dialogs.glade.h:29
-msgid "Adjust lyric delay by +0.2 s"
-msgstr "Установить задержку лирики +0.2 с."
-
-#: ../data/dialogs.glade.h:30
-msgid "Adjust lyrics delay by -0.2 s"
-msgstr "Установить задержку лирики -0.2 с."
-
-#: ../data/dialogs.glade.h:31
-msgid "Always"
-msgstr ""
-
-#: ../data/dialogs.glade.h:32
-msgid ""
-"An OSD lyric show compatible with various media players and supports lyrics "
-"downloading.\n"
-msgstr ""
-"Вывод текста песен на экран (OSD) совместим с различными медиа-"
-"проигрывателями и поддерживает загрузку текстов из сети.\n"
-
-#: ../data/dialogs.glade.h:34
-msgid "Assign local LRC file to current music"
-msgstr "Назначить локальный LRC-файл текущей музыке"
-
-#: ../data/dialogs.glade.h:35
-msgid "Au_to-detect system settings"
-msgstr ""
-
-#: ../data/dialogs.glade.h:36
-msgid "Auto la_unch player:"
-msgstr "Автоматически запускаемый плеер:"
-
-#: ../data/dialogs.glade.h:37
-msgid "By lines"
-msgstr ""
-
-#: ../data/dialogs.glade.h:38
-msgid "C_ustomize colors"
-msgstr "_Настроить цвета"
-
-#: ../data/dialogs.glade.h:39
-msgid "Choose LRC file to download"
-msgstr "Выберите LRC-файл для загрузки"
-
-#: ../data/dialogs.glade.h:40
-msgid "Colo_r:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:41
-msgid "Color _Theme:"
-msgstr "Цветовая _тема:"
-
-#: ../data/dialogs.glade.h:42
-#, fuzzy
-msgid "Copyright 2009-2011 The OSD Lyrics project."
-msgstr "Copyright 2009 Проект OSD Lyrics."
-
-#: ../data/dialogs.glade.h:44
-msgid "D_on't ask me again"
-msgstr "Больше не спрашивать"
-
-#: ../data/dialogs.glade.h:45
-msgid "Display mode:"
-msgstr ""
+#: ../data/dialogs.glade.h:67
+msgid "Lyric _sites:"
+msgstr "_Сайты с песнями:"
 
 #. In preference/download, automately download the most matched lyric
-#: ../data/dialogs.glade.h:47
+#: ../data/dialogs.glade.h:69
 msgid "Do_wnload the first candidate"
 msgstr "Загрузить первого кандидата"
 
-#: ../data/dialogs.glade.h:48
-msgid "Doc_k"
-msgstr ""
+#: ../data/dialogs.glade.h:70
+msgid "<b>Download</b>"
+msgstr "<b>Загрузка</b>"
 
-#: ../data/dialogs.glade.h:49
-msgid "Don't assign lyric to this music"
-msgstr "Не назначать лирики этой музыке"
+#: ../data/dialogs.glade.h:71
+msgid "No _proxy"
+msgstr "Без _прокси"
 
-#: ../data/dialogs.glade.h:50
-msgid "F_irst line:"
-msgstr "_Первая строка:"
+#: ../data/dialogs.glade.h:72
+msgid "Au_to-detect system settings"
+msgstr "Ав_томатическое определение параметров системы"
 
-#: ../data/dialogs.glade.h:51
-msgid "GPL v3"
-msgstr "GPL v3"
+#: ../data/dialogs.glade.h:73
+msgid "Use _manual settings"
+msgstr "Использовать ручные настройки"
 
-#: ../data/dialogs.glade.h:52
-msgid "HTTP"
-msgstr ""
+#: ../data/dialogs.glade.h:74
+msgid "_Host:"
+msgstr "_Узел:"
 
-#: ../data/dialogs.glade.h:53
-msgid "Hide the OSD Window"
-msgstr "Скрыть OSD"
+#: ../data/dialogs.glade.h:75
+msgid "Po_rt:"
+msgstr "П_орт:"
 
-#: ../data/dialogs.glade.h:54
+#: ../data/dialogs.glade.h:76
+msgid "_Type:"
+msgstr "_Тип:"
+
+#: ../data/dialogs.glade.h:77
+msgid "_Username:"
+msgstr "И_мя пользователя:"
+
+#: ../data/dialogs.glade.h:78
+msgid "Passwo_rd:"
+msgstr "_Пароль:"
+
+#: ../data/dialogs.glade.h:79
+msgid "Show passwor_d"
+msgstr "_Показывать пароль"
+
+#: ../data/dialogs.glade.h:80
+msgid "<b>Proxy</b>"
+msgstr "<b>Прокси</b>"
+
+#: ../data/dialogs.glade.h:81
+msgid "_Network"
+msgstr "_Сеть"
+
+#: ../data/dialogs.glade.h:82
+msgid "OSD _mode"
+msgstr "OSD _режим"
+
+#: ../data/dialogs.glade.h:83
+msgid "Scrolling _mode"
+msgstr "_Режим прокрутки:"
+
+#: ../data/dialogs.glade.h:84
 msgid "If locked, you can't move OSD window by mouse"
 msgstr "Когда окно OSD закрепленно, вы не можете перемещать его мышкой"
 
-#: ../data/dialogs.glade.h:55
+#: ../data/dialogs.glade.h:85
+msgid "_Lock Position"
+msgstr "Запомниить расположение"
+
+#: ../data/dialogs.glade.h:86
+msgid "Hide the OSD Window"
+msgstr "Скрыть OSD"
+
+#: ../data/dialogs.glade.h:87
+msgid "_Hide"
+msgstr "_Скрыть"
+
+#: ../data/dialogs.glade.h:88
+msgid "_Search lyric..."
+msgstr "_Поиск текста ..."
+
+#: ../data/dialogs.glade.h:89
+msgid "Search lyrics from Internet"
+msgstr "Поиск текстов в Интернет"
+
+#: ../data/dialogs.glade.h:90
+msgid "_Assign lyric..."
+msgstr "Назначить лирику..."
+
+#: ../data/dialogs.glade.h:91
+msgid "Assign local LRC file to current music"
+msgstr "Назначить локальный LRC-файл текущей музыке"
+
+#: ../data/dialogs.glade.h:92
+msgid "_No lyric"
+msgstr "Нет текста"
+
+#: ../data/dialogs.glade.h:93
+msgid "Don't assign lyric to this music"
+msgstr "Не назначать лирики этой музыке"
+
+#: ../data/dialogs.glade.h:94
+msgid "Lyric delay -"
+msgstr "Задержка лирики -"
+
+#: ../data/dialogs.glade.h:95
+msgid "Adjust lyrics delay by -0.2 s"
+msgstr "Установить задержку лирики -0.2 с."
+
+#: ../data/dialogs.glade.h:96
+msgid "Lyric delay +"
+msgstr "Задержка лирики +"
+
+#: ../data/dialogs.glade.h:97
+msgid "Adjust lyric delay by +0.2 s"
+msgstr "Установить задержку лирики +0.2 с."
+
+#: ../data/dialogs.glade.h:98
+msgid "Choose LRC file to download"
+msgstr "Выберите LRC-файл для загрузки"
+
+#: ../data/dialogs.glade.h:99
+msgid "D_on't ask me again"
+msgstr "Больше не спрашивать"
+
+#: ../data/dialogs.glade.h:100
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
@@ -403,332 +614,78 @@ msgstr ""
 "Если два и более LRC-файлов соответствуют условию поиска, загружать первый, "
 "не спрашивая пользователя"
 
-#: ../data/dialogs.glade.h:56
-msgid "Inactiv_e lyrics:"
-msgstr "_Неактивная лирика:"
-
-#: ../data/dialogs.glade.h:57
-#, fuzzy
-msgid "Lyric _sites:"
-msgstr "Строки текста произведения"
-
-#: ../data/dialogs.glade.h:58
-msgid "Lyric delay +"
-msgstr "Задержка лирики +"
-
-#: ../data/dialogs.glade.h:59
-msgid "Lyric delay -"
-msgstr "Задержка лирики -"
-
-#: ../data/dialogs.glade.h:60
-msgid "Lyric lines:"
-msgstr "Строки текста произведения"
-
-#: ../data/dialogs.glade.h:61
-msgid "Mode:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:62
-msgid "No _proxy"
-msgstr ""
-
-#: ../data/dialogs.glade.h:63
-msgid "Nor_mal"
-msgstr ""
-
-#: ../data/dialogs.glade.h:64
-msgid "OSD _mode"
-msgstr ""
-
-#: ../data/dialogs.glade.h:65
-msgid "OS_D"
-msgstr ""
-
-#: ../data/dialogs.glade.h:66
-msgid "O_pacity:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:67
-msgid "Opaque"
-msgstr ""
-
-#. The outline width of text in OSD window
-#: ../data/dialogs.glade.h:69
-msgid "Out_line:"
-msgstr "Отступ"
-
-#: ../data/dialogs.glade.h:70
-msgid "Passwo_rd:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:71
-msgid "Pla_yer command:"
-msgstr "Команда плеера:"
-
-#: ../data/dialogs.glade.h:72
-msgid "Po_rt:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:73
-msgid "Preferences"
-msgstr "Настройки"
-
-#: ../data/dialogs.glade.h:74
-msgid "SOCKS4"
-msgstr ""
-
-#: ../data/dialogs.glade.h:75
-msgid "SOCKS5"
-msgstr ""
-
-#: ../data/dialogs.glade.h:76
-msgid "Sc_rolling"
-msgstr ""
-
-#: ../data/dialogs.glade.h:77
-msgid "Scroll _mode:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:78
-msgid "Scrolling _mode"
-msgstr ""
-
-#: ../data/dialogs.glade.h:79
-msgid "Search lyrics"
-msgstr "Искать лирику"
-
-#: ../data/dialogs.glade.h:80
-msgid "Search lyrics from Internet"
-msgstr "Поиск текстов в Интернет"
-
-#: ../data/dialogs.glade.h:81
-msgid "Show _bubble notification"
-msgstr ""
-
-#: ../data/dialogs.glade.h:82
-msgid "Show passwor_d"
-msgstr ""
-
-#: ../data/dialogs.glade.h:83
-msgid "Si_ngle line"
-msgstr "Одинарня линия"
-
-#: ../data/dialogs.glade.h:84
-msgid "Strong"
-msgstr ""
-
-#: ../data/dialogs.glade.h:85
-msgid "T_ranslucent on mouse over"
-msgstr "Полупрозрачный при наведением курсором мышки"
-
-#: ../data/dialogs.glade.h:86
-msgid "The artist of the current track"
-msgstr "Исполнитель текущей дорожки"
-
-#: ../data/dialogs.glade.h:87
-msgid "The filename of the current track"
-msgstr "Файловое имя текущей дорожки"
-
-#: ../data/dialogs.glade.h:88
-msgid "The number of the current track"
-msgstr "Номер текущей дорожки"
-
-#: ../data/dialogs.glade.h:89
-msgid "The title of album of the current track"
-msgstr "Альбом текущей дорожки"
-
-#: ../data/dialogs.glade.h:90
-msgid "The title of the current track"
-msgstr "Заголовок текущей песни"
-
-#: ../data/dialogs.glade.h:91
-msgid "Transparent"
-msgstr ""
-
-#: ../data/dialogs.glade.h:92
-msgid "Use _manual settings"
-msgstr ""
-
-#: ../data/dialogs.glade.h:93
-msgid "Weak"
-msgstr ""
-
-#: ../data/dialogs.glade.h:94
-msgid "_Artist:"
-msgstr "_Исполнитель:"
-
-#: ../data/dialogs.glade.h:95
-msgid "_Assign lyric..."
-msgstr "Назначить лирику..."
-
-#: ../data/dialogs.glade.h:96
-msgid "_Blur:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:97
-msgid "_Double lines"
-msgstr "Двойные линии"
-
-#: ../data/dialogs.glade.h:98
+#: ../data/dialogs.glade.h:101
 msgid "_Download"
 msgstr "_Скачать"
 
-#: ../data/dialogs.glade.h:99
-msgid "_Font:"
-msgstr "_Шрифт:"
-
-#. From witch web site to search and download lyrics
-#: ../data/dialogs.glade.h:101
-msgid "_From:"
-msgstr "_От:"
-
 #: ../data/dialogs.glade.h:102
-msgid "_General"
-msgstr "_Общие"
-
-#: ../data/dialogs.glade.h:103
-msgid "_Hide"
-msgstr "_Скрыть"
+msgid "The title of the current track"
+msgstr "Заголовок текущей песни"
 
 #: ../data/dialogs.glade.h:104
-msgid "_Host:"
-msgstr ""
+#, no-c-format
+msgid "%t - Title"
+msgstr "%t - Заголовок"
 
 #: ../data/dialogs.glade.h:105
-msgid "_Inactive color:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:106
-msgid "_Lock Position"
-msgstr "Запомниить расположение"
+msgid "The artist of the current track"
+msgstr "Исполнитель текущей дорожки"
 
 #: ../data/dialogs.glade.h:107
-msgid "_Lyric Location"
-msgstr "Распо_ложение текста"
+#, no-c-format
+msgid "%p - Artist"
+msgstr "%p - Исполнитель"
 
 #: ../data/dialogs.glade.h:108
-msgid "_Network"
-msgstr ""
-
-#: ../data/dialogs.glade.h:109
-msgid "_No lyric"
-msgstr "Нет текста"
+msgid "The title of album of the current track"
+msgstr "Альбом текущей дорожки"
 
 #: ../data/dialogs.glade.h:110
-msgid "_OSD"
-msgstr "_OSD"
+#, no-c-format
+msgid "%a - Album"
+msgstr "%a - Альбом"
 
 #: ../data/dialogs.glade.h:111
-msgid "_Scrolling"
-msgstr ""
-
-#: ../data/dialogs.glade.h:112
-msgid "_Search"
-msgstr "_Поиск"
+msgid "The number of the current track"
+msgstr "Номер текущей дорожки"
 
 #: ../data/dialogs.glade.h:113
-msgid "_Search lyric..."
-msgstr "_Поиск текста ..."
+#, no-c-format
+msgid "%n - Track number"
+msgstr "%n - номер дорожки"
 
 #: ../data/dialogs.glade.h:114
-msgid "_Second line:"
-msgstr "_Вторая строка:"
+msgid "The filename of the current track"
+msgstr "Файловое имя текущей дорожки"
 
-#: ../data/dialogs.glade.h:115
+#: ../data/dialogs.glade.h:116
+#, no-c-format
+msgid "%f - Filename"
+msgstr "%f - имя файла"
+
+#: ../data/dialogs.glade.h:117
+msgid "Search lyrics"
+msgstr "Искать лирику"
+
+#: ../data/dialogs.glade.h:118
 msgid "_Title:"
 msgstr "Н_азвание:"
 
-#: ../data/dialogs.glade.h:116
-msgid "_Type:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:117
-msgid "_Username:"
-msgstr ""
-
-#: ../data/dialogs.glade.h:118
-msgid "bottom"
-msgstr "снизу"
-
 #: ../data/dialogs.glade.h:119
-msgid "http://code.google.com/p/osd-lyrics/"
-msgstr "http://code.google.com/p/osd-lyrics/"
+msgid "_Artist:"
+msgstr "_Исполнитель:"
 
 #: ../data/dialogs.glade.h:120
-msgid "middle"
-msgstr "по середине"
+msgid "_Search"
+msgstr "_Поиск"
 
-#: ../data/dialogs.glade.h:121
-msgid "top"
-msgstr "сверху"
-
+#. From witch web site to search and download lyrics
 #: ../data/dialogs.glade.h:122
-msgid "translator-credits"
-msgstr ""
-"Launchpad Contributions:\n"
-"  Alexey Kotlyarov https://launchpad.net/~koterpillar\n"
-"  Ivan Ysh https://launchpad.net/~gadjin\n"
-"  Klim https://launchpad.net/~klim\n"
-"  Nkolay Parukhin https://launchpad.net/~parukhin\n"
-"  Stanislav Hanzhin https://launchpad.net/~hanzhin-stas\n"
-"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
-"  Vitaly Antonov https://launchpad.net/~legidium\n"
-"  gruzdev https://launchpad.net/~gruzdev\n"
-"  Андрей Моисеев https://launchpad.net/~o2"
+msgid "_From:"
+msgstr "_От:"
 
-#~ msgid "Searching lyrics"
-#~ msgstr "Поиск текста"
+#~ msgid "No supported player is running, exit.\n"
+#~ msgstr "Нет доступных плееров.\n"
 
-#~ msgid "<b>Preview</b>"
-#~ msgstr "<b>Предварительный просмотр</b>"
-
-#~ msgid "None"
-#~ msgstr "Пусто"
-
-#~ msgid "_Lock"
-#~ msgstr "_Заблокировать"
-
-#~ msgid "_Width:"
-#~ msgstr "Ширина:"
-
-#~ msgid "gtk-cancel"
-#~ msgstr "Отмена"
-
-#~ msgid "gtk-ok"
-#~ msgstr "ОК"
-
-#~ msgid "TODO: Add options here"
-#~ msgstr "TODO: Добавить сюда параметры"
-
-#~ msgid ""
-#~ "An OSD lyric show supporting multiple media players and downloading.\n"
-#~ msgstr ""
-#~ "OSD lyric поддерживает различные мультимедиа проигрыватели и скачивание "
-#~ "лирики.\n"
-
-#~ msgid "Sogou"
-#~ msgstr "Sogou"
-
-#~ msgid "Qianqian"
-#~ msgstr "Qianqian"
-
-#~ msgid "Download _engine:"
-#~ msgstr "Система для поиска текстов:"
-
-#~ msgid "Choose witch site you want to download from."
-#~ msgstr "Выберите сайт с которого вы хотите скачать."
-
-#~ msgid "<b>Display mode</b>"
-#~ msgstr "<b>Режим отображения</b>"
-
-#~ msgid "MiniLyrics"
-#~ msgstr "MiniLyrics"
-
-#~ msgid "OSD"
-#~ msgstr "Экранное меню"
-
-#~ msgid "Scrolling"
-#~ msgstr "Прокрутка"
-
-#~ msgid "_Display notification"
-#~ msgstr "Показать уведомление"
+#~ msgid "Failed to connect to %s"
+#~ msgstr "Не удалось подключиться к %s"
