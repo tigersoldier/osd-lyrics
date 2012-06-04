@@ -143,6 +143,7 @@ ol_player_get_active_player (void)
     ol_debugf ("trying %s\n", controller->name);
     if (controller && controller->get_activated ())
     {
+      ol_debugf ("Connected to %s\n", controller->name);
       return controller;
     }
   }
