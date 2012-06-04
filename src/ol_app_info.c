@@ -773,5 +773,6 @@ _prepend_subdirs (GList *list)
       g_free (filepath);
     }
   }
+  g_dir_close (dir);
   return list;
 }
