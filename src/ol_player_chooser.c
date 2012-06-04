@@ -563,9 +563,21 @@ ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
     ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_INFO);
     break;
   case OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL: {
-    gchar *title = g_strdup_printf (_("Failed to connect to %s"),
+    gchar *title = g_strdup_printf (_("Fail to launch %s"),
                                       g_app_info_get_name (priv->launch_app));
-    gchar *desc = g_strdup_printf (_("%s is not supported by OSD Lyrics, or not running. Please launch another player"),
+    gchar *desc = g_strdup_printf (_("%s is not supported by OSD Lyrics, or not running. Please launch another player."),
+                                   g_app_info_get_name (priv->launch_app));
+    ol_player_chooser_set_info (window, title, desc);
+    ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);
+    g_free (title);
+    g_free (desc);
+    _set_launch_app (window, NULL);
+    break;
+  }
+  case OL_PLAYER_CHOOSER_STATE_DISCONNECTED: {
+    gchar *title = g_strdup_printf (_("Something wrong with %s"),
+                                      g_app_info_get_name (priv->launch_app));
+    gchar *desc = g_strdup_printf (_("It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. Please try launching it again, or launch another player instead."),
                                    g_app_info_get_name (priv->launch_app));
     ol_player_chooser_set_info (window, title, desc);
     ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);
