@@ -28,7 +28,7 @@ Lyric URI
 
 The path of an LRC file. It is in url format. Currently available schemas are:
 
- - `file:` The lyrics are stored in local file system. The path of the lyrics is the path of the URI. Example: tag:///home/osdlyrics/track1.lrc
+ - `file:` The lyrics are stored in local file system. The path of the lyrics is the path of the URI. Example: file:///home/osdlyrics/track1.lrc
  - `tag:` The lyrics are stored in ID3 tag of the track. The path of the music file to store the ID3 tag is specified in the path of the URI. Example: tag:///home/osdlyrics/track1.ogg
  - `none:` The track is assigned not to show any lyrics. Example: none:
 
