@@ -27,7 +27,7 @@ ol_PYTHON = \
 	pattern.py \
 	lrc.py \
 	utils.py \
-	exceptions.py \
+	errors.py \
 	player_proxy.py \
 	timer.py \
 	metadata.py \

@@ -33,7 +33,7 @@ import osdlyrics.lrc
 from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ARTIST, METADATA_ALBUM, METADATA_TRACKNUM
 from osdlyrics.pattern import expand_file, expand_path
 from osdlyrics import LYRICS_OBJECT_PATH, LYRICS_INTERFACE as INTERFACE
-from osdlyrics.exceptions import Error
+from osdlyrics.errors import Error
 import lrcdb
 
 DEFAULT_FILE_PATTERNS = [

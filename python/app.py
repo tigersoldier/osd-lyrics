@@ -25,7 +25,7 @@ import dbus
 import dbus.service
 import consts
 from dbus.mainloop.glib import DBusGMainLoop
-from exceptions import Error
+from errors import Error
 
 __all__ = (
     'AlreadyRunningException',

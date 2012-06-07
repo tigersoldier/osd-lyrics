@@ -22,7 +22,7 @@ import consts
 import urlparse
 import urllib
 import os.path
-from exceptions import PatternException
+from errors import PatternException
 
 def lookup_metadata(metadata, key):
     """

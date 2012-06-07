@@ -24,7 +24,7 @@ import player
 import lyrics
 import dbus
 import config
-from osdlyrics.exceptions import Error
+from osdlyrics.errors import Error
 
 logging.basicConfig(level=logging.INFO)
 
