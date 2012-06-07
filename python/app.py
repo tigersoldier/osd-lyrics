@@ -20,6 +20,7 @@
 
 from optparse import OptionParser
 import glib
+import gobject
 import dbus
 import dbus.service
 import consts
@@ -30,6 +31,8 @@ __all__ = (
     'AlreadyRunningException',
     'App',
     )
+
+gobject.threads_init()
 
 class AlreadyRunningException(Error):
     """ Raised when a process with given bus name exists.
@@ -119,6 +122,18 @@ class App(object):
         except KeyboardInterrupt:
             return False
         return True
+
+    def run_on_main_thread(self, target, args=(), kwargs={}):
+        """Run a callable on main thread.
+
+        This is useful for notifying a thread is finished.
+        """
+        def timeout_func():
+            target(*args, **kwargs)
+            return False
+        source = glib.Timeout(0)
+        source.set_callback(timeout_func)
+        source.attach(self._loop.get_context())
 
     def quit(self):
         """Quits the main loop"""
