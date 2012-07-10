@@ -26,7 +26,7 @@ import glib
 import config
 
 class PlayerSupport(dbus.service.Object):
-    """ Implement osd.lyrics.Player Interface
+    """ Implement org.osdlyrics.Player Interface
     """
 
     DETECT_PLAYER_TIMEOUT = 1000
