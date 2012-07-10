@@ -37,6 +37,11 @@
 /* The object path of lyrics module */
 #define OL_OBJECT_LYRICS "/org/osdlyrics/Lyrics"
 
+/* The interface of LyricSource module */
+#define OL_IFACE_LYRIC_SOURCE "org.osdlyrics.LyricSource"
+/* The object path of LyricSource module */
+#define OL_OBJECT_LYRIC_SOURCE "/org/osdlyrics/LyricSource"
+
 /* The D-Bus well-known name for OSD Lyrics Config */
 #define OL_SERVICE_CONFIG "org.osdlyrics.Config"
 /* The interface of config service */

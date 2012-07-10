@@ -24,6 +24,7 @@ import player
 import lyrics
 import dbus
 import config
+import lyricsource
 from osdlyrics.errors import Error
 
 logging.basicConfig(level=logging.INFO)
@@ -49,6 +50,7 @@ class MainApp(osdlyrics.App):
         self._activate_config()
         self.request_bus_name(osdlyrics.APP_MPRIS1_NAME)
         self._daemon_object = DaemonObject(self)
+        self._lyricsource = lyricsource.LyricSource(self.connection)
         self._lyrics.set_current_metadata(self._player.current_player.GetMetadata())
 
     def _connect_metadata_signal(self, ):

@@ -5,6 +5,7 @@ daemon_PYTHON = \
 	lrcdb.py \
 	lyrics.py \
 	player.py \
+	lyricsource.py \
 	$(NULL)
 
 nodist_daemon_PYTHON = \

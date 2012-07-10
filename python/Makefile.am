@@ -31,6 +31,7 @@ ol_PYTHON = \
 	player_proxy.py \
 	timer.py \
 	metadata.py \
+	lyricsource.py \
 	$(NULL)
 
 oldir = @pkgpythondir@

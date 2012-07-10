@@ -36,6 +36,11 @@ PLAYER_PROXY_OBJECT_PATH_PREFIX = '/org/osdlyrics/PlayerProxy/'
 MPRIS1_INTERFACE = 'org.freedesktop.MediaPlayer'
 APP_BUS_PREFIX = 'org.osdlyrics.'
 APP_MPRIS1_NAME = 'org.mpris.osdlyrics'
+LYRIC_SOURCE_PLUGIN_BUS_NAME_PREFIX = 'org.osdlyrics.LyricSourcePlugin.'
+LYRIC_SOURCE_PLUGIN_INTERFACE = 'org.osdlyrics.LyricSourcePlugin'
+LYRIC_SOURCE_PLUGIN_OBJECT_PATH_PREFIX = '/org/osdlyrics/LyricSourcePlugin/'
+LYRIC_SOURCE_OBJECT_PATH = '/org/osdlyrics/LyricSource'
+LYRIC_SOURCE_INTERFACE = 'org.osdlyrics.LyricSource'
 
 # Metadata keys
 METADATA_TITLE = 'title'

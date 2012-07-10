@@ -15,6 +15,7 @@ check_PROGRAMS = \
 	ol_utils_test \
 	ol_gussian_blur_test \
 	ol_app_info_test \
+	ol_lyric_source_test \
 	$(NULL)
 
 AM_CPPFLAGS = \
@@ -174,4 +175,13 @@ ol_app_info_test_SOURCES = \
 	ol_app_info_test.c \
 	$(top_srcdir)/src/ol_app_info.c \
 	$(top_srcdir)/src/ol_debug.c \
+	$(NULL)
+
+ol_lyric_source_test_SOURCES = \
+	ol_lyric_source_test.c \
+	$(top_srcdir)/src/ol_lyric_source.c \
+	$(top_srcdir)/src/ol_debug.c \
+	$(top_srcdir)/src/ol_marshal.c \
+	$(top_srcdir)/src/ol_metadata.c \
+	$(top_srcdir)/src/ol_utils.c \
 	$(NULL)

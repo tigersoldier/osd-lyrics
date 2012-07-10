@@ -213,6 +213,8 @@ AC_CONFIG_FILES([
         players/http/Makefile
         python/Makefile
         python/dbusext/Makefile
+        lyricsources/Makefile
+        lyricsources/xiami/Makefile
 ])
 
 AC_OUTPUT
