@@ -324,7 +324,7 @@ _scroll_mode_changed_cb (OlConfigProxy *config,
   if (scroll_mode != NULL)
   {
     enum OlScrollWindowScrollMode mode = OL_SCROLL_WINDOW_ALWAYS;
-    if (g_strcasecmp (scroll_mode, "lines") == 0)
+    if (g_ascii_strcasecmp (scroll_mode, "lines") == 0)
     {
       mode = OL_SCROLL_WINDOW_BY_LINES;
     }
