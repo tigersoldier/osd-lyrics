@@ -69,7 +69,16 @@ Search Result
  - title: (string) The title of the matched lyric
  - artist: (string) The artist of the matched lyric
  - album: (string) The album of the matched lyric
+ - sourceid: (string) The ID of the source that provides this result. Lyric Source implementations MUST set this value correctly.
  - downloadinfo: (variable) The private data provided by the lyric source. It's used to download the lyric. Lyric sources can set any value to it as long as the source plugin can figure out how to download the lyric with this value. Usually it's a URL string of the lyric content. GUI clients should pass the value to <TODO> method.
+
+Lyric Source
+------------
+``a{sv}``
+
+ - id: (string) The id of lyric source plugin
+ - name: (string) The localized name of the lyric source plugin
+ - enabled: (boolean) True if the source is enabled in config.
 
 Interfaces
 ==========
@@ -227,14 +236,13 @@ CancelSearch(int32:ticket) ->nothing
 
   - ``ticket``: The ticket to identify the search task to be cancelled.
 
-Download(s:source, v:downloaddata, a{sv}:metadata) -> int32:ticket
+Download(s:source, v:downloaddata) -> int32:ticket
   Download lyric content.
 
   Parameters:
 
   - ``source``: The id of lyric source to download from. Id MUST be the same as the ``source`` field in `Lyric Source_`.
   - ``downloadinfo``: The ``downloadinfo`` field in `Lyric Source_`. ``downloadinfo`` and ``source`` must be taken from the same `Lyric Source_`.
-  - ``metadata``: The metadata of the track to assign lyric content.
 
 CancelDownload(int32:ticket) ->nothing
   Cancel a download task.
@@ -246,7 +254,7 @@ CancelDownload(int32:ticket) ->nothing
 Signals
 -------
 
-SearchStarted(int32:ticket, s:source)
+SearchStarted(int32:ticket, s:sourceid, s:sourcename)
   Notify that the OSD Lyrics start to search lyrics from a source.
 
   For each search task, there may be more than one ``SearchStarted`` signal. Searching request will be sent to the first source of the ``sources`` parameter in ``Search`` call. If the first source fail to search or returns nothing, the search request is sent to the second source and a second ``SearchStarted`` signal is emitted, and so on.
@@ -254,7 +262,8 @@ SearchStarted(int32:ticket, s:source)
   Parameters:
 
   - ``ticket``: The ticket to identify the search task.
-  - ``source``: The id of the lyric source to start with.
+  - ``sourceid``: The id of the lyric source to start with.
+  - ``sourcename``: The name of the source.
 
 SearchComplete(int32:ticket, int32:status, aa{sv}:results)
   Emit when a search request is finished, cancelled or failed.
@@ -270,7 +279,7 @@ SearchComplete(int32:ticket, int32:status, aa{sv}:results)
     - 2: Search failed. ``results`` SHOULD be an empty array.
   - ``results``: An array of `Search Result_`, the results returned from sources.
 
-DownloadComplete(int32:ticket, int32:status)
+DownloadComplete(int32:ticket, int32:status, ay:content)
   Emit when a download task is finished, cancelled or failed.
 
   Parameters:
@@ -280,6 +289,7 @@ DownloadComplete(int32:ticket, int32:status)
     - 0: Download finished. If the lyric downloaded assiged to the currently playing track, clients SHOULD receive a ``CurrentLyricsChanged`` signal from ``org.osdlyrics.Lyrics`` interface.
     - 1: Search is cancelled by user.
     - 2: Search is failed.
+  - ``content``: The content of the lyric
 
 Configure Service
 =================
