@@ -110,7 +110,7 @@ test_content (void)
 {
   OlLrc *lrc = ol_lrc_new (NULL, DEFAULT_URI);
   set_content (lrc, DEFAULT_CONTENTS, G_N_ELEMENTS (DEFAULT_CONTENTS));
-  int i;
+  int i = 0;
   ol_test_expect (ol_lrc_get_item_count (lrc) == G_N_ELEMENTS (DEFAULT_CONTENTS));
   OlLrcIter *iter = ol_lrc_iter_from_id (lrc, 0);
   ol_test_expect (iter != NULL);
