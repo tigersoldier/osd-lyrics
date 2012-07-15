@@ -74,8 +74,10 @@ download_complete_cb (OlLyricSourceDownloadTask *task,
                       guint len,
                       gpointer userdata)
 {
-  printf ("download complete: ");
+  printf ("download #%d complete: ",
+          ol_lyric_source_task_get_id (OL_LYRIC_SOURCE_TASK (task)));
   print_status (status);
+  ol_test_expect (status == (gsize)userdata);
   printf ("len: %u\n", len);
   printf ("%s\n", content);
   task_cnt--;
@@ -92,7 +94,7 @@ test_download (OlLyricSourceCandidate *candidate)
   g_signal_connect (G_OBJECT (task),
                     "complete",
                     (GCallback) download_complete_cb,
-                    NULL);
+                    (gpointer) OL_LYRIC_SOURCE_STATUS_SUCCESS);
 }
 
 static void
@@ -104,7 +106,7 @@ test_download_cancel (OlLyricSourceCandidate *candidate)
   g_signal_connect (G_OBJECT (task),
                     "complete",
                     (GCallback) download_complete_cb,
-                    NULL);
+                    (gpointer) OL_LYRIC_SOURCE_STATUS_CANCELLED);
   ol_lyric_source_task_cancel (OL_LYRIC_SOURCE_TASK (task));
 }
 
@@ -196,6 +198,25 @@ test_search (void)
 }
 
 static void
+test_search_default (void)
+{
+  task_cnt++;
+  OlMetadata *metadata = ol_metadata_new ();
+  ol_metadata_set_title (metadata, "Heal the world");
+  OlLyricSourceSearchTask *task = ol_lyric_source_search_default (source,
+                                                                  metadata);
+  g_signal_connect (G_OBJECT (task),
+                    "complete",
+                    (GCallback) search_complete_cb,
+                    (gpointer) OL_LYRIC_SOURCE_STATUS_SUCCESS);
+  g_signal_connect (G_OBJECT (task),
+                    "started",
+                    (GCallback) search_started_cb,
+                    NULL);
+  ol_metadata_free (metadata);
+}
+
+static void
 test_search_cancel (void)
 {
   task_cnt++;
@@ -245,8 +266,9 @@ main (int argc, char **argv)
   g_type_init ();
   source = ol_lyric_source_new ();
   test_list_sources ();
-  test_search_cancel ();
   test_search ();
+  test_search_default ();
+  test_search_cancel ();
   test_empty_source ();
   loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);

@@ -275,6 +275,18 @@ OlLyricSourceSearchTask *ol_lyric_source_search (OlLyricSource *source,
                                                  OlMetadata *metadata,
                                                  GList *source_ids);
 /**
+ * Search for lyrics with default lyric sources.
+ * 
+ * @param source The lyric source proxy.
+ * @param metadata The metadata to be searched for.
+ * 
+ * @return An OlLyricSourceSearchTask object of the search task. The
+ * lyric source proxy owns a reference of it. If you want to take a
+ * reference to the returned object, use g_object_ref().
+ */
+OlLyricSourceSearchTask *ol_lyric_source_search_default (OlLyricSource *source,
+                                                         OlMetadata *metadata);
+/**
  * Download a lyric file provided by a candidate.
  * 
  * @param source The lyric source proxy.
@@ -294,6 +306,7 @@ gboolean ol_lyric_source_info_get_enabled (OlLyricSourceInfo *info);
 void ol_lyric_source_info_free (OlLyricSourceInfo *info);
 /* OlLyricSourceTask */
 GType ol_lyric_source_task_get_type (void);
+gint ol_lyric_source_task_get_id (OlLyricSourceTask *task);
 void ol_lyric_source_task_cancel (OlLyricSourceTask *task);
 
 /* OlLyricSourceSearchTask */

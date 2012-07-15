@@ -493,7 +493,6 @@ ol_lyric_source_search (OlLyricSource *source,
                                 -1,   /* timeout */
                                 NULL, /* cancellable */
                                 &error);
-  /* g_variant_unref (mdvalue); */
   g_variant_builder_unref (idbuilder);
   if (ret)
   {
@@ -511,6 +510,31 @@ ol_lyric_source_search (OlLyricSource *source,
   {
     ol_errorf ("Fail to call search: %s\n", error->message);
     g_error_free (error);
+  }
+  return task;
+}
+
+OlLyricSourceSearchTask *
+ol_lyric_source_search_default (OlLyricSource *source,
+                                OlMetadata *metadata)
+{
+  ol_assert_ret (OL_IS_LYRIC_SOURCE (source), NULL);
+  OlLyricSourceSearchTask *task = NULL;
+  GList *sources;
+  GList *source_ids = NULL;
+  sources = ol_lyric_source_list_sources (source);
+  for (; sources; sources = g_list_delete_link (sources, sources))
+  {
+    OlLyricSourceInfo *info = sources->data;
+    source_ids = g_list_prepend (source_ids,
+                                 g_strdup (ol_lyric_source_info_get_id (info)));
+    ol_lyric_source_info_free (info);
+  }
+  source_ids = g_list_reverse (source_ids);
+  task = ol_lyric_source_search (source, metadata, source_ids);
+  for (; source_ids; source_ids = g_list_delete_link (source_ids, source_ids))
+  {
+    g_free (source_ids->data);
   }
   return task;
 }
@@ -977,6 +1001,13 @@ ol_lyric_source_task_cancel (OlLyricSourceTask *task)
   klass = OL_LYRIC_SOURCE_TASK_CLASS (G_OBJECT_GET_CLASS (task));
   if (klass->cancel)
     klass->cancel (task);
+}
+
+gint
+ol_lyric_source_task_get_id (OlLyricSourceTask *task)
+{
+  ol_assert_ret (OL_IS_LYRIC_SOURCE_TASK (task), -1);
+  return OL_LYRIC_SOURCE_TASK_GET_PRIVATE (task)->taskid;
 }
 
 static void
