@@ -39,6 +39,7 @@ void ol_metadata_free (OlMetadata *metadata);
  */
 void ol_metadata_clear (OlMetadata *metadata);
 void ol_metadata_copy (OlMetadata *dest, const OlMetadata *src);
+OlMetadata *ol_metadata_dup (const OlMetadata *src);
 
 /** 
  * @brief Sets the value of music title

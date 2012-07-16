@@ -118,6 +118,14 @@ ol_metadata_copy (OlMetadata *dest, const OlMetadata *src)
   ol_metadata_set_duration (dest, src->duration);
 }
 
+OlMetadata *
+ol_metadata_dup (const OlMetadata *src)
+{
+  OlMetadata *metadata = ol_metadata_new ();
+  ol_metadata_copy (metadata, src);
+  return metadata;
+}
+
 void
 ol_metadata_set_title (OlMetadata *metadata,
                        const char *title)
