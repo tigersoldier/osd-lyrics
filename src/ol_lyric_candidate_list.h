@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ * Copyright (C) 2009-2012  Tiger Soldier <tigersoldier@gmail.com>
  *
  * This file is part of OSD Lyrics.
  * 
@@ -17,16 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-#ifndef _OL_LRC_FETCH_XIAMI_H_
-#define _OL_LRC_FETCH_XIAMI_H_
+#ifndef _OL_LYRIC_CANDIDATE_LIST_H_
+#define _OL_LYRIC_CANDIDATE_LIST_H_
 
-#include "ol_lrc_fetch.h"
+#include <gtk/gtk.h>
+#include "ol_lyric_source.h"
 
-/** 
- * @brief Returns the fetch engine of Xiami
- * 
- * @return 
- */
-OlLrcFetchEngine *ol_lrc_fetch_xiami_engine ();
+void ol_lyric_candidate_list_init (GtkTreeView *list,
+                                   GCallback select_change_callback);
+void ol_lyric_candidate_list_set_list (GtkTreeView *list,
+                                     GList *candidates);
+OlLyricSourceCandidate *ol_lyric_candidate_list_get_selected (GtkTreeView *list);
+void ol_lyric_candidate_list_clear (GtkTreeView *list);
 
-#endif /* _OL_LRC_FETCH_XIAMI_H_ */
+#endif /* _OL_LYRIC_CANDIDATE_LIST_H_ */

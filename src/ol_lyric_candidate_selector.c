@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier <tigersoldi@gmail.com>
+ * Copyright (C) 2009-2012  Tiger Soldier <tigersoldi@gmail.com>
  *
  * This file is part of OSD Lyrics.
  * OSD Lyrics is free software: you can redistribute it and/or modify
@@ -17,27 +17,25 @@
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
 #include <stdlib.h>
-#include "ol_lrc_fetch_ui.h"
-#include "ol_lrc_fetch.h"
+#include "ol_lyric_candidate_selector.h"
 #include "ol_gui.h"
 #include "ol_config_proxy.h"
-#include "ol_lrc_fetch_module.h"
-#include "ol_lrc_candidate_list.h"
+#include "ol_lyric_candidate_list.h"
 #include "ol_debug.h"
 
 static GtkWidget *window = NULL;
 static GtkTreeView *list = NULL;
 static GtkButton *download_button = NULL;
-static OlLrcFetchEngine *engine = NULL;
 static OlMetadata *metadata = NULL;
 static char *filepath = NULL;
+static OlLrcFetchUiDownloadFunc download_func;
 
 static void ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data);
 static gboolean internal_init ();
 gboolean ol_lrc_fetch_cancel (GtkWidget *widget, gpointer data);
 
 gboolean
-ol_lrc_fetch_ui_cancel (GtkWidget *widget, gpointer data)
+ol_lyric_candidate_selector_cancel (GtkWidget *widget, gpointer data)
 {
   ol_log_func ();
   if (window != NULL)
@@ -46,13 +44,16 @@ ol_lrc_fetch_ui_cancel (GtkWidget *widget, gpointer data)
 }
 
 gboolean
-ol_lrc_fetch_ui_download (GtkWidget *widget, gpointer data)
+ol_lyric_candidate_selector_download (GtkWidget *widget, gpointer data)
 {
   ol_log_func ();
-  OlLrcCandidate candidate = {{0}};
-  if (ol_lrc_candidate_list_get_selected (list, &candidate))
+  
+  OlLyricSourceCandidate *candidate;
+  candidate = ol_lyric_candidate_list_get_selected (list);
+  if (candidate)
   {
-    ol_lrc_fetch_begin_download (engine, &candidate, metadata, NULL);
+    if (download_func)
+      download_func (candidate, metadata);
   }
   OlConfigProxy *config = ol_config_proxy_get_instance ();
   GtkToggleButton *prompt_btn = GTK_TOGGLE_BUTTON (ol_gui_get_widget ("choose-do-not-prompt"));
@@ -99,39 +100,36 @@ internal_init ()
   if (list == NULL)
   {
     list = GTK_TREE_VIEW (ol_gui_get_widget ("candidate-list"));
-    ol_lrc_candidate_list_init (list, 
-                                G_CALLBACK (ol_lrc_fetch_select_changed));
+    ol_lyric_candidate_list_init (list, 
+                                  G_CALLBACK (ol_lrc_fetch_select_changed));
   }
   return TRUE;
 }
 
 void
-ol_lrc_fetch_ui_show (OlLrcFetchEngine *lrcengine,
-                      const OlLrcCandidate *candidates,
-                      int count,
-                      const OlMetadata *_metadata)
+ol_lyric_candidate_selector_show (GList *candidates,
+                                  const OlMetadata *_metadata,
+                                  OlLrcFetchUiDownloadFunc _download_func)
 {
   ol_log_func ();
   if (window == NULL && !internal_init ())
     return;
-  if (lrcengine == NULL || candidates == NULL || count <= 0)
+  if (candidates == NULL || _download_func == NULL)
   {
     gtk_widget_hide (window);
     return;
   }
-  if (filepath != NULL)
-    g_free (filepath);
-  engine = lrcengine;
-  ol_lrc_candidate_list_set_list (list, candidates, count);
+  ol_lyric_candidate_list_set_list (list, candidates);
   if (metadata == NULL)
     metadata = ol_metadata_new ();
   ol_metadata_copy (metadata, _metadata);
+  download_func = _download_func;
   gboolean prompt = TRUE;
   OlConfigProxy *config = ol_config_proxy_get_instance ();
   if (config != NULL)
     prompt = ol_config_proxy_get_bool (config, "Download/download-first-lyric");
-  if (prompt || count == 1)
-    ol_lrc_fetch_ui_download (GTK_WIDGET (download_button), NULL);
+  if (prompt || g_list_next (candidates) == NULL)
+    ol_lyric_candidate_selector_download (GTK_WIDGET (download_button), NULL);
   else
     gtk_widget_show (window);
 }

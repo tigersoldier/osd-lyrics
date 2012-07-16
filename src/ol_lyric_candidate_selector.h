@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier <tigersoldier@gmail.com>
+ * Copyright (C) 2009-2012  Tiger Soldier <tigersoldier@gmail.com>
  *
  * This file is part of OSD Lyrics.
  * 
@@ -17,18 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-#ifndef _OL_LRC_FETCH_UI_H_
-#define _OL_LRC_FETCH_UI_H_
+#ifndef _OL_LYRIC_CANDIDATE_SELECTOR_H_
+#define _OL_LYRIC_CANDIDATE_SELECTOR_H_
 
 #include "ol_metadata.h"
+#include "ol_lyric_source.h"
 
-struct _OlLrcCandidate;
-struct _OlLrcFetchEngine;
+typedef void (*OlLrcFetchUiDownloadFunc) (OlLyricSourceCandidate *candidate,
+                                          const OlMetadata *metadata);
 
-void ol_lrc_fetch_ui_show (struct _OlLrcFetchEngine *engine,
-                           const struct _OlLrcCandidate *candidates,
-                           int count,
-                           const OlMetadata *metadata);
-                           
+void ol_lyric_candidate_selector_show (GList *candidates,
+                                       const OlMetadata *metadata,
+                                       OlLrcFetchUiDownloadFunc download_func);
 
-#endif /* _OL_LRC_FETCH_UI_H_ */
+#endif /* _OL_LYRIC_CANDIDATE_SELECTOR_H_ */

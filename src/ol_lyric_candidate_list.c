@@ -1,6 +1,6 @@
 /* -*- mode: C; c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2009-2011  Tiger Soldier
+ * Copyright (C) 2009-2012  Tiger Soldier
  *
  * This file is part of OSD Lyrics.
  * OSD Lyrics is free software: you can redistribute it and/or modify
@@ -16,26 +16,30 @@
  * You should have received a copy of the GNU General Public License
  * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
  */
-#include "ol_lrc_candidate_list.h"
+#include "ol_lyric_candidate_list.h"
 #include "ol_intl.h"
 #include "ol_debug.h"
 
 enum {
   TITLE_COLUMN = 0,
   ARTIST_COLUMN,
-  URL_COLUMN,
+  ALBUM_COLUMN,
+  COMMENT_COLUMN,
+  DATA_COLUMN,
   COLUMN_COUNT,
 };
 
 void
-ol_lrc_candidate_list_init (GtkTreeView *list,
+ol_lyric_candidate_list_init (GtkTreeView *list,
                             GCallback select_changed_callback)
 {
   ol_assert (list != NULL);
   GtkTreeStore *store = gtk_tree_store_new (COLUMN_COUNT,    /* Total number of columns */
-                                            G_TYPE_STRING,   /* Music title             */
-                                            G_TYPE_STRING,   /* Author                  */
-                                            G_TYPE_STRING);  /* URL                     */
+                                            G_TYPE_STRING,   /* Track title */
+                                            G_TYPE_STRING,   /* Artist      */
+                                            G_TYPE_STRING,   /* Album       */
+                                            G_TYPE_STRING,   /* Comment */
+                                            G_TYPE_OBJECT);
   
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
@@ -48,6 +52,11 @@ ol_lrc_candidate_list_init (GtkTreeView *list,
   column = gtk_tree_view_column_new_with_attributes (_("Artist"),
                                                      renderer,
                                                      "text", ARTIST_COLUMN,
+                                                     NULL);
+  gtk_tree_view_append_column (list, column);
+  column = gtk_tree_view_column_new_with_attributes (_("Album"),
+                                                     renderer,
+                                                     "text", ALBUM_COLUMN,
                                                      NULL);
   gtk_tree_view_append_column (list, column);
   gtk_tree_view_set_model (list, GTK_TREE_MODEL (store));
@@ -64,34 +73,39 @@ ol_lrc_candidate_list_init (GtkTreeView *list,
 }
 
 void
-ol_lrc_candidate_list_set_list (GtkTreeView *list,
-                                const OlLrcCandidate *candidates,
-                                int count)
+ol_lyric_candidate_list_set_list (GtkTreeView *list,
+                                  GList *candidates)
 {
   ol_assert (list != NULL);
   GtkTreeIter iter;
-  int i;
-  ol_lrc_candidate_list_clear (list);
   GtkTreeStore *store = GTK_TREE_STORE (gtk_tree_view_get_model (list));
-  for (i = 0; i < count; i++)
+  gboolean first = TRUE;
+  ol_lyric_candidate_list_clear (list);
+  for (; candidates; candidates = g_list_next (candidates))
   {
+    OlLyricSourceCandidate *candidate = OL_LYRIC_SOURCE_CANDIDATE (candidates->data);
+    if (candidate == NULL) continue;
     gtk_tree_store_append (store, &iter, NULL);  /* Acquire a top-level iterator */
     gtk_tree_store_set (store, &iter,
-                        TITLE_COLUMN, candidates[i].title,
-                        ARTIST_COLUMN, candidates[i].artist,
-                        URL_COLUMN, candidates[i].url,
+                        TITLE_COLUMN, ol_lyric_source_candidate_get_title (candidate),
+                        ARTIST_COLUMN, ol_lyric_source_candidate_get_artist (candidate),
+                        ALBUM_COLUMN, ol_lyric_source_candidate_get_album (candidate),
+                        COMMENT_COLUMN, ol_lyric_source_candidate_get_comment (candidate),
+                        DATA_COLUMN, candidate,
                         -1);
     /* ol_debugf ("  url: %s\n", candidates[i].url); */
     /* Select the first item */
-    if (i == 0)
+    if (first)
+    {
       gtk_tree_selection_select_iter (gtk_tree_view_get_selection (list),
                                       &iter);
+      first = FALSE;
+    }
   }
 }
 
-gboolean
-ol_lrc_candidate_list_get_selected (GtkTreeView *list,
-                                    OlLrcCandidate *candidate)
+OlLyricSourceCandidate *
+ol_lyric_candidate_list_get_selected (GtkTreeView *list)
 {
   ol_assert_ret (list != NULL, FALSE);
   GtkTreeSelection *selection = gtk_tree_view_get_selection (list);
@@ -99,31 +113,21 @@ ol_lrc_candidate_list_get_selected (GtkTreeView *list,
   {
     GtkTreeIter iter;
     GtkTreeModel *model = NULL;
+    OlLyricSourceCandidate *candidate = NULL;
     if (!gtk_tree_selection_get_selected (selection, &model, &iter))
-      return FALSE;
-    if (candidate != NULL)
-    {
-      char *title, *artist, *url;
-      gtk_tree_model_get (model, &iter,
-                          TITLE_COLUMN, &title,
-                          ARTIST_COLUMN, &artist,
-                          URL_COLUMN, &url,
-                          -1);
-      ol_lrc_candidate_set_title (candidate, title);
-      ol_lrc_candidate_set_artist (candidate, artist);
-      ol_lrc_candidate_set_url (candidate, url);
-      g_free (title); g_free (artist); g_free (url);
-    }
-    return TRUE;
+      return NULL;
+    gtk_tree_model_get (model, &iter, DATA_COLUMN, &candidate, -1);
+    g_object_unref (candidate);
+    return candidate;
   }
   else
   {
-    return FALSE;
+    return NULL;
   }
 }
 
 void
-ol_lrc_candidate_list_clear (GtkTreeView *list)
+ol_lyric_candidate_list_clear (GtkTreeView *list)
 {
   GtkTreeStore *store = GTK_TREE_STORE (gtk_tree_view_get_model (list));
   gtk_tree_store_clear (store);

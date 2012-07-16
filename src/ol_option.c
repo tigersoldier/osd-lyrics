@@ -23,14 +23,14 @@
 #include "ol_about.h"
 #include "ol_gui.h"
 #include "ol_config_proxy.h"
-#include "ol_lrc_fetch.h"
 #include "ol_osd_render.h"
 #include "ol_path_pattern.h"     /* For getting preview for LRC filename */
 #include "ol_intl.h"
 #include "ol_debug.h"
 #include "ol_cell_renderer_button.h"
-#include "ol_lrc_engine_list.h"
+#include "ol_lyric_source_list.h"
 #include "ol_player.h"
+#include "ol_app.h"
 #include "ol_utils.h"
 
 #define BUFFER_SIZE 1024
@@ -429,9 +429,9 @@ ol_option_osd_color_changed (GtkColorButton *widget,
     }
     char **lrc_color_str = ol_color_to_str_list (colors, OL_LINEAR_COLOR_COUNT);
     ol_config_proxy_set_str_list (config,
-                            color_props[k],
-                            (const char**)lrc_color_str,
-                            OL_LINEAR_COLOR_COUNT);
+                                  color_props[k],
+                                  (const char**)lrc_color_str,
+                                  OL_LINEAR_COLOR_COUNT);
     g_strfreev (lrc_color_str);
   }
 }
@@ -480,19 +480,19 @@ void
 ol_option_download_engine_changed (GtkTreeModel *model)
 {
   OlConfigProxy *config = ol_config_proxy_get_instance ();
-  char **engine_names = ol_lrc_engine_list_get_engine_names (GTK_TREE_VIEW (options.download_engine));
-  if (engine_names != NULL)
-  {
-    ol_config_proxy_set_str_list (config,
-                                  "Download/download-engine",
-                                  (const char**)engine_names,
-                                  g_strv_length (engine_names));
-    g_strfreev (engine_names);
-  }
-  else
-  {
-    ol_error ("Failed to get the name of engine");
-  }
+  GList *source_ids;
+  source_ids = ol_lyric_source_list_get_active_id_list (GTK_TREE_VIEW (options.download_engine));
+  guint n_ids = g_list_length (source_ids);
+  int i = 0;
+  gchar **id_arr = g_new (gchar *, n_ids + 1);
+  id_arr[n_ids] = NULL;
+  for (; source_ids; source_ids = g_list_delete_link (source_ids, source_ids))
+    id_arr[i++] = source_ids->data;
+  ol_config_proxy_set_str_list (config,
+                                "Download/download-engine",
+                                (const char**)id_arr,
+                                n_ids);
+  g_strfreev (id_arr);
 }
 
 void
@@ -1205,16 +1205,18 @@ load_download ()
 {
   OlConfigProxy *config = ol_config_proxy_get_instance ();
   /* Download engine */
-  char **download_engines = ol_config_proxy_get_str_list (config,
-                                                          "Download/download-engine",
-                                                          NULL);
+  GList *source_infos;
+  source_infos = ol_lyric_source_list_sources (ol_app_get_lyric_source ());
   _disconnect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
                                        ol_option_download_engine_changed);
-  ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (options.download_engine),
-                                       download_engines);
+  ol_lyric_source_list_set_info_list (GTK_TREE_VIEW (options.download_engine),
+                                      source_infos);
   _connect_download_engine_changed (GTK_TREE_VIEW (options.download_engine),
                                     ol_option_download_engine_changed);
-  g_strfreev (download_engines);
+  for (; source_infos; source_infos = g_list_delete_link (source_infos, source_infos))
+  {
+    ol_lyric_source_info_free (source_infos->data);
+  }
 }
 
 static char **
@@ -1655,7 +1657,7 @@ ol_option_show ()
     options.startup_player_cb = ol_gui_get_widget ("startup-player-cb");
     init_startup_player (options.startup_player_cb);
     /* Init download engine combobox */
-    ol_lrc_engine_list_init (GTK_TREE_VIEW (options.download_engine));
+    ol_lyric_source_list_init (GTK_TREE_VIEW (options.download_engine));
     lrc_path_widgets.entry = options.lrc_path_text;
     lrc_path_widgets.list = options.lrc_path;
     lrc_path_widgets.add_button = ol_gui_get_widget ("add-lrc-path");

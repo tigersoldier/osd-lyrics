@@ -28,8 +28,8 @@
 #include "ol_player.h"
 #include "ol_lyrics.h"
 #include "ol_utils.h"
-#include "ol_lrc_fetch.h"
-#include "ol_lrc_fetch_ui.h"
+#include "ol_lyric_candidate_selector.h"
+#include "ol_lyric_source.h"
 #include "ol_trayicon.h"
 #include "ol_intl.h"
 #include "ol_config_updater.h"
@@ -37,7 +37,6 @@
 #include "ol_consts.h"
 #include "ol_display_module.h"
 #include "ol_keybindings.h"
-#include "ol_lrc_fetch_module.h"
 #include "ol_stock.h"
 #include "ol_app.h"
 #include "ol_notify.h"
@@ -65,6 +64,9 @@ static GOptionEntry cmdargs[] =
 
 static guint name_watch_id = 0;
 static guint position_timer = 0;
+static OlLyricSource *lyric_source = NULL;
+static OlLyricSourceSearchTask *search_task = NULL;
+static OlLyricSourceDownloadTask *download_task = NULL;
 static OlPlayer *player = NULL;
 static OlMetadata *current_metadata = NULL;
 static OlLrc *current_lrc = NULL;
@@ -87,9 +89,9 @@ static void _wait_for_player_launch (void);
 static void _player_chooser_response_cb (GtkDialog *dialog,
                                          gint response_id,
                                          gpointer user_data);
-static void _search_callback (struct OlLrcFetchResult *result,
-                            void *userdata);
-static void _download_callback (struct OlLrcDownloadResult *result);
+/* static void _search_callback (struct OlLrcFetchResult *result, */
+/*                             void *userdata); */
+/* static void _download_callback (struct OlLrcDownloadResult *result); */
 static void _display_mode_changed (OlConfigProxy *config,
                                    const gchar *key,
                                    gpointer userdata);
@@ -124,6 +126,20 @@ static void _player_connected_cb (void);
 static void _start_position_timer (void);
 static void _stop_position_timer (void);
 static void _change_lrc (void);
+static void _cancel_source_task (void);
+static void _search_complete_cb (OlLyricSourceSearchTask *task,
+                                 enum OlLyricSourceStatus status,
+                                 GList *results,
+                                 gpointer userdata);
+static void _search_started_cb (OlLyricSourceSearchTask *task,
+                                const gchar *sourceid,
+                                const gchar *sourcename,
+                                gpointer userdata);
+static void _download_complete_cb (OlLyricSourceDownloadTask *task,
+                                   enum OlLyricSourceStatus status,
+                                   const gchar *content,
+                                   guint len,
+                                   gpointer userdata);
 
 static void
 _display_mode_changed (OlConfigProxy *config,
@@ -145,77 +161,99 @@ _display_mode_changed (OlConfigProxy *config,
 }
 
 static void
-_download_callback (struct OlLrcDownloadResult *result)
+_download_complete_cb (OlLyricSourceDownloadTask *task,
+                       enum OlLyricSourceStatus status,
+                       const gchar *content,
+                       guint len,
+                       gpointer userdata)
 {
-  ol_log_func ();
-  if (result->content != NULL)
+  if (task == download_task)
   {
-    GError *error = NULL;
-    gchar *uri = ol_lyrics_set_content (lyrics_proxy,
-                                        result->metadata,
-                                        result->content,
-                                        &error);
-    if (!uri)
+    if (status == OL_LYRIC_SOURCE_STATUS_SUCCESS)
     {
-      ol_errorf ("Set content failed: %s\n",
-                 error->message);
-      g_error_free (error);
+      GError *error = NULL;
+      gchar *uri = ol_lyrics_set_content (lyrics_proxy,
+                                          current_metadata,
+                                          content,
+                                          &error);
+      if (!uri)
+      {
+        ol_errorf ("Set content failed: %s\n",
+                   error->message);
+        g_error_free (error);
+      }
+      else
+      {
+        ol_debugf ("Set content to %s\n", uri);
+        g_free (uri);
+      }
     }
-    else
+    else if (status == OL_LYRIC_SOURCE_STATUS_FALIURE)
     {
-      printf ("%s\n", uri);
-      ol_debugf ("Set content to %s\n", uri);
-      g_free (uri);
+      ol_display_module_download_fail_message (display_module, _("Fail to download lyric"));
     }
+    download_task = NULL;
   }
-  else
-  {
-    ol_display_module_download_fail_message (display_module, _("Download failed"));
-  }
+  g_object_unref (task);
 }
 
 static void
-_search_msg_callback (int _search_id,
-                      enum OlLrcSearchMsgType msg_type,
-                      const char *message,
-                      void *userdata)
+_do_download (OlLyricSourceCandidate *candidate,
+              const OlMetadata *metadata)
 {
-  ol_assert (_search_id == search_id);
-  switch (msg_type)
-  {
-  case OL_LRC_SEARCH_MSG_ENGINE:
-    if (display_module != NULL)
-    {
-      char *msg = g_strdup_printf (_("Searching lyrics from %s"), _(message));
-      ol_display_module_search_fail_message (display_module, msg);
-      g_free (msg);
-    }
-    break;
-  }
+  if (!ol_metadata_equal (metadata, current_metadata))
+    return;
+  download_task = ol_lyric_source_download (lyric_source,
+                                            candidate);
+  g_object_ref (download_task);
+  ol_display_module_set_message (display_module,
+                                 _("Downloading lyric"),
+                                 -1);
+  g_signal_connect (G_OBJECT (download_task),
+                    "complete",
+                    G_CALLBACK (_download_complete_cb),
+                    NULL);
 }
 
+static void
+_search_complete_cb (OlLyricSourceSearchTask *task,
+                     enum OlLyricSourceStatus status,
+                     GList *results,
+                     gpointer userdata)
+{
+  if (task == search_task)
+  {
+    if (status == OL_LYRIC_SOURCE_STATUS_SUCCESS && results != NULL)
+    {
+      if (display_module != NULL)
+      {
+        ol_display_module_clear_message (display_module);
+      }
+      /* TODO: show lyric select ui */
+      ol_lyric_candidate_selector_show (results, current_metadata, _do_download);
+    }
+    else if ((status == OL_LYRIC_SOURCE_STATUS_SUCCESS && results == NULL) ||
+             status == OL_LYRIC_SOURCE_STATUS_FALIURE)
+    {
+      if (display_module != NULL)
+        ol_display_module_search_fail_message (display_module, _("Lyrics not found"));
+    }
+    search_task = NULL;
+  }
+  g_object_unref (task);
+}
 
 static void
-_search_callback (struct OlLrcFetchResult *result,
-                  void *userdata)
+_search_started_cb (OlLyricSourceSearchTask *task,
+                    const gchar *sourceid,
+                    const gchar *sourcename,
+                    gpointer userdata)
 {
-  ol_log_func ();
-  ol_assert (result != NULL);
-  ol_assert (result->engine != NULL);
-  ol_assert (result->id == search_id);
-  search_id = -1;
-  if (result->count > 0 && result->candidates != 0)
+  if (task == search_task && display_module != NULL)
   {
-    if (display_module != NULL) {
-      ol_display_module_clear_message (display_module);
-    }
-    ol_lrc_fetch_ui_show (result->engine, result->candidates, result->count,
-                          result->metadata);
-  }
-  else
-  {
-    if (display_module != NULL)
-      ol_display_module_search_fail_message (display_module, _("Lyrics not found"));
+    char *msg = g_strdup_printf (_("Searching lyrics from %s"), sourcename);
+    ol_display_module_search_message (display_module, msg);
+    g_free (msg);
   }
 }
 
@@ -223,18 +261,17 @@ gboolean
 ol_app_download_lyric (OlMetadata *metadata)
 {
   ol_log_func ();
-  if (search_id > 0)
-    ol_lrc_fetch_cancel_search (search_id);
-  OlConfigProxy *config = ol_config_proxy_get_instance ();
-  char **engine_list = ol_config_proxy_get_str_list (config,
-                                                     "Download/download-engine",
-                                                     NULL);
-  search_id = ol_lrc_fetch_begin_search (engine_list,
-                                         metadata,
-                                         _search_msg_callback,
-                                         _search_callback,
-                                         NULL);
-  g_strfreev (engine_list);
+  _cancel_source_task ();
+  search_task = ol_lyric_source_search_default (lyric_source, metadata);
+  g_object_ref (search_task);
+  g_signal_connect (G_OBJECT (search_task),
+                    "complete",
+                    G_CALLBACK (_search_complete_cb),
+                    NULL);
+  g_signal_connect (G_OBJECT (search_task),
+                    "started",
+                    G_CALLBACK (_search_started_cb),
+                    NULL);
   return TRUE;
 }
 
@@ -287,8 +324,29 @@ _track_changed_cb (void)
 }
 
 static void
+_cancel_source_task (void)
+{
+  if (search_task)
+  {
+    g_signal_handlers_disconnect_by_func (search_task, _search_complete_cb, NULL);
+    g_signal_handlers_disconnect_by_func (search_task, _search_started_cb, NULL);
+    ol_lyric_source_task_cancel (OL_LYRIC_SOURCE_TASK (search_task));
+    g_object_unref (search_task);
+    search_task = NULL;
+  }
+  if (download_task)
+  {
+    ol_lyric_source_task_cancel (OL_LYRIC_SOURCE_TASK (download_task));
+    g_signal_handlers_disconnect_by_func (download_task, _download_complete_cb, NULL);
+    g_object_unref (download_task);
+    download_task = NULL;
+  }
+}
+
+static void
 _change_lrc (void)
 {
+  _cancel_source_task ();
   if (current_lrc)
     g_object_unref (current_lrc);
   current_lrc = ol_lyrics_get_current_lyrics (lyrics_proxy);
@@ -453,13 +511,25 @@ _update_position (gpointer data)
 }
 
 OlPlayer*
-ol_app_get_player ()
+ol_app_get_player (void)
 {
   return player;
 }
 
+OlLyricSource *
+ol_app_get_lyric_source (void)
+{
+  return lyric_source;
+}
+
+OlLyrics *
+ol_app_get_lyrics_proxy (void)
+{
+  return lyrics_proxy;
+}
+
 OlMetadata*
-ol_app_get_current_music ()
+ol_app_get_current_music (void)
 {
   return current_metadata;
 }
@@ -539,7 +609,6 @@ _initialize (int argc, char **argv)
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, LOCALEDIR);
   bind_textdomain_codeset(PACKAGE, "UTF-8");
-  /* textdomain (PACKAGE); */
 #endif
 
   g_thread_init(NULL);
@@ -742,18 +811,24 @@ _init_lyrics_proxy (void)
 }
 
 static void
+_init_lyric_source (void)
+{
+  lyric_source = ol_lyric_source_new ();
+  g_object_ref_sink (lyric_source);
+}
+
+static void
 _init_dbus_connection_done (void)
 {
   ol_config_update ();
   current_metadata = ol_metadata_new ();
   _init_player ();
   _init_lyrics_proxy ();
+  _init_lyric_source ();
   ol_stock_init ();
   ol_trayicon_init ();
   ol_notify_init ();
   ol_keybinding_init ();
-  ol_lrc_fetch_module_init ();
-  ol_lrc_fetch_add_async_download_callback (_download_callback);
 
   if (ol_player_is_connected (player))
   {
@@ -777,6 +852,11 @@ _uninitialize (void)
   g_object_unref (player);
   g_object_unref (lyrics_proxy);
   player = NULL;
+
+  _cancel_source_task ();
+  g_object_unref (lyric_source);
+  lyric_source = NULL;
+
   g_bus_unwatch_name (name_watch_id);
   ol_metadata_free (current_metadata);
   current_metadata = NULL;
@@ -798,7 +878,6 @@ _uninitialize (void)
   }
   ol_display_module_unload ();
   ol_trayicon_free ();
-  ol_lrc_fetch_module_unload ();
   ol_config_proxy_unload ();
 }
 

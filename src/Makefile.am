@@ -53,17 +53,12 @@ noinst_HEADERS = \
 	ol_keybinder.h \
 	ol_keybinding_settings.h \
 	ol_keybindings.h \
-	ol_lrc_candidate_list.h \
-	ol_lrc_engine_list.h \
-	ol_lrc_fetch.h \
-	ol_lrc_fetch_module.h \
-	ol_lrc_fetch_xiami.h \
-	ol_lrc_fetch_ttplayer.h \
-	ol_lrc_fetch_ui.h \
-	ol_lrc_fetch_utils.h \
+	ol_lyric_candidate_list.h \
+	ol_lyric_candidate_selector.h \
 	ol_lrc.h \
 	ol_lyrics.h \
 	ol_lyric_source.h \
+	ol_lyric_source_list.h \
 	ol_marshal.h \
 	ol_md5.h \
 	ol_menu.h \
@@ -120,15 +115,10 @@ osdlyrics_SOURCES = \
 	ol_search_dialog.c \
 	ol_trayicon.c \
 	ol_menu.c \
-	ol_lrc_fetch.c \
-	ol_lrc_fetch_module.c \
-	ol_lrc_fetch_ui.c \
-	ol_lrc_fetch_xiami.c \
-	ol_lrc_fetch_ttplayer.c \
-	ol_lrc_fetch_utils.c \
-	ol_lrc_candidate_list.c \
-	ol_lrc_engine_list.c \
+	ol_lyric_candidate_selector.c \
+	ol_lyric_candidate_list.c \
 	ol_lyric_source.c \
+	ol_lyric_source_list.c \
 	ol_metadata.c \
 	ol_color.c \
 	ol_eggaccelerators.c \

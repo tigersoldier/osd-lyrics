@@ -22,6 +22,8 @@
 
 #include <glib.h>
 #include "ol_player.h"
+#include "ol_lyrics.h"
+#include "ol_lyric_source.h"
 #include "ol_lrc.h"
 #include "ol_metadata.h"
 
@@ -38,6 +40,10 @@ struct OlLrc;
 OlMetadata* ol_app_get_current_music (void);
 
 OlPlayer* ol_app_get_player (void);
+
+OlLyricSource *ol_app_get_lyric_source (void);
+
+OlLyrics *ol_app_get_lyrics_proxy (void);
 
 OlLrc *ol_app_get_current_lyric (void);
 

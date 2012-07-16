@@ -19,17 +19,18 @@
  */
 #include "ol_search_dialog.h"
 #include "ol_gui.h"
-#include "ol_lrc_fetch_module.h"
 #include "ol_app.h"
 #include "ol_config_proxy.h"
-#include "ol_lrc_candidate_list.h"
-#include "ol_lrc_engine_list.h"
+#include "ol_lyric_candidate_list.h"
+#include "ol_lyric_source_list.h"
 #include "ol_intl.h"
 #include "ol_debug.h"
 
 const char *MSG_SEARCHING = N_("Searching lyrics from %s...");
 const char *MSG_NOT_FOUND = N_("Ooops, no lyric found :(");
 const char *MSG_FOUND = N_("%d lyrics found :)");
+const char *MSG_SEARCH_FAILURE = N_("Fail to search. Please check network connection");
+const char *MSG_SEARCH_CANCELLED = N_("Cancelled");
 
 struct
 {
@@ -43,8 +44,8 @@ struct
   GtkWidget *engine;
 } widgets = {0};
 
-static OlLrcFetchEngine *engine = NULL;
-static int search_id = 0;
+static OlLyricSourceSearchTask *search_task = NULL;
+static OlLyricSourceDownloadTask *download_task = NULL;
 static OlMetadata *global_metadata = NULL;
 
 gboolean ol_search_dialog_search_click (GtkWidget *widget, 
@@ -55,6 +56,21 @@ gboolean ol_search_dialog_cancel_click (GtkWidget *widget,
                                         gpointer data);
 static void internal_select_changed (GtkTreeSelection *selection, 
                                      gpointer data);
+static gboolean internal_init ();
+static void ol_search_dialog_search_complete_cb (OlLyricSourceSearchTask *task,
+                                                 enum OlLyricSourceStatus status,
+                                                 GList *results,
+                                                 gpointer userdata);
+static void ol_search_dialog_search_started_cb (OlLyricSourceSearchTask *task,
+                                                const gchar *sourceid,
+                                                const gchar *sourcename,
+                                                gpointer userdata);
+static void ol_search_dialog_download_complete_cb (OlLyricSourceDownloadTask *task,
+                                                   enum OlLyricSourceStatus status,
+                                                   const gchar *content,
+                                                   guint len,
+                                                   gpointer userdata);
+static void ol_search_dialog_set_sensitive (gboolean sensitive);
 
 static void
 internal_select_changed (GtkTreeSelection *selection, gpointer data)
@@ -72,14 +88,19 @@ ol_search_dialog_download_click (GtkWidget *widget,
 {
   ol_log_func ();
   ol_assert_ret (widgets.list != NULL, FALSE);
-  OlLrcCandidate *candidate = ol_lrc_candidate_new ();
-  ol_lrc_candidate_list_get_selected (widgets.list,
-                                      candidate);
-  ol_lrc_fetch_begin_download (engine,
-                               candidate,
-                               global_metadata,
-                               NULL);
-  ol_lrc_candidate_free (candidate);
+  OlLyricSourceCandidate *candidate;
+  candidate = ol_lyric_candidate_list_get_selected (widgets.list);
+  if (candidate)
+  {
+    OlLyricSourceDownloadTask *task;
+    task = ol_lyric_source_download (ol_app_get_lyric_source (),
+                                     candidate);
+    gtk_label_set_text (widgets.msg, _("Downloading..."));
+    g_signal_connect (task,
+                      "complete",
+                      G_CALLBACK (ol_search_dialog_download_complete_cb),
+                      ol_metadata_dup (global_metadata));
+  }
   return TRUE;
 }
 
@@ -91,14 +112,6 @@ ol_search_dialog_cancel_click (GtkWidget *widget,
     gtk_widget_hide (widgets.window);
   return TRUE;
 }
-
-static gboolean internal_init ();
-static void internal_search_msg_callback (int search_id,
-                                          enum OlLrcSearchMsgType msg_type,
-                                          const char *message,
-                                          void *userdata);
-static void internal_search_callback (struct OlLrcFetchResult *result,
-                                      void *userdata);
 
 gboolean
 ol_search_dialog_search_click (GtkWidget *widget,
@@ -118,66 +131,116 @@ ol_search_dialog_search_click (GtkWidget *widget,
                             FALSE);
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
-  char **engine_list = (char**)ol_lrc_engine_list_get_engine_names (GTK_TREE_VIEW(widgets.engine));
-  search_id = ol_lrc_fetch_begin_search (engine_list,
-                                         metadata,
-                                         internal_search_msg_callback,
-                                         internal_search_callback,
-                                         NULL);
-  g_strfreev (engine_list);
-  ol_metadata_free (metadata);
+  GList *sourceids = ol_lyric_source_list_get_active_id_list (GTK_TREE_VIEW(widgets.engine));
+  search_task = ol_lyric_source_search (ol_app_get_lyric_source (),
+                                        metadata,
+                                        sourceids);
+  g_signal_connect (search_task,
+                    "complete",
+                    G_CALLBACK (ol_search_dialog_search_complete_cb),
+                    NULL);
+  g_signal_connect (search_task,
+                    "started",
+                    G_CALLBACK (ol_search_dialog_search_started_cb),
+                    NULL);
+  for (; sourceids; sourceids = g_list_delete_link (sourceids, sourceids))
+  {
+    g_free (sourceids->data);
+  }
   return TRUE;
 }
 
 static void
-internal_search_msg_callback (int search_id,
-                              enum OlLrcSearchMsgType msg_type,
-                              const char *message,
-                              void *userdata)
+ol_search_dialog_search_started_cb (OlLyricSourceSearchTask *task,
+                                    const gchar *sourceid,
+                                    const gchar *sourcename,
+                                    gpointer userdata)
 {
-  switch (msg_type)
+  if (widgets.msg != NULL && task == search_task)
   {
-  case OL_LRC_SEARCH_MSG_ENGINE:
-    if (widgets.msg != NULL)
-    {
-      char *msg = g_strdup_printf (_(MSG_SEARCHING),
-                                   _(message));
-      gtk_label_set_text (widgets.msg, msg);
-    }
-    break;
-  default:
-    ol_errorf ("Unknown search message type %d: %s\n",
-               (int)msg_type, message);
+    char *msg = g_strdup_printf (_(MSG_SEARCHING),
+                                 sourcename);
+    gtk_label_set_text (widgets.msg, msg);
   }
 }
 
 static void
-internal_search_callback (struct OlLrcFetchResult *result,
-                          void *userdata)
+ol_search_dialog_search_complete_cb (OlLyricSourceSearchTask *task,
+                                     enum OlLyricSourceStatus status,
+                                     GList *results,
+                                     gpointer userdata)
 {
   ol_log_func ();
-  ol_assert (result != NULL);
-  if (search_id != result->id)
+  if (task != search_task)
     return;
   gtk_widget_set_sensitive (GTK_WIDGET (widgets.list),
                             TRUE);
-  ol_lrc_candidate_list_set_list (widgets.list,
-                                  result->candidates,
-                                  result->count);
+  ol_lyric_candidate_list_set_list (widgets.list,
+                                  results);
   gtk_widget_show (widgets.candidates_panel);
   if (widgets.msg != NULL)
   {
-    if (result->count > 0)
+    if (status == OL_LYRIC_SOURCE_STATUS_SUCCESS)
     {
-      engine = result->engine;
-      char *msg = g_strdup_printf (_(MSG_FOUND), result->count);
-      gtk_label_set_text (widgets.msg, msg);
+      if (results != NULL)
+      {
+        int cnt = 0;
+        GList *iter;
+        for (iter = results; iter; iter = g_list_next (iter))
+          cnt++;
+        char *msg = g_strdup_printf (_(MSG_FOUND), cnt);
+        gtk_label_set_text (widgets.msg, msg);
+      }
+      else
+      {
+        gtk_label_set_text (widgets.msg, _(MSG_NOT_FOUND));
+      }
+    }
+    else if (status == OL_LYRIC_SOURCE_STATUS_CANCELLED)
+    {
+      gtk_label_set_text (widgets.msg, _(MSG_SEARCH_CANCELLED));
     }
     else
     {
-      gtk_label_set_text (widgets.msg, _(MSG_NOT_FOUND));
+      gtk_label_set_text (widgets.msg, _(MSG_SEARCH_FAILURE));
     }
   }
+}
+
+static void
+ol_search_dialog_download_complete_cb (OlLyricSourceDownloadTask *task,
+                                       enum OlLyricSourceStatus status,
+                                       const gchar *content,
+                                       guint len,
+                                       gpointer userdata)
+{
+  OlMetadata *metadata = userdata;
+  if (status == OL_LYRIC_SOURCE_STATUS_SUCCESS)
+  {
+    GError *error = NULL;
+    gchar *uri = ol_lyrics_set_content (ol_app_get_lyrics_proxy (),
+                                        metadata,
+                                        content,
+                                        &error);
+    if (!uri)
+    {
+      ol_errorf ("Set content failed: %s\n",
+                 error->message);
+      g_error_free (error);
+      gtk_label_set_text (widgets.msg, _("Download complete, but fail to assign to the track"));
+    }
+    else
+    {
+      gtk_label_set_text (widgets.msg, _("Download complete"));
+      ol_debugf ("Set content to %s\n", uri);
+      g_free (uri);
+    }
+  }
+  else if (status == OL_LYRIC_SOURCE_STATUS_FALIURE)
+  {
+    gtk_label_set_text (widgets.msg, _("Fail to download lyric"));
+  }
+  ol_metadata_free (metadata);
 }
 
 static gboolean
@@ -201,10 +264,10 @@ internal_init ()
     widgets.list = GTK_TREE_VIEW (ol_gui_get_widget ("search-candidates-list"));
     widgets.msg = GTK_LABEL (ol_gui_get_widget ("search-msg"));
     widgets.download = ol_gui_get_widget ("search-download");
-    ol_lrc_candidate_list_init (widgets.list, 
+    ol_lyric_candidate_list_init (widgets.list, 
                                 G_CALLBACK (internal_select_changed));
     widgets.engine = ol_gui_get_widget ("search-engine");
-    ol_lrc_engine_list_init (GTK_TREE_VIEW (widgets.engine));
+    ol_lyric_source_list_init (GTK_TREE_VIEW (widgets.engine));
   }
   return widgets.window != NULL;
 }
@@ -216,7 +279,7 @@ ol_search_dialog_show ()
     return;
   if (GTK_WIDGET_VISIBLE (widgets.window))
     return;
-  ol_lrc_candidate_list_clear (widgets.list);
+  ol_lyric_candidate_list_clear (widgets.list);
 
   if (global_metadata == NULL)
     global_metadata = ol_metadata_new ();
@@ -227,13 +290,14 @@ ol_search_dialog_show ()
                       ol_metadata_get_artist (global_metadata));
   gtk_widget_set_sensitive (widgets.download,
                             FALSE);
-  OlConfigProxy *config = ol_config_proxy_get_instance ();
-  char **engine_names = ol_config_proxy_get_str_list (config, 
-                                                      "Download/download-engine",
-                                                      NULL);
-  ol_lrc_engine_list_set_engine_names (GTK_TREE_VIEW (widgets.engine),
-                                       engine_names);
-  g_strfreev (engine_names);
-
+  gtk_label_set_text (widgets.msg, "");
+  OlLyricSource *lyric_source = ol_app_get_lyric_source ();
+  GList *info_list = ol_lyric_source_list_sources (lyric_source);
+  ol_lyric_source_list_set_info_list (GTK_TREE_VIEW (widgets.engine),
+                                      info_list);
+  for (; info_list; info_list = g_list_delete_link (info_list, info_list))
+  {
+    ol_lyric_source_info_free (info_list->data);
+  }
   gtk_widget_show (widgets.window);
 }
