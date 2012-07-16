@@ -171,7 +171,7 @@ typedef void (*OlSearchCompleteFunc) (OlLyricSourceSearchTask *task,
                                       enum OlLyricSourceStatus status,
                                       GList *results,
                                       gpointer userdata);
-typedef void (*OlSearchStartedFunc) (OlLyricSource *source,
+typedef void (*OlSearchStartedFunc) (OlLyricSourceSearchTask *task,
                                      const gchar *sourceid,
                                      const gchar *sourcename,
                                      gpointer userdata);
