@@ -487,6 +487,9 @@ ol_scroll_module_free (struct OlDisplayModule *module)
     g_signal_handlers_disconnect_by_func (priv->player,
                                           _metadata_changed_cb,
                                           priv);
+    g_signal_handlers_disconnect_by_func (priv->player,
+                                          _caps_changed_cb,
+                                          priv);
     g_object_unref (priv->player);
     priv->player = NULL;
   }
