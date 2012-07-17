@@ -2206,7 +2206,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_underline">True</property>
-                <signal name="clicked" handler="ol_lrc_fetch_ui_download"/>
+                <signal name="clicked" handler="ol_lyric_candidate_selector_download"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -2221,7 +2221,7 @@ SimplyZhao &lt;simplyzhao@gmail.com&gt;</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="ol_lrc_fetch_ui_cancel"/>
+                <signal name="clicked" handler="ol_lyric_candidate_selector_cancel"/>
               </object>
               <packing>
                 <property name="expand">False</property>
