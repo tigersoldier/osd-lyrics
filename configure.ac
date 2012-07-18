@@ -215,6 +215,7 @@ AC_CONFIG_FILES([
         python/dbusext/Makefile
         lyricsources/Makefile
         lyricsources/xiami/Makefile
+        lyricsources/lrc123/Makefile
 ])
 
 AC_OUTPUT

@@ -1,1 +1,1 @@
-subdir=xiami
+SUBDIRS = xiami lrc123
