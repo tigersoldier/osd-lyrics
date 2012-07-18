@@ -113,7 +113,8 @@ class LyricSource(dbus.service.Object):
         del source['search'][ticket]
         if myticket not in self._search_tasks:
             return
-        if status == STATUS_SUCCESS or status == STATUS_CANCELLED:
+        if (status == STATUS_SUCCESS and len(results) > 0) or \
+                status == STATUS_CANCELLED:
             self.SearchComplete(myticket, status, results)
         else: #STATUS_FAILURE
             mytask = self._search_tasks[myticket]
