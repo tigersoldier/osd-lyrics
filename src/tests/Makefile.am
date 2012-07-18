@@ -1,12 +1,8 @@
 check_PROGRAMS = \
 	ol_osd_window_test \
 	ol_player_test \
-	ol_lrc_test \
-	ol_lrc_fetch_test \
 	ol_config_test \
 	ol_color_test \
-	ol_lrc_fetch_ui_test \
-	ol_lrc_fetch_module_test \
 	ol_path_test \
 	ol_utils_cmdline_test \
 	ol_fork_test \
@@ -70,27 +66,6 @@ ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(NULL)
 
-ol_lrc_test_SOURCES = ol_lrc_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_lrc.c \
-	$(top_srcdir)/src/ol_lyrics.c \
-	$(top_srcdir)/src/ol_metadata.c \
-	$(top_srcdir)/src/ol_utils.c \
-	$(NULL)
-
-ol_lrc_fetch_test_SOURCES = ol_lrc_fetch_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_lrc_fetch.c \
-	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
-	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
-	$(top_srcdir)/src/ol_metadata.c \
-	$(top_srcdir)/src/ol_md5.c \
-	$(top_srcdir)/src/ol_utils_network.c \
-	$(top_srcdir)/src/ol_config_proxy.c \
-	$(top_srcdir)/src/ol_marshal.c \
-	$(top_srcdir)/src/ol_utils.c
-
 ol_config_test_SOURCES = \
 	$(top_srcdir)/src/ol_debug.c \
 	ol_config_test.c \
@@ -101,42 +76,6 @@ ol_color_test_SOURCES = \
 	$(top_srcdir)/src/ol_debug.c \
 	ol_color_test.c \
 	$(top_srcdir)/src/ol_color.c
-
-ol_lrc_fetch_ui_test_SOURCES = ol_lrc_fetch_ui_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_lrc_fetch.c \
-	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
-	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
-	$(top_srcdir)/src/ol_lrc_fetch_module.c \
-	$(top_srcdir)/src/ol_md5.c \
-	$(top_srcdir)/src/ol_fork.c \
-	$(top_srcdir)/src/ol_metadata.c \
-	$(top_srcdir)/src/ol_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
-	$(top_srcdir)/src/ol_lrc_candidate_list.c \
-	$(top_srcdir)/src/ol_config_proxy.c \
-	$(top_srcdir)/src/ol_marshal.c \
-	$(top_srcdir)/src/ol_utils_network.c \
-	$(top_srcdir)/src/ol_gui.c
-
-ol_lrc_fetch_module_test_SOURCES = ol_lrc_fetch_module_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_lrc_fetch.c \
-	$(top_srcdir)/src/ol_lrc_fetch_module.c \
-	$(top_srcdir)/src/ol_lrc_fetch_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_ttplayer.c \
-	$(top_srcdir)/src/ol_lrc_fetch_xiami.c \
-	$(top_srcdir)/src/ol_metadata.c \
-	$(top_srcdir)/src/ol_md5.c \
-	$(top_srcdir)/src/ol_utils.c \
-	$(top_srcdir)/src/ol_lrc_fetch_ui.c \
-	$(top_srcdir)/src/ol_lrc_candidate_list.c \
-	$(top_srcdir)/src/ol_fork.c \
-	$(top_srcdir)/src/ol_config_proxy.c \
-	$(top_srcdir)/src/ol_marshal.c \
-	$(top_srcdir)/src/ol_utils_network.c \
-	$(top_srcdir)/src/ol_gui.c 
 
 ol_path_test_SOURCES = \
 	 ol_path_test.c \
