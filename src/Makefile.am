@@ -46,7 +46,6 @@ noinst_HEADERS = \
 	ol_display_module.h \
 	ol_eggaccelerators.h \
 	ol_elapse_emulator.h \
-	ol_fork.h \
 	ol_gui.h \
 	ol_image_button.h \
 	ol_intl.h \
@@ -127,7 +126,6 @@ osdlyrics_SOURCES = \
 	ol_commands.c \
 	ol_path_pattern.c \
 	ol_cell_renderer_button.c \
-	ol_fork.c \
 	ol_marshal.c \
 	ol_stock.c \
 	ol_notify.c \

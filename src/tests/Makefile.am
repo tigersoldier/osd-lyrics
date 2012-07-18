@@ -5,7 +5,6 @@ check_PROGRAMS = \
 	ol_color_test \
 	ol_path_test \
 	ol_utils_cmdline_test \
-	ol_fork_test \
 	ol_metadata_test \
 	ol_utils_dbus_test \
 	ol_utils_test \
@@ -83,11 +82,6 @@ ol_path_test_SOURCES = \
 	$(top_srcdir)/src/ol_path_pattern.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(top_srcdir)/src/ol_metadata.c
-
-ol_fork_test_SOURCES = \
-	ol_fork_test.c \
-	$(top_srcdir)/src/ol_debug.c \
-	$(top_srcdir)/src/ol_fork.c
 
 ol_metadata_test_SOURCES = \
 	ol_metadata_test.c \
