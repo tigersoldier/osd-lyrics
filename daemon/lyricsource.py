@@ -108,16 +108,28 @@ class LyricSource(dbus.service.Object):
 
     @validateticket('search')
     def search_complete_cb(self, source_id, ticket, status, results):
+        logging.info('Search complete from %s, ticket: %s, status: %s, result: %s' %
+                     (source_id, ticket, status, len(results)))
         source = self._sources[source_id]
         myticket = source['search'][ticket]
         del source['search'][ticket]
         if myticket not in self._search_tasks:
             return
+        if status == STATUS_SUCCESS:
+            mytask = self._search_tasks[myticket]
+            mytask['failure'] = False
         if (status == STATUS_SUCCESS and len(results) > 0) or \
                 status == STATUS_CANCELLED:
             self.SearchComplete(myticket, status, results)
         else: #STATUS_FAILURE
             mytask = self._search_tasks[myticket]
+            # mytask['failure'] is set to True only when all sources fail to search.
+            # To ensure that, we set this value to None when task is created, and
+            # set it to False when a search task succeeds, thus `not task['failure']`
+            # will return True. The value is set to True only when it was not False,
+            # so no search tasks from other sources succeed.
+            if status == STATUS_FAILURE and mytask['failure'] != False:
+                mytask['failure'] = True
             if len(mytask['sources']) == 0 or mytask['sources'][0] != source_id:
                 logging.warning('Error, no source exists or source id mismatch with current id')
                 self.SearchComplete(myticket, STATUS_FAILURE, results)
@@ -127,6 +139,8 @@ class LyricSource(dbus.service.Object):
 
     @validateticket('download')
     def download_complete_cb(self, source_id, ticket, status, content):
+        logging.info('Download complete from %s, ticket: %s, status: %s, content length: %s' %
+                     (source_id, ticket, status, len(content)))
         source = self._sources[source_id]
         myticket = source['download'][ticket]
         del source['download'][ticket]
@@ -170,7 +184,8 @@ class LyricSource(dbus.service.Object):
                 logging.warning('Source %s not exist' % task['sources'][0])
                 task['sources'].pop(0)
         if nextsource is None:
-            self.SearchComplete(ticket, STATUS_FAILURE, [])
+            status = STATUS_SUCCESS if not task['failure'] else STATUS_FAILURE
+            self.SearchComplete(ticket, STATUS_SUCCESS, [])
         else:
             newticket = self._get_source_proxy(nextsource).Search(task['metadata'])
             self._set_source_search(nextsource, newticket, ticket)
@@ -204,6 +219,7 @@ class LyricSource(dbus.service.Object):
             'metadata': metadata,
             'sources': [str(id) for id in sources],
             'ticket': None,
+            'failure': None,    # See comments in search_complete_cb()
             }
         self._search_tasks[ticket] = task
         self._do_search(ticket)
