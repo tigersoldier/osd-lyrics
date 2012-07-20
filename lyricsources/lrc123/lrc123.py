@@ -18,13 +18,13 @@
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
 import re
+import sys
 import httplib
 import urllib
 import urlparse
 import HTMLParser
 from osdlyrics.lyricsource import BaseLyricSourcePlugin, SearchResult
-from osdlyrics.utils import ensure_utf8
-
+from osdlyrics.utils import ensure_utf8, http_download, get_proxy_settings
 
 HOST = 'www.lrc123.com'
 SEARCH_URL = '/?keyword=%s&field=all'
@@ -40,21 +40,21 @@ class Lrc123Source(BaseLyricSourcePlugin):
         """
         
         BaseLyricSourcePlugin.__init__(self, id='lrc123', name='LRC123')
-        
+
     def do_search(self, metadata):
-        conn = httplib.HTTPConnection(HOST)
         keys = []
         if metadata.title:
             keys.append(metadata.title)
         if metadata.artist:
             keys.append(metadata.artist)
-        urlkey = urllib.quote(ensure_utf8('+'.join(keys)), '+')
-        url = SEARCH_URL % urlkey
-        conn.request('GET', url)
-        response = conn.getresponse()
-        if response.status < 200 or response.status >= 400:
-            raise httplib.HTTPException(response.status, response.reason)
-        content = response.read()
+        urlkey = (' '.join(keys))
+        params = {'keyword': urlkey,
+                  'field': 'all'}
+        status, content = http_download(url=HOST + '/',
+                                        params=params,
+                                        proxy=get_proxy_settings(config=self.config_proxy))
+        if status < 200 or status >= 400:
+            raise httplib.HTTPException(status, '')
         match = RESULT_PATTERN.findall(content)
         result = []
         if match:
@@ -75,20 +75,10 @@ class Lrc123Source(BaseLyricSourcePlugin):
                 not isinstance(downloadinfo, unicode):
             raise TypeError('Expect the downloadinfo as a string of url, but got type ',
                             type(downloadinfo))
-        conn = httplib.HTTPConnection(HOST)
-        print downloadinfo
-        headers = {
-            'User-Agent': 'OSD Lyrics',
-            }
-        conn.request('GET', downloadinfo, None, headers)
-        response = conn.getresponse()
-        if response.status >= 300 and response.status < 400:
-            url = response.getheader('location')
-            print url
-        if response.status < 200 or response.status >= 400:
-            raise httplib.HTTPException(response.status, response.reason)
-        content = response.read()
-        print content
+        status, content = http_download(url=HOST+downloadinfo,
+                                        proxy=get_proxy_settings(self.config_proxy))
+        if status < 200 or status >= 400:
+            raise httplib.HTTPException(status, '')
         return content
 
 if __name__ == '__main__':

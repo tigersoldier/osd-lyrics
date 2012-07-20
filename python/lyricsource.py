@@ -31,6 +31,7 @@ from dbusext import property as dbusproperty
 from app import App
 from utils import ensure_utf8
 from metadata import Metadata
+from config import Config
 
 SEARCH_SUCCEED = 0
 SEARCH_CANCELLED = 1
@@ -129,6 +130,7 @@ class BaseTaskThread(threading.Thread):
             ret = self._target(*self._args, **self._kwargs)
             self._onfinish(ret)
         except Exception,e:
+            logging.exception('Got exception in thread')
             self._onerror(e)
         import sys
         sys.stdout.flush()
@@ -161,6 +163,7 @@ class BaseLyricSourcePlugin(DBusObject):
         self._search_tasks = {}
         self._download_tasks = {}
         self._name = name if name is not None else id
+        self._config = None
 
     def do_search(self, metadata):
         """
@@ -301,6 +304,12 @@ class BaseLyricSourcePlugin(DBusObject):
         Return the ID of the lyric source
         """
         return self._id
+
+    @property
+    def config_proxy(self):
+        if self._config is None:
+            self._config = Config(self._app.connection)
+        return self._config
 
 def test():
     class DummyLyricSourcePlugin(BaseLyricSourcePlugin):

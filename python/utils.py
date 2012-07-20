@@ -17,12 +17,40 @@
 # You should have received a copy of the GNU General Public License
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
 #/
+import os
 import os.path
 import urllib
+import pycurl
+import config
+import StringIO
+import sys
+
 __all__ = (
     'get_config_path',
     'path2uri',
+    'ensure_utf8',
+    'ensure_unicode',
     )
+
+pycurl.global_init(pycurl.GLOBAL_DEFAULT)
+
+# make sure the default encoding is utf-8
+if sys.getdefaultencoding() != 'utf-8':
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
+class ProxySettings(object):
+    """
+    """
+    
+    def __init__(self, protocol, host='', port=0, username=None, password=None):
+        """
+        """
+        self.protocol = protocol
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
 
 def get_config_path(filename='', expanduser=True):
     """
@@ -84,6 +112,191 @@ def ensure_utf8(value):
     if isinstance(value, unicode):
         return value.encode('utf8')
     return value
+
+def get_proxy_settings(config=None, conn=None):
+    r"""
+    Return proxy settings as a ProxySettings object
+
+    The caller must specify either config or conn.
+
+    Arguments:
+     - `config`: A osdlyrics.config.Config object, this object is used to retrive
+                 proxy settings. If it is not set, the caller MUST set conn to a
+                 valid D-Bus connection to create a Config object
+     - `conn`: A D-Bus connection object, this is used when `config` is not
+               specified.
+    """
+    if config is None and conn is None:
+        raise ValueError('Either config or conn must be specified')
+    if config is None:
+        config = config.Config(conn)
+    proxy_type = config.get_string('Download/proxy')
+    if proxy_type.lower() == 'no':
+        return ProxySettings(protocol='no')
+    if proxy_type.lower() == 'manual':
+        protocol = config.get_string('Download/proxy-type')
+        host = config.get_string('Download/proxy-host')
+        port = config.get_int('Download/proxy-port')
+        username = config.get_string('Download/proxy-username')
+        passwd = config.get_string('Download/proxy-passwd')
+        return ProxySettings(protocol=protocol, host=host, port=port,
+                            username=username, password=passwd)
+    if proxy_type.lower() == 'system':
+        return detect_system_proxy()
+
+def detect_system_proxy():
+    r"""
+    Detects and return system proxy settings.
+
+    Support following proxy settings:
+    - Environment variables
+    - GNOME 2 (TODO)
+    - GNOME 3
+    - KDE (TODO)
+    """
+    desktop = detect_desktop_shell()
+    if desktop == 'gnome' or desktop == 'unity':
+        proxy = get_gsettings_proxy()
+        if proxy:
+            return proxy
+    return get_envar_proxy()
+
+def get_envar_proxy():
+    r"""
+    Return proxy settings from environment variable `http_proxy`
+    """
+    envars = ['http_proxy', 'HTTP_PROXY']
+    proxies = [os.environ.get(v) for v in envars]
+    for proxy in proxies:
+        if proxy is not None:
+            parts = urlparse.urlparse
+            if not parts.scheme in ['http', 'socks4', 'socks5', '']:
+                continue
+            return ProxySettings(protocol=parts.scheme if parts.scheme != '' else 'http',
+                                 host=parts.host,
+                                 port=parts.port if parts.port is not None else 8080,
+                                 username=parts.username,
+                                 password=parts.password)
+    return ProxySettings(protocol='no')
+
+def detect_desktop_shell():
+    r"""
+    Detect the currently running destop shell.
+
+    Returns: 'gnome', 'unity', 'kde', or 'unknown'
+    """
+    envar = os.environ.get('DESKTOP_SESSION')
+    if envar.startswith('gnome'):
+        return 'gnome'
+    if envar.startswith('kde'):
+        return 'kde'
+    if envar.startswith('ubuntu') or envar.startswith('unity'):
+        return 'unity'
+    return 'unknown'
+
+def get_gsettings_proxy():
+    r"""
+    Return proxy settings from gsetting, this is used in GNOME 3
+    """
+    try:
+        from gi.repository import Gio
+    except:
+        return None
+    if not hasattr(Gio, 'Settings'):
+        return None
+    if 'org.gnome.system.proxy' not in Gio.Settings.list_schemas():
+        return None
+    settings = Gio.Settings('org.gnome.system.proxy')
+    if settings.get_string('mode') != 'manual':
+        return ProxySettings(protocol='no')
+    protocol_map = { 'http': 'http', 'socks5': 'socks' }
+    for protocol, key in protocol_map.items():
+        settings = Gio.Settings('org.gnome.system.proxy.' + key)
+        host = settings.get_string('host').strip()
+        port = settings.get_int('port')
+        if host == '' or port <= 0:
+            continue
+        username = ''
+        password = ''
+        if key == 'http' and settings.get_boolean('use-authentication'):
+            username = settings.get_string('authentication-user')
+            password = settings.get_string('authentication-password')
+        return ProxySettings(protocol=protocol,
+                             host=host,
+                             port=port,
+                             username=username,
+                             password=password)
+    return ProxySettings(protocol='no')
+
+def http_download(url, port=0, method='GET', params={}, headers={}, timeout=15, proxy=None):
+    r"""
+    Helper function to download files from website
+
+    This function will apply proxy settings and deal redirections automatically.
+    To apply proxy settings, pass an ProxySettings object as the `proxy` parameter.
+
+    If `'User-Agent'` is not set in `headers`, it will be set to `'OSD Lyrics'`.
+
+    Arguments:
+     - `url`: The url of the content
+     - `port`: (optional) The port.
+     - `method`: (optional) The HTTP method to download contents. Available values
+                 are `'POST'` or `'GET'`. The default value is `'GET'`.
+     - `params`: (optional) The parameters of the request. It is a dict. If `method`
+                 is `'GET'`, `params` will be encoded and append to the url as the
+                 param part. If `method` is `'POST'`, `params` will be added to
+                 request headers as post data.
+     - `headers`: (optional) A dict of HTTP headers.
+     - `proxy`: (optional) A ProxySettings object to sepcify the proxy to use.
+
+    >>> code, content = http_download('http://www.python.org/')
+    >>> code
+    200
+    >>> content.find('Python') >= 0
+    True
+    """
+    c = pycurl.Curl()
+    buf = StringIO.StringIO()
+    c.setopt(pycurl.NOSIGNAL, 1)
+    c.setopt(pycurl.DNS_USE_GLOBAL_CACHE, 0)
+    c.setopt(pycurl.FOLLOWLOCATION, 1)
+    c.setopt(pycurl.MAXREDIRS, 5)
+    c.setopt(pycurl.WRITEFUNCTION, buf.write)
+    params = urllib.urlencode(params)
+    if method == 'GET' and len(params) > 0:
+        url = url + ('/' if '/' not in url else '') + ('?' if '?' not in url else '&') + params
+    elif method == 'POST':
+        c.setopt(pycurl.POST, 1)
+        if len(params) > 0:
+            c.setopt(pycurl.POSTFIELD, params)
+            c.setopt(pycurl.POSTFIELDSIZE, len(params))
+    url = ensure_utf8(url)
+    c.setopt(pycurl.URL, url)
+    if port > 0 and port < 65536:
+        c.setopt(pycurl.PORT, port)
+
+    real_headers = {'User-Agent': 'OSD Lyrics'}
+    real_headers.update(headers)
+    curl_headers = ['%s:%s' % (k, v) for k, v in real_headers.items()]
+    c.setopt(pycurl.HTTPHEADER, curl_headers)
+
+    if proxy is not None and proxy.protocol != 'no':
+        if proxy.username != '' and proxy.username is not None:
+            proxyvalue = '%s://%s:%s@%s:%d' % (proxy.protocol,
+                                               proxy.username,
+                                               proxy.password,
+                                               proxy.host,
+                                               proxy.port)
+        else:
+            proxyvalue = '%s://%s:%d' % (proxy.protocol,
+                                         proxy.host,
+                                         proxy.port)
+        c.setopt(pycurl.PROXY, proxyvalue)
+    else:
+        c.setopt(pycurl.PROXY, '')
+
+    c.perform()
+    return c.getinfo(pycurl.HTTP_CODE), buf.getvalue()
 
 if __name__ == '__main__':
     import doctest

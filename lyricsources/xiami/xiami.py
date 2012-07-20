@@ -25,12 +25,12 @@ import urlparse
 import gettext
 import HTMLParser
 from osdlyrics.lyricsource import BaseLyricSourcePlugin, SearchResult
-from osdlyrics.utils import ensure_utf8
+from osdlyrics.utils import ensure_utf8, http_download, get_proxy_settings
 
 _ = gettext.gettext
 
 XIAMI_HOST = 'www.xiami.com'
-XIAMI_SEARCH_URL = '/search?key='
+XIAMI_SEARCH_URL = '/search'
 XIAMI_LRC_URL = '/song/playlist/id/'
 XIAMI_SEARCH_PATTERN = re.compile(r'(<a [^<]*?href="/song/(\d+).*?>).*?(<a [^<]*?href="/artist/.*?>).*?(<a [^<]*?href="/album/.*?>)', re.DOTALL)
 XIAMI_URL_PATTERN = re.compile(r'<lyric>(.*?)</lyric>', re.DOTALL)
@@ -52,19 +52,18 @@ class XiamiSource(BaseLyricSourcePlugin):
         self._download = {}
         
     def do_search(self, metadata):
-        conn = httplib.HTTPConnection(XIAMI_HOST)
         keys = []
         if metadata.title:
             keys.append(metadata.title)
         if metadata.artist:
             keys.append(metadata.artist)
-        urlkey = urllib.quote(ensure_utf8('+'.join(keys)), '+')
-        url = XIAMI_SEARCH_URL + urlkey
-        conn.request('GET', url)
-        response = conn.getresponse()
-        if response.status < 200 or response.status >= 400:
-            raise httplib.HTTPException(response.status, response.reason)
-        content = response.read()
+        urlkey = ensure_utf8('+'.join(keys)).replace(' ', '+')
+        url = XIAMI_HOST + XIAMI_SEARCH_URL
+        status, content = http_download(url=url,
+                                        params={'key': urlkey},
+                                        proxy=get_proxy_settings(self.config_proxy))
+        if status < 200 or status >= 400:
+            raise httplib.HTTPException(status, '')
         match = XIAMI_SEARCH_PATTERN.findall(content)
         result = []
         if match:
@@ -72,7 +71,7 @@ class XiamiSource(BaseLyricSourcePlugin):
                 title = TITLE_ATTR_PATTERN.search(title_elem).group(1)
                 artist = TITLE_ATTR_PATTERN.search(artist_elem).group(1)
                 album = TITLE_ATTR_PATTERN.search(album_elem).group(1)
-                url = self.get_url(conn, id)
+                url = self.get_url(id)
                 if url is not None:
                     result.append(SearchResult(title=title,
                                                artist=artist,
@@ -81,12 +80,11 @@ class XiamiSource(BaseLyricSourcePlugin):
                                                downloadinfo=url))
         return result
 
-    def get_url(self, conn, id):
-        conn.request('GET', XIAMI_LRC_URL + str(id))
-        response = conn.getresponse()
-        if response.status < 200 or response.status >= 400:
+    def get_url(self, id):
+        status, content = http_download(url=XIAMI_HOST + XIAMI_LRC_URL + str(id),
+                                        proxy=get_proxy_settings(self.config_proxy))
+        if status < 200 or status >= 400:
             return None
-        content = response.read()
         match = XIAMI_URL_PATTERN.search(content)
         if not match:
             return None
@@ -102,15 +100,13 @@ class XiamiSource(BaseLyricSourcePlugin):
             raise TypeError('Expect the downloadinfo as a string of url, but got type ',
                             type(downloadinfo))
         parts = urlparse.urlparse(downloadinfo)
-        conn = httplib.HTTPConnection(parts.netloc)
-        conn.request('GET', parts.path)
-        response = conn.getresponse()
-        if response.status < 200 or response.status >= 400:
-            raise httplib.HTTPException(response.status, response.reason)
-        content = response.read()
+        status, content = http_download(downloadinfo,
+                                        proxy=get_proxy_settings(self.config_proxy))
+        if status < 200 or status >= 400:
+            raise httplib.HTTPException(status)
         if content:
-            content = HTMLParser.HTMLParser().unescape(content)
-        return content
+            content = HTMLParser.HTMLParser().unescape(content.decode('utf-8'))
+        return content.encode('utf-8')
 
 if __name__ == '__main__':
     xiami = XiamiSource()

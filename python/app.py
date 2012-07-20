@@ -25,6 +25,7 @@ import dbus
 import dbus.service
 import consts
 from dbus.mainloop.glib import DBusGMainLoop
+import dbus.mainloop.glib
 from errors import Error
 
 __all__ = (
@@ -33,6 +34,7 @@ __all__ = (
     )
 
 gobject.threads_init()
+dbus.mainloop.glib.threads_init()
 
 class AlreadyRunningException(Error):
     """ Raised when a process with given bus name exists.
