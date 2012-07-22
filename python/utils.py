@@ -24,6 +24,7 @@ import pycurl
 import config
 import StringIO
 import sys
+import urlparse
 
 __all__ = (
     'get_config_path',
@@ -152,12 +153,16 @@ def detect_system_proxy():
     - Environment variables
     - GNOME 2 (TODO)
     - GNOME 3
-    - KDE (TODO)
+    - KDE
     """
     desktop = detect_desktop_shell()
     if desktop == 'gnome' or desktop == 'unity':
         proxy = get_gsettings_proxy()
-        if proxy:
+        if proxy is not None:
+            return proxy
+    elif desktop == 'kde':
+        proxy = get_kde_proxy()
+        if proxy is not None:
             return proxy
     return get_envar_proxy()
 
@@ -169,11 +174,13 @@ def get_envar_proxy():
     proxies = [os.environ.get(v) for v in envars]
     for proxy in proxies:
         if proxy is not None:
-            parts = urlparse.urlparse
+            if proxy.find('://') < 0:
+                proxy = 'http://' + proxy
+            parts = urlparse.urlparse(proxy)
             if not parts.scheme in ['http', 'socks4', 'socks5', '']:
                 continue
             return ProxySettings(protocol=parts.scheme if parts.scheme != '' else 'http',
-                                 host=parts.host,
+                                 host=parts.hostname,
                                  port=parts.port if parts.port is not None else 8080,
                                  username=parts.username,
                                  password=parts.password)
@@ -227,6 +234,46 @@ def get_gsettings_proxy():
                              username=username,
                              password=password)
     return ProxySettings(protocol='no')
+
+def get_kde_proxy():
+    r"""
+    Detect KDE4 proxy settings
+    """
+    try:
+        import PyKDE4.kdecore as kdecore
+    except:
+        return None
+    config = kdecore.KConfig('kioslaverc', kdecore.KConfig.NoGlobals)
+    if not config.hasGroup('Proxy Settings'):
+        return None
+    group = config.group('Proxy Settings')
+    proxy_type, _ = group.readEntry('ProxyType', 0).toInt()
+    if proxy_type in [0, 2, 3]:
+        # no proxy, PAC or auto detect in KDE settings. We don't support
+        # PAC proxy, so treat them as no proxy
+        return ProxySettings('no')
+    elif proxy_type in [1, 4]:
+        for key in ['httpProxy', 'socksProxy']:
+            value = str(group.readEntry(key))
+            if value.strip() != '':
+                # KDE 4.8 uses whitespace to seperate port and hostname
+                value = value.replace(' ', ':')
+                if value.find('://') < 0:
+                    value = 'http://' + value
+                parts = urlparse.urlparse(value)
+                host = parts.hostname
+                try:
+                    port = parts.port
+                except:
+                    port = None
+                if host is not None and host.strip() != '' and \
+                        port is not None and port > 0 and port < 65536:
+                    protocolmap = {'httpProxy': 'http',
+                                   'socksProxy': 'socks5'}
+                    return ProxySettings(protocolmap[key],
+                                         host=host,
+                                         port=port)
+    return ProxySettings('no')
 
 def http_download(url, port=0, method='GET', params={}, headers={}, timeout=15, proxy=None):
     r"""
