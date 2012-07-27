@@ -249,7 +249,7 @@ _config_change_handler (OlConfig *config,
     if (scroll_mode != NULL)
     {
       enum OlScrollWindowScrollMode mode = OL_SCROLL_WINDOW_ALWAYS;
-      if (g_strcasecmp (scroll_mode, "lines") == 0)
+      if (g_ascii_strcasecmp (scroll_mode, "lines") == 0)
       {
         mode = OL_SCROLL_WINDOW_BY_LINES;
       }
