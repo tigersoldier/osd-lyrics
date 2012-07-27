@@ -159,7 +159,8 @@ ol_player_cmus_get_music_length (int *len)
     *len = -1;
     return TRUE;
   }
-  *len = 500 + strtol (CMUS_CfgValues[CSI_DURATION], NULL, 10) * 1000;
+  *len = CMUS_CfgValues[CSI_DURATION] != NULL ?
+    500 + strtol (CMUS_CfgValues[CSI_DURATION], NULL, 10) * 1000 : 0;
   return TRUE;
 }
 
@@ -170,7 +171,8 @@ ol_player_cmus_get_played_time (int *played_time)
   if (!cmus_update_info ())
     return FALSE;
   int status = cmus_get_status ();
-  gint64 cmus_time = strtol (CMUS_CfgValues[CSI_POS], NULL, 10) * 1000;
+  gint64 cmus_time = CMUS_CfgValues[CSI_POS] != NULL ?
+    strtol (CMUS_CfgValues[CSI_POS], NULL, 10) * 1000 : 0;
   switch (status)
   {
   case OL_PLAYER_PLAYING:
