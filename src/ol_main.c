@@ -268,6 +268,11 @@ _check_lyric_file ()
   ol_log_func ();
   gboolean ret = TRUE;
   char *filename = NULL;
+  if (lrc_file != NULL)
+  {
+    ol_lrc_free (lrc_file);
+    lrc_file = NULL;
+  }
   int code = ol_lrclib_find (&music_info, &filename);
   if (code == 0)
     filename = ol_lyric_find (&music_info);
