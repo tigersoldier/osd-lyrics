@@ -96,6 +96,7 @@ static const char *GET_METADATA_METHOD = "GetMetadata";
 static const char *GET_STATUS_METHOD = "GetStatus";
 static const char *GET_POSITION_METHOD = "PositionGet";
 static const char *SET_POSITION_METHOD = "PositionSet";
+static struct OlPlayer controller = {0};
 
 static struct OlPlayerMpris *mpris = NULL;
 
@@ -303,6 +304,7 @@ _mpris_new (const char *app_name, const char *bus_name, DBusGProxy *proxy)
     mpris->elapse_emulator = ol_elapse_emulator_new (0, 1000);
   if (mpris->icon_name == NULL)
     mpris->icon_name = g_strdup (bus_name + strlen (MPRIS_PREFIX));
+  controller.name = mpris->app_name;
   return mpris;
 }
 
@@ -323,6 +325,7 @@ _mpris_free (struct OlPlayerMpris *mpris)
   mpris->music_len = -1;
   mpris->played_time = -1;
   mpris->proxy = NULL;
+  controller.name = "MPRIS";
   if (mpris->elapse_emulator != NULL)
     ol_elapse_emulator_free (mpris->elapse_emulator);
 }
@@ -583,21 +586,21 @@ struct OlPlayer*
 ol_player_mpris_get (void)
 {
   ol_log_func ();
-  struct OlPlayer *controller = ol_player_new ("MPRIS");
-  controller->get_music_info = _get_music_info;
-  controller->get_activated = _get_activated;
-  controller->get_played_time = _get_played_time;
-  controller->get_music_length = _get_music_length;
-  controller->get_capacity = _get_capacity;
-  controller->get_status = _get_status;
-  controller->play = _play;
-  controller->pause = _pause;
-  controller->stop = _stop;
-  controller->prev = _prev;
-  controller->next = _next;
-  controller->seek = _seek;
-  controller->get_icon_path = _get_icon_path;
-  controller->get_app_info_list = _get_app_info_list;
-  controller->free = _free;
-  return controller;
+  controller.name = "MPRIS";
+  controller.get_music_info = _get_music_info;
+  controller.get_activated = _get_activated;
+  controller.get_played_time = _get_played_time;
+  controller.get_music_length = _get_music_length;
+  controller.get_capacity = _get_capacity;
+  controller.get_status = _get_status;
+  controller.play = _play;
+  controller.pause = _pause;
+  controller.stop = _stop;
+  controller.prev = _prev;
+  controller.next = _next;
+  controller.seek = _seek;
+  controller.get_icon_path = _get_icon_path;
+  controller.get_app_info_list = _get_app_info_list;
+  controller.free = _free;
+  return &controller;
 }
