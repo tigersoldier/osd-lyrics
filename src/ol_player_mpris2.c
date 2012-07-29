@@ -236,7 +236,17 @@ _get_played_time (int *played_time)
   if (!ol_dbus_get_int64_property (_mpris2->proxy,
                                    POSITION_PROP,
                                    &position))
+  {
+    if (g_str_equal (_mpris2->bus_name, "org.mpris.MediaPlayer2.rhythmbox") &&
+        _get_status () != OL_PLAYER_ERROR)
+    {
+      /* Rhythmbox fails to provide position when stopped or changing tracks,
+         we need to handle it more gracefully. */
+      *played_time = 0;
+      return TRUE;
+    }
     return FALSE;
+  }
   if (_mpris2->elapse != NULL)
   {
     if (_get_status () == OL_PLAYER_PLAYING)
