@@ -60,6 +60,7 @@ static const char *STOPPED_STATUS = "Stopped";
 struct Mpris2
 {
   DBusGProxy *proxy;
+  char *name;
   char *bus_name;
   char *icon_name;
   OlElapseEmulator *elapse;
@@ -101,6 +102,7 @@ static GList * _get_app_info_list (void);
 static struct Mpris2 *_mpris2_new (const char *bus_name,
                                    DBusGProxy *proxy);
 static void _mpris2_free (struct Mpris2 *mpris2);
+static struct OlPlayer player = {0};
 
 static gboolean
 _proxy_destroy_cb (DBusGProxy *proxy, struct Mpris2 *userdata)
@@ -126,18 +128,22 @@ _mpris2_new (const char *bus_name,
   {
     if (strcmp (bus_name, KNOWN_PLAYERS[i].bus_name) == 0)
     {
+      ret->name = g_strdup (KNOWN_PLAYERS[i].name);
       ret->icon_name = g_strdup (KNOWN_PLAYERS[i].icon_name);
       time_in_ms = KNOWN_PLAYERS[i].time_in_ms;
     }
   }
   if (ret->icon_name == NULL)
     ret->icon_name = g_strdup (bus_name + strlen (NAME_PREFIX));
+  if (ret->name == NULL)
+    ret->name = g_strdup (ret->icon_name);
   g_signal_connect (ret->proxy,
                     "destroy",
                     G_CALLBACK (_proxy_destroy_cb),
                     (gpointer) ret);
   if (!time_in_ms)
     ret->elapse = ol_elapse_emulator_new (0, 1000);
+  player.name = ret->name;
   return ret;
 }
 
@@ -149,9 +155,11 @@ _mpris2_free (struct Mpris2 *mpris2)
   mpris2->proxy = NULL;
   g_free (mpris2->bus_name);
   g_free (mpris2->icon_name);
+  g_free (mpris2->name);
   if (mpris2->elapse)
     ol_elapse_emulator_free (mpris2->elapse);
   g_free (mpris2);
+  player.name = "MPRIS2";
 }
 
 static gboolean
@@ -436,22 +444,20 @@ _get_app_info_list (void)
 
 struct OlPlayer*
 ol_player_mpris2_get () {
-  static struct OlPlayer player = {
-    .name = "MPRIS2",
-    .get_activated = _get_activated,
-    .get_played_time = _get_played_time,
-    .get_music_length = _get_music_length,
-    .get_music_info = _get_music_info,
-    .get_capacity = _get_capacity,
-    .play = _play,
-    .pause = _pause,
-    .stop = _stop,
-    .prev = _prev,
-    .next = _next,
-    .seek = _seek,
-    .get_icon_path = _get_icon_path,
-    .get_status = _get_status,
-    .get_app_info_list = _get_app_info_list,
-  };
+  player.name = "MPRIS2";
+  player.get_activated = _get_activated;
+  player.get_played_time = _get_played_time;
+  player.get_music_length = _get_music_length;
+  player.get_music_info = _get_music_info;
+  player.get_capacity = _get_capacity;
+  player.play = _play;
+  player.pause = _pause;
+  player.stop = _stop;
+  player.prev = _prev;
+  player.next = _next;
+  player.seek = _seek;
+  player.get_icon_path = _get_icon_path;
+  player.get_status = _get_status;
+  player.get_app_info_list = _get_app_info_list;
   return &player;
 }
