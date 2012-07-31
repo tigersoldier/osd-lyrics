@@ -72,6 +72,7 @@ void ol_player_chooser_set_image_by_gicon (OlPlayerChooser *window,
                                            GIcon *icon);
 
 void ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
-                                          enum OlPlayerChooserState state);
+                                          enum OlPlayerChooserState state,
+                                          const gchar *last_app);
 
 #endif /* _OL_PLAYER_CHOOSER_H_ */

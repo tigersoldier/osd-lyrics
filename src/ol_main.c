@@ -68,6 +68,7 @@ static guint refresh_source = 0;
 static guint info_timer = 0;
 static guint _lost_action_delay_timer = 0;
 static struct OlPlayer *player = NULL;
+static gchar *player_name = NULL;
 static OlMusicInfo music_info = {0};
 static gchar *previous_title = NULL;
 static gchar *previous_artist = NULL;
@@ -547,17 +548,19 @@ _player_lost_cb (void)
                         G_CALLBACK (_player_chooser_response_cb),
                         NULL);
       ol_player_chooser_set_info_by_state (player_chooser,
-                                           OL_PLAYER_CHOOSER_STATE_NO_PLAYER);
+                                           OL_PLAYER_CHOOSER_STATE_NO_PLAYER,
+                                           NULL);
     }
     else
     {
-      if (player_lost_action == ACTION_CHOOSE_PLAYER_DISCONNECTED)
-        ol_player_chooser_set_info_by_state (player_chooser,
-                                             OL_PLAYER_CHOOSER_STATE_DISCONNECTED);
-      else
-        ol_player_chooser_set_info_by_state (player_chooser,
-                                             OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL);
+      ol_player_chooser_set_info_by_state (player_chooser,
+                                           OL_PLAYER_CHOOSER_STATE_LAUNCH_FAIL,
+                                           player_name);
     }
+    if (player_lost_action == ACTION_CHOOSE_PLAYER_DISCONNECTED)
+      ol_player_chooser_set_info_by_state (player_chooser,
+                                           OL_PLAYER_CHOOSER_STATE_DISCONNECTED,
+                                           player_name);
     gtk_widget_show (GTK_WIDGET (player_chooser));
     _set_player_lost_action (ACTION_NONE);
     break;
@@ -569,15 +572,21 @@ _player_lost_cb (void)
   default:
     break;
   }
+  g_free (player_name);
+  player_name = NULL;
 }
 
 static void
 _player_connected_cb (void)
 {
+  if (player_name)
+    g_free (player_name);
+  player_name = g_strdup (ol_player_get_name (player));
   if (player_chooser != NULL &&
       gtk_widget_get_visible (GTK_WIDGET (player_chooser)))
     ol_player_chooser_set_info_by_state (player_chooser,
-                                         OL_PLAYER_CHOOSER_STATE_CONNECTED);
+                                         OL_PLAYER_CHOOSER_STATE_CONNECTED,
+                                         player_name);
   if (!module)
   {
     /* Initialize display modules */
@@ -791,6 +800,8 @@ main (int argc, char **argv)
   _initialize (argc, argv);
   gtk_main ();
   ol_player_unload ();
+  g_free (player_name);
+  player_name = NULL;
   ol_notify_unload ();
   if (module != NULL)
   {

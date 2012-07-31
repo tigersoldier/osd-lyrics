@@ -551,7 +551,8 @@ ol_player_chooser_set_image_by_gicon (OlPlayerChooser *window,
 
 void
 ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
-                                     enum OlPlayerChooserState state)
+                                     enum OlPlayerChooserState state,
+                                     const gchar *last_app)
 {
   ol_assert (OL_IS_PLAYER_CHOOSER (window));
   OlPlayerChooserPrivate *priv = OL_PLAYER_CHOOSER_GET_PRIVATE (window);
@@ -577,10 +578,10 @@ ol_player_chooser_set_info_by_state (OlPlayerChooser *window,
     break;
   }
   case OL_PLAYER_CHOOSER_STATE_DISCONNECTED: {
-    gchar *title = g_strdup_printf (_("Something wrong with %s"),
-                                      g_app_info_get_name (priv->launch_app));
+    gchar *title = g_strdup_printf (_("Disconnected from %s"),
+                                    last_app ? last_app : _("media player"));
     gchar *desc = g_strdup_printf (_("It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. Please try launching it again, or launch another player instead."),
-                                   g_app_info_get_name (priv->launch_app));
+                                   last_app ? last_app : _("media player"));
     ol_player_chooser_set_info (window, title, desc);
     ol_player_chooser_set_image_by_name (window, GTK_STOCK_DIALOG_ERROR);
     g_free (title);
