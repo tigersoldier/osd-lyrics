@@ -25,8 +25,33 @@ import re
 class Metadata(object):
     """
     Metadata of a track
+
+    This class helps to deal with different metadata formats defined by MPRIS1,
+    MPRIS2 and OSD Lyrics. It is recommended to parse a metadata dict from D-Bus
+    with `Metadata.from_dict()`.
+
+    Metadata provides following properties: `title`, `artist`, `album`, `location`,
+    `arturl`, `length`, and `tracknum`, where `length` and `tracknum` are integers,
+    the others are strings.
     """
-    
+
+    # Possible MPRIS metadata keys, taken from
+    # http://xmms2.org/wiki/MPRIS_Metadata#MPRIS_v1.0_Metadata_guidelines"""
+    MPRIS1_KEYS = set(['genre', 'comment', 'rating', 'year', 'date', 'asin',
+                       'puid fingerprint', 'mb track id', 'mb artist id',
+                       'mb artist sort name', 'mb album id', 'mb release date',
+                       'mb album artist', 'mb album artist id',
+                       'mb album artist sort name', 'audio-bitrate',
+                       'audio-samplerate', 'video-bitrate'])
+
+    # Possible MPRIS2 metadata keys, taken from
+    # http://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata
+    MPRIS2_KEYS = set(['xesam:albumArtist', 'xesam:asText', 'xesam:audioBPM',
+                       'xesam:autoRating', 'xesam:comment', 'xesam:composer',
+                       'xesam:contentCreated', 'xesam:discNumber', 'xesam:firstUsed',
+                       'xesam:genre', 'xesam:lastUsed', 'xesam:lyricist',
+                       'xesam:useCount', 'xesam:userRating'])
+
     def __init__(self,
                  title=None,
                  artist=None,
@@ -35,8 +60,23 @@ class Metadata(object):
                  tracknum=-1,
                  location=None,
                  length=-1,
-                 *args,
-                 **kargs):
+                 extra={}):
+        """
+        Create a new Metadata instance.
+
+        Arguments:
+        - `title`: (string) The title of the track
+        - `artist`: (string) The artist of the track
+        - `album`: (string) The name of album that the track is in
+        - `arturl`: (string) The URI of the picture of the cover of the album
+        - `tracknum`: (int) The number of the track
+        - `location`: (string) The URI of the file
+        - `length`: (int) The duration of the track
+        - `extra`: (dict) A dict that is intend to store additional properties
+                   provided by MPRIS1 or MPRIS2 DBus dicts. The MPRIS1-related
+                   values will be set in the dict returned by `to_mpris1`. The
+                   MPRIS2-related values are treated in a similar way.
+        """
         self.title = title
         self.artist = artist
         self.album = album
@@ -44,6 +84,7 @@ class Metadata(object):
         self.tracknum = tracknum
         self.location = location
         self.length = length
+        self._extra = extra
 
     def to_mpris1(self):
         """
@@ -58,6 +99,70 @@ class Metadata(object):
         if self.length >= 0:
             ret['time'] = dbus.UInt32(self.length / 1000)
             ret['mtime'] = dbus.UInt32(self.length)
+        for k, v in self._extra.items():
+            if k in Metadata.MPRIS1_KEYS and k not in ret:
+                ret[k] = v
+        return ret
+
+    def to_mpris2(self):
+        """
+        Converts the metadata to mpris2 dict
+
+        >>> mt = Metadata(title='Title', artist='Artist1, Artist2,Artist3',
+        ...               album='Album', arturl='file:///art/url',
+        ...               location='file:///path/to/file', length=123,
+        ...               tracknum=456,
+        ...               extra={ 'title': 'Fake Title',
+        ...                       'xesam:album': 'Fake Album',
+        ...                       'xesam:useCount': 780,
+        ...                       'xesam:userRating': 1.0,
+        ...                       'custom value': 'yoooooo',
+        ...                       })
+        >>> dict = mt.to_mpris2()
+        >>> print dict['xesam:title']
+        Title
+        >>> print dict['xesam:artist']
+        [dbus.String(u'Artist1'), dbus.String(u'Artist2'), dbus.String(u'Artist3')]
+        >>> print dict['xesam:url']
+        file:///path/to/file
+        >>> print dict['mpris:artUrl']
+        file:///art/url
+        >>> print dict['mpris:length']
+        123
+        >>> print dict['xesam:trackNumber']
+        456
+        >>> print dict['xesam:userRating']
+        1.0
+        >>> 'custom value' in dict
+        False
+        >>> mt2 = Metadata.from_dict(dict)
+        >>> print mt2.title
+        Title
+        >>> print mt2.artist
+        Artist1, Artist2, Artist3
+        >>> print mt2.album
+        Album
+        >>> print mt2.location
+        file:///path/to/file
+        """
+        ret = {}
+        mpris2map = { 'title': 'xesam:title',
+                      'album': 'xesam:album',
+                      'arturl': 'mpris:artUrl',
+                      'location': 'xesam:url',
+                      }
+        for k in ['title', 'album', 'arturl', 'location']:
+            if getattr(self, k) is not None:
+                ret[mpris2map[k]] = dbus.String(utils.ensure_unicode(getattr(self, k)))
+        if self.artist is not None:
+            ret['xesam:artist'] = [dbus.String(v.strip()) for v in self.artist.split(',')]
+        if self.length >= 0:
+            ret['mpris:length'] = dbus.Int64(self.length)
+        if self.tracknum >= 0:
+            ret['xesam:trackNumber'] = dbus.Int32(self.tracknum)
+        for k, v in self._extra.items():
+            if k in Metadata.MPRIS2_KEYS and k not in ret:
+                ret[k] = v
         return ret
 
     @staticmethod
@@ -70,8 +175,7 @@ class Metadata(object):
                        'arturl': 'mpris:artUrl',
                        'location': 'xesam:url',
                        }
-        string_list_dict = {'artist': 'xesam:artist',
-                            }
+        string_list_dict = {'artist': 'xesam:artist'}
         kargs = {}
         for k, v in string_dict.items():
             if v in mpris2_dict:
@@ -83,7 +187,9 @@ class Metadata(object):
             kargs['tracknum'] = int(mpris2_dict['xesam:trackNumber'])
         if 'mpris:length' in mpris2_dict:
             kargs['length'] = int(mpris2_dict['mpris:length']) / 1000
-        return Metadata(**kargs)
+        ret = Metadata(**kargs)
+        ret._extra = mpris2_dict
+        return ret
 
     @staticmethod
     def from_dict(dbusdict):
@@ -193,7 +299,9 @@ class Metadata(object):
             kargs['length'] = int(dbusdict['mpris:length']) / 1000
         elif 'time' in dbusdict:
             kargs['length'] = dbusdict['time'] * 1000
-        return Metadata(**kargs)
+        ret = Metadata(**kargs)
+        ret._extra = dbusdict
+        return ret
 
 if __name__ == '__main__':
     import doctest
