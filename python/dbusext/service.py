@@ -22,19 +22,13 @@ import dbus
 import dbus.exceptions
 import dbus.service
 import property as dbus_prop
+import xml.etree.ElementTree as xet
 import glib
 
 __all__ = (
     'Object',
     'property',
     )
-
-# class ObjectType(dbus.service.Object.__metaclass__):
-#     def __init__(cls, name, bases, dct):
-#         for k, v in self.__class__.__dict__.items():
-#             if isinstance(v, dbus_prop.Property):
-#                 v.__name__ = k
-#         super(ObjectType, cls).__init__(name, bases, dct)
 
 class Object(dbus.service.Object):
     """ DBus object wrapper which provides DBus property support
@@ -69,6 +63,14 @@ class Object(dbus.service.Object):
                                      bus_name=bus_name)
         self._changed_props = {}
         self._prop_change_timer = None
+        property_dict = {}
+        for k, v in self.__class__.__dict__.items():
+            if isinstance(v, dbus_prop.Property):
+                property_dict.setdefault(v.interface, []).append(v)
+        property_table = getattr(self, '_dbus_property_table', {})
+        self._dbus_property_table = property_table
+        cls = self.__class__
+        property_table[cls.__module__ + '.' + cls.__name__] = property_dict
 
     def _prop_changed_timeout_cb(self):
         self._prop_change_timer = None
@@ -85,7 +87,7 @@ class Object(dbus.service.Object):
             self.PropertiesChanged(k, v['changed'], v['invalidated'])
         return False
 
-    def _property_set(self, prop_name, changed):
+    def _property_set(self, prop_name, emit_with_value):
         """ Callback for properties when a new value is set
 
         This method is called by properties of type osdlyrics.dbus.Property
@@ -94,8 +96,7 @@ class Object(dbus.service.Object):
         - `prop_name`:
         - `changed`:
         """
-        changed = changed or self._changed_props.setdefault(prop_name, changed)
-        self._changed_props[prop_name] = changed
+        self._changed_props[prop_name] = emit_with_value
         if not self._prop_change_timer:
             self._prop_change_timer = glib.idle_add(self._prop_changed_timeout_cb)
         
@@ -110,7 +111,7 @@ class Object(dbus.service.Object):
         - `prop_name`:
         """
         prop = getattr(self.__class__, prop_name, None)
-        if isinstance(prop, dbus_prop.Property) and \
+        if isinstance(prop, dbus_prop.Property) and prop.readable and \
                 (len(iface_name) == 0 or prop.interface == iface_name):
             return getattr(self, prop_name)
         raise dbus.exceptions.DBusException('No property of %s.%s' % (iface_name, prop_name))
@@ -128,7 +129,7 @@ class Object(dbus.service.Object):
         - `value`:
         """
         prop = getattr(self.__class__, prop_name, None)
-        if isinstance(prop, dbus_prop.Property) and \
+        if isinstance(prop, dbus_prop.Property) and prop.writeable and \
                 (len(iface_name) == 0 or prop.interface == iface_name):
             setattr(self, prop_name, value)
         else:
@@ -145,7 +146,7 @@ class Object(dbus.service.Object):
         """
         ret = {}
         for k, v in self.__class__.__dict__.items():
-            if isinstance(v, dbus_prop.Property) and \
+            if isinstance(v, dbus_prop.Property) and v.readable and \
                     (len(iface_name) == 0 or prop.interface == iface_name):
                 ret[k] = getattr(self, k)
         return ret
@@ -156,9 +157,41 @@ class Object(dbus.service.Object):
         print '%s changed: %s invalidated: %s' % (iface_name, changed_props, invalidated_props)
         pass
         
+    @dbus.service.method(dbus.service.INTROSPECTABLE_IFACE, in_signature='', out_signature='s',
+                         path_keyword='object_path', connection_keyword='connection')
+    def Introspect(self, object_path, connection):
+        """
+        Patch for dbus.service.Object to add property introspection data
+        """
+        xml = dbus.service.Object.Introspect(self, object_path, connection)
+        property_dict = self._dbus_property_table[self.__class__.__module__ + '.' + self.__class__.__name__]
+        if property_dict == {}:
+            return xml
+        node = xet.XML(xml)
+        iface_list = node.findall('interface')
+        appended_iface = set()
+        for iface in iface_list:
+            iface_name = iface.get('name')
+            if iface_name in property_dict:
+                for prop in property_dict[iface_name]:
+                    iface.append(_property2element(prop))
+                appended_iface.add(iface_name)
+        for iface_name, prop_list in property_dict.iteritems():
+            if iface_name in appended_iface:
+                continue
+            iface = xet.Element('interface', name=iface_name)
+            for prop in prop_list:
+                iface.append(_property2element(prop))
+            node.append(iface)
+        return '<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"\n "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">\n' + \
+            xet.tostring(node)
 
 
-def property(type_signature, dbus_interface, emit_change=True):
+def property(type_signature,
+             dbus_interface,
+             emit_change=True,
+             readable=True,
+             writeable=True):
     """
     Decorator to define dbus properties as a class member.
 
@@ -183,6 +216,18 @@ def property(type_signature, dbus_interface, emit_change=True):
                     return False
 
     You can use the dbus property member as a property of python
+
+    Arguments:
+    - `type_signature`: (string) The D-Bus type signature of the property
+    - `dbus_interface`: (string) The D-Bus interface of the property
+    - `emit_change`: (boolean or string) Whether to emit change with
+                    `PropertiesChanged` D-Bus signal when the property is set.
+                    Possible values are boolean value True or False, or a string
+                    'invalidates'.
+    - `readable`: Whether the property is able to visit with `Get` D-Bus method.
+    - `writeable`: Whether the property is able to write with `Set` D-Bus method.
+                   A property is writeable only when `writeable` is set to True and
+                   a setter function is set.
     """
     def dec_handler(fget):
         """
@@ -193,8 +238,28 @@ def property(type_signature, dbus_interface, emit_change=True):
                                   dbus_interface=dbus_interface,
                                   emit_change=emit_change,
                                   name=fget.__name__,
+                                  readable=readable,
+                                  writeable=writeable,
                                   fget=fget)
     return dec_handler
+
+def _property2element(prop):
+    """Convert a osdlyrics.dbusext.Property object to xml.etree.ElementTree.ElementTree object"""
+    access = ''
+    if prop.readable:
+        access += 'read'
+    if prop.writeable and callable(prop._fset):
+        access += 'write'
+    elem = xet.Element('property',
+                       name=prop.__name__,
+                       type=prop.type_signature,
+                       access=access)
+    if prop.emit_change != 'true':
+        annotation = xet.Element('annotation',
+                                 name='org.freedesktop.DBus.Property.EmitsChangedSignal',
+                                 value=prop.emit_change)
+        elem.append(annotation)
+    return elem
 
 def test():
     BUS_NAME = 'org.example.test'
@@ -205,20 +270,31 @@ def test():
         def __init__(self, loop):
             Object.__init__(self, conn=dbus.SessionBus(), object_path=PATH)
             self._loop = loop
-            self._x = DEFAULT_VALUE
+            self._foo = DEFAULT_VALUE
+            self._bar = 'yes'
 
         @property(type_signature='s', dbus_interface=IFACE)
-        def x(self):
-            return self._x
-            
-        @x.setter
-        def x(self, value):
-            if value != self._x:
-                self._x = value
+        def foo(self):
+            return self._foo
+
+        @foo.setter
+        def foo(self, value):
+            if value != self._foo:
+                self._foo = value
                 return True
             else:
                 return False
 
+        @property(type_signature='s',
+                  dbus_interface='another.iface',
+                  readable=False, writeable=True, emit_change='invalidates')
+        def bar(self):
+            return self._bar
+
+        @bar.setter
+        def bar(self, value):
+            self._bar = value
+            
         @dbus.service.method(dbus_interface=IFACE,
                              in_signature='',
                              out_signature='')
@@ -234,13 +310,17 @@ def test():
     def error_handler(e):
         print 'Error %s' % e
 
+    def introspect_reply_handler(xml):
+        print xml
+
     def test_timeout():
         import time
         proxy = conn.get_object(BUS_NAME, PATH)
         proxy.GetAll('', reply_handler=get_reply_handler, error_handler=error_handler)
-        proxy.Get('', 'x', reply_handler=get_reply_handler, error_handler=error_handler)
-        proxy.Set('', 'x', 'new value of x', reply_handler=set_reply_handler, error_handler=error_handler)
-        proxy.Get('', 'x', reply_handler=get_reply_handler, error_handler=error_handler)
+        proxy.Get('', 'foo', reply_handler=get_reply_handler, error_handler=error_handler)
+        proxy.Set('', 'foo', 'new value of x', reply_handler=set_reply_handler, error_handler=error_handler)
+        proxy.Get('', 'foo', reply_handler=get_reply_handler, error_handler=error_handler)
+        proxy.Introspect(reply_handler=introspect_reply_handler, error_handler=error_handler)
         return False
 
     import glib

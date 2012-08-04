@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -26,13 +26,23 @@ class Property(object):
     """ DBus property class
     """
 
-    def __init__(self, dbus_interface, type_signature, emit_change=True, name=None, fget=None, fset=None):
+    def __init__(self, dbus_interface, type_signature,
+                 emit_change=True, readable=True, writeable=True,
+                 name=None, fget=None, fset=None):
         """
-        
+
         Arguments:
         - `type_signature`: (string) Type signature of this property. This parameter
           is used for introspection only
         - `dbus_interface`: (string) The DBus interface of this property
+        - `emit_change`: (boolean or string) Whether to emit change with
+                        `PropertiesChanged` D-Bus signal when the property is set.
+                        Possible values are boolean value True or False, or a string
+                        'invalidates'.
+        - `readable`: Whether the property is able to visit with `Get` D-Bus method.
+        - `writeable`: Whether the property is able to write with `Set` D-Bus method.
+                       A property is writeable only when `writeable` is set to True
+                       and a setter function is set.
         """
         self._type_signature = type_signature
         # we use two underscores because dbus-python uses _dbus_interface to determine
@@ -41,13 +51,33 @@ class Property(object):
         self._fset = fset
         self._fget = fget
         self.__name__ = name
+        if not emit_change in [True, False, 'invalidates']:
+            raise ValueError('Value of emit_change must be one of True, False, or \'invalidates\'')
         self._emit_change = emit_change
+        self._readable = readable
+        self._writeable = writeable
         
     @property
     def interface(self):
         """ Return the dbus interface of this property
         """
         return self.__dbus_interface
+
+    @property
+    def readable(self):
+        return self._readable
+
+    @property
+    def writeable(self):
+        return self._writeable
+
+    @property
+    def emit_change(self):
+        return str(self._emit_change).lower()
+
+    @property
+    def type_signature(self):
+        return self._type_signature
 
     def __get__(self, obj, objtype=None):
         if obj is None:
@@ -66,8 +96,8 @@ class Property(object):
             changed = True
         else:
             changed = False
-        if getattr(self, '__name__', None) and getattr(obj, '_property_set', None):
-            obj._property_set(self.__name__, changed)
+        if changed and getattr(self, '__name__', None) and getattr(obj, '_property_set', None):
+            obj._property_set(self.__name__, self._emit_change == True)
 
     def setter(self, fset):
         """
