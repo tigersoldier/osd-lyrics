@@ -73,7 +73,6 @@ static OlLrc *current_lrc = NULL;
 static OlLyrics *lyrics_proxy = NULL;
 static char *display_mode = NULL;
 static struct OlDisplayModule *display_module = NULL;
-static int search_id = -1;
 static gboolean initialized = FALSE;
 static enum _PlayerLostAction {
   ACTION_NONE = 0,

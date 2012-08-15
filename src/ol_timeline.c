@@ -19,7 +19,7 @@
  */
 
 #include "ol_timeline.h"
-#include <math.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include "ol_debug.h"
 

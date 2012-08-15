@@ -45,7 +45,6 @@ struct
 } widgets = {0};
 
 static OlLyricSourceSearchTask *search_task = NULL;
-static OlLyricSourceDownloadTask *download_task = NULL;
 static OlMetadata *global_metadata = NULL;
 
 gboolean ol_search_dialog_search_click (GtkWidget *widget, 
@@ -70,7 +69,6 @@ static void ol_search_dialog_download_complete_cb (OlLyricSourceDownloadTask *ta
                                                    const gchar *content,
                                                    guint len,
                                                    gpointer userdata);
-static void ol_search_dialog_set_sensitive (gboolean sensitive);
 
 static void
 internal_select_changed (GtkTreeSelection *selection, gpointer data)

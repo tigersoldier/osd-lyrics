@@ -1203,7 +1203,6 @@ load_combo_str_options ()
 static void
 load_download ()
 {
-  OlConfigProxy *config = ol_config_proxy_get_instance ();
   /* Download engine */
   GList *source_infos;
   source_infos = ol_lyric_source_list_sources (ol_app_get_lyric_source ());

@@ -27,7 +27,6 @@ static GtkWidget *window = NULL;
 static GtkTreeView *list = NULL;
 static GtkButton *download_button = NULL;
 static OlMetadata *metadata = NULL;
-static char *filepath = NULL;
 static OlLrcFetchUiDownloadFunc download_func;
 
 static void ol_lrc_fetch_select_changed (GtkTreeSelection *selection, gpointer data);
