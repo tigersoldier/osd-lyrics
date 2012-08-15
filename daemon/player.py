@@ -22,8 +22,13 @@ import logging
 import dbus.service
 import osdlyrics
 import osdlyrics.dbusext
+import osdlyrics.timer
 import glib
 import config
+from osdlyrics.consts import \
+    MPRIS2_PLAYER_INTERFACE, \
+    MPRIS2_ROOT_INTERFACE, \
+    MPRIS2_OBJECT_PATH
 
 class PlayerSupport(dbus.service.Object):
     """ Implement org.osdlyrics.Player Interface
@@ -43,8 +48,7 @@ class PlayerSupport(dbus.service.Object):
         self._player_proxies = {}
         self._connect_player_proxies()
         self._start_detect_player()
-        self._mpris1_root = Mpris1Root(conn)
-        self._mpris1_player = Mpris1Player(conn)
+        self._mpris2_player = Mpris2Player(conn)
 
     def _start_detect_player(self):
         self._detect_timer = glib.timeout_add(self.DETECT_PLAYER_TIMEOUT,
@@ -108,11 +112,10 @@ class PlayerSupport(dbus.service.Object):
             path = proxy.ConnectPlayer(player_info['name'])
             player = self.connection.get_object(proxy.bus_name,
                                                 path)
-            player = dbus.Interface(player, osdlyrics.MPRIS1_INTERFACE)
             self._active_player = {'info': player_info,
                                    'player': player,
                                    'proxy': proxy}
-            self._mpris1_player.connect_player(player)
+            self._mpris2_player.connect_player(player)
             self.PlayerConnected(player_info)
             return True
         except Exception, e:
@@ -122,7 +125,7 @@ class PlayerSupport(dbus.service.Object):
         if self._active_player and self._active_player['info']['name'] == player_name:
             logging.info('Player %s lost', player_name)
             self._active_player = None
-            self._mpris1_player.disconnect_player()
+            self._mpris2_player.disconnect_player()
             self.PlayerLost()
             self._start_detect_player()
 
@@ -194,61 +197,43 @@ class PlayerSupport(dbus.service.Object):
 
     @property
     def current_player(self):
-        return self._mpris1_player
+        return self._mpris2_player
 
-class Mpris1Root(osdlyrics.dbusext.Object):
-    """ Root object of MPRIS1
-    """
+class Mpris2Player(osdlyrics.dbusext.Object):
     
     def __init__(self, conn):
-        osdlyrics.dbusext.Object.__init__(self, conn=conn, object_path='/')
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='s')
-    def Identity(self):
-        return config.PROGRAM_NAME
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='')
-    def Quit(self):
-        # We won't quit by this message
-        pass
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='(qq)')
-    def MprisVersion(self):
-        return (1, 0)
-
-
-class Mpris1Player(osdlyrics.dbusext.Object):
-    """
-    /Player object of MPRIS1
-    """
-    def __init__(self, conn):
-        osdlyrics.dbusext.Object.__init__(self, conn=conn, object_path='/Player')
-        self._player = None
-        self._player_bus = ''
-        self._player_path = ''
+        super(Mpris2Player, self).__init__(conn=conn,
+                                           object_path=MPRIS2_OBJECT_PATH)
         self._signals = []
+        self._player = None
+        self._timer = osdlyrics.timer.Timer()
+        self._clear_properties()
+
+    def _clear_properties(self):
+        self.LoopStatus = 'None'
+        self.PlaybackStatus = 'Stopped'
+        self.Metadata = dbus.Dictionary(signature='sv')
+        self.Shuffle = False
+        self._timer.stop()
+        self._timer.time = 0
 
     def connect_player(self, player_proxy):
         if self._player == player_proxy:
             return
-        if self._player:
+        if self._player is not None:
             self.disconnect_player()
         self._player = player_proxy
-        self._signals.append(self._player.connect_to_signal('TrackChange',
-                                                            self.TrackChange))
-        self._signals.append(self._player.connect_to_signal('CapsChange',
-                                                            self.CapsChange))
-        self._signals.append(self._player.connect_to_signal('StatusChange',
-                                                            self.StatusChange))
-        self.TrackChange(self.GetMetadata())
-        self.CapsChange(self.GetCaps())
-        self.StatusChange(self.GetStatus())
+        self._signals = []
+        self._signals.append(self._player.connect_to_signal('Seeked',
+                                                            self._seeked_cb))
+        self._signals.append(self._player.connect_to_signal('PropertiesChanged',
+                                                            self._properties_changed_cb))
+        self.PlaybackStatus = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'PlaybackStatus')
+        self.LoopStatus = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'LoopStatus')
+        self.Shuffle = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Shuffle')
+        self.Metadata = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Metadata')
+        self._setup_timer_status(self._playback_status)
+        self._timer.time = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Position')
 
     def disconnect_player(self):
         for signal in self._signals:
@@ -256,130 +241,317 @@ class Mpris1Player(osdlyrics.dbusext.Object):
         self._signals = []
         del self._player
         self._player = None
+        self._clear_properties()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
+    def _setup_timer_status(self, status):
+        status_map = {
+            'Playing': 'play',
+            'Paused': 'pause',
+            'Stopped': 'stop',
+            }
+        if status in status_map:
+            getattr(self._timer, status_map[status])()
+
+    def _seeked_cb(self, position):
+        self._timer.time = position / 1000
+        self.Seeked(position)
+
+    def _properties_changed_cb(self, iface, changed, invalidated):
+        accepted_properties = set(['PlaybackStatus',
+                                   'LoopStatus',
+                                   'Rate',
+                                   'Shuffle',
+                                   'Metadata',
+                                   'Volume',
+                                   'MinimumRate',
+                                   'MaximumRate',
+                                   'CanGoNext',
+                                   'CanGoPrevious',
+                                   'CanPlay',
+                                   'CanPause',
+                                   'CanSeek',
+                                   ])
+        for k, v in changed.iteritems():
+            if k in accepted_properties:
+                setattr(self, k, v)
+
+    ################################################
+    # org.mpris.MediaPlayer2.Player interface
+    ################################################
+
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Next(self):
-        if self._player:
-            self._player.Next()
+        self._player.Next()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
-    def Prev(self):
-        if self._player:
-            self._player.Prev()
+    def Previous(self):
+        self._player.Previous()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Pause(self):
-        if self._player:
-            self._player.Pause()
+        self._player.Pause()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Stop(self):
-        if self._player:
-            self._player.Stop()
+        self._player.Stop()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Play(self):
-        if self._player:
-            self._player.Play()
+        self._player.Play()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='b',
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='x',
                          out_signature='')
-    def Repeat(self, repeat):
-        if self._player:
-            self._player.Repeat(repeat)
+    def Seek(self, offset):
+        self._player.Seek(offset)
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='(iiii)')
-    def GetStatus(self):
-        if self._player:
-            return self._player.GetStatus()
-        else:
-            return (0, 0, 0, 0)
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='a{sv}')
-    def GetMetadata(self):
-        if self._player:
-            return self._player.GetMetadata()
-        else:
-            return {}
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='i')
-    def GetCaps(self):
-        if self._player:
-            return self._player.GetCaps()
-        else:
-            return 0
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='i',
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='ox',
                          out_signature='')
-    def VolumeSet(self, volume):
-        if self._player:
-            self._player.VolumeSet(volume)
+    def SetPosition(self, trackid, position):
+        self._player.SetPosition(trackid, position)
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
-                         out_signature='i')
-    def VolumeGet(self):
-        if self._player:
-            return self._player.VolumeGet()
-        else:
-            return 0
-
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='i',
                          out_signature='')
-    def PositionSet(self, pos):
-        if self._player:
-            self._player.PositionSet(pos)
-        else:
-            return 0
+    def PlayPause(self):
+        self._player.PlayPause()
 
-    @dbus.service.method(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='i')
-    def PositionGet(self):
-        if self._player:
-            return self._player.PositionGet()
-        else:
-            return 0
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='s',
+                         out_signature='')
+    def OpenUri(self, uri):
+        self._player.OpenUri(uri)
 
-    @dbus.service.signal(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         signature='a{sv}')
-    def TrackChange(self, track):
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='s',
+                      writeable=False)
+    def PlaybackStatus(self):
+        return self._playback_status
+
+    @PlaybackStatus.setter
+    def PlaybackStatus(self, status):
+        self._playback_status = status
+        self._setup_timer_status(status)
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='s')
+    def LoopStatus(self):
+        return self._loop_status
+
+    @LoopStatus.setter
+    def LoopStatus(self, loop_status):
+        self._loop_status = loop_status
+
+    @LoopStatus.dbus_setter
+    def LoopStatus(self, loop_status):
+        self._player.Set(MPRIS2_PLAYER_INTERFACE, 'LoopStatus', loop_status)
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def Rate(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Rate')
+
+    @Rate.setter
+    def Rate(self, rate):
         pass
 
-    @dbus.service.signal(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         signature='(iiii)')
-    def StatusChange(self, status):
+    @Rate.dbus_setter
+    def Rate(self, rate):
+        self._player.Set(MPRIS2_PLAYER_INTERFACE, 'Rate', rate)
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b')
+    def Shuffle(self):
+        return self._shuffle
+
+    @Shuffle.setter
+    def Shuffle(self, shuffle):
+        self._shuffle = shuffle
+
+    @Shuffle.dbus_setter
+    def Shuffle(self, shuffle):
+        self._player.Set(MPRIS2_PLAYER_INTERFACE, 'Shuffle', shuffle)
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='a{sv}',
+                      writeable=False)
+    def Metadata(self):
+        return self._metadata
+
+    @Metadata.setter
+    def Metadata(self, metadata):
+        self._metadata = metadata
+        self._timer.time = 0
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def Volume(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Volume')
+
+    @Volume.setter
+    def Volume(self, volume):
         pass
 
-    @dbus.service.signal(dbus_interface=osdlyrics.MPRIS1_INTERFACE,
-                         signature='i')
-    def CapsChange(self, caps):
+    @Volume.dbus_setter
+    def Volume(self, volume):
+        return self._player.Set(MPRIS2_PLAYER_INTERFACE, 'Volume', volume)
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='x')
+    def Position(self):
+        return self._timer.time * 1000
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def MinimumRate(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'MinimumRate')
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def MaximumRate(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'MaximumRate')
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanGoNext(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'CanGoNext')
+
+    @CanGoNext.setter
+    def CanGoNext(self, value):
         pass
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanGoPrevious(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'CanGoPrevious')
+
+    @CanGoPrevious.setter
+    def CanGoPrevious(self, value):
+        pass
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanPlay(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'CanPlay')
+
+    @CanPlay.setter
+    def CanPlay(self, value):
+        pass
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanPause(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'CanPause')
+
+    @CanPause.setter
+    def CanPause(self, value):
+        pass
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanSeek(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'CanSeek')
+
+    @CanSeek.setter
+    def CanSeek(self, value):
+        pass
+
+    @osdlyrics.dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b')
+    def CanControl(self):
+        return self._player.Get(MPRIS2_PLAYER_INTERFACE, 'CanControl')
+
+    @dbus.service.signal(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         signature='x')
+    def Seeked(self, position):
+        pass
+
+    ################################################
+    # org.mpris.MediaPlayer2 interface
+    ################################################
+
+    @dbus.service.method(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                         in_signature='',
+                         out_signature='')
+    def Raise(self):
+        pass
+
+    @dbus.service.method(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                         in_signature='',
+                         out_signature='')
+    def Quit(self):
+        pass
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='b')
+    def CanQuit(self):
+        return False
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='b')
+    def Fullscreen(self):
+        return False
+
+    @Fullscreen.dbus_setter
+    def Fullscreen(self, value):
+        pass
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='b')
+    def CanSetFullscreen(self):
+        return False
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='b')
+    def CanRaise(self):
+        return False
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='b')
+    def HasTrackList(self):
+        return False
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='s')
+    def Identity(self):
+        return config.PROGRAM_NAME
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='s')
+    def DesktopEntry(self):
+        return 'osdlyrics'
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='as')
+    def SupportedUriSchemes(self):
+        return dbus.Array(signature='s')
+
+    @osdlyrics.dbusext.service.property(dbus_interface=MPRIS2_ROOT_INTERFACE,
+                                        type_signature='as')
+    def SupportedMimeTypes(self):
+        return dbus.Array(signature='s')
 
 def test():
     app = osdlyrics.App('osdlyrics')
-    mpris1_name = dbus.service.BusName('org.mpris.osdlyrics', app.connection)
+    mpris2_name = dbus.service.BusName('org.mpris.osdlyrics', app.connection)
     player_support = PlayerSupport(app.connection)
     app.run()
-        
+
 if __name__ == '__main__':
     test()

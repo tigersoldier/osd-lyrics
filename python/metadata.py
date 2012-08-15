@@ -145,7 +145,7 @@ class Metadata(object):
         >>> print mt2.location
         file:///path/to/file
         """
-        ret = {}
+        ret = dbus.Dictionary(signature='sv')
         mpris2map = { 'title': 'xesam:title',
                       'album': 'xesam:album',
                       'arturl': 'mpris:artUrl',
@@ -186,7 +186,7 @@ class Metadata(object):
         if 'xesam:trackNumber' in mpris2_dict:
             kargs['tracknum'] = int(mpris2_dict['xesam:trackNumber'])
         if 'mpris:length' in mpris2_dict:
-            kargs['length'] = int(mpris2_dict['mpris:length']) / 1000
+            kargs['length'] = int(mpris2_dict['mpris:length'])
         ret = Metadata(**kargs)
         ret._extra = mpris2_dict
         return ret
@@ -296,12 +296,17 @@ class Metadata(object):
         if 'mtime' in dbusdict:
             kargs['length'] = dbusdict['mtime']
         elif 'mpris:length' in dbusdict:
-            kargs['length'] = int(dbusdict['mpris:length']) / 1000
+            kargs['length'] = int(dbusdict['mpris:length'])
         elif 'time' in dbusdict:
             kargs['length'] = dbusdict['time'] * 1000
         ret = Metadata(**kargs)
         ret._extra = dbusdict
         return ret
+
+    def __str__(self):
+        attrs = ['title', 'artist', 'album', 'location', 'length']
+        attr_value = ['  %s: %s' % (key, getattr(self, key)) for key in attrs]
+        return 'metadata:\n' + '\n'.join(attr_value)
 
 if __name__ == '__main__':
     import doctest

@@ -23,10 +23,13 @@ import dbus.service
 import app
 import dbusext
 import utils
+import timer
+
 from consts import \
     PLAYER_PROXY_OBJECT_PATH_PREFIX, \
     PLAYER_PROXY_INTERFACE, \
-    MPRIS1_INTERFACE
+    MPRIS1_INTERFACE, \
+    MPRIS2_PLAYER_INTERFACE
 
 class BasePlayerProxy(dbus.service.Object):
     """ Base class to create an application to provide player proxy support
@@ -205,7 +208,8 @@ class BasePlayer(dbusext.Object):
     - `get_status`
     - `get_repeat`
     - `set_repeat`
-    - `get_suffle`
+    - `get_shuffle`
+    - `set_shuffle`
     - `play`
     - `pause`
     - `prev`
@@ -213,7 +217,6 @@ class BasePlayer(dbusext.Object):
     - `set_position`
     - `set_volume`
     - `get_volume`
-    - `set_repeat`
     """
     
     def __init__(self, proxy, name):
@@ -230,6 +233,13 @@ class BasePlayer(dbusext.Object):
         self._proxy = proxy
         self._disconnect_cb = None
         self._connected = True
+        self._timer = None
+        self._status = None
+        self._loop_status = None
+        self._metadata = None
+        self._current_trackid = 0
+        self._caps = None
+        self._shuffle = None
 
     def set_disconnect_cb(self, disconnect_cb):
         self._disconnect_cb = disconnect_cb
@@ -275,7 +285,7 @@ class BasePlayer(dbusext.Object):
         Returns the time in milliseconds.
         """
         raise NotImplementedError()
-        
+
     def get_caps(self):
         """
         Return capablities of the players.
@@ -308,18 +318,18 @@ class BasePlayer(dbusext.Object):
         """
         Gets the shuffle mode of the player
 
-        Returns True if the playlist is shuffled, or False otherwise.
+        Returns True if the playlist is shuffle, or False otherwise.
 
         The default implementation returns False
         """
         return False
 
-    def set_shuffle(self, shuffled):
+    def set_shuffle(self, shuffle):
         """
         Set whether the tracks in track list should be played randomly.
 
         Arguments:
-        - `shuffled`: boolean, True if shuffled
+        - `shuffle`: boolean, True if shuffle
         """
         raise NotImplementedError()
 
@@ -378,7 +388,64 @@ class BasePlayer(dbusext.Object):
         - `volume`: volume in the range of [0.0, 1.0]
         """
         raise NotImplementedError()
-        
+
+    def _setup_timer_status(self, status):
+        status_map = {
+            STATUS_PAUSED: 'pause',
+            STATUS_PLAYING: 'play',
+            STATUS_STOPPED: 'stop',
+            }
+        if self._timer:
+            getattr(self._timer, status_map[status])()
+
+    def _setup_timer(self):
+        if self._timer is None:
+            self._timer = timer.Timer()
+            self._setup_timer_status(self._get_cached_status())
+
+    def _get_cached_position(self):
+        """
+        Get the current position from cached timer if possible
+        """
+        if self._timer is None:
+            self._setup_timer()
+            if self._get_cached_status() != STATUS_STOPPED:
+                self._timer.time = self.get_position()
+        return self._timer.time
+
+    def _get_cached_loop_status(self):
+        if self._loop_status is None:
+            self._loop_status = self.get_repeat()
+        return self._loop_status
+
+    def _get_cached_status(self):
+        if self._status is None:
+            self._status = self.get_status()
+        return self._status
+
+    def _get_cached_metadata(self):
+        if self._metadata is None:
+            self._metadata = self._make_metadata(self.get_metadata())
+        return self._metadata
+
+    def _make_metadata(self, metadata):
+        dct = metadata.to_mpris2()
+        dct['mpris:trackid'] = self._get_current_trackid()
+        return dct
+
+    def _get_current_trackid(self):
+        return '/%s' % self._current_trackid
+
+    def _get_cached_caps(self):
+        if self._caps is None:
+            self._caps = self.get_caps()
+        return self._caps
+
+    def _get_cached_shuffle(self):
+        if self._shuffle is None:
+            self._shuffle = self.get_shuffle()
+        return self._shuffle
+
     @property
     def connected(self):
         return self._connected
@@ -387,142 +454,281 @@ class BasePlayer(dbusext.Object):
     def object_path(self):
         return self._object_path
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Next(self):
         self.next()
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
-    def Prev(self):
+    def Previous(self):
         self.prev()
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Pause(self):
         self.pause()
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Stop(self):
         self.stop()
     
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
     def Play(self):
         self.play()
-    
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='b',
+
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='x',
                          out_signature='')
-    def Repeat(self, repeat):
-        if repeat:
-            mode = REPEAT_ALL
+    def Seek(self, offset):
+        pos = self._get_cached_position()
+        pos += offset / 1000
+        if pos < 0:
+            pos = 0
+        self.set_position(pos)
+
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='ox',
+                         out_signature='')
+    def SetPosition(self, trackid, position):
+        if trackid != self._get_current_trackid():
+            return
+        self.set_position(position / 1000)
+
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='',
+                         out_signature='')
+    def PlayPause(self):
+        if hasattr(self, 'play_pause'):
+            self.play_pause()
         else:
-            mode = REPEAT_NONE
-        self.set_repeat(mode)
+            status = self._get_cached_status()
+            if status == STATUS_PLAYING:
+                self.pause()
+            else:
+                self.play()
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='(iiii)')
-    def GetStatus(self):
-        playback_status = self.get_status()
-        shuffle_status = 1 if self.get_shuffle() else 0
-        repeat_current = 1 if self.get_repeat() == REPEAT_TRACK else 0
-        rewind = 1 if self.get_repeat() == REPEAT_TRACK else 0
-        return (playback_status, shuffle_status, repeat_current, rewind)
-        
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='a{sv}')
-    def GetMetadata(self):
-        return self.get_metadata().to_mpris1()
-
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='i')
-    def GetCaps(self):
-        caps = CAPS_PROVIDE_METADATA
-        cap_set = self.get_caps()
-        for cap in cap_set:
-            caps = caps | cap
-        return caps
-
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='i',
+    @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         in_signature='s',
                          out_signature='')
-    def VolumeSet(self, volume):
-        self.set_volume(volume / 100.0)
+    def OpenUri(self, uri):
+        self.open_uri(uri)
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='i')
-    def VolumeGet(self):
-        return self.get_volume() * 100
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='s',
+                      writeable=False)
+    def PlaybackStatus(self):
+        status_map = {
+            STATUS_PLAYING: 'Playing',
+            STATUS_PAUSED: 'Paused',
+            STATUS_STOPPED: 'Stopped',
+            }
+        return status_map[self._get_cached_status()]
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='i',
-                         out_signature='')
-    def PositionSet(self, time_in_mili):
-        self.set_position(time_in_mili)
+    @PlaybackStatus.setter
+    def PlaybackStatus(self, status):
+        self._status = status
 
-    @dbus.service.method(dbus_interface=MPRIS1_INTERFACE,
-                         in_signature='',
-                         out_signature='i')
-    def PositionGet(self):
-        return int(self.get_position())
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='s')
+    def LoopStatus(self):
+        status_map = {
+            REPEAT_NONE: 'None',
+            REPEAT_ALL: 'Playlist',
+            REPEAT_TRACK: 'Track',
+            }
+        return status_map[self._get_cached_loop_status()]
+
+    @LoopStatus.setter
+    def LoopStatus(self, loop_status):
+        self._loop_status = loop_status
+
+    @LoopStatus.dbus_setter
+    def LoopStatus(self, loop_status):
+        status_map = {
+            'None': REPEAT_NONE,
+            'Playlist': REPEAT_ALL,
+            'Track': REPEAT_TRACK,
+            }
+        if loop_status not in status_map:
+            raise ValueError('Unknown loop status ' + loop_status)
+        self.set_repeat(status_map[loop_status])
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def Rate(self):
+        return 1.0
+
+    @Rate.setter
+    def Rate(self, rate):
+        pass
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b')
+    def Shuffle(self):
+        return self._get_cached_shuffle()
+
+    @Shuffle.setter
+    def Shuffle(self, shuffle):
+        self._shuffle = shuffle
+
+    @Shuffle.dbus_setter
+    def Shuffle(self, shuffle):
+        self.set_shuffle(shuffle)
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='a{sv}',
+                      writeable=False)
+    def Metadata(self):
+        return self._get_cached_metadata()
+
+    @Metadata.setter
+    def Metadata(self, metadata):
+        self._metadata = metadata
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def Volume(self):
+        return self.get_volume()
+
+    @Volume.dbus_setter
+    def Volume(self, volume):
+        if volume < 0.0:
+            volume = 0.0
+        if volume > 1.0:
+            volume = 1.0
+        self.set_volume(volume)
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='x')
+    def Position(self):
+        return self._get_cached_position()
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def MinimumRate(self):
+        return 1.0
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='d')
+    def MaximumRate(self):
+        return 1.0
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanGoNext(self):
+        return CAPS_NEXT in self._get_cached_caps()
+
+    @CanGoNext.setter
+    def CanGoNext(self, value):
+        pass
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanGoPrevious(self):
+        return CAPS_PREV in self._get_cached_caps()
+
+    @CanGoPrevious.setter
+    def CanGoPrevious(self, value):
+        pass
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanPlay(self):
+        return CAPS_PLAY in self._get_cached_caps()
+
+    @CanPlay.setter
+    def CanPlay(self, value):
+        pass
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanPause(self):
+        return CAPS_PAUSE in self._get_cached_caps()
+
+    @CanPause.setter
+    def CanPause(self, value):
+        pass
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b',
+                      writeable=False)
+    def CanSeek(self):
+        return CAPS_SEEK in self._get_cached_caps()
+
+    @CanSeek.setter
+    def CanSeek(self, value):
+        pass
+
+    @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                      type_signature='b')
+    def CanControl(self):
+        return True
+
+    @dbus.service.signal(dbus_interface=MPRIS2_PLAYER_INTERFACE,
+                         signature='x')
+    def Seeked(self, position):
+        pass
 
     def track_changed(self):
-        self.TrackChange(self.GetMetadata())
+        self._current_trackid += 1
+        if self._timer is not None:
+            self._timer.time = 0
+        self.Metadata = self._make_metadata(self.get_metadata())
     
     def status_changed(self):
         """
         Notify that the playing status has been changed.
         """
-        self.StatusChange(self.GetStatus())
+        status = self.get_status()
+        self._setup_timer_status(status)
+        self.PlaybackStatus = status
 
     def repeat_changed(self):
         """
         Notify the repeat mode has been changed.
         """
-        self.StatusChange(self.GetStatus())
+        self.LoopStatus = self.get_repeat()
 
     def shuffle_changed(self):
         """
         Notify the shuffle mode has been changed.
         """
-        self.StatusChange(self.GetStatus())
+        self.Shuffle = self.get_shuffle()
 
     def caps_changed(self):
         """
         Notify the capability of the player has been changed.
         """
-        self.CapsChange(self.GetCaps())
+        orig_caps = self._caps
+        self._caps = self.get_caps()
+        if orig_caps is not None:
+            caps_map = {
+                CAPS_NEXT: 'CanGoNext',
+                CAPS_PREV: 'CanGoPrevious',
+                CAPS_PLAY: 'CanPlay',
+                CAPS_PAUSE: 'CanPause',
+                CAPS_SEEK: 'CanSeek',
+                }
+            for cap, method in caps_map.items():
+                if cap in orig_caps != cap in self._caps:
+                    setattr(self, method, cap in self._caps)
 
     def position_changed(self):
         """
         Notify that the position has been changed
         """
-        #DOTO: notify in MPRIS2
-        pass
-
-    @dbus.service.signal(dbus_interface=MPRIS1_INTERFACE,
-                         signature='a{sv}')
-    def TrackChange(self, metadata):
-        pass
-
-    @dbus.service.signal(dbus_interface=MPRIS1_INTERFACE,
-                         signature='(iiii)')
-    def StatusChange(self, status):
-        pass
-
-    @dbus.service.signal(dbus_interface=MPRIS1_INTERFACE,
-                         signature='i')
-    def CapsChange(self, caps):
-        pass
-
+        if self._timer is not None:
+            self._timer.time = self.get_position()
+        self.Seeked(self._timer.time * 1000)

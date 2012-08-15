@@ -45,7 +45,6 @@ noinst_HEADERS = \
 	ol_debug.h \
 	ol_display_module.h \
 	ol_eggaccelerators.h \
-	ol_elapse_emulator.h \
 	ol_gui.h \
 	ol_image_button.h \
 	ol_intl.h \
@@ -74,6 +73,7 @@ noinst_HEADERS = \
 	ol_scroll_window.h \
 	ol_search_dialog.h \
 	ol_stock.h \
+	ol_timeline.h \
 	ol_trayicon.h \
 	ol_utils_cmdline.h \
 	ol_utils_dbus.h \
@@ -102,7 +102,6 @@ osdlyrics_SOURCES = \
 	ol_scroll_window.c \
 	ol_image_button.c \
 	ol_player.c \
-	ol_elapse_emulator.c \
 	ol_md5.c \
 	ol_utils.c \
 	ol_utils_dbus.c \
@@ -113,6 +112,7 @@ osdlyrics_SOURCES = \
 	ol_lyrics.c \
 	ol_search_dialog.c \
 	ol_trayicon.c \
+	ol_timeline.c \
 	ol_menu.c \
 	ol_lyric_candidate_selector.c \
 	ol_lyric_candidate_list.c \

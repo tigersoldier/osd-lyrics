@@ -27,16 +27,11 @@ import osdlyrics.utils
 from osdlyrics.utils import ensure_unicode, ensure_utf8
 from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ALBUM, \
     METADATA_ARTIST, METADATA_TRACKNUM
+from osdlyrics.metadata import Metadata
 
 __all__ = (
     'LrcDb',
     )
-
-def unicode_metadata(metadata):
-    ret = {}
-    for k, v in metadata.items():
-        ret[k] = ensure_unicode(v)
-    return ret
 
 def normalize_location(location):
     """
@@ -63,14 +58,17 @@ def query_param_from_metadata(metadata):
     Generate query dict from metadata
     """
     param = {
-        METADATA_TITLE: metadata[METADATA_TITLE] if METADATA_TITLE in metadata else '',
-        METADATA_ARTIST: metadata[METADATA_ARTIST] if METADATA_ARTIST in metadata else '',
-        METADATA_ALBUM: metadata[METADATA_ALBUM] if METADATA_ALBUM in metadata else '',
+        METADATA_TITLE: ensure_unicode(metadata.title) if metadata.title is not None else '',
+        METADATA_ARTIST: ensure_unicode(metadata.artist) if metadata.artist is not None else '',
+        METADATA_ALBUM: ensure_unicode(metadata.album) if metadata.album is not None else '',
         }
     try:
-        param[METADATA_TRACKNUM] = int(metadata[METADATA_TRACKNUM])
+        tracknum = int(metadata.tracknum)
+        if tracknum < 0:
+            tracknum = 0
     except:
-        param[METADATA_TRACKNUM] = 0
+        tracknum = 0
+    param[METADATA_TRACKNUM] = tracknum
     return param
 
 class LrcDb(object):
@@ -133,21 +131,22 @@ UPDATE %s
         """ Assigns a uri of lyrics to tracks represented by metadata
         """
         uri = ensure_unicode(uri)
-        metadata = unicode_metadata(metadata)
         c = self._conn.cursor()
-        if METADATA_URI in metadata:
-            location = normalize_location(metadata[METADATA_URI])
+        if metadata.location:
+            location = normalize_location(metadata.location)
         else:
             location = ''
         if self._find_by_location(metadata):
             logging.debug('Assign lyric file %s to track of location %s' % (uri, location))
             c.execute(LrcDb.UPDATE_LYRIC, (uri, location,))
         else:
-            title = metadata[METADATA_TITLE] if METADATA_TITLE in metadata else ''
-            artist = metadata[METADATA_ARTIST] if METADATA_ARTIST in metadata else ''
-            album = metadata[METADATA_ALBUM] if METADATA_ALBUM in metadata else ''
+            title = ensure_unicode(metadata.title) if metadata.title is not None else ''
+            artist = ensure_unicode(metadata.artist) if metadata.artist is not None else ''
+            album = ensure_unicode(metadata.album) if metadata.album is not None else ''
             try:
-                tracknum = int(metadata[METADATA_TRACKNUM])
+                tracknum = int(metadata.tracknum)
+                if tracknum < 0:
+                    tracknum = 0
             except:
                 tracknum = 0
             logging.debug('Assign lyrics file %s to track %s. %s - %s in album %s @ %s' % (uri, tracknum, artist, title, album, location))
@@ -167,7 +166,6 @@ UPDATE %s
         this method may return an empty string, so use ``is None`` to figure out
         whether an uri is found
         """
-        metadata = unicode_metadata(metadata)
         ret = self._find_by_location(metadata)
         if ret is not None:
             return ret
@@ -188,9 +186,9 @@ UPDATE %s
         return None
 
     def _find_by_location(self, metadata):
-        if not METADATA_URI in metadata or metadata[METADATA_URI] == '':
+        if not metadata.location:
             return None
-        location = normalize_location(metadata[METADATA_URI])
+        location = normalize_location(metadata.location)
         return self._find_by_condition(LrcDb.QUERY_LOCATION, (location,))
 
     def _find_by_info(self, metadata):
@@ -206,25 +204,34 @@ def test():
     """
     >>> import dbus
     >>> db = LrcDb('/tmp/asdf')
-    >>> db.assign({'title': 'Tiger', 'artist': 'Soldier', 'location': '/tmp/asdf'}, \
-    'file:///tmp/a.lrc')
-    >>> db.find({'location': '/tmp/asdf'})
+    >>> db.assign(Metadata.from_dict({'title': 'Tiger',
+    ...                               'artist': 'Soldier',
+    ...                               'location': '/tmp/asdf'}),
+    ...           'file:///tmp/a.lrc')
+    >>> db.find(Metadata.from_dict({'location': '/tmp/asdf'}))
     u'file:///tmp/a.lrc'
-    >>> db.find({'location': '/tmp/asdfg'})
-    >>> db.find({'title': 'Tiger', 'location': '/tmp/asdfg'})
+    >>> db.find(Metadata.from_dict({'location': '/tmp/asdfg'}))
+    >>> db.find(Metadata.from_dict({'title': 'Tiger',
+    ...                             'location': '/tmp/asdf'}))
     u'file:///tmp/a.lrc'
-    >>> db.find({'title': 'Tiger', })
+    >>> db.find(Metadata.from_dict({'title': 'Tiger', }))
+    >>> db.find(Metadata.from_dict({'title': 'Tiger',
+    ...                             'artist': 'Soldier'}))
     u'file:///tmp/a.lrc'
-    >>> db.assign({'title': 'ttTiger', 'artist': 'ssSoldier', 'location': '/tmp/asdf'}, 'file:///tmp/b.lrc')
-    >>> db.find({'artist': 'Soldier', })
+    >>> db.assign(Metadata.from_dict({'title': 'ttTiger',
+    ...                               'artist': 'ssSoldier',
+    ...                               'location': '/tmp/asdf'}),
+    ...           'file:///tmp/b.lrc')
+    >>> db.find(Metadata.from_dict({'artist': 'Soldier', }))
+    >>> db.find(Metadata.from_dict({'title': 'Tiger',
+    ...                                      'artist': 'Soldier', }))
     u'file:///tmp/b.lrc'
-    >>> db.find({'title': 'Tiger', 'artist': 'Soldier', })
+    >>> db.find(Metadata.from_dict({dbus.String(u'title'): dbus.String(u'Tiger'),
+    ...                             dbus.String(u'artist'): dbus.String(u'Soldier'), }))
     u'file:///tmp/b.lrc'
-    >>> db.find({dbus.String(u'title'): dbus.String(u'Tiger'), dbus.String(u'artist'): dbus.String(u'Soldier'), })
-    u'file:///tmp/b.lrc'
-    >>> metadata_uni = {u'title': u'\u6807\u9898', u'artist': u'\u6b4c\u624b', }
+    >>> metadata_uni = Metadata.from_dict({u'title': u'\u6807\u9898', u'artist': u'\u6b4c\u624b', })
     >>> db.assign(metadata_uni, u'\u8def\u5f84')
-    >>> metadata_utf8 = {'title': '\xe6\xa0\x87\xe9\xa2\x98', 'artist': '\xe6\xad\x8c\xe6\x89\x8b', }
+    >>> metadata_utf8 = Metadata.from_dict({'title': '\xe6\xa0\x87\xe9\xa2\x98', 'artist': '\xe6\xad\x8c\xe6\x89\x8b', })
     >>> db.find(metadata_utf8)
     u'\u8def\u5f84'
     >>> db.assign(metadata_utf8, '\xe8\xb7\xaf\xe5\xbe\x84')
@@ -233,8 +240,8 @@ def test():
     >>> db.assign(metadata_utf8, '\xe8\xb7\xaf\xe5\xbe\x841')
     >>> db.find(metadata_uni)
     u'\u8def\u5f841'
-    >>> db.find({'title': 'Tiger', 'artist': 'Soldiers', })
-    >>> db.find({})
+    >>> db.find(Metadata.from_dict({'title': 'Tiger', 'artist': 'Soldiers', }))
+    >>> db.find(Metadata())
     """
     import doctest
     doctest.testmod()

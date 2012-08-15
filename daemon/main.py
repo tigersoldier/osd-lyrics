@@ -26,6 +26,8 @@ import dbus
 import config
 import lyricsource
 from osdlyrics.errors import Error
+from osdlyrics.metadata import Metadata
+from osdlyrics.consts import MPRIS2_OBJECT_PATH
 
 logging.basicConfig(level=logging.INFO)
 
@@ -51,13 +53,13 @@ class MainApp(osdlyrics.App):
         self.request_bus_name(osdlyrics.APP_MPRIS1_NAME)
         self._daemon_object = DaemonObject(self)
         self._lyricsource = lyricsource.LyricSource(self.connection)
-        self._lyrics.set_current_metadata(self._player.current_player.GetMetadata())
+        self._lyrics.set_current_metadata(Metadata.from_dict(self._player.current_player.Metadata))
 
     def _connect_metadata_signal(self, ):
         self._mpris_proxy = self.connection.get_object(osdlyrics.BUS_NAME,
-                                                       '/Player')
-        self._metadata_signal = self._mpris_proxy.connect_to_signal('TrackChange',
-                                                                    self._metadata_changed)
+                                                       MPRIS2_OBJECT_PATH)
+        self._metadata_signal = self._mpris_proxy.connect_to_signal('PropertiesChanged',
+                                                                    self._player_properties_changed)
 
     def _activate_config(self, ):
         try:
@@ -65,13 +67,9 @@ class MainApp(osdlyrics.App):
         except:
             print "Cannot activate config service"
         
-    def _metadata_changed(self, metadata):
-        """
-        
-        Arguments:
-        - `metadata`:
-        """
-        self._lyrics.set_current_metadata(metadata)
+    def _player_properties_changed(self, iface, changed, invalidated):
+        if 'Metadata' in changed:
+            self._lyrics.set_current_metadata(Metadata.from_dict(changed['Metadata']))
 
 def is_valid_client_bus_name(name):
     """Check if a client bus name is valid.

@@ -22,13 +22,19 @@ __all__ = (
     'Property',
     )
 
+import dbus.exceptions
+
+class AccessDeniedError(dbus.exceptions.DBusException):
+    def __init__(self, *args):
+        dbus.exceptions.DBusException.__init__(self, dbus_error_name='org.osdlyrics.Error.AccessDenied', *args)
+
 class Property(object):
     """ DBus property class
     """
 
     def __init__(self, dbus_interface, type_signature,
                  emit_change=True, readable=True, writeable=True,
-                 name=None, fget=None, fset=None):
+                 name=None, fget=None, fset=None, dbus_set=None):
         """
 
         Arguments:
@@ -51,6 +57,7 @@ class Property(object):
         self._fset = fset
         self._fget = fget
         self.__name__ = name
+        self._dbusset = dbus_set
         if not emit_change in [True, False, 'invalidates']:
             raise ValueError('Value of emit_change must be one of True, False, or \'invalidates\'')
         self._emit_change = emit_change
@@ -89,7 +96,28 @@ class Property(object):
     def __set__(self, obj, value):
         if self._fset is None:
             raise AttributeError, "can't set attribute"
-        changed = self._fset(obj, value)
+        self._set_value(obj, value, self._fset)
+
+    def dbus_set(self, obj, value):
+        """
+        Set a property through D-Bus.
+
+        This is intended to called by dbusext.service.Object to implement D-Bus
+        property features. Don't call it directly.
+
+        If dbus setter is set by `dbus_setter` decorator, the dbus setter will be
+        used the handle this request. Otherwise, if `writeable` is set to `True`,
+        the general setter set by `setter` decorator will be used.
+        """
+        if callable(self._dbusset):
+            self._set_value(obj, value, self._dbusset)
+        elif self.writeable and callable(self._fset):
+            self._set_value(obj, value, self._fset)
+        else:
+            raise AccessDeniedError, 'Property %s is not writeable' % self.__name__
+
+    def _set_value(self, obj, value, setter):
+        changed = setter(obj, value)
         if not self._emit_change:
             return
         if changed is None or changed:
@@ -104,7 +132,7 @@ class Property(object):
         Sets the setter function of the property. Return the property object itself.
 
         The setter function should return a boolean value to tell if the value
-        is changed. Return nothing is the same as True.
+        is changed. Returning None is considered as True.
 
         When ``emit_change`` is True in constructor, the property will emit changes
         when value is set. If the owner object has a function named
@@ -117,18 +145,45 @@ class Property(object):
         This is usually used as an decorator::
 
             class A(osdlyrics.dbus.Object):
-            
+
               @osdlyrics.dbus.property(type='s', dbus_interface='example.property')
               def x(self):
                   return self._x
 
               @x.setter
-              def x(self, value)
+              def x(self, value):
                   if self._x != value:
                       self._x = value
                       return True
                   else:
                       return False
+
+              @x.dbus_setter
+              def x(self, value):
+                  if self._do_something(value):
+                      self._x = value
+                      return True
+                  return False
+
+        By default, the setter is used as both python property setter and dbus
+        property setter. If you want a different set-handler to handle dbus property
+        set request, use `dbus_setter`.
         """
         self._fset = fset
+        return self
+
+    def dbus_setter(self, fset):
+        """
+        A decorator to create a D-Bus property set handler.
+
+        The new value set through D-Bus interface is passed to this setter. If dbus
+        setter not set, the general setter set by `Property.setter` decorator is
+        used as D-Bus property set handler.
+
+        Arguments:
+        - `fset`: The setter handler. Takes a parameter as the new value, and return
+                  a boolean value to indicate whether the property is changed. If
+                  None is returned, it is treated as True. See `setter` for example.
+        """
+        self._dbusset = fset
         return self

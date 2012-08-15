@@ -33,12 +33,12 @@ enum OlPlayerStatus {
 };
 
 enum OlPlayerCaps {
-  OL_PLAYER_PLAY =        1 << 1,
-  OL_PLAYER_PREV =        1 << 2,
-  OL_PLAYER_NEXT =        1 << 3,
-  OL_PLAYER_SEEK =        1 << 4,
-  OL_PLAYER_STOP =        1 << 5,
-  OL_PLAYER_PAUSE =       1 << 6,
+  OL_PLAYER_PLAY =        1 << 0,
+  OL_PLAYER_PREV =        1 << 1,
+  OL_PLAYER_NEXT =        1 << 2,
+  OL_PLAYER_SEEK =        1 << 3,
+  OL_PLAYER_STOP =        1 << 4,
+  OL_PLAYER_PAUSE =       1 << 5,
   OL_PLAYER_PLAY_PAUSE =  OL_PLAYER_PLAY | OL_PLAYER_PAUSE,
 };
 

@@ -49,10 +49,10 @@
 /* The object path of config service */
 #define OL_OBJECT_CONFIG "/org/osdlyrics/Config"
 
-/* The interface of MPRIS1 */
-#define OL_IFACE_MPRIS1 "org.freedesktop.MediaPlayer"
+/* The interface of MPRIS2 */
+#define OL_IFACE_MPRIS2_PLAYER "org.mpris.MediaPlayer2.Player"
 /* The object path of player control of MPRIS1 */
-#define OL_OBJECT_MPRIS1_PLAYER "/Player"
+#define OL_OBJECT_MPRIS2 "/org/mpris/MediaPlayer2"
 
 /* The bus name of the GUI process */
 #define OL_CLIENT_BUS_NAME "org.osdlyrics.Client.Gtk"

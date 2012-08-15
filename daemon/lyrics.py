@@ -34,6 +34,7 @@ from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ARTIST, META
 from osdlyrics.pattern import expand_file, expand_path
 from osdlyrics import LYRICS_OBJECT_PATH, LYRICS_INTERFACE as INTERFACE
 from osdlyrics.errors import Error
+from osdlyrics.metadata import Metadata
 import lrcdb
 
 DEFAULT_FILE_PATTERNS = [
@@ -60,7 +61,7 @@ DETECT_CHARSET_GUESS_MAX_LEN = 100
 class InvalidUriException(Error):
     """ Exception of invalid uri.
     """
-    
+
     def __init__(self, uri):
         Error.__init__(self, "Invalid URI: %s" % uri)
 
@@ -77,18 +78,18 @@ class DecodeException(Error):
         Error.__init__(self, msg)
 
 def metadata_description(metadata):
-    if METADATA_TITLE in metadata:
-        if METADATA_ARTIST in metadata:
-            return '%s(%s)' % (metadata[METADATA_TITLE], metadata[METADATA_ARTIST])
+    if metadata.title is not None:
+        if metadata.artist is not None:
+            return '%s(%s)' % (metadata.title, metadata.artist)
         else:
-            return '%s' % metadata[METADATA_TITLE]
+            return '%s' % metadata.title
     else:
         return '[Unknown]'
 
 def decode_by_charset(content):
     r"""
     Detect the charset encoding of a string and decodes to unicode strings.
-    
+
     >>> decode_by_charset(u'\u4e2d\u6587'.encode('utf8'))
     u'\u4e2d\u6587'
     >>> decode_by_charset(u'\u4e2d\u6587'.encode('gbk'))
@@ -134,15 +135,13 @@ def metadata_equal(lhs, rhs):
     - The titles, artists and albums are equal.
     """
     try:
-        if lhs[METADATA_URI] == rhs[METADATA_URI] and lhs[METADATA_URI] != '':
+        if lhs.location == rhs.location and lhs.location != '':
             return True
     except:
         pass
-    keys = [METADATA_TITLE, METADATA_ARTIST, METADATA_ALBUM]
+    keys = ['title', 'artist', 'album']
     for key in keys:
-        if (key in lhs) != (key in rhs):
-            return False
-        if key in lhs and lhs[key] != rhs[key]:
+        if getattr(lhs, key) != getattr(rhs, key):
             return False
     return True
 
@@ -191,7 +190,7 @@ def load_from_file(urlparts):
 def load_from_uri(uri):
     """
     Load the content of LRC file from given URI
-    
+
     If loaded, return the content. If failed, return None.
     """
     URI_LOAD_HANDLERS = {
@@ -282,7 +281,7 @@ class LyricsService(dbus.service.Object):
                                      object_path=osdlyrics.LYRICS_OBJECT_PATH)
         self._db = lrcdb.LrcDb()
         self._config = osdlyrics.config.Config(conn)
-        self._metadata = {}
+        self._metadata = Metadata()
 
     def find_lrc_from_db(self, metadata):
         uri = self._db.find(metadata)
@@ -292,7 +291,7 @@ class LyricsService(dbus.service.Object):
 
     def find_lrc_by_pattern(self, metadata):
         return ensure_uri_scheme(self._expand_patterns(metadata))
-        
+
     def assign_lrc_uri(self, metadata, uri):
         self._db.assign(metadata, uri)
         if metadata_equal(metadata, self._metadata):
@@ -313,6 +312,8 @@ class LyricsService(dbus.service.Object):
                          in_signature='a{sv}',
                          out_signature='bss')
     def GetRawLyrics(self, metadata):
+        if isinstance(metadata, dict):
+            metadata = Metadata.from_dict(metadata)
         uri = self.find_lrc_from_db(metadata)
         lrc = None
         if uri:
@@ -351,7 +352,9 @@ class LyricsService(dbus.service.Object):
                          in_signature='a{sv}ay',
                          out_signature='s',
                          byte_arrays=True)
-    def SetLyricContent(self, metadata, content):
+    def SetLyricContent(self, metadata_dict, content):
+        if isinstance(metadata, dict):
+            metadata = Metadata.from_dict(metadata_dict)
         uri = self.find_lrc_from_db(self._metadata)
         if uri is None or not save_to_uri(uri, content, False):
             uri = ''
@@ -365,6 +368,8 @@ class LyricsService(dbus.service.Object):
                          in_signature='a{sv}s',
                          out_signature='')
     def AssignLyricFile(self, metadata, filepath):
+        if (isinstance(metadata, dict)):
+            metadata = Metadata.from_dict(metadata)
         self.assign_lrc_uri(metadata, osdlyrics.utils.path2uri(filepath))
 
     @dbus.service.signal(dbus_interface=osdlyrics.LYRICS_INTERFACE,

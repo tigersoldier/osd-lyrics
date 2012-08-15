@@ -392,13 +392,20 @@ ListSupportedPlayers() -> aa{sv}
 ConnectPlayer(s:player_name) -> o
   Connect to an active player. The player proxy SHOULD create an dbus object with the path of ``/org/osdlyrics/PlayerProxy/proxyname/player_name``. The ``player_name`` is the ``name`` field described in `Player Info`_.
 
-  The path of created object is returned. The created player object MUST implement interfaces described in `Player Object`_.
+  The path of created object is returned. The created player object MUST implement interfaces described in `Player Instance`_.
 
 Signals
 -------
 
 PlayerLost(s)
   The player of name s is lost
+
+Player Instance
+===============
+
+Player instances are created by `ConnectPlayer` method of `Player Proxy`_. A player instance is used to control a single player.
+
+Player instance MUST implement `org.mpris.MediaPlayer2.Player<http://specifications.freedesktop.org/mpris-spec/latest/Player_Node.html>`_ interface of `MPRIS2<http://specifications.freedesktop.org/mpris-spec/latest/>`_ specification. The object path MUST be the path returned by `ConnectPlayer` method of `Player Proxy`_ instead of `/org/mpris/MediaPlayer2`.
 
 Lyric Source Plugins
 ==============================

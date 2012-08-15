@@ -81,7 +81,8 @@ class Mpris2Player(BasePlayer):
     def __init__(self, proxy, player_name):
         super(Mpris2Player, self).__init__(proxy,
                                            player_name)
-        self._signal_math = None
+        self._properties_changed_signal = None
+        self._seeked_signal = None
         self._name_watch = None
         try:
             self._player = dbus.Interface(self.connection.get_object(MPRIS2_PREFIX + player_name,
@@ -91,8 +92,10 @@ class Mpris2Player(BasePlayer):
             self._player_prop = dbus.Interface(self.connection.get_object(mpris2_object_path,
                                                                           MPRIS2_PATH),
                                                dbus.PROPERTIES_IFACE)
-            self._signal_math = self._player_prop.connect_to_signal('PropertiesChanged',
-                                                                    self._player_properties_changed)
+            self._properties_changed_signal = self._player_prop.connect_to_signal('PropertiesChanged',
+                                                                                  self._player_properties_changed)
+            self._seeked_signal = self._player.connect_to_signal('Seeked',
+                                                                 self._player_seeked)
             self._name_watch = self.connection.watch_name_owner(mpris2_object_path,
                                                                 self._name_lost)
         except:
@@ -104,9 +107,9 @@ class Mpris2Player(BasePlayer):
         self.disconnect()
 
     def disconnect(self):
-        if self._signal_math:
-            self._signal_math.remove()
-            self._signal_math = None
+        if self._properties_changed_signal:
+            self._properties_changed_signal.remove()
+            self._properties_changed_signal = None
         if self._name_watch:
             self._name_watch.cancel()
             self._name_watch = None
@@ -116,18 +119,23 @@ class Mpris2Player(BasePlayer):
 
     def _player_properties_changed(self, iface, changed, invalidated):
         caps_props = ['CanGoNext', 'CanGoPrevious', 'CanPlay', 'CanPause', 'CanSeek']
+        prop_map = { 'PlaybackStatus': 'status_changed',
+                     'LoopStatus': 'repeat_changed',
+                     'Shuffle': 'shuffle_changed',
+                     'Metadata': 'track_changed',
+                     }
         status_props = ['PlaybackStatus', 'LoopStatus', 'Shuffle']
         logging.debug('Status changed: %s' % changed)
         for caps in caps_props:
             if caps in changed:
                 self.caps_changed()
                 break
-        for status in status_props:
-            if status in changed:
-                self.status_changed()
-                break
-        if 'Metadata' in changed:
-            self.track_changed()
+        for prop_name, method in prop_map.iteritems():
+            if prop_name in changed:
+                getattr(self, method)()
+
+    def _player_seeked(self, position):
+        self.position_changed()
 
     @property
     def object_path(self):
