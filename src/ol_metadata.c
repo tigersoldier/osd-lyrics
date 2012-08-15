@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2011  Tiger Soldier <tigersoldi@gmail.com>
  *
  * This file is part of OSD Lyrics.
- * 
+ *
  * OSD Lyrics is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <string.h>
 #include "ol_metadata.h"
@@ -60,10 +60,84 @@ internal_set_string (char **string,
 }
 
 OlMetadata *
-ol_metadata_new ()
+ol_metadata_new (void)
 {
   OlMetadata *metadata = g_new (OlMetadata, 1);
   ol_metadata_init (metadata);
+  return metadata;
+}
+
+OlMetadata *
+ol_metadata_new_from_variant (GVariant *variant)
+{
+  ol_assert_ret (g_variant_is_of_type (variant, G_VARIANT_TYPE ("a{sv}")),
+                 NULL);
+  OlMetadata *metadata = ol_metadata_new ();
+  GVariantIter *iter;
+  gchar *key;
+  GVariant *value;
+  g_variant_get (variant, "a{sv}", &iter);
+  while (g_variant_iter_loop (iter, "{&sv}", &key, &value))
+  {
+    if (g_str_equal (key, "xesam:title"))
+    {
+      ol_metadata_set_title (metadata, g_variant_get_string (value, NULL));
+    }
+    else if (g_str_equal (key, "xesam:artist"))
+    {
+      /* In case of some poor implementations set artist as a string */
+      if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING))
+      {
+        ol_metadata_set_artist (metadata, g_variant_get_string (value, NULL));
+      }
+      else if (g_variant_is_of_type (value, G_VARIANT_TYPE ("as")))
+      {
+        GVariantIter *subiter;
+        gchar *art_one;
+        gchar *artist;
+        gchar **artist_list = g_new (gchar*, g_variant_n_children (value) + 1);
+        gint i = 0;
+        artist_list[g_variant_n_children (value)] = NULL;
+        g_variant_get (value, "as", &subiter);
+        while (g_variant_iter_loop (subiter, "s", &art_one))
+        {
+          artist_list[i] = g_strdup (art_one);
+          i++;
+        }
+        artist = g_strjoinv(", ", artist_list);
+        ol_metadata_set_artist (metadata, artist);
+        g_strfreev (artist_list);
+        g_free (artist);
+        g_variant_iter_free (subiter);
+      }
+      else
+      {
+        ol_errorf ("Unknown type of artist: %s\n",
+                   g_variant_get_type_string (value));
+      }
+    }
+    else if (g_str_equal (key, "xesam:album"))
+    {
+      ol_metadata_set_album (metadata, g_variant_get_string (value, NULL));
+    }
+    else if (g_str_equal (key, "mpris:artUrl"))
+    {
+      ol_metadata_set_art (metadata, g_variant_get_string (value, NULL));
+    }
+    else if (g_str_equal (key, "xesam:url"))
+    {
+      ol_metadata_set_uri (metadata, g_variant_get_string (value, NULL));
+    }
+    else if (g_str_equal (key, "xesam:trackNumber"))
+    {
+      ol_metadata_set_track_number (metadata, g_variant_get_int32 (value));
+    }
+    else if (g_str_equal (key, "mpris:length"))
+    {
+      ol_metadata_set_duration (metadata, g_variant_get_int64 (value));
+    }
+  }
+  g_variant_iter_free (iter);
   return metadata;
 }
 
