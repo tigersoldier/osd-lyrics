@@ -91,7 +91,7 @@ class Property(object):
             return self
         if self._fget is None:
             raise AttributeError, "unreadable attribute"
-        return self._fget(obj)
+        return wrap_dbus_type(self._type_signature, self._fget(obj))
         
     def __set__(self, obj, value):
         if self._fset is None:
@@ -187,3 +187,41 @@ class Property(object):
         """
         self._dbusset = fset
         return self
+
+DBUS_TYPE_MAP = {
+    'y': dbus.Byte,
+    'b': dbus.Boolean,
+    'n': dbus.Int16,
+    'q': dbus.UInt16,
+    'i': dbus.Int32,
+    'u': dbus.UInt32,
+    'x': dbus.Int64,
+    't': dbus.UInt64,
+    'd': dbus.Double,
+    's': dbus.String,
+    'o': dbus.ObjectPath,
+    'g': dbus.Signature,
+    }
+
+def wrap_dbus_type(signature, value):
+    if signature in DBUS_TYPE_MAP:
+        dbustype = DBUS_TYPE_MAP[signature]
+        if isinstance(value, dbustype):
+            return value
+        else:
+            return dbustype(value)
+    elif signature.startswith('a{'):
+        if isinstance(value, dbus.Dictionary):
+            return value
+        else:
+            return dbus.Dictionary(value, signature=signature)
+    elif signature.startswith('a'):
+        if isinstance(value, dbus.Array):
+            return value
+        else:
+            return dbus.Array(value, signature=signature)
+    elif signature.startswith('('):
+        if isinstance(value, dbus.Struct):
+            return value
+        else:
+            return dbus.Struct(value, signature=signature)
