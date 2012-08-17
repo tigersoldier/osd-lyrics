@@ -229,35 +229,35 @@ class BasePlayer(dbusext.Object):
         super(BasePlayer, self).__init__(conn=proxy.connection,
                                          object_path=PLAYER_PROXY_OBJECT_PATH_PREFIX + \
                                          proxy.name + '/' + name)
-        self._name = name
-        self._proxy = proxy
-        self._disconnect_cb = None
-        self._connected = True
-        self._timer = None
-        self._status = None
-        self._loop_status = None
-        self._metadata = None
-        self._current_trackid = 0
-        self._caps = None
-        self._shuffle = None
+        self.__name = name
+        self.__proxy = proxy
+        self.__disconnect_cb = None
+        self.__connected = True
+        self.__timer = None
+        self.__status = None
+        self.__loop_status = None
+        self.__metadata = None
+        self.__current_trackid = 0
+        self.__caps = None
+        self.__shuffle = None
 
     def set_disconnect_cb(self, disconnect_cb):
-        self._disconnect_cb = disconnect_cb
+        self.__disconnect_cb = disconnect_cb
 
     @property
     def name(self):
-        return self._name
+        return self.__name
 
     @property
     def proxy(self):
-        return self._proxy
+        return self.__proxy
 
     def disconnect(self):
-        if self._connected:
-            self._connected = False
+        if self.__connected:
+            self.__connected = False
             self.remove_from_connection()
-            if callable(self._disconnect_cb):
-                self._disconnect_cb(self)
+            if callable(self.__disconnect_cb):
+                self.__disconnect_cb(self)
 
     def get_status(self):
         """
@@ -395,38 +395,38 @@ class BasePlayer(dbusext.Object):
             STATUS_PLAYING: 'play',
             STATUS_STOPPED: 'stop',
             }
-        if self._timer:
-            getattr(self._timer, status_map[status])()
+        if self.__timer:
+            getattr(self.__timer, status_map[status])()
 
     def _setup_timer(self):
-        if self._timer is None:
-            self._timer = timer.Timer()
+        if self.__timer is None:
+            self.__timer = timer.Timer()
             self._setup_timer_status(self._get_cached_status())
 
     def _get_cached_position(self):
         """
         Get the current position from cached timer if possible
         """
-        if self._timer is None:
+        if self.__timer is None:
             self._setup_timer()
             if self._get_cached_status() != STATUS_STOPPED:
-                self._timer.time = self.get_position()
-        return self._timer.time
+                self.__timer.time = self.get_position()
+        return self.__timer.time
 
     def _get_cached_loop_status(self):
-        if self._loop_status is None:
-            self._loop_status = self.get_repeat()
-        return self._loop_status
+        if self.__loop_status is None:
+            self.__loop_status = self.get_repeat()
+        return self.__loop_status
 
     def _get_cached_status(self):
-        if self._status is None:
-            self._status = self.get_status()
-        return self._status
+        if self.__status is None:
+            self.__status = self.get_status()
+        return self.__status
 
     def _get_cached_metadata(self):
-        if self._metadata is None:
-            self._metadata = self._make_metadata(self.get_metadata())
-        return self._metadata
+        if self.__metadata is None:
+            self.__metadata = self._make_metadata(self.get_metadata())
+        return self.__metadata
 
     def _make_metadata(self, metadata):
         dct = metadata.to_mpris2()
@@ -434,21 +434,21 @@ class BasePlayer(dbusext.Object):
         return dct
 
     def _get_current_trackid(self):
-        return '/%s' % self._current_trackid
+        return '/%s' % self.__current_trackid
 
     def _get_cached_caps(self):
-        if self._caps is None:
-            self._caps = self.get_caps()
-        return self._caps
+        if self.__caps is None:
+            self.__caps = self.get_caps()
+        return self.__caps
 
     def _get_cached_shuffle(self):
-        if self._shuffle is None:
-            self._shuffle = self.get_shuffle()
-        return self._shuffle
+        if self.__shuffle is None:
+            self.__shuffle = self.get_shuffle()
+        return self.__shuffle
 
     @property
     def connected(self):
-        return self._connected
+        return self.__connected
 
     @property
     def object_path(self):
@@ -534,7 +534,7 @@ class BasePlayer(dbusext.Object):
 
     @PlaybackStatus.setter
     def PlaybackStatus(self, status):
-        self._status = status
+        self.__status = status
 
     @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                       type_signature='s')
@@ -548,7 +548,7 @@ class BasePlayer(dbusext.Object):
 
     @LoopStatus.setter
     def LoopStatus(self, loop_status):
-        self._loop_status = loop_status
+        self.__loop_status = loop_status
 
     @LoopStatus.dbus_setter
     def LoopStatus(self, loop_status):
@@ -577,7 +577,7 @@ class BasePlayer(dbusext.Object):
 
     @Shuffle.setter
     def Shuffle(self, shuffle):
-        self._shuffle = shuffle
+        self.__shuffle = shuffle
 
     @Shuffle.dbus_setter
     def Shuffle(self, shuffle):
@@ -591,7 +591,7 @@ class BasePlayer(dbusext.Object):
 
     @Metadata.setter
     def Metadata(self, metadata):
-        self._metadata = metadata
+        self.__metadata = metadata
 
     @dbusext.property(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                       type_signature='d')
@@ -682,9 +682,9 @@ class BasePlayer(dbusext.Object):
         pass
 
     def track_changed(self):
-        self._current_trackid += 1
-        if self._timer is not None:
-            self._timer.time = 0
+        self.__current_trackid += 1
+        if self.__timer is not None:
+            self.__timer.time = 0
         self.Metadata = self._make_metadata(self.get_metadata())
     
     def status_changed(self):
@@ -711,8 +711,8 @@ class BasePlayer(dbusext.Object):
         """
         Notify the capability of the player has been changed.
         """
-        orig_caps = self._caps
-        self._caps = self.get_caps()
+        orig_caps = self.__caps
+        self.__caps = self.get_caps()
         if orig_caps is not None:
             caps_map = {
                 CAPS_NEXT: 'CanGoNext',
@@ -722,13 +722,13 @@ class BasePlayer(dbusext.Object):
                 CAPS_SEEK: 'CanSeek',
                 }
             for cap, method in caps_map.items():
-                if cap in orig_caps != cap in self._caps:
-                    setattr(self, method, cap in self._caps)
+                if cap in orig_caps != cap in self.__caps:
+                    setattr(self, method, cap in self.__caps)
 
     def position_changed(self):
         """
         Notify that the position has been changed
         """
-        if self._timer is not None:
-            self._timer.time = self.get_position()
-        self.Seeked(self._timer.time * 1000)
+        if self.__timer is not None:
+            self.__timer.time = self.get_position()
+        self.Seeked(self.__timer.time * 1000)
