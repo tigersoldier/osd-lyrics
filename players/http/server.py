@@ -122,9 +122,12 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                       })
     def do_track_changed(self, params):
         player = self.get_player(params['id'])
+        status = params['status']
+        del params['status']
+        del params['id']
         metadata = Metadata(**params)
         player.do_update_track(metadata)
-        player.do_update_status(params['status'])
+        player.do_update_status(status)
         return ''
 
     @validate_params({'id': param_str(),
