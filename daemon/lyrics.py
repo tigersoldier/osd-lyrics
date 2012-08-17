@@ -352,9 +352,9 @@ class LyricsService(dbus.service.Object):
                          in_signature='a{sv}ay',
                          out_signature='s',
                          byte_arrays=True)
-    def SetLyricContent(self, metadata_dict, content):
+    def SetLyricContent(self, metadata, content):
         if isinstance(metadata, dict):
-            metadata = Metadata.from_dict(metadata_dict)
+            metadata = Metadata.from_dict(metadata)
         uri = self.find_lrc_from_db(self._metadata)
         if uri is None or not save_to_uri(uri, content, False):
             uri = ''
