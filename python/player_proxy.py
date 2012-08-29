@@ -226,9 +226,9 @@ class BasePlayer(dbusext.Object):
         - `proxy`: The BasePlayerProxy object that creates the player
         - `name`: The name of the player object
         """
+        self.__object_path = PLAYER_PROXY_OBJECT_PATH_PREFIX + proxy.name + '/' + name
         super(BasePlayer, self).__init__(conn=proxy.connection,
-                                         object_path=PLAYER_PROXY_OBJECT_PATH_PREFIX + \
-                                         proxy.name + '/' + name)
+                                         object_path=self.__object_path)
         self.__name = name
         self.__proxy = proxy
         self.__disconnect_cb = None
@@ -452,7 +452,7 @@ class BasePlayer(dbusext.Object):
 
     @property
     def object_path(self):
-        return self._object_path
+        return self.__object_path
 
     @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
