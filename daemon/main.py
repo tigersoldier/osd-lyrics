@@ -50,7 +50,7 @@ class MainApp(osdlyrics.App):
         self._lyrics = lyrics.LyricsService(self.connection)
         self._connect_metadata_signal()
         self._activate_config()
-        self.request_bus_name(osdlyrics.APP_MPRIS1_NAME)
+        self.request_bus_name(osdlyrics.APP_MPRIS2_NAME)
         self._daemon_object = DaemonObject(self)
         self._lyricsource = lyricsource.LyricSource(self.connection)
         self._lyrics.set_current_metadata(Metadata.from_dict(self._player.current_player.Metadata))
