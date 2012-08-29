@@ -285,10 +285,15 @@ class Metadata(object):
         # tracknumber
         if 'tracknumber' in dbusdict:
             tracknumber = dbusdict['tracknumber']
-            if not re.match(r'\d+(/\d+)?', tracknumber):
-                logging.warning('Malfromed tracknumber: %s' % tracknumber)
+            if isinstance(tracknumber, int):
+                # the specification requires tracknumber be a string. However,
+                # tracknumber in audacious is int32
+                kargs['tracknum'] = tracknumber
             else:
-                kargs['tracknum'] = int(dbusdict['tracknumber'].split('/')[0])
+                if not re.match(r'\d+(/\d+)?', tracknumber):
+                    logging.warning('Malfromed tracknumber: %s' % tracknumber)
+                else:
+                    kargs['tracknum'] = int(dbusdict['tracknumber'].split('/')[0])
         if 'tracknum' not in kargs and 'xesam:trackNumber' in dbusdict:
             kargs['tracknum'] = int(dbusdict['xesam:trackNumber'])
 
