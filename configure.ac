@@ -209,6 +209,7 @@ AC_CONFIG_FILES([
         daemon/Makefile
         daemon/config.py
         players/Makefile
+        players/mpris1/Makefile
         players/mpris2/Makefile
         players/http/Makefile
         python/Makefile

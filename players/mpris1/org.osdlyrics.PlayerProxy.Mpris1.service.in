@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.osdlyrics.PlayerProxy.Mpris1
+Exec=@PYTHON@ @pkglibdir@/players/mpris1/mpris1.py
