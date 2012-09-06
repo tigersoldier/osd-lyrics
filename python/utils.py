@@ -31,6 +31,8 @@ __all__ = (
     'path2uri',
     'ensure_utf8',
     'ensure_unicode',
+    'ensure_path',
+    'http_download',
     )
 
 pycurl.global_init(pycurl.GLOBAL_DEFAULT)
@@ -344,6 +346,26 @@ def http_download(url, port=0, method='GET', params={}, headers={}, timeout=15, 
 
     c.perform()
     return c.getinfo(pycurl.HTTP_CODE), buf.getvalue()
+
+def ensure_path(path, ignore_file_name=True):
+    """ Create directories if necessary.
+
+    This function tries to create directories for `path`. Unlike `os.makedirs`,
+    no error will be raised if the leaf directory exists.
+    
+    Arguments:
+    - `path`: The path.
+    - `ignore_file_name`: (optional) If set to `True`, the path to be create will be
+       the directory part of `path` which is get from `os.path.dirname(path)`.
+       Otherwise `path` is considered to be path to a directory rather than a file.
+       The default value is `True`.
+    """
+    if ignore_file_name:
+        path = os.path.dirname(path)
+
+    if os.path.isdir(path):
+        return
+    os.makedirs(path)
 
 if __name__ == '__main__':
     import doctest

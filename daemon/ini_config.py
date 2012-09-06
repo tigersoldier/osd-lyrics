@@ -45,6 +45,7 @@ class IniConfig(dbus.service.Object):
                                         object_path=osdlyrics.CONFIG_OBJECT_PATH)
         self._conn = conn
         self._confparser = ConfigParser.RawConfigParser()
+        osdlyrics.utils.ensure_path(filename)
         self._confparser.read(filename)
         self._filename = filename
         self._save_timer = None

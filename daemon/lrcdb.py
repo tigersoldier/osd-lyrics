@@ -116,6 +116,7 @@ UPDATE %s
         if dbfile is None:
             dbfile = osdlyrics.utils.get_config_path('lrc.db')
         self._dbfile = dbfile
+        osdlyrics.utils.ensure_path(dbfile)
         self._conn = sqlite3.connect(os.path.expanduser(dbfile))
         self._create_table()
 
