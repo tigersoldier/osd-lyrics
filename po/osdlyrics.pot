@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-17 12:50+0800\n"
+"POT-Creation-Date: 2012-09-06 14:25+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,68 +17,68 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/ol_menu.c:126
+#: ../../po/../src/ol_menu.c:126
 msgid "LRC files"
 msgstr ""
 
-#: ../src/ol_menu.c:132
+#: ../../po/../src/ol_menu.c:132
 msgid "Choose LRC file to assign"
 msgstr ""
 
-#: ../src/ol_main.c:59
+#: ../../po/../src/ol_main.c:59
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
 msgstr ""
 
-#: ../src/ol_main.c:61
+#: ../../po/../src/ol_main.c:61
 msgid "Show version information"
 msgstr ""
 
-#: ../src/ol_main.c:193 ../src/ol_search_dialog.c:241
+#: ../../po/../src/ol_main.c:192 ../../po/../src/ol_search_dialog.c:239
 msgid "Fail to download lyric"
 msgstr ""
 
-#: ../src/ol_main.c:210
+#: ../../po/../src/ol_main.c:209
 msgid "Downloading lyric"
 msgstr ""
 
-#: ../src/ol_main.c:239
+#: ../../po/../src/ol_main.c:238
 msgid "Lyrics not found"
 msgstr ""
 
-#: ../src/ol_main.c:254
+#: ../../po/../src/ol_main.c:253
 #, c-format
 msgid "Searching lyrics from %s"
 msgstr ""
 
-#: ../src/ol_main.c:472
+#: ../../po/../src/ol_main.c:471
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr ""
 
-#: ../src/ol_main.c:598
+#: ../../po/../src/ol_main.c:597
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr ""
 
-#: ../src/ol_main.c:644
+#: ../../po/../src/ol_main.c:643
 msgid "Another OSD Lyrics is running, exit."
 msgstr ""
 
-#: ../src/ol_trayicon.c:36 ../src/ol_notify.c:27
+#: ../../po/../src/ol_trayicon.c:36 ../../po/../src/ol_notify.c:27
 msgid "Unknown title"
 msgstr ""
 
-#: ../src/ol_trayicon.c:37 ../src/ol_notify.c:28
+#: ../../po/../src/ol_trayicon.c:37 ../../po/../src/ol_notify.c:28
 msgid "Unknown artist"
 msgstr ""
 
-#: ../src/ol_trayicon.c:73
+#: ../../po/../src/ol_trayicon.c:73 ../data/osdlyrics.desktop.in.h:1
 msgid "OSD Lyrics"
 msgstr ""
 
-#: ../src/ol_option.c:1599
+#: ../../po/../src/ol_option.c:1598
 msgid "Choose on startup"
 msgstr ""
 
@@ -87,131 +87,132 @@ msgstr ""
 #. 0, "Customize",
 #. 1, "",
 #. -1);
-#: ../src/ol_option.c:1621 ../data/dialogs.glade.h:7
+#: ../../po/../src/ol_option.c:1620 ../data/dialogs.glade.h:7
 msgid "Customize"
 msgstr ""
 
-#: ../src/ol_option.c:1683
+#: ../../po/../src/ol_option.c:1682
 msgid "Select a folder"
 msgstr ""
 
-#: ../src/ol_lyric_candidate_list.c:47
+#: ../../po/../src/ol_lyric_candidate_list.c:47
 msgid "Title"
 msgstr ""
 
-#: ../src/ol_lyric_candidate_list.c:52
+#: ../../po/../src/ol_lyric_candidate_list.c:52
 msgid "Artist"
 msgstr ""
 
-#: ../src/ol_lyric_candidate_list.c:57
+#: ../../po/../src/ol_lyric_candidate_list.c:57
 msgid "Album"
 msgstr ""
 
-#: ../src/ol_search_dialog.c:29
+#: ../../po/../src/ol_search_dialog.c:29
 #, c-format
 msgid "Searching lyrics from %s..."
 msgstr ""
 
-#: ../src/ol_search_dialog.c:30
+#: ../../po/../src/ol_search_dialog.c:30
 msgid "Ooops, no lyric found :("
 msgstr ""
 
-#: ../src/ol_search_dialog.c:31
+#: ../../po/../src/ol_search_dialog.c:31
 #, c-format
 msgid "%d lyrics found :)"
 msgstr ""
 
-#: ../src/ol_search_dialog.c:32
+#: ../../po/../src/ol_search_dialog.c:32
 msgid "Fail to search. Please check network connection"
 msgstr ""
 
-#: ../src/ol_search_dialog.c:33
+#: ../../po/../src/ol_search_dialog.c:33
 msgid "Cancelled"
 msgstr ""
 
-#: ../src/ol_search_dialog.c:98
+#: ../../po/../src/ol_search_dialog.c:96
 msgid "Downloading..."
 msgstr ""
 
-#: ../src/ol_search_dialog.c:230
+#: ../../po/../src/ol_search_dialog.c:228
 msgid "Download complete, but fail to assign to the track"
 msgstr ""
 
-#: ../src/ol_search_dialog.c:234
+#: ../../po/../src/ol_search_dialog.c:232
 msgid "Download complete"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:247
+#: ../../po/../src/ol_player_chooser.c:247
 msgid "Supported players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:248
+#: ../../po/../src/ol_player_chooser.c:248
 msgid "All players"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:252 ../src/ol_player_chooser.c:324
+#: ../../po/../src/ol_player_chooser.c:252
+#: ../../po/../src/ol_player_chooser.c:324
 msgid "Choose a player to launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:268
+#: ../../po/../src/ol_player_chooser.c:268
 msgid "Use command:"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:273
+#: ../../po/../src/ol_player_chooser.c:273
 msgid "Launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:286
+#: ../../po/../src/ol_player_chooser.c:286
 msgid "Remember my choice"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:438
+#: ../../po/../src/ol_player_chooser.c:438
 #, c-format
 msgid "Failed to launch %s"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:448
+#: ../../po/../src/ol_player_chooser.c:448
 #, c-format
 msgid "Launching %s"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:450
+#: ../../po/../src/ol_player_chooser.c:450
 #, c-format
 msgid ""
 "OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
 msgstr ""
 
-#: ../src/ol_player_chooser.c:560
+#: ../../po/../src/ol_player_chooser.c:560
 msgid "There is no supported player running"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:561
+#: ../../po/../src/ol_player_chooser.c:561
 msgid "Please choose a player below to launch"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:565
+#: ../../po/../src/ol_player_chooser.c:565
 #, c-format
 msgid "Failed to connect to %s"
 msgstr ""
 
-#: ../src/ol_player_chooser.c:567
+#: ../../po/../src/ol_player_chooser.c:567
 #, c-format
 msgid ""
 "%s is not supported by OSD Lyrics, or not running. Please launch another "
 "player"
 msgstr ""
 
-#: ../src/ol_app_info.c:179 ../src/ol_app_info.c:189
+#: ../../po/../src/ol_app_info.c:179 ../../po/../src/ol_app_info.c:189
 msgid "Unnamed"
 msgstr ""
 
-#: ../src/ol_scroll_window.c:52
+#: ../../po/../src/ol_scroll_window.c:52
 msgid ""
 "Drag to move the window\n"
 "Hold CTRL to seek"
 msgstr ""
 
-#: ../src/ol_scroll_window.c:53
+#: ../../po/../src/ol_scroll_window.c:53
 msgid "Drag to move the window"
 msgstr ""
 
@@ -658,6 +659,14 @@ msgstr ""
 msgid "_From:"
 msgstr ""
 
-#: ../lyricsources/xiami/xiami.py:48
+#: ../data/osdlyrics.desktop.in.h:2
+msgid "Lyrics Show"
+msgstr ""
+
+#: ../data/osdlyrics.desktop.in.h:3
+msgid "Download and show lyrics for your favorite media player"
+msgstr ""
+
+#: ../../po/../lyricsources/xiami/xiami.py:50
 msgid "Xiami"
 msgstr ""

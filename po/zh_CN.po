@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osd-lyrics 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-17 12:50+0800\n"
-"PO-Revision-Date: 2012-07-17 12:52+0800\n"
+"POT-Creation-Date: 2012-09-06 12:39+0800\n"
+"PO-Revision-Date: 2012-09-06 12:40+0800\n"
 "Last-Translator: Tiger Soldier <tigersoldi@gmail.com>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "Language: \n"
@@ -36,34 +36,34 @@ msgstr "要记录的调试信息级别，可以为'none'、'error'、'debug'或'
 msgid "Show version information"
 msgstr "显示版本信息"
 
-#: ../src/ol_main.c:193 ../src/ol_search_dialog.c:241
+#: ../src/ol_main.c:192 ../src/ol_search_dialog.c:239
 msgid "Fail to download lyric"
 msgstr "下载歌词失败"
 
-#: ../src/ol_main.c:210
+#: ../src/ol_main.c:209
 msgid "Downloading lyric"
 msgstr "正在下载歌词"
 
-#: ../src/ol_main.c:239
+#: ../src/ol_main.c:238
 msgid "Lyrics not found"
 msgstr "找不到匹配的歌词"
 
-#: ../src/ol_main.c:254
+#: ../src/ol_main.c:253
 #, c-format
 msgid "Searching lyrics from %s"
 msgstr "正在从%s搜索歌词"
 
-#: ../src/ol_main.c:472
+#: ../src/ol_main.c:471
 #, c-format
 msgid "No supported player is running, exit.\n"
 msgstr "没有检测到支持的播放器，程序自动退出。\n"
 
-#: ../src/ol_main.c:598
+#: ../src/ol_main.c:597
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
 msgstr "调试级别应该为\"none\"、\"error\"、\"debug\"或\"info\""
 
-#: ../src/ol_main.c:644
+#: ../src/ol_main.c:643
 msgid "Another OSD Lyrics is running, exit."
 msgstr "OSD Lyrics已经运行，程序自动退出。"
 
@@ -75,11 +75,11 @@ msgstr "未知歌名"
 msgid "Unknown artist"
 msgstr "未知歌手"
 
-#: ../src/ol_trayicon.c:73
+#: ../src/ol_trayicon.c:73 ../data/osdlyrics.desktop.in.h:1
 msgid "OSD Lyrics"
 msgstr "OSD Lyrics"
 
-#: ../src/ol_option.c:1599
+#: ../src/ol_option.c:1598
 msgid "Choose on startup"
 msgstr "启动时选择"
 
@@ -88,11 +88,11 @@ msgstr "启动时选择"
 #. 0, "Customize",
 #. 1, "",
 #. -1);
-#: ../src/ol_option.c:1621 ../data/dialogs.glade.h:7
+#: ../src/ol_option.c:1620 ../data/dialogs.glade.h:7
 msgid "Customize"
 msgstr "自定义"
 
-#: ../src/ol_option.c:1683
+#: ../src/ol_option.c:1682
 msgid "Select a folder"
 msgstr "选择文件夹"
 
@@ -130,15 +130,15 @@ msgstr "搜索失败。请检查网络连接"
 msgid "Cancelled"
 msgstr "已取消"
 
-#: ../src/ol_search_dialog.c:98
+#: ../src/ol_search_dialog.c:96
 msgid "Downloading..."
 msgstr "正在下载..."
 
-#: ../src/ol_search_dialog.c:230
+#: ../src/ol_search_dialog.c:228
 msgid "Download complete, but fail to assign to the track"
 msgstr "下载完毕，关联歌词出错"
 
-#: ../src/ol_search_dialog.c:234
+#: ../src/ol_search_dialog.c:232
 msgid "Download complete"
 msgstr "下载完毕"
 
@@ -668,7 +668,15 @@ msgstr "搜索(_S)"
 msgid "_From:"
 msgstr "下载自(_F):"
 
-#: ../lyricsources/xiami/xiami.py:48
+#: ../data/osdlyrics.desktop.in.h:2
+msgid "Lyrics Show"
+msgstr "歌词秀"
+
+#: ../data/osdlyrics.desktop.in.h:3
+msgid "Download and show lyrics for your favorite media player"
+msgstr "让你的音乐播放器支持下载和显示歌词"
+
+#: ../lyricsources/xiami/xiami.py:50
 msgid "Xiami"
 msgstr "虾米"
 
