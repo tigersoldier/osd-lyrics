@@ -46,6 +46,7 @@ desktop_DATA = $(Desktop_in_files:.desktop.in=.desktop)
 
 EXTRA_DIST = \
 	$(service_in_files) \
+	$(Desktop_in_files) \
 	osdlyrics-daemon.in \
 	$(NULL)
 
