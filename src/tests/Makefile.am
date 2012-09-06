@@ -60,7 +60,7 @@ ol_osd_window_test_SOURCES = ol_osd_window_test.c \
 ol_player_test_SOURCES = ol_player_test.c \
 	$(top_srcdir)/src/ol_debug.c \
 	$(top_srcdir)/src/ol_player.c \
-	$(top_srcdir)/src/ol_elapse_emulator.c \
+	$(top_srcdir)/src/ol_timeline.c \
 	$(top_srcdir)/src/ol_metadata.c \
 	$(top_srcdir)/src/ol_utils.c \
 	$(NULL)
