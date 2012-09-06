@@ -1,11 +1,9 @@
 [Desktop Entry]
 Exec=osdlyrics
 Version=1.0
-Name=OSD Lyrics
-GenericName=Lyrics Show
-GenericName[zh_CN]=歌词秀
-Comment=Download and show lyrics for your favorite media player
-Comment[zh_CN]=让你的音乐播放器支持下载和显示歌词
+_Name=OSD Lyrics
+_GenericName=Lyrics Show
+_Comment=Download and show lyrics for your favorite media player
 Icon=osdlyrics
 StartupNotify=true
 Terminal=false

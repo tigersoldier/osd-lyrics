@@ -4,8 +4,6 @@ dist_trayicon_DATA = \
 guidir = @OL_GUIDIR@
 dist_gui_DATA = \
 	dialogs.glade
-menudir = ${datadir}/applications
-dist_menu_DATA = osdlyrics.desktop
 icondir = ${datadir}/icons/hicolor/64x64/apps
 dist_icon_DATA = osdlyrics.png
 
@@ -39,6 +37,13 @@ service_in_files = \
 	$(NULL)
 
 service_DATA = $(service_in_files:.service.in=.service)
+
+@INTLTOOL_DESKTOP_RULE@
+
+desktopdir = $(datadir)/applications
+Desktop_in_files = osdlyrics.desktop.in
+desktop_DATA = $(Desktop_in_files:.desktop.in=.desktop)
+
 EXTRA_DIST = \
 	$(service_in_files) \
 	osdlyrics-daemon.in \
@@ -57,4 +62,5 @@ CLEANFILES = \
 	org.osdlyrics.Daemon.service \
 	org.osdlyrics.Config.service \
 	$(bin_SCRIPTS) \
+	$(desktop_DATA) \
 	$(NULL)

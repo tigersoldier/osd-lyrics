@@ -10,4 +10,5 @@ src/ol_player_chooser.c
 src/ol_app_info.c
 src/ol_scroll_window.c
 data/dialogs.glade
+data/osdlyrics.desktop.in
 lyricsources/xiami/xiami.py
