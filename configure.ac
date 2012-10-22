@@ -53,7 +53,7 @@ AC_SUBST(OL_GUIDIR)
 
 # gprof support
 AC_ARG_WITH(gprof-support,
-[  --with-gprof-support=DIR   Include gmon.out file renaming support 
+[  --with-gprof-support=DIR   Include gmon.out file renaming support
   --without-gprof-support    Don't do gmon.out file renaming (default)],
 [ case "$withval" in
   yes)
@@ -101,29 +101,10 @@ AC_ARG_ENABLE(appindicator,
                         [enable_appindicator=$enableval],
                         [enable_appindicator="auto"])
 
-dnl MPD support
-AC_ARG_ENABLE([mpd],
-  [AS_HELP_STRING([--disable-mpd], [Disables MPD support. You won't need libmpd if you use this option])],
-  [],
-  [enable_mpd=yes])
-
-AC_ARG_ENABLE([xmms2],
-  [AS_HELP_STRING([--disable-xmms2], [Disables XMMS2 support. You won't need libxmmsclient if you use this option])],
-  [],
-  [enable_xmms2=yes])
-
-AC_ARG_ENABLE([amarok1],
-  [AS_HELP_STRING([--enable-amarok1], [Enables Amarok 1.4 support])],
-  [],
-  [enable_amarok1=no])
-
-AS_IF([test "x$enable_amarok1" != xno],
-  [AC_DEFINE([ENABLE_AMAROK1], [1], [Define if compile to support Amarok 1.4])])
-
 # Checks for libraries.
 AC_CHECK_LIB([dl], [exp])
-PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0, 
-                          gthread-2.0, 
+PKG_CHECK_MODULES([GTK2], [gtk+-2.0 >= 2.20.0,
+                          gthread-2.0,
                           gmodule-export-2.0,
                           gio-2.0 >= 2.26,
                           gio-unix-2.0])
@@ -131,46 +112,28 @@ PKG_CHECK_MODULES([X11], [x11])   dnl For XGrabKey
 PKG_CHECK_MODULES([DBUS_GLIB], [dbus-glib-1])
 PKG_CHECK_MODULES([CURL], [libcurl])
 PKG_CHECK_MODULES([NOTIFY], [libnotify])
-PKG_CHECK_EXISTS([libnotify >= 0.7], 
+PKG_CHECK_EXISTS([libnotify >= 0.7],
   AC_DEFINE(HAVE_LIBNOTIFY_0_7, 1, [Have libnotify >= 0.7]))
 
 PKG_CHECK_MODULES([SQLITE], [sqlite3 >= 3.3.0])
-MPD_CFLAGS=
-MPD_LIBS=
-AS_IF([test "x$enable_mpd" != "xno"],
-  [PKG_CHECK_MODULES([MPD], [libmpd],
-    [AC_DEFINE([ENABLE_MPD], [1], [Define if compile to support MPD])
-     #BUILD_MPD_SUPPORT=1
-    ],
-    [enable_mpd=no
-     #BUILD_MPD_SUPPORT=0
-     AC_MSG_WARN(
-       [libmpd is not available, use --disable-mpd to disable MPD support])
-    ])
-  ],
-  [BUILD_MPD_SUPPORT=0
-   AC_SUBST(MPD_CFLAGS)
-   AC_SUBST(MPD_LIBS)
-  ]
-)
+
+dnl MPD support
+AC_ARG_ENABLE([mpd],
+  [AS_HELP_STRING([--disable-mpd], [Disables MPD support. You won't need libmpd if you use this option])],
+  [],
+  [enable_mpd=yes])
+AM_CONDITIONAL(BUILD_MPD_SUPPORT, test "x$enable_mpd" = xyes)
+
+dnl XMMS2 support
+AC_ARG_ENABLE([xmms2],
+  [AS_HELP_STRING([--disable-xmms2], [Disables XMMS2 support. You won't need libxmmsclient if you use this option])],
+  [],
+  [enable_xmms2=yes])
 XMMS2_CFLAGS=
 XMMS2_LIBS=
-AS_IF([test "x$enable_xmms2" != "xno"],
-  [PKG_CHECK_MODULES([XMMS2], [xmms2-client],
-    [AC_DEFINE([ENABLE_XMMS2], [1], [Define if compile to support XMMS2])
-    ],
-    [enable_xmms2=no
-     AC_MSG_WARN(
-       [xmms2-client is not available, use --disable-xmms2 to disable XMMS2 support])
-    ])
-  ],
-  [BUILD_XMMS2_SUPPORT=0
-   AC_SUBST(XMMS2_CFLAGS)
-   AC_SUBST(XMMS2_LIBS)
-  ]
-)
-#AM_CONDITIONAL(BUILD_MPD_SUPPORT, [test "x$enable_mpd" != "xno"])
-#AC_SUBST(BUILD_MPD_SUPPORT)
+AM_CONDITIONAL(BUILD_XMMS2_SUPPORT, [test "x$enable_xmms2" = xyes])
+
+dnl AppIndicator support for Ubuntu
 if test x$enable_appindicator = xauto ; then
         PKG_CHECK_EXISTS([appindicator-0.1 >= $APPINDICATOR_REQUIRED],
                          enable_appindicator="yes",
@@ -204,10 +167,10 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 
 AC_CONFIG_FILES([
         po/Makefile.in
-	Makefile
-	src/Makefile
-	src/tests/Makefile
-	data/Makefile
+        Makefile
+        src/Makefile
+        src/tests/Makefile
+        data/Makefile
         daemon/Makefile
         daemon/config.py
         players/Makefile
@@ -223,3 +186,22 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+
+AC_MSG_NOTICE([OSD Lyrics compilation options:])
+        AC_MSG_NOTICE([ *        Version: $PACKAGE_VERSION])
+        AC_MSG_NOTICE([ *         Prefix: $prefix])
+if test "x$enable_mpd" = "xyes"; then
+        AC_MSG_NOTICE([ *    MPD support: yes])
+else
+        AC_MSG_NOTICE([ *    MPD support: no])
+fi
+if test "x$enable_xmms2" = "xyes"; then
+        AC_MSG_NOTICE([ *  XMMS2 support: yes])
+else
+        AC_MSG_NOTICE([ *  XMMS2 support: no])
+fi
+if test "x$enable_appindicator" = "xyes"; then
+        AC_MSG_NOTICE([ *   AppIndicator: yes])
+else
+        AC_MSG_NOTICE([ *   AppIndicator: no])
+fi
