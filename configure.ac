@@ -219,6 +219,7 @@ AC_CONFIG_FILES([
         lyricsources/Makefile
         lyricsources/xiami/Makefile
         lyricsources/lrc123/Makefile
+        tools/Makefile
 ])
 
 AC_OUTPUT
