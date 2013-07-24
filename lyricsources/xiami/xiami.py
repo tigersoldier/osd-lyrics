@@ -3,7 +3,7 @@
 # Copyright (C) 2012 Tiger Soldier <tigersoldi@gmail.com>
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 import re
@@ -42,15 +42,15 @@ gettext.textdomain('osdlyrics')
 class XiamiSource(BaseLyricSourcePlugin):
     """ Lyric source from xiami.com
     """
-    
+
     def __init__(self):
         """
         """
-        
+
         BaseLyricSourcePlugin.__init__(self, id='xiami', name=_('Xiami'))
         self._search = {}
         self._download = {}
-        
+
     def do_search(self, metadata):
         keys = []
         if metadata.title:
