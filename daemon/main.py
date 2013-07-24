@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 import logging
@@ -25,23 +25,22 @@ import lyrics
 import dbus
 import config
 import lyricsource
-from osdlyrics.errors import Error
 from osdlyrics.metadata import Metadata
 from osdlyrics.consts import MPRIS2_OBJECT_PATH
 
 logging.basicConfig(level=logging.INFO)
 
-class InvalidClientNameException(Error):
+class InvalidClientNameException(Exception):
     """ The client bus name in Hello is invalid
     """
-    
+
     def __init__(self, name):
         """
-        
+
         Arguments:
         - `name`: The invalid client bus name
         """
-        Error.__init__(self, 'Client bus name %s is invalid' % name)
+        Exception.__init__(self, 'Client bus name %s is invalid' % name)
 
 class MainApp(osdlyrics.App):
     def __init__(self, ):
@@ -66,7 +65,7 @@ class MainApp(osdlyrics.App):
             self.connection.activate_name_owner(osdlyrics.CONFIG_BUS_NAME)
         except:
             print "Cannot activate config service"
-        
+
     def _player_properties_changed(self, iface, changed, invalidated):
         if 'Metadata' in changed:
             self._lyrics.set_current_metadata(Metadata.from_dict(changed['Metadata']))
@@ -75,7 +74,7 @@ def is_valid_client_bus_name(name):
     """Check if a client bus name is valid.
 
     A client bus name is valid if it starts with `org.osdlyrics.Client.`
-    
+
     Arguments:
     - `name`: The bus name of client
     """
@@ -85,7 +84,7 @@ def is_valid_client_bus_name(name):
 class DaemonObject(dbus.service.Object):
     """ DBus Object implementing org.osdlyrics.Daemon
     """
-    
+
     def __init__(self, app):
         dbus.service.Object.__init__(self,
                                      conn=app.connection,
@@ -127,7 +126,7 @@ class DaemonObject(dbus.service.Object):
             if len(self._watch_clients) == 0:
                 logging.info('All client disconnected, quit the daemon')
                 self._app.quit()
-        
+
 def main():
     try:
         app = MainApp()

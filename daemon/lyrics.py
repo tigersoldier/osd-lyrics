@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 import re
@@ -30,10 +30,10 @@ import chardet
 import osdlyrics
 import osdlyrics.config
 import osdlyrics.lrc
-from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ARTIST, METADATA_ALBUM, METADATA_TRACKNUM
+from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ARTIST, \
+    METADATA_ALBUM, METADATA_TRACKNUM
 from osdlyrics.pattern import expand_file, expand_path
 from osdlyrics import LYRICS_OBJECT_PATH, LYRICS_INTERFACE as INTERFACE
-from osdlyrics.errors import Error
 from osdlyrics.metadata import Metadata
 import lrcdb
 
@@ -58,24 +58,24 @@ SUPPORTED_SCHEMES = [
 DETECT_CHARSET_GUESS_MIN_LEN = 40
 DETECT_CHARSET_GUESS_MAX_LEN = 100
 
-class InvalidUriException(Error):
+class InvalidUriException(Exception):
     """ Exception of invalid uri.
     """
 
     def __init__(self, uri):
-        Error.__init__(self, "Invalid URI: %s" % uri)
+        Exception.__init__(self, "Invalid URI: %s" % uri)
 
-class CannotLoadLrcException(Error):
+class CannotLoadLrcException(Exception):
     def __init__(self, uri):
-        Error.__init__(self, "Cannot load lrc file from %s" % uri)
+        Exception.__init__(self, "Cannot load lrc file from %s" % uri)
 
-class CannotSaveLrcException(Error):
+class CannotSaveLrcException(Exception):
     def __init__(self, uri):
-        Error.__init__(self, "Cannot save lrc file to %s" % uri)
+        Exception.__init__(self, "Cannot save lrc file to %s" % uri)
 
-class DecodeException(Error):
+class DecodeException(Exception):
     def __init__(self, msg):
-        Error.__init__(self, msg)
+        Exception.__init__(self, msg)
 
 def metadata_description(metadata):
     if metadata.title is not None:
@@ -98,14 +98,15 @@ def decode_by_charset(content):
     if not isinstance(content, str):
         return content
     encoding = chardet.detect(content)['encoding']
-    # Sometimes, the content is well encoded but the last few bytes. This is common
-    # in the files downloaded by old versions of OSD Lyrics. In this case,chardet
-    # may fail to determine what the encoding it is. So we take half of the content
-    # of it and try again.
+    # Sometimes, the content is well encoded but the last few bytes. This is
+    # common in the files downloaded by old versions of OSD Lyrics. In this
+    # case,chardet may fail to determine what the encoding it is. So we take
+    # half of the content of it and try again.
     if not encoding and len(content) > DETECT_CHARSET_GUESS_MIN_LEN:
         content_len = len(content)
         content_half = content_len / 2
-        if content_half <= DETECT_CHARSET_GUESS_MAX_LEN and content_half >= DETECT_CHARSET_GUESS_MIN_LEN:
+        if content_half <= DETECT_CHARSET_GUESS_MAX_LEN and \
+                content_half >= DETECT_CHARSET_GUESS_MIN_LEN:
             slice_end = content_half
         elif content_half > DETECT_CHARSET_GUESS_MAX_LEN:
             slice_end = DETECT_CHARSET_GUESS_MAX_LEN
@@ -119,9 +120,9 @@ def decode_by_charset(content):
         encoding = 'utf-8'
 
     # When we take half of the content to determine the encoding, chardet may
-    # think it be encoded with ascii, however the full content is probably encoded
-    # with utf-8. As ascii is an subset of utf-8, decoding an ascii string with
-    # utf-8 will always be right.
+    # think it be encoded with ascii, however the full content is probably
+    # encoded with utf-8. As ascii is an subset of utf-8, decoding an ascii
+    # string with utf-8 will always be right.
     if encoding == 'ascii':
         encoding = 'utf-8'
     return content.decode(encoding, 'replace')
@@ -262,7 +263,9 @@ def update_lrc_offset(content, offset):
     >>> update_lrc_offset('[[offset:200]] lrc', 100)
     '[offset:100]\n[[offset:200]] lrc'
     """
-    search_result = re.search(r'^(\[[^\]]*\])*?\[offset:(.*?)\]', content, re.MULTILINE)
+    search_result = re.search(r'^(\[[^\]]*\])*?\[offset:(.*?)\]',
+                              content,
+                              re.MULTILINE)
     if search_result is None:
         return '[offset:%s]\n%s' % (offset, content)
     return '%s%s%s' % (content[:search_result.start(2)],
@@ -392,7 +395,7 @@ class LyricsService(dbus.service.Object):
 
     def _save_to_patterns(self, metadata, content):
         """ Save content to file expanded from given patterns
-        
+
         Arguments:
         - `metadata`:
         - `content`:

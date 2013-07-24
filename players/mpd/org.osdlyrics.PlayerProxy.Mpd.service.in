@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.osdlyrics.PlayerProxy.Mpd
+Exec=@PYTHON@ @pkglibdir@/players/mpd/mpd_proxy.py

@@ -177,6 +177,7 @@ AC_CONFIG_FILES([
         players/mpris1/Makefile
         players/mpris2/Makefile
         players/http/Makefile
+        players/mpd/Makefile
         python/Makefile
         python/dbusext/Makefile
         lyricsources/Makefile

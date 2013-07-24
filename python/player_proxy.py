@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 import logging
 import dbus
@@ -24,6 +24,7 @@ import app
 import dbusext
 import utils
 import timer
+import errors
 
 from consts import \
     PLAYER_PROXY_OBJECT_PATH_PREFIX, \
@@ -31,20 +32,28 @@ from consts import \
     MPRIS1_INTERFACE, \
     MPRIS2_PLAYER_INTERFACE
 
+class ConnectPlayerError(errors.BaseError):
+    """
+    Exception raised when BasePlayerProxy.do_connect_player() fails
+    """
+    def __init__(self, message):
+        super(ConnectPlayerError, self).__init__(message)
+
 class BasePlayerProxy(dbus.service.Object):
     """ Base class to create an application to provide player proxy support
     """
-    
+
     def __init__(self, name):
         """
-        
+
         Arguments:
         - `name`: The suffix of the bus name. The full bus name is
           `org.osdlyrics.PlayerProxy.` + name
         """
         self._app = app.App('PlayerProxy.' + name)
-        super(BasePlayerProxy, self).__init__(conn=self._app.connection,
-                                             object_path=PLAYER_PROXY_OBJECT_PATH_PREFIX + name)
+        super(BasePlayerProxy, self).__init__(
+            conn=self._app.connection,
+            object_path=PLAYER_PROXY_OBJECT_PATH_PREFIX + name)
         self._name = name
         self._connected_players = {}
 
@@ -60,18 +69,19 @@ class BasePlayerProxy(dbus.service.Object):
                          out_signature='aa{sv}')
     def ListActivePlayers(self):
         return [player.to_dict() for player in self.do_list_active_players()]
-    
+
     @dbus.service.method(dbus_interface=PLAYER_PROXY_INTERFACE,
                          in_signature='',
                          out_signature='aa{sv}')
     def ListSupportedPlayers(self):
-        return [player.to_dict() for player in self.do_list_supported_players()] 
+        return [player.to_dict() for player in self.do_list_supported_players()]
 
     @dbus.service.method(dbus_interface=PLAYER_PROXY_INTERFACE,
                          in_signature='',
                          out_signature='aa{sv}')
     def ListActivatablePlayers(self):
-        return [player.to_dict() for player in self.do_list_activatable_players()]
+        return [player.to_dict() for player in
+                self.do_list_activatable_players()]
 
     @dbus.service.method(dbus_interface=PLAYER_PROXY_INTERFACE,
                          in_signature='s',
@@ -86,7 +96,7 @@ class BasePlayerProxy(dbus.service.Object):
             logging.info('Connected to %s' % player.object_path)
             return player.object_path
         else:
-            raise Exception('%s cannot be connected' % player_name)
+            raise ConnectPlayerError('%s cannot be connected' % player_name)
 
     @dbus.service.signal(dbus_interface=PLAYER_PROXY_INTERFACE,
                          signature='s')
@@ -132,15 +142,15 @@ class BasePlayerProxy(dbus.service.Object):
         """
         Creates an Player object according to playername.
 
-        Returns the created `BasePlayer` object, or None if cannot connect to the
-        player according to playername.
+        Returns the created `BasePlayer` object, or None if cannot connect to
+        the player with `playername`.
         """
         raise NotImplementedError()
 
 class PlayerInfo(object):
     """Information about a supported player
     """
-    
+
     def __init__(self, name, appname='', binname='', cmd='', icon=''):
         """
         """
@@ -149,7 +159,7 @@ class PlayerInfo(object):
         self._binname = binname
         self._cmd = cmd
         self._icon = icon
-        
+
     @property
     def name(self):
         return self._name
@@ -218,7 +228,7 @@ class BasePlayer(dbusext.Object):
     - `set_volume`
     - `get_volume`
     """
-    
+
     def __init__(self, proxy, name):
         """
 
@@ -308,7 +318,7 @@ class BasePlayer(dbusext.Object):
     def set_repeat(self, mode):
         """
         Sets the repeat mode of the player
-        
+
         Arguments:
         - `mode`: REPEAT_NONE, REPEAT_TRACK, or REPEAT_ALL
         """
@@ -366,13 +376,13 @@ class BasePlayer(dbusext.Object):
     def set_position(self, pos):
         """
         Seek to the given position.
-        
+
         Arguments:
         - `pos`: Seek time in millisecond
         """
         raise NotImplementedError()
 
-    def get_volume(self, pos):
+    def get_volume(self):
         """
         Gets the volume of the player.
 
@@ -383,7 +393,7 @@ class BasePlayer(dbusext.Object):
     def set_volume(self, volume):
         """
         Sets the volume of the player.
-        
+
         Arguments:
         - `volume`: volume in the range of [0.0, 1.0]
         """
@@ -477,7 +487,7 @@ class BasePlayer(dbusext.Object):
                          out_signature='')
     def Stop(self):
         self.stop()
-    
+
     @dbus.service.method(dbus_interface=MPRIS2_PLAYER_INTERFACE,
                          in_signature='',
                          out_signature='')
@@ -686,7 +696,7 @@ class BasePlayer(dbusext.Object):
         if self.__timer is not None:
             self.__timer.time = 0
         self.Metadata = self._make_metadata(self.get_metadata())
-    
+
     def status_changed(self):
         """
         Notify that the playing status has been changed.

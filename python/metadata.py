@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 import dbus
@@ -90,7 +90,7 @@ class Metadata(object):
         """
         Converts the metadata to mpris1 dict
         """
-        ret = {}
+        ret = dbus.Dictionary(signature='sv')
         for k in ['title', 'artist', 'album', 'arturl', 'location']:
             if getattr(self, k) is not None:
                 ret[k] = dbus.String(utils.ensure_unicode(getattr(self, k)))

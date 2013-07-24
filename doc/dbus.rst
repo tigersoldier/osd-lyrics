@@ -58,8 +58,8 @@ Use the format described in `MPRIS Metadata <http://xmms2.org/wiki/MPRIS_Metadat
  - location: (string)
  - tracknumber: (string)
  - arturl: (string)
- - time: (uint32) The duration in seconds 
- - mtime: (uint32) The duration in milliseconds 
+ - time: (uint32) The duration in seconds
+ - mtime: (uint32) The duration in milliseconds
 
 Search Result
 -------------
@@ -107,7 +107,7 @@ Quit() -> None
 Player Controlling
 ------------------
 
-OSD Lyrics follows `MPRIS1 <http://xmms2.org/wiki/MPRIS>`_ and `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players. 
+OSD Lyrics follows `MPRIS1 <http://xmms2.org/wiki/MPRIS>`_ and `MPRIS2 specification <http://www.mpris.org/2.1/spec/>`_ for controlling players.
 
 OSD Lyrics uses the bus name ``org.mpris.MediaPlayer2.osdlyrics`` as an alias name according to the specification of MPRIS2.
 
@@ -165,29 +165,29 @@ GetLyrics(a{sv}:metadata) -> b, s, a{ss}, aa{sv}
   - ``uri(s)``: The URI of the lyrics file. See `Lyrics URI`_ for more details. If no lyrics found, the uri is an empty string.
   - ``attributes(a{ss})``: The key-value attributes in the LRC file, such like [title:The title].
   - ``content(aa{sv})``: The content of the lyrics. See `Lyrics Data`_ for more details. If no lyrics found, an empty array will be returned.
-  
+
 GetCurrentLyrics() -> b, s, a{ss}, aa{sv}
   Similar to GetLyrics. Returns the lyrics of the current playing track.
 
 GetRawLyrics(a{sv}:metadata) -> b, s, s
-  Gets the content of LRC file of specified metadata. 
+  Gets the content of LRC file of specified metadata.
 
   Return values:
 
   - ``found(b)``: Whether the lyrics file is found.
   - ``uri(s)``: The URI of the lyrics file. See `Lyrics URI`_ for more details. If no lyrics found, the uri is an empty string.
   - ``content(s)``: The content of the LRC file. If no lyrics found, an empty string will be returned.
-  
+
 GetCurrentRawLyrics() -> b, s, s
-  Similar to GetRawLyrics. 
-  
+  Similar to GetRawLyrics.
+
   Returns the content of LRC file of current playing track.
 
 SetLyricContent(a{sv}:metadata, ay:content) -> s
   Sets the lyrics of specified metadata by content of LRC file.
 
   The content is a byte string rather than utf-8 string so that the content can be encoded in other charsets.
-  
+
   Returns the URI of assigned lyrics. The URI follows the format described in `Lyric URI`_. If the given metadata cannot be expended to a valid path, or errors raised when saving the content to the file, an empty string is returned and the lyrics to the metadata is not changed.
 
 AssignLyricFile(a{sv}:metadata, s:uri) -> nothing
@@ -307,7 +307,7 @@ Methods
 -------
 
 GetInt(s:name) -> int32
-  Gets an int32 in config. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised. 
+  Gets an int32 in config. If the value of name does not exists, ``org.osdlyrics.Error.ValueNotExist`` exception will be raised.
 
 SetInt(s:name, int32:value)
   Sets an int32 value.
@@ -337,12 +337,12 @@ SetStringList(s:name, as:value)
   Sets an array of string.
 
 SetDefaultValues(a{sv}:values)
-  Sets a set of default values. The existing values will not be overwrited, only 
+  Sets a set of default values. The existing values will not be overwrited, only
 values that not exists will be set.
 
   Parameters:
 
-  - `values`: a dictionary, the key is the name of the value, and the value is the 
+  - `values`: a dictionary, the key is the name of the value, and the value is the
               value itself. The value should be one of the following types: b, i, d,
               s, as, which are boolean, integer, double, string, string list,
               respectively.
@@ -394,11 +394,19 @@ ConnectPlayer(s:player_name) -> o
 
   The path of created object is returned. The created player object MUST implement interfaces described in `Player Instance`_.
 
+  If the player cannot be create with ``player_name``, a ``org.osdlyrics.Error.ConnectPlayerError`` SHOULD be raised.
+
 Signals
 -------
 
 PlayerLost(s)
   The player of name s is lost
+
+Exceptions
+----------
+
+org.osdlyrics.Error.ConnectPlayerError
+  Raised when ``ConnectPlayer`` fails.
 
 Player Instance
 ===============
@@ -447,7 +455,7 @@ Download(v: downloadinfo) -> int32: ticket
   Return:
 
   - `ticket`: An unique integer to identify the download task. This value should be used in ``DownloadComplete`` signal and ``CancelDownload`` method.
-  
+
 CancelDownload(int32: ticket) -> nothing
   Cancel a download task with given ticket.
 
@@ -468,7 +476,7 @@ Signals
 SearchComplete(i: ticket, i: status, aa{sv}: results)
   Emit when a search task is succeeded, canceled or failed.
 
-  Parameters: 
+  Parameters:
 
   - `ticket`: The ticket to identify the search task. This MUST be the same ticket that ``Search`` returns for this task.
   - `status`: The status of the search task. MUST be one of the following:

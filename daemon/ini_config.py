@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,24 +15,26 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 import dbus
 import dbus.service
 import osdlyrics
 import osdlyrics.utils
+import osdlyrics.errors
 import ConfigParser
 import glib
-from errors import DBusError
 
-class MalformedKeyError(DBusError):
+class MalformedKeyError(osdlyrics.errors.BaseError):
     def __init__(self, *args):
-        DBusError.__init__(self, *args)
+        super(MalformedKeyError, self).__init__(*args)
 
-class ValueNotExistError(DBusError):
+class ValueNotExistError(osdlyrics.errors.BaseError):
     def __init__(self, key=''):
-        DBusError.__init__(self, 'Value of key %s does not exist' % key)
+        super(ValueNotExistError, self).__init__(
+            'Value of key %s does not exist' % key
+            )
 
 class IniConfig(dbus.service.Object):
     """ Implement org.osdlyrics.Config
@@ -41,8 +43,9 @@ class IniConfig(dbus.service.Object):
     def __init__(self,
                  conn,
                  filename=osdlyrics.utils.get_config_path('osdlyrics.conf')):
-        super(IniConfig, self).__init__(conn=conn,
-                                        object_path=osdlyrics.CONFIG_OBJECT_PATH)
+        super(IniConfig, self).__init__(
+            conn=conn,
+            object_path=osdlyrics.CONFIG_OBJECT_PATH)
         self._conn = conn
         self._confparser = ConfigParser.RawConfigParser()
         osdlyrics.utils.ensure_path(filename)
@@ -55,10 +58,13 @@ class IniConfig(dbus.service.Object):
     def _split_key(self, key, add_section=True):
         parts = key.split('/')
         if len(parts) != 2:
-            raise MalformedKeyError('%s is an invalid key. Keys must be in the ' \
-                                        'form of "Section/Name"' % key)
+            raise MalformedKeyError(
+                '%s is an invalid key. Keys must be in the form '
+                'of "Section/Name"' % key
+                )
         if len(parts[0]) == 0 or len(parts[1]) == 0:
-            raise MalformedKeyError('Malformed key "%s". Section or name must not be empty' % key)
+            raise MalformedKeyError(
+                'Malformed key "%s". Section or name must not be empty' % key)
         if add_section and not self._confparser.has_section(parts[0]):
             self._confparser.add_section(parts[0])
         return parts[0], parts[1]

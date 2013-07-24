@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,10 +15,11 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 import os
 import os.path
+import stat
 import urllib
 import pycurl
 import config
@@ -27,12 +28,13 @@ import sys
 import urlparse
 
 __all__ = (
-    'get_config_path',
-    'path2uri',
+    'cmd_exists',
     'ensure_utf8',
     'ensure_unicode',
     'ensure_path',
+    'get_config_path',
     'http_download',
+    'path2uri',
     )
 
 pycurl.global_init(pycurl.GLOBAL_DEFAULT)
@@ -45,7 +47,7 @@ if sys.getdefaultencoding() != 'utf-8':
 class ProxySettings(object):
     """
     """
-    
+
     def __init__(self, protocol, host='', port=0, username=None, password=None):
         """
         """
@@ -77,7 +79,7 @@ def get_config_path(filename='', expanduser=True):
 def path2uri(path):
     r"""
     Converts a path to URI with file sheme.
-    
+
     If a path does not start with a slash (/), it is considered to be an invalid
     path and returned directly.
 
@@ -352,7 +354,7 @@ def ensure_path(path, ignore_file_name=True):
 
     This function tries to create directories for `path`. Unlike `os.makedirs`,
     no error will be raised if the leaf directory exists.
-    
+
     Arguments:
     - `path`: The path.
     - `ignore_file_name`: (optional) If set to `True`, the path to be create will be
@@ -366,6 +368,55 @@ def ensure_path(path, ignore_file_name=True):
     if os.path.isdir(path):
         return
     os.makedirs(path)
+
+def find_file_in_dirs(filename, dirs, filter_func=None):
+    """
+    Find file in specified directories. Return a list of full path of found
+    files
+    Arguments:
+    - `filename`: the filename to find
+    - `dirs`: a list of directory paths
+    - `filter_func`: a filter function that takes the full path of a file
+                     and returns a boolean value. If `False` is returned by the
+                     function, the path will not be in the returned list.
+                     Default value is None
+    """
+    ret = []
+    for dir in dirs:
+        path = os.path.join(dir, filename)
+        if os.path.isfile(path) and \
+                (not callable(filter_func) or filter_func(path)):
+            ret.append(path)
+    return ret
+
+def cmd_exists(cmd):
+    """
+    Check if a command exists.
+    >>> cmd_exists('ls')
+    True
+    >>> cmd_exists('cmd_not_likely_exists')
+    False
+    """
+    cmdfiles = find_file_in_dirs(cmd,
+                                 os.environ['PATH'].split(':'),
+                                 is_exec_file)
+    return len(cmdfiles) > 0
+
+def is_exec_file(filepath):
+    """
+    Check if a file is executable by current user
+    """
+    try:
+        st = os.stat(filepath)
+    except Exception, e:
+        return False
+    uid = os.getuid()
+    gid = os.getgroups()
+    if st.st_uid == uid:
+        return (st.st_mode & stat.S_IXUSR) != 0
+    if st.st_gid in gid:
+        return (st.st_mode & stat.S_IXGRP) != 0
+    return (st.st_mode & stat.S_IXOTH) != 0
 
 if __name__ == '__main__':
     import doctest

@@ -26,7 +26,6 @@ import dbus.service
 import consts
 from dbus.mainloop.glib import DBusGMainLoop
 import dbus.mainloop.glib
-from errors import Error
 
 __all__ = (
     'AlreadyRunningException',
@@ -36,7 +35,7 @@ __all__ = (
 gobject.threads_init()
 dbus.mainloop.glib.threads_init()
 
-class AlreadyRunningException(Error):
+class AlreadyRunningException(Exception):
     """ Raised when a process with given bus name exists.
     """
     pass
@@ -112,6 +111,10 @@ class App(object):
     def connection(self):
         """The DBus connection of the app"""
         return self._conn
+
+    @property
+    def loop(self):
+        return self._loop
 
     def run(self):
         """
