@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+ * along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <string.h>
 #include <glib.h>
@@ -180,7 +180,7 @@ _search(const OlMusicInfo *info,
   char *encoded_title = _encode_request_field (ol_music_info_get_title (info));
   char *encoded_artist = _encode_request_field (ol_music_info_get_artist (info));
   g_string_append_printf (surl,
-                          "Artist=%s&Title=%s&Flags=0",
+                          "Artist=%s&Title=%s&Flags=2",
                           encoded_artist, encoded_title);
   g_free (encoded_title);
   g_free (encoded_artist);
