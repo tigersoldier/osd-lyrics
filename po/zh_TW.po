@@ -1,40 +1,39 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Traditional Chinese Messages for osd-lyrics.
+# Copyright (C) 2010 Free Software Foundation, Inc.
+# This file is distributed under the same license as the osd-lyrics package.
+# Wei-Lun Chao <bluebat@member.fsf.org>, 2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: osd-lyrics 0.1\n"
+"Project-Id-Version: osdlyrics 0.4.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-04 21:07+0800\n"
-"PO-Revision-Date: 2011-07-12 06:26+0000\n"
-"Last-Translator: Tiger Soldier <Unknown>\n"
-"Language-Team: Simplified Chinese <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2013-09-27 14:26+0800\n"
+"Last-Translator: Wei-Lun Chao <bluebat@member.fsf.org>\n"
+"Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-04 12:16+0000\n"
-"X-Generator: Launchpad (build 15353)\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../src/ol_menu.c:119
 msgid "LRC files"
-msgstr ""
+msgstr "LRC 檔案"
 
 #: ../src/ol_menu.c:125
 msgid "Choose LRC file to assign"
-msgstr ""
+msgstr "選擇要指派的 LRC 檔案"
 
 #: ../src/ol_main.c:61
 msgid ""
 "The level of debug messages to log, can be 'none', 'error', 'debug', or "
 "'info'"
-msgstr ""
+msgstr "要記錄的除錯資訊層級，可以為'none'、'error'、'debug' 或 'info'"
 
 #: ../src/ol_main.c:63
 msgid "Show version information"
-msgstr ""
+msgstr "顯示版本資訊"
 
 #: ../src/ol_main.c:153
 msgid "Download failed"
@@ -43,37 +42,37 @@ msgstr "下載失敗"
 #: ../src/ol_main.c:168
 #, c-format
 msgid "Searching lyrics from %s"
-msgstr ""
+msgstr "從 %s 搜尋歌詞"
 
 #: ../src/ol_main.c:191
 msgid "Cannot create the lyric directory"
-msgstr "無法建立歌詞資料夾"
+msgstr "無法建立歌詞目錄"
 
 #: ../src/ol_main.c:207
 msgid "Lyrics not found"
-msgstr "找不到符合的歌詞"
+msgstr "找不到歌詞"
 
 #: ../src/ol_main.c:561
 #, c-format
 msgid "Player is not running. OSD Lyrics exits now.\n"
-msgstr ""
+msgstr "播放器並未執行。OSD Lyrics 正自動離開。\n"
 
 #: ../src/ol_main.c:710
 msgid ""
 "debug level should be one of ``none'', ``error'', ``debug'', or ``info''"
-msgstr ""
+msgstr "除錯等級應該是 ``none'', ``error'', ``debug'', 或 ``info'' 之一"
 
 #: ../src/ol_main.c:733
 msgid "Another OSD Lyrics is running, exit."
-msgstr ""
+msgstr "另一個 OSD Lyrics 正在執行，程式自動離開。"
 
 #: ../src/ol_trayicon.c:36 ../src/ol_notify.c:26
 msgid "Unknown title"
-msgstr ""
+msgstr "不明歌名"
 
 #: ../src/ol_trayicon.c:37 ../src/ol_notify.c:27
 msgid "Unknown artist"
-msgstr ""
+msgstr "不明歌手"
 
 #: ../src/ol_trayicon.c:71
 msgid "OSD Lyrics"
@@ -81,7 +80,7 @@ msgstr "OSD Lyrics"
 
 #: ../src/ol_option.c:1631
 msgid "Choose on startup"
-msgstr ""
+msgstr "啟動時選擇"
 
 #. gtk_list_store_append (liststore, &iter);
 #. gtk_list_store_set (liststore, &iter,
@@ -94,15 +93,15 @@ msgstr "自訂"
 
 #: ../src/ol_option.c:1713
 msgid "Select a folder"
-msgstr "選擇資料夾"
+msgstr "選取資料夾"
 
 #: ../src/ol_lrc_fetch_ttplayer.c:276
 msgid "ttPlayer"
-msgstr ""
+msgstr "ttPlayer"
 
 #: ../src/ol_lrc_fetch_xiami.c:242
 msgid "Xiami"
-msgstr ""
+msgstr "Xiami"
 
 #: ../src/ol_lrc_candidate_list.c:43
 msgid "Title"
@@ -115,32 +114,32 @@ msgstr "歌手"
 #: ../src/ol_search_dialog.c:31
 #, c-format
 msgid "Searching lyrics from %s..."
-msgstr ""
+msgstr "正從 %s 搜尋歌詞…"
 
 #: ../src/ol_search_dialog.c:32
 msgid "Ooops, no lyric found :("
-msgstr ""
+msgstr "哎呀，找不到歌詞 :("
 
 #: ../src/ol_search_dialog.c:33
 #, c-format
 msgid "%d lyrics found :)"
-msgstr ""
+msgstr "找到 %d 首歌詞 :)"
 
 #: ../src/ol_player_chooser.c:249
 msgid "Supported players"
-msgstr ""
+msgstr "支援的播放器"
 
 #: ../src/ol_player_chooser.c:250
 msgid "All players"
-msgstr ""
+msgstr "所有播放器"
 
 #: ../src/ol_player_chooser.c:254 ../src/ol_player_chooser.c:326
 msgid "Choose a player to launch"
-msgstr ""
+msgstr "選擇要啟動的播放器"
 
 #: ../src/ol_player_chooser.c:270
 msgid "Use command:"
-msgstr ""
+msgstr "使用命令："
 
 #: ../src/ol_player_chooser.c:275
 msgid "Launch"
@@ -148,48 +147,48 @@ msgstr "啟動"
 
 #: ../src/ol_player_chooser.c:288
 msgid "Remember my choice"
-msgstr ""
+msgstr "記住我的選擇"
 
 #: ../src/ol_player_chooser.c:440
 #, c-format
 msgid "Failed to launch %s"
-msgstr ""
+msgstr "啟動 %s 時失敗"
 
 #: ../src/ol_player_chooser.c:450
 #, c-format
 msgid "Launching %s"
-msgstr ""
+msgstr "啟動 %s"
 
 #: ../src/ol_player_chooser.c:452
 #, c-format
 msgid ""
 "OSD Lyrics is trying to launch and connect to %s. Please wait for a second."
-msgstr ""
+msgstr "OSD Lyrics 正在嘗試啟動和連線到 %s。請稍待幾秒。"
 
 #: ../src/ol_player_chooser.c:563
 msgid "There is no supported player running"
-msgstr ""
+msgstr "沒有偵測到任何支援的播放器"
 
 #: ../src/ol_player_chooser.c:564
 msgid "Please choose a player below to launch"
-msgstr ""
+msgstr "請選擇啟動下列播放器之一"
 
 #: ../src/ol_player_chooser.c:568
 #, c-format
 msgid "Fail to launch %s"
-msgstr ""
+msgstr "啟動 %s 時失敗"
 
 #: ../src/ol_player_chooser.c:570
 #, c-format
 msgid ""
 "%s is not supported by OSD Lyrics, or not running. Please launch another "
 "player."
-msgstr ""
+msgstr "%s 未受 OSD Lyrics 所支援，或不在執行中。請啟動另外的播放器"
 
 #: ../src/ol_player_chooser.c:580
 #, c-format
 msgid "Something wrong with %s"
-msgstr ""
+msgstr "%s 有些問題"
 
 #: ../src/ol_player_chooser.c:582
 #, c-format
@@ -197,30 +196,34 @@ msgid ""
 "It is possible that %s has crashed, or it refuse to connect with OSD Lyrics. "
 "Please try launching it again, or launch another player instead."
 msgstr ""
+"有可能 %s 已經當掉，或者它拒絕與 OSD Lyrics 連接。"
+"請嘗試重新啟動它，或代之以啟動另一個播放器。"
 
 #: ../src/ol_app_info.c:179 ../src/ol_app_info.c:189
 msgid "Unnamed"
-msgstr ""
+msgstr "未命名"
 
 #: ../src/ol_scroll_window.c:52
 msgid ""
 "Drag to move the window\n"
 "Hold CTRL to seek"
 msgstr ""
+"拖曳以移動視窗\n"
+"按住 CTRL 以尋指"
 
 #: ../src/ol_scroll_window.c:53
 msgid "Drag to move the window"
-msgstr ""
+msgstr "拖曳以移動視窗"
 
 #: ../data/dialogs.glade.h:1
 msgid "Copyright 2009-2011 The OSD Lyrics project."
-msgstr ""
+msgstr "著作權 2009-2011 OSD Lyrics 計畫。"
 
 #: ../data/dialogs.glade.h:2
 msgid ""
 "An OSD lyric show compatible with various media players and supports lyrics "
 "downloading.\n"
-msgstr "支援多種播放器和自動歌詞下載的桌面歌詞秀\n"
+msgstr "支援多種播放器和自動歌詞下載的桌面歌詞顯示\n"
 
 #: ../data/dialogs.glade.h:4
 msgid "http://code.google.com/p/osd-lyrics/"
@@ -232,118 +235,116 @@ msgstr "GPL v3"
 
 #: ../data/dialogs.glade.h:6
 msgid "translator-credits"
-msgstr ""
-"Launchpad Contributions:\n"
-"  Tiger Soldier https://launchpad.net/~tigersoldi"
+msgstr "趙惟倫 <bluebat@member.fsf.org>"
 
 #: ../data/dialogs.glade.h:8
 msgid "HTTP"
-msgstr ""
+msgstr "HTTP"
 
 #: ../data/dialogs.glade.h:9
 msgid "SOCKS4"
-msgstr ""
+msgstr "SOCKS4"
 
 #: ../data/dialogs.glade.h:10
 msgid "SOCKS5"
-msgstr ""
+msgstr "SOCKS5"
 
 #: ../data/dialogs.glade.h:11
 msgid "Always"
-msgstr ""
+msgstr "一律"
 
 #: ../data/dialogs.glade.h:12
 msgid "By lines"
-msgstr ""
+msgstr "依列數"
 
 #: ../data/dialogs.glade.h:13
 msgid "Preferences"
-msgstr "個人偏好"
+msgstr "偏好設定"
 
 #: ../data/dialogs.glade.h:14
 msgid "Display mode:"
-msgstr ""
+msgstr "顯示模式："
 
 #: ../data/dialogs.glade.h:15
 msgid "OS_D"
-msgstr ""
+msgstr "桌面顯示(_D)"
 
 #: ../data/dialogs.glade.h:16
 msgid "Sc_rolling"
-msgstr ""
+msgstr "捲動(_R)"
 
 #: ../data/dialogs.glade.h:17
 msgid "Auto la_unch player:"
-msgstr ""
+msgstr "自動啟動播放器(_U)："
 
 #: ../data/dialogs.glade.h:18
 msgid "Pla_yer command:"
-msgstr ""
+msgstr "播放器命令(_Y)："
 
 #: ../data/dialogs.glade.h:19
 msgid "Show _bubble notification"
-msgstr ""
+msgstr "顯示泡泡通知(_B)"
 
 #: ../data/dialogs.glade.h:20
 msgid "_General"
-msgstr "常規(_G)"
+msgstr "一般(_G)"
 
 #: ../data/dialogs.glade.h:21
 msgid "_Font:"
-msgstr "字型(_F):"
+msgstr "字型(_F)："
 
 #. The outline width of text in OSD window
 #: ../data/dialogs.glade.h:23
 msgid "Out_line:"
-msgstr ""
+msgstr "輪廓(_L)："
 
 #: ../data/dialogs.glade.h:24
 msgid "_Blur:"
-msgstr ""
+msgstr "模糊(_B)："
 
 #: ../data/dialogs.glade.h:25
 msgid "Weak"
-msgstr ""
+msgstr "減弱"
 
 #: ../data/dialogs.glade.h:26
 msgid "Strong"
-msgstr ""
+msgstr "強調"
 
 #: ../data/dialogs.glade.h:27
 msgid "Lyric lines:"
-msgstr "歌詞行數:"
+msgstr "歌詞列數："
 
 #: ../data/dialogs.glade.h:28
 msgid "Si_ngle line"
-msgstr "單行(_N)"
+msgstr "單列(_N)"
 
 #: ../data/dialogs.glade.h:29
 msgid "_Double lines"
-msgstr "雙行(_D)"
+msgstr "雙列(_D)"
 
 #: ../data/dialogs.glade.h:30
 msgid "Mode:"
-msgstr ""
+msgstr "模式："
 
 #: ../data/dialogs.glade.h:31
 msgid "Doc_k"
-msgstr ""
+msgstr "停駐(_K)"
 
 #: ../data/dialogs.glade.h:32
 msgid "Nor_mal"
-msgstr ""
+msgstr "正常(_M)"
 
 #: ../data/dialogs.glade.h:33
 msgid "T_ranslucent on mouse over"
-msgstr "滑鼠移到歌詞上時半透通(_R)"
+msgstr "滑鼠移到歌詞上時半透明(_R)"
 
 #: ../data/dialogs.glade.h:34
 msgid "F_irst line:"
-msgstr "首行(_I):"
+msgstr "首列(_I)："
 
 #: ../data/dialogs.glade.h:35
 msgid "_Second line:"
-msgstr "次行(_S)"
+msgstr "次列(_S)："
 
 #: ../data/dialogs.glade.h:36
 msgid "<b>Lyric _Alignment</b>"
@@ -351,15 +352,15 @@ msgstr "<b>歌詞對齊(_A)</b>"
 
 #: ../data/dialogs.glade.h:37
 msgid "Color _Theme:"
-msgstr "配色方案(_T):"
+msgstr "配色主題(_T)："
 
 #: ../data/dialogs.glade.h:38
 msgid "C_ustomize colors"
-msgstr "自行配色(_U)"
+msgstr "自訂配色(_U)"
 
 #: ../data/dialogs.glade.h:39
 msgid "Acti_ve lyrics:"
-msgstr "已唱歌詞(_V):"
+msgstr "現用歌詞(_V)："
 
 #: ../data/dialogs.glade.h:40
 msgid "top"
@@ -375,7 +376,7 @@ msgstr "下"
 
 #: ../data/dialogs.glade.h:43
 msgid "Inactiv_e lyrics:"
-msgstr "未唱歌詞(_E):"
+msgstr "非現用歌詞(_E)："
 
 #: ../data/dialogs.glade.h:44
 msgid "<b>Lyric _Color</b>"
@@ -383,31 +384,31 @@ msgstr "<b>歌詞配色(_C)</b>"
 
 #: ../data/dialogs.glade.h:45
 msgid "_OSD"
-msgstr "桌面歌詞(_O)"
+msgstr "桌面顯示(_O)"
 
 #: ../data/dialogs.glade.h:46
 msgid "Ac_tive color:"
-msgstr ""
+msgstr "現用顏色(_T)："
 
 #: ../data/dialogs.glade.h:47
 msgid "_Inactive color:"
-msgstr ""
+msgstr "非現用顏色(_I)："
 
 #: ../data/dialogs.glade.h:48
 msgid "Scroll _mode:"
-msgstr ""
+msgstr "捲動模式(_M)："
 
 #: ../data/dialogs.glade.h:49
 msgid "<b>Lyrics</b>"
-msgstr ""
+msgstr "<b>歌詞</b>"
 
 #: ../data/dialogs.glade.h:50
 msgid "Colo_r:"
-msgstr "顏色(_R):"
+msgstr "顏色(_R)："
 
 #: ../data/dialogs.glade.h:51
 msgid "O_pacity:"
-msgstr ""
+msgstr "濁度(_P)："
 
 #: ../data/dialogs.glade.h:52
 msgid "Transparent"
@@ -415,7 +416,7 @@ msgstr "透明"
 
 #: ../data/dialogs.glade.h:53
 msgid "Opaque"
-msgstr "不透明"
+msgstr "混濁"
 
 #: ../data/dialogs.glade.h:54
 msgid "<b>Background</b>"
@@ -423,12 +424,12 @@ msgstr "<b>背景</b>"
 
 #: ../data/dialogs.glade.h:55
 msgid "_Scrolling"
-msgstr ""
+msgstr "捲動(_S)"
 
 #: ../data/dialogs.glade.h:57
 #, no-c-format
 msgid "A single \"%\" means the directory where the playing music is."
-msgstr "“%”表示目前播放歌曲所在目錄。"
+msgstr "「%」表示目前播放歌曲所在目錄。"
 
 #: ../data/dialogs.glade.h:58
 msgid "<b>_Path</b>"
@@ -446,8 +447,8 @@ msgstr ""
 "  %t - 歌名\n"
 "  %p - 歌手\n"
 "  %a - 專輯\n"
-"  %n - 曲目編號\n"
-"  %f - 檔名"
+"  %n - 歌曲編號\n"
+"  %f - 檔案名稱 (不含延伸檔名)"
 
 #: ../data/dialogs.glade.h:65
 msgid "<b>_Filename</b>"
@@ -459,12 +460,12 @@ msgstr "歌詞位置(_L)"
 
 #: ../data/dialogs.glade.h:67
 msgid "Lyric _sites:"
-msgstr ""
+msgstr "歌詞站臺(_S)："
 
 #. In preference/download, automately download the most matched lyric
 #: ../data/dialogs.glade.h:69
 msgid "Do_wnload the first candidate"
-msgstr ""
+msgstr "下載第一首候選歌詞(_W)"
 
 #: ../data/dialogs.glade.h:70
 msgid "<b>Download</b>"
@@ -472,39 +473,39 @@ msgstr "<b>下載</b>"
 
 #: ../data/dialogs.glade.h:71
 msgid "No _proxy"
-msgstr ""
+msgstr "沒有代理伺服器(_P)"
 
 #: ../data/dialogs.glade.h:72
 msgid "Au_to-detect system settings"
-msgstr ""
+msgstr "自動偵測系統設定值(_T)"
 
 #: ../data/dialogs.glade.h:73
 msgid "Use _manual settings"
-msgstr ""
+msgstr "使用手動設定值(_M)"
 
 #: ../data/dialogs.glade.h:74
 msgid "_Host:"
-msgstr ""
+msgstr "主機(_H)："
 
 #: ../data/dialogs.glade.h:75
 msgid "Po_rt:"
-msgstr "連接埠 _r :"
+msgstr "通訊埠(_R)："
 
 #: ../data/dialogs.glade.h:76
 msgid "_Type:"
-msgstr ""
+msgstr "型態(_T)："
 
 #: ../data/dialogs.glade.h:77
 msgid "_Username:"
-msgstr ""
+msgstr "使用者名稱(_U)："
 
 #: ../data/dialogs.glade.h:78
 msgid "Passwo_rd:"
-msgstr ""
+msgstr "密碼(_R)："
 
 #: ../data/dialogs.glade.h:79
 msgid "Show passwor_d"
-msgstr ""
+msgstr "顯示密碼(_D)"
 
 #: ../data/dialogs.glade.h:80
 msgid "<b>Proxy</b>"
@@ -512,23 +513,23 @@ msgstr "<b>代理伺服器</b>"
 
 #: ../data/dialogs.glade.h:81
 msgid "_Network"
-msgstr ""
+msgstr "網路(_N)"
 
 #: ../data/dialogs.glade.h:82
 msgid "OSD _mode"
-msgstr ""
+msgstr "桌面顯示模式(_M)"
 
 #: ../data/dialogs.glade.h:83
 msgid "Scrolling _mode"
-msgstr ""
+msgstr "捲動模式(_M)"
 
 #: ../data/dialogs.glade.h:84
 msgid "If locked, you can't move OSD window by mouse"
-msgstr "鎖定后將無法用滑鼠移動桌面歌詞"
+msgstr "鎖定後將無法使用滑鼠移動桌面歌詞"
 
 #: ../data/dialogs.glade.h:85
 msgid "_Lock Position"
-msgstr ""
+msgstr "鎖定位置(_L)"
 
 #: ../data/dialogs.glade.h:86
 msgid "Hide the OSD Window"
@@ -540,57 +541,57 @@ msgstr "隱藏(_H)"
 
 #: ../data/dialogs.glade.h:88
 msgid "_Search lyric..."
-msgstr ""
+msgstr "搜尋歌詞(_S)…"
 
 #: ../data/dialogs.glade.h:89
 msgid "Search lyrics from Internet"
-msgstr ""
+msgstr "從網路搜尋歌詞"
 
 #: ../data/dialogs.glade.h:90
 msgid "_Assign lyric..."
-msgstr ""
+msgstr "關聯歌詞(_A)…"
 
 #: ../data/dialogs.glade.h:91
 msgid "Assign local LRC file to current music"
-msgstr ""
+msgstr "將本機歌詞檔關聯到目前音樂"
 
 #: ../data/dialogs.glade.h:92
 msgid "_No lyric"
-msgstr ""
+msgstr "沒有歌詞(_N)"
 
 #: ../data/dialogs.glade.h:93
 msgid "Don't assign lyric to this music"
-msgstr ""
+msgstr "不要給這首歌關聯任何歌詞"
 
 #: ../data/dialogs.glade.h:94
 msgid "Lyric delay -"
-msgstr ""
+msgstr "提前歌詞"
 
 #: ../data/dialogs.glade.h:95
 msgid "Adjust lyrics delay by -0.2 s"
-msgstr ""
+msgstr "將歌詞提前 0.2 秒"
 
 #: ../data/dialogs.glade.h:96
 msgid "Lyric delay +"
-msgstr ""
+msgstr "延後歌詞"
 
 #: ../data/dialogs.glade.h:97
 msgid "Adjust lyric delay by +0.2 s"
-msgstr ""
+msgstr "將歌詞延後 0.2 秒"
 
 #: ../data/dialogs.glade.h:98
 msgid "Choose LRC file to download"
-msgstr "選取要下載的歌詞"
+msgstr "選擇要下載的歌詞檔"
 
 #: ../data/dialogs.glade.h:99
 msgid "D_on't ask me again"
-msgstr ""
+msgstr "以後不再提示我(_O)"
 
 #: ../data/dialogs.glade.h:100
 msgid ""
 "If there are more than one lrc files matched with the search condition, "
 "download the first one without prompting the user."
-msgstr ""
+msgstr "如果有多個歌詞檔案符合搜尋條件，直接下載第一個而不再提示。"
 
 #: ../data/dialogs.glade.h:101
 msgid "_Download"
@@ -598,7 +599,7 @@ msgstr "下載(_D)"
 
 #: ../data/dialogs.glade.h:102
 msgid "The title of the current track"
-msgstr "目前歌曲名"
+msgstr "目前歌曲名稱"
 
 #: ../data/dialogs.glade.h:104
 #, no-c-format
@@ -616,7 +617,7 @@ msgstr "%p - 歌手"
 
 #: ../data/dialogs.glade.h:108
 msgid "The title of album of the current track"
-msgstr "目前歌曲的專輯名"
+msgstr "目前歌曲的專輯名稱"
 
 #: ../data/dialogs.glade.h:110
 #, no-c-format
@@ -639,28 +640,26 @@ msgstr "目前歌曲的檔名"
 #: ../data/dialogs.glade.h:116
 #, no-c-format
 msgid "%f - Filename"
-msgstr "%f - 音樂檔名"
+msgstr "%f - 檔名"
 
 #: ../data/dialogs.glade.h:117
 msgid "Search lyrics"
-msgstr ""
+msgstr "搜尋歌詞"
 
 #: ../data/dialogs.glade.h:118
 msgid "_Title:"
-msgstr ""
+msgstr "歌名(_T)："
 
 #: ../data/dialogs.glade.h:119
 msgid "_Artist:"
-msgstr ""
+msgstr "歌手(_A)："
 
 #: ../data/dialogs.glade.h:120
 msgid "_Search"
-msgstr ""
+msgstr "搜尋(_S)"
 
 #. From witch web site to search and download lyrics
 #: ../data/dialogs.glade.h:122
 msgid "_From:"
-msgstr ""
+msgstr "下載自(_F)："
 
-#~ msgid "No supported player is running, exit.\n"
-#~ msgstr "沒有偵測到支援的播放器，程式自動結束。\n"
