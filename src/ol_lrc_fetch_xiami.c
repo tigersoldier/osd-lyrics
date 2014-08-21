@@ -31,8 +31,8 @@
 
 static const char *PREFIX_SEARCH_URL = "http://www.xiami.com/search?key=";
 static const char *PREFIX_LRC_URL = "http://www.xiami.com/song/playlist/id/";
-static const char *TITLE_PATTERN = "href=\"/song/";
-static const char *ARTIST_PATTERN = "href=\"/artist/";
+static const char *TITLE_PATTERN = "href=\"http://www.xiami.com/song/";
+static const char *ARTIST_PATTERN = "href=\"http://www.xiami.com/artist/";
 /* static const char *ALBUM_PATTERN = "href=\"/album/"; */
 /* #define PREFIX_LRC_XIAMI "http://mp3.xiami.com/" */
 /* #define LRC_CLUE_XIAMI "downlrc" */
